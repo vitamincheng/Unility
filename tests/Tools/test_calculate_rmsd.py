@@ -6,11 +6,10 @@ from Tools.calculate_rmsd import *
 
 
 def test_calculate_rmsd():
-
+    # for crest_conformers.xyz
     xyzfile = ClassGeometryXYZs(
         Path("tests/data/crest_conformers.xyz"))
     xyzfile.method_read_xyz()
-
     x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
                "ignore_Hydrogen": False, "debug": False}
     idx_atom1 = main_xyz(xyzfile, 1, 2, args=argparse.Namespace(**x))
@@ -22,3 +21,13 @@ def test_calculate_rmsd():
     idx_atom1 = main_xyz(xyzfile, 1, 2, args=argparse.Namespace(**x))
     assert idx_atom1 == ({1: 0.0022804570676915915, 2: 0.018027790596346783, 3: 0.01709254227652934, 6: 0.008160878536050848, 7: 0.003727083053746029, 8: 0.006249341578559444, 13: 0.022634980266270806, 15: 0.000775549327508132, 16: 0.033430439706511494, 19: 0.005462799228824608, 21: 0.009959506233047493, 23: 0.020055830263314752,
                          24: 0.02272775019255817, 27: 0.013301639791932156, 30: 0.010415641436928958, 33: 0.032231106671973125, 35: 0.09202166713655999, 37: 0.08723548898391156, 40: 0.04225938056449564, 44: 0.04705331272802704, 45: 0.01768911844707725, 50: 0.04266095622718927, 51: 0.15171346459903834, 52: 2.3962159993169423}, 0.35959367835047723)
+
+    # for isomers.xyz
+    xyzfile = ClassGeometryXYZs(
+        Path("tests/data/isomers.xyz"))
+    xyzfile.method_read_xyz()
+    x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
+               "ignore_Hydrogen": False, "debug": False}
+    idx_atom1 = main_xyz(xyzfile, 1, 2, args=argparse.Namespace(**x))
+    assert idx_atom1 == ({1: 0.052818544187445145, 2: 0.40033826608865924,
+                         3: 0.33327081262256864, 4: 3.196622094805031, 4: 3.196622094805031, 5: 3.256577426790373, 6: 0.03280748650865063, 7: 3.084858188207826, 8: 3.051998147109173, 9: 0.0348023134610616, 10: 0.01600882310682511, 11: 0.1449728494405879, 12: 0.10729067552301011, 13: 0.10035522676168458, 14: 0.05660072042247967, 15: 0.7553212730787251, 16: 0.6464507922289979, 17: 0.5847626056423644}, 0.9657626138106813)
