@@ -1,0 +1,9 @@
+!r2SCAN-3c opt
+
+%geom Scan
+    B 0 1 = 1.4, 1.7, 5
+    end 
+end
+    #D 1 6 7 10 = 0, 360, 6  dihedral angle
+
+* xyzfile 0 1 traj.xyz

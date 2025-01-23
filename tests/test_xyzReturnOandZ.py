@@ -1,0 +1,33 @@
+import string
+import pytest
+from pathlib import Path
+import argparse
+import xyzReturnOandZ
+
+
+def test_xyzReturnOandZ():
+    x: dict = {"file": "tests/data/crest_conformers.xyz",
+                       "atom": [30, 45, 47], "print": False, "replace": False, "out": "tests/compare/output.xyz"}
+    args = argparse.Namespace(**x)
+    xyzReturnOandZ.main(args)
+
+    import filecmp
+    compare = "tests/compare/xyzReturnOandZ.xyz"
+    dcmp = filecmp.cmp(args.out, compare)
+    assert (dcmp == True)
+    import os
+    os.remove(args.out)
+
+
+def test_xyzReturnOandZ_auto():
+    x: dict = {"file": "tests/data/crest_conformers.xyz", "auto": True,
+                       "atom": None, "print": False, "replace": False, "out": "tests/compare/output1.xyz"}
+    args = argparse.Namespace(**x)
+    xyzReturnOandZ.main(args)
+
+    import filecmp
+    compare = "tests/compare/xyzReturnOandZ-auto.xyz"
+    dcmp = filecmp.cmp(args.out, compare)
+    assert (dcmp == True)
+    import os
+    os.remove(args.out)
