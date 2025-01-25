@@ -29,7 +29,7 @@ if __name__ == "__main__":
         ################################################
         if nCH == 1:
 
-            from Tools.anmrfile import *
+            from censo_ext.Tools.anmrfile import *
             anmr = ClassAnmr(Path("../tests/04.Hydrogen"))
             anmr.method_read_anmrrc()
             anmr.method_print_anmrrc()
@@ -56,7 +56,7 @@ if __name__ == "__main__":
             # main_module_xyz(["crest_conformers.xyz","crest_conformers2.xyz","-nh","-q"])
 
             # Example for main_xyz
-            from Tools.calculate_rmsd import *
+            from censo_ext.Tools.calculate_rmsd import *
 
             xyzfile = ClassGeometryXYZs(
                 Path("../tests/crest_conformers.xyz"))
@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
         if nCH == 3:
 
-            from Tools.ml4nmr import *
+            from censo_ext.Tools.ml4nmr import *
 
             mol, neighbors = read_mol_neighbors(
                 Path("../tests/crest_conformers.xyz"))
@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
         if nCH == 4:
 
-            from Tools.Parameter import ELEMENT_NAMES, ELEMENT_WEIGHTS, NAMES_ELEMENT
+            from censo_ext.Tools.Parameter import ELEMENT_NAMES, ELEMENT_WEIGHTS, NAMES_ELEMENT
 
             ic(ELEMENT_NAMES)
             ic(ELEMENT_WEIGHTS)
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
         if nCH == 5:
 
-            from Tools.qm import *
+            from censo_ext.Tools.qm import *
             x = {"out": "output.dat", "start": -
                  0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False}
             v = [964, 2775.76, 2768.20, 928]
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
         if nCH == 6:
 
-            from Tools.spectra import *
+            from censo_ext.Tools.spectra import *
             a: np.ndarray = np.array(
                 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 22, 39, 78, 12, 4, 4, 9, -10, -12])
             ic(numpy_threshold_10(a))
@@ -151,8 +151,8 @@ if __name__ == "__main__":
 
         if nCH == 7:
 
-            from Tools.symmetry import *
-            from Tools.xyzfile import ClassGeometryXYZs
+            from censo_ext.Tools.symmetry import *
+            from censo_ext.Tools.xyzfile import ClassGeometryXYZs
             xyz = ClassGeometryXYZs(Path("../tests/crest_conformers.xyz"))
             xyz.method_read_xyz()
             for idx in range(len(xyz)):
@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
         if nCH == 8:
 
-            from Tools.topo import *
+            from censo_ext.Tools.topo import *
             print(" Bonding : ")
             x = {"file": "../tests/crest_conformers.xyz",
                  "bonding": 51, "print": True, "debug": False}
@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
         if nCH == 9:
             infile = Path("../tests/crest_conformers.xyz")
-            from Tools.utility import *
+            from censo_ext.Tools.utility import *
             ic(IsExist(infile))
             ic(IsExistReturnBool(infile))
             ic(ProgramIsExist("xtb"))
@@ -209,7 +209,7 @@ if __name__ == "__main__":
 
         if nCH == 10:
 
-            from Tools.xyzfile import *
+            from censo_ext.Tools.xyzfile import *
             infile = ClassGeometryXYZs()
             infile.set_filename(Path("../tests/crest_conformers.xyz"))
             infile.method_read_xyz()
