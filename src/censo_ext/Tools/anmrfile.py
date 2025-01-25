@@ -637,8 +637,7 @@ class ClassAnmr():
     def method_print_enso(self) -> None:
         print("ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi     ")
         for Enso in self.enso:
-            print(f'{int(Enso[0]):<1d}      {int(Enso[1]):<4d} {int(Enso[2]):<4d} {Enso[3]:>6.4f} {
-                  Enso[4]: > 11.7f} {Enso[5]: > 10.7f} {Enso[6]: > 10.7f} {Enso[7]:>4.3f}')
+            print(f'{int(Enso[0]):<1d}      {int(Enso[1]):<4d} {int(Enso[2]):<4d} {Enso[3]:>6.4f} {Enso[4]: > 11.7f} {Enso[5]: > 10.7f} {Enso[6]: > 10.7f} {Enso[7]:>4.3f}')  # nopep8
 
     def method_save_enso(self, fileName: Path = Path("anmr_enso.new")) -> None:
         DirFileName: Path = self.__Directory / Path(fileName)

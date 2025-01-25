@@ -157,8 +157,7 @@ def Factor_xyzCompare(args) -> None:
     for idx, x in enumerate(min_R):
 
         print(f"{(idx+1):>8d}", end="")
-        print(f"{(struct_crest.T[0][idx]):10.3f} {
-              (struct_crest.T[1][idx]):10.5f}", end="")
+        print(f"{(struct_crest.T[0][idx]):10.3f} {(struct_crest.T[1][idx]):10.5f}", end="")  # nopep8
 
         if x < thr:
             print(f"{x:>12.5f} {(idx_R[idx]):>8d}")
@@ -182,13 +181,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    if len(args.file) == 2:
-        Factor_xyzCompare(args)
-    else:
+    if args.file == None:
         print(" Your input file is wrong (two input file) !!!")
         print(" Exit to quit the program ")
         ic()
         os._exit(0)
+    elif len(args.file) == 2:
+        Factor_xyzCompare(args)
 
 
 if __name__ == "__main__":

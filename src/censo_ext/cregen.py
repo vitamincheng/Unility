@@ -122,7 +122,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     subprocess.call("mv -f crest_ensemble.xyz cluster.xyz", shell=True)
     print("  mv -f crest_ensemble.xyz cluster.xyz")
     subprocess.call(
-        "python3 xyzSerial.py -i cluster.xyz --new --print > tmp && mv -f tmp cluster.xyz", shell=True)
+        "xyzSerial.py -i cluster.xyz --new --print > tmp && mv -f tmp cluster.xyz", shell=True)
     if args.out != "cluster.xyz":
         subprocess.call("mv -f cluster.xyz " + args.out, shell=True)
         print("  mv -f cluster.xyz " + args.out)

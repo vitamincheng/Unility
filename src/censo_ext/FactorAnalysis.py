@@ -200,13 +200,11 @@ def FactorFilter(args) -> None:
 
         for idx in range(len(S_std_array)):
             if (S_std_array[idx] >= S_average_std*args.factor):
-                print(f"{idx_cal_CONF[idx]:>5d} {
-                      S_std_array[idx]: > 10.5f}  major factor    {(counter_major+1): > 5d}")
+                print(f"{idx_cal_CONF[idx]:>5d} {S_std_array[idx]: > 10.5f}  major factor    {(counter_major+1): > 5d}")  # nopep8
                 major_idx.append(idx_cal_CONF[idx])
                 counter_major += 1
             else:
-                print(f"{idx_cal_CONF[idx]:>5d} {
-                      S_std_array[idx]: > 10.5f}", " "*26, f"minor factor  {(counter_minor+1): > 5d}")
+                print(f"{idx_cal_CONF[idx]:>5d} {S_std_array[idx]: > 10.5f}", " "*26, f"minor factor  {(counter_minor+1): > 5d}")  # nopep8
                 minor_idx.append(idx_cal_CONF[idx])
                 idx1_cal.remove(idx_cal_CONF[idx])
                 counter_minor += 1

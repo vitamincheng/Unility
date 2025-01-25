@@ -130,8 +130,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(" Inputted geometry file: "+args.file)
     xtb_cmd += " " + single_traj_Name
     print(" Loading basic information from the inputted geometry file ...")
-    print(f" There are totally       {
-          str(len(infile))} geometries in the inputted geometry file\n")
+    print(f" There are totally       {str(len(infile))} geometries in the inputted geometry file\n")  # nopep8
     print(f" Setting method :  {args.method}")
     cmd_solvent = "vacuum"
     if args.alpb:
