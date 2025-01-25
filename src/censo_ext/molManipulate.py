@@ -3,7 +3,7 @@ import argparse
 import os
 from sys import argv as sysargv
 from icecream import ic
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import ClassGeometryXYZs
 
 
 descr = """

@@ -17,9 +17,9 @@ from typing import Any, List, Optional, Protocol, Set, Tuple, Union
 import numpy as np
 from numpy import ndarray
 from pathlib import Path
-import Tools.Parameter as Parameter
-import Tools.topo as topo
-from Tools.xyzfile import ClassGeometryXYZs
+import censo_ext.Tools.Parameter as Parameter
+import censo_ext.Tools.topo as topo
+from censo_ext.Tools.xyzfile import ClassGeometryXYZs
 
 METHOD_KABSCH = "kabsch"
 ROTATION_METHODS = [METHOD_KABSCH]
@@ -389,7 +389,7 @@ def main_xyz(xyzfile: ClassGeometryXYZs, idx_p: int, idx_q: int, args: argparse.
             xyzfile.method_save_xyz([idx_p])
             x: dict = {"file": xyz_tmp, "bond_broken": [
                 args.bond_broken[0], args.bond_broken[1]], "print": False, "debug": False}
-            from Tools.topo import topo
+            from censo_ext.Tools.topo import topo
             Sts_topo: topo = topo(x["file"])
             idx1_Res_Atoms: list[int] = Sts_topo.Broken_bond(
                 argparse.Namespace(**x))

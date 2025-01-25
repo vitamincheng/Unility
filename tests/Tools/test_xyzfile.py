@@ -2,7 +2,7 @@ import pathlib
 import argparse
 from pathlib import Path
 import pytest
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import ClassGeometryXYZs
 
 
 def test_method_read_xyz():

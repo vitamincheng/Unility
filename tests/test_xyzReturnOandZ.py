@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 import string
 import pytest
 from pathlib import Path
 import argparse
-import xyzReturnOandZ
+import censo_ext.xyzReturnOandZ as xyzReturnOandZ
 
 
 def test_xyzReturnOandZ():

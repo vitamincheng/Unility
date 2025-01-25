@@ -1,10 +1,9 @@
 import pathlib
 import argparse
 from pathlib import Path
-from tkinter import W
 import pytest
 from icecream import ic
-from Tools.ml4nmr import *
+from censo_ext.Tools.ml4nmr import *
 
 
 def test_m4nmr():

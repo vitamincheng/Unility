@@ -5,8 +5,7 @@
 
 from sys import argv as sysargv
 import argparse
-from turtle import circle
-import Tools.ml4nmr as ml4nmr
+import censo_ext.Tools.ml4nmr as ml4nmr
 from icecream import ic
 from graph import Graph
 from pathlib import Path

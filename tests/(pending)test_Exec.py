@@ -41,7 +41,7 @@ if __name__ == "__main__":
         # anmr.py
         ################################################
         if nCH == 1:
-            from src import anmr
+            import censo_ext.anmr as anmr
             import argparse
             x: dict = {"auto": True, "average": True, "dir": "../tests/04.Hydrogen",
                        "bobyqa": True, "mf": 500, "thr": None, "json": [-1], "thrab": 0.025,
@@ -73,7 +73,7 @@ if __name__ == "__main__":
         # cregen.py
         ################################################
         if nCH == 3:
-            from src import cregen
+            import censo_ext.cregen as cregen
             import argparse
             x: dict = {"file": "../tests/crest_conformers.xyz", "rthr": 0.175,
                        "bthr": 0.03, "ethr": 0.15, "ewin": 4, "out": "cluster.xyz"}
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         # datNormalized.py
         ################################################
         if nCH == 4:
-            from src import datNormalized
+            import censo_ext.datNormalized as datNormalized
             import argparse
 
             x = {"file": "../tests/04.Hydrogen/output.dat",

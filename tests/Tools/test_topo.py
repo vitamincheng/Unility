@@ -1,10 +1,9 @@
 import pathlib
 import argparse
 from pathlib import Path
-from turtle import circle
 from ase.neighborlist import NeighborList
 import pytest
-from Tools.topo import topo
+from censo_ext.Tools.topo import topo
 
 
 def test_method_get_cn():

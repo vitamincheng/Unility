@@ -5,7 +5,7 @@ import pytest
 
 
 def test_unility_float():
-    from src.Tools.utility import function_is_float
+    from censo_ext.Tools.utility import function_is_float
     assert function_is_float("123.5678") == True
     assert function_is_float(" 123.5678") == True
     assert function_is_float("123.5678 ") == True
@@ -13,14 +13,14 @@ def test_unility_float():
 
 
 def test_unility_int():
-    from src.Tools.utility import function_is_int
+    from censo_ext.Tools.utility import function_is_int
     assert function_is_int("123.5678") == False
     assert function_is_int(" 123 ") == True
     assert function_is_int(" test ") == False
 
 
 def test_unility_IsExistReturnBool():
-    from src.Tools.utility import IsExistReturnBool
+    from censo_ext.Tools.utility import IsExistReturnBool
     from pathlib import PosixPath
     assert IsExistReturnBool(Path("tests/Tools/test_unility.py")) == True
     assert IsExistReturnBool(
@@ -28,13 +28,13 @@ def test_unility_IsExistReturnBool():
 
 
 def test_unility_IsExistsDirFileName():
-    from src.Tools.utility import IsExistsDirFileName
+    from censo_ext.Tools.utility import IsExistsDirFileName
     assert IsExistsDirFileName(
         Path("tests/data/04.Hydrogen/.anmrrc")) == (Path("tests/data/04.Hydrogen"), ".anmrrc")
 
 
 def test_unility_ProgramIsExist():
-    from src.Tools.utility import ProgramIsExist
+    from censo_ext.Tools.utility import ProgramIsExist
     assert ProgramIsExist("xtb") == True
     assert ProgramIsExist("orca") == True
 

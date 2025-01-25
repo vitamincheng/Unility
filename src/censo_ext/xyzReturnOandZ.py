@@ -4,7 +4,7 @@ import os
 from sys import argv as sysargv
 from scipy.spatial.transform import Rotation as R
 import numpy as np
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import ClassGeometryXYZs
 from icecream import ic
 from pathlib import Path
 
@@ -101,7 +101,7 @@ def cml(descr) -> argparse.Namespace:
 
 
 def idx_3atom_opt(args) -> list[int]:
-    from Tools.factor import FactorAnalysis
+    from censo_ext.Tools.factor import FactorAnalysis
     import argparse
     args_x: dict = {"file": args.file,
                     "factor": 0.5, "debug": False, "opt": False}
@@ -112,7 +112,7 @@ def idx_3atom_opt(args) -> list[int]:
 
     idx1_Bonding: list = []
     for idx, x in enumerate(idx1_Low_Factor):
-        from Tools.topo import topo
+        from censo_ext.Tools.topo import topo
         args_x: dict = {"file": args.file, "bonding": x,
                         "print": False, "debug": False}
         Sts_topo: topo = topo(args_x["file"])

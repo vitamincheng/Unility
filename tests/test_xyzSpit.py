@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 import string
 import pytest
 from pathlib import Path
 import argparse
-import xyzSplit
+import censo_ext.xyzSplit as xyzSplit
 
 
 def test_xyzSplit():

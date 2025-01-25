@@ -82,10 +82,10 @@ class Anmrrc():
             fileName (str, optional): _description_. Defaults to "crest_conformers.xyz".
         """
 
-        from Tools.Parameter import ELEMENT_NAMES
+        from censo_ext.Tools.Parameter import ELEMENT_NAMES
         AcidAtomsNoShow: list = [ELEMENT_NAMES[i]
                                  for i in self.AcidAtomsNoShow]
-        from Tools.ml4nmr import read_mol_neighbors
+        from censo_ext.Tools.ml4nmr import read_mol_neighbors
         mol, neighbors = read_mol_neighbors(DirFileName)
         AcidAtomsNoShowRemove: list = []
         for idx, x in enumerate(mol):
@@ -150,7 +150,7 @@ class ClassAnmr():
 
     def method_read_anmrrc(self, fileName=Path(".anmrrc")) -> None:
         '''Read .anmrrc setting file from censo '''
-        from Tools.utility import IsExist
+        from censo_ext.Tools.utility import IsExist
         DirFileName: Path = self.__Directory / fileName
         IsExist(DirFileName)
         self.__AnmrParams: Anmrrc = Anmrrc(DirFileName)
@@ -413,7 +413,7 @@ class ClassAnmr():
         fileName_Av_orcaAtoms: Path = self.__Directory / \
             Path("Average/NMR/orcaA.out")
 
-        from Tools.utility import IsExistReturnBool
+        from censo_ext.Tools.utility import IsExistReturnBool
         if IsExistReturnBool(fileName_Av_orcaS) and IsExistReturnBool(fileName_Av_orcaAtoms) and IsExistReturnBool(fileName_Av_orcaJ):
             return True
         else:
@@ -421,7 +421,7 @@ class ClassAnmr():
 
     def method_load_average_orcaSJ(self, args) -> bool:
 
-        from Tools.utility import jsonKeys2int
+        from censo_ext.Tools.utility import jsonKeys2int
         if self.get_average_orcaSJ_Exist():
             if args.bobyqa:
                 filename_Av_orcaS: Path = self.__Directory / \
@@ -439,7 +439,7 @@ class ClassAnmr():
                 self.Average_orcaSJ.idxAtoms = json.loads(
                     f.read(), object_pairs_hook=jsonKeys2int)
 
-            from Tools.utility import Load_Dict_orcaS
+            from censo_ext.Tools.utility import Load_Dict_orcaS
             self.Average_orcaSJ.orcaSParams = Load_Dict_orcaS(
                 filename_Av_orcaS)
             self.Average_orcaSJ.orcaJCoups = np.loadtxt(filename_Av_orcaJ)
@@ -451,7 +451,7 @@ class ClassAnmr():
         raise NotImplementedError
         # fileName_Average_orcaS = str(
         #    self.__Directory / Path("Average/NMR/orcaS.out"))
-        # from Tools.utility import Save_Dict_orcaS
+        # from censo_ext.Tools.utility import Save_Dict_orcaS
         # Save_Dict_orcaS(fileName_Average_orcaS,
         #                self.Average_orcaSJ.orcaSParams)
 
@@ -463,7 +463,7 @@ class ClassAnmr():
 
         Path("Average/NMR").mkdir(parents=True, exist_ok=True)
 
-        from Tools.utility import Save_Dict_orcaS
+        from censo_ext.Tools.utility import Save_Dict_orcaS
         Save_Dict_orcaS(Av_orcaS, self.Average_orcaSJ.orcaSParams)
         import json
         with open(Av_orcaAtoms, 'w') as f:
@@ -477,7 +477,7 @@ class ClassAnmr():
         '''
         Read the file anmr.out from anmr program
         '''
-        from Tools.utility import IsExist
+        from censo_ext.Tools.utility import IsExist
         filename = self.__Directory / Path(filename)
         IsExist(filename)
 
@@ -586,7 +586,7 @@ class ClassAnmr():
                 print("")
 
     def method_read_nucinfo(self, filename: Path = Path("anmr_nucinfo")) -> None:
-        from Tools.utility import IsExist
+        from censo_ext.Tools.utility import IsExist
         filename = self.__Directory / Path(filename)
         IsExist(filename)
 
@@ -625,7 +625,7 @@ class ClassAnmr():
         ''' anmr_enso :  8 columns '''
         ''' ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi  '''
 
-        from Tools.utility import IsExist
+        from censo_ext.Tools.utility import IsExist
         fileName = self.__Directory / Path(fileName)
         IsExist(fileName)
         self.enso = np.genfromtxt(fileName, names=True)
@@ -661,7 +661,7 @@ class orcaSJ():
     def method_read_orcaJ(self, filename: Path = Path("orcaJ.out")) -> bool:
         ''' Read the file orcaJ.out in censo program '''
         print(" method_read_orcaJ", filename)
-        from Tools.utility import IsExist
+        from censo_ext.Tools.utility import IsExist
         IsExist(filename)
 
         start_idx, end_idx = 0, 0
@@ -733,7 +733,7 @@ class orcaSJ():
     def method_read_orcaS(self, filename: Path = Path("orcaS.out")) -> bool:
         ''' Read the file orcaS.out in censo program '''
         print(" method_read_orcaS", filename)
-        from Tools.utility import IsExist
+        from censo_ext.Tools.utility import IsExist
         IsExist(filename)
 
         start_idx, end_idx = 0, 0
@@ -848,7 +848,7 @@ class orcaSJ():
 class CensoDat():
 
     def __init__(self, fileName: Path = Path("anmr.dat")) -> None:
-        from Tools.utility import IsExist
+        from censo_ext.Tools.utility import IsExist
         IsExist(fileName)
         self.__fileName: Path = Path(fileName)
         self.__dat: np.ndarray = np.genfromtxt(fileName)

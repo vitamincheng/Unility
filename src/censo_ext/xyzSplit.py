@@ -2,7 +2,7 @@
 from scipy.spatial.transform import Rotation as R
 import argparse
 import numpy as np
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import ClassGeometryXYZs
 from icecream import ic
 from sys import argv as sysargv
 descr = """
@@ -105,7 +105,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         ic()
         os._exit(0)
 
-    from Tools.utility import DeleteFileBool
+    from censo_ext.Tools.utility import DeleteFileBool
     Delete_work: bool = False
     if not args.print:
         Delete_work = DeleteFileBool(args.out)
@@ -115,7 +115,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     x: dict = {"file": args.file, "bond_broken": [
         idx1_q, idx1_p], "print": False, "debug": False}
-    from Tools.topo import topo
+    from censo_ext.Tools.topo import topo
     Sts_topo: topo = topo(x["file"])
     idx0_list: list[int] = [
         x-1 for x in Sts_topo.Broken_bond_H(argparse.Namespace(**x))]

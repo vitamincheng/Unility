@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 import string
 import pytest
 from pathlib import Path
 import argparse
-import xyzSerial
+import censo_ext.xyzSerial as xyzSerial
 
 
 def test_xyzSerial_new():

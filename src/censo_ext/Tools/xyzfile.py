@@ -93,8 +93,8 @@ class ClassGeometry():
         return True
 
     def method_idx_Molecules_xyz(self, fileName: Path) -> list[int]:
-        from Tools.topo import topo
-        import Tools.ml4nmr as ml4nmr
+        from censo_ext.Tools.topo import topo
+        import censo_ext.Tools.ml4nmr as ml4nmr
         mol, neighbors = ml4nmr.read_mol_neighbors(fileName)
         # ic(neighbors)
         idx_molecule = set([*range(1, len(neighbors)+1, 1)])
@@ -146,7 +146,7 @@ class ClassGeometry():
     def method_update_masses(self) -> None:
         self.mass = np.array([])
         for idx, x in self.names.items():
-            from Tools.Parameter import masses
+            from censo_ext.Tools.Parameter import masses
             self.mass = np.append(self.mass, masses[x.lower()], axis=None)
 
     def method_rewrite_comment(self) -> None:
@@ -167,7 +167,7 @@ class ClassGeometry():
             self.method_rewrite_comment()
             return
 
-        from Tools.utility import function_is_float
+        from censo_ext.Tools.utility import function_is_float
         if function_is_float(comments[0]):
             if len(comments) >= 3:
                 if comments[1] == "#Cluster:" and function_is_float(comments[2]):
@@ -259,7 +259,7 @@ class ClassGeometryXYZs():
         self.method_save_xyz([idx1])
         list_idx: list = self.Sts[idx1 -
                                   1].method_idx_Molecules_xyz(fileName)
-        from Tools.utility import Delete_All_files
+        from censo_ext.Tools.utility import Delete_All_files
         Delete_All_files(fileName)
         for x in list_idx:
             import copy
@@ -294,7 +294,7 @@ class ClassGeometryXYZs():
 
     def method_read_xyz(self) -> None:
         '''reads xyz file and save the data into self geometry object'''
-        from Tools.utility import IsExist
+        from censo_ext.Tools.utility import IsExist
         IsExist(self.__filename)
 
         with open(self.__filename, "r") as f:
@@ -371,7 +371,7 @@ class ClassGeometryXYZs():
 
     def method_ensoGenFlexible(self, args, thermo_list):
         import numpy.lib.recfunctions as rfn
-        from Tools.Parameter import PI, Eh, FACTOR
+        from censo_ext.Tools.Parameter import PI, Eh, FACTOR
         # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
         #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
 
@@ -421,7 +421,7 @@ class ClassGeometryXYZs():
 
     # def method_Boltzmann(self, TEMP=298.15) -> np.ndarray:
     #    import numpy.lib.recfunctions as rfn
-    #    from Tools.Parameter import PI, Eh, FACTOR
+    #    from censo_ext.Tools.Parameter import PI, Eh, FACTOR
     #    # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
     #    #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
 

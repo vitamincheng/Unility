@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import ClassGeometryXYZs
 import argparse
 import os
 from sys import argv as sysargv

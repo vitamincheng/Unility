@@ -1,10 +1,9 @@
 import pathlib
 import argparse
 from pathlib import Path
-from tkinter import W
 import pytest
 from icecream import ic
-from Tools.spectra import *
+from censo_ext.Tools.spectra import *
 
 
 def test_numpy():

@@ -2,8 +2,8 @@ import pathlib
 import argparse
 from pathlib import Path
 import pytest
-from Tools.anmrfile import Anmrrc
-from Tools.anmrfile import ClassAnmr
+from censo_ext.Tools.anmrfile import Anmrrc
+from censo_ext.Tools.anmrfile import ClassAnmr
 
 
 def test_method_anmrrc():

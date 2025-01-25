@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import ClassGeometryXYZs
 import argparse
 import numpy as np
 import os
@@ -10,7 +10,7 @@ def FactorAnalysis(args) -> tuple[list[int], dict]:
 
     xyzfile: ClassGeometryXYZs = ClassGeometryXYZs(args.file)
     xyzfile.method_read_xyz()
-    import Tools.calculate_rmsd as calculate_rmsd
+    import censo_ext.Tools.calculate_rmsd as calculate_rmsd
     x: dict = {"remove_idx": None, "add_idx": None,
                "bond_broken": None, "ignore_Hydrogen": True, "debug": False, }
     coord: list = []
@@ -75,7 +75,7 @@ def FactorOpt(args, np_low_factor: list[int], Table_S: dict):
     # np_low_factor = minor_list
     Bonding_low_factor: list = []
     for x in (np_low_factor):
-        from Tools.topo import topo
+        from censo_ext.Tools.topo import topo
         args_x: dict = {"file": args.file, "bonding": x,
                         "print": False, "debug": False}
         Sts_topo: topo = topo(args_x["file"])
@@ -101,7 +101,7 @@ def FactorOpt(args, np_low_factor: list[int], Table_S: dict):
     idx_list_ratio: list = []
     list_ratio: list = []
     for idx, x in enumerate(unique_pair_low_factor):
-        from Tools.topo import topo
+        from censo_ext.Tools.topo import topo
 
         args_x = {"file": args.file, "bond_broken": [
             x[0], x[1]], "print": False, "debug": False}
