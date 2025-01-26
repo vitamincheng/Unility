@@ -44,8 +44,8 @@ def test_method_anmrrc():
     source = "tests/data/07.Carbon/.anmrrc"
     dcmp = filecmp.cmp(filename, source)
     assert (dcmp == True)
-    # import os
-    # os.remove(filename)
+    import os
+    os.remove(filename)
     path = file.get_Directory()
     assert path == Path("tests/data/07.Carbon")
     active = file.get_Anmr_Active()
