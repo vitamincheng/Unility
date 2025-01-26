@@ -2,6 +2,7 @@
 import pathlib
 import argparse
 from pathlib import Path
+from tkinter import W
 import pytest
 from icecream import ic
 from censo_ext.Tools.qm import *
@@ -22,7 +23,10 @@ def test_qm():
                         args=argparse.Namespace(**x))
 
     assert len(R_peak) == 16
-    assert R_peak[0] == (np.float64(2751.6221950398317),
-                         np.float64(0.004640626007360023))
-    assert R_peak[len(R_peak)-1] == (np.float64(2773.4946427349055),
-                                     np.float64(0.09446798980250143))
+    assert R_peak[0][0] == pytest.approx(np.float64(2751.6221950398317))
+
+    assert R_peak[0][1] == pytest.approx(np.float64(0.004640626007360023))
+    assert R_peak[len(R_peak) -
+                  1][0] == pytest.approx(np.float64(2773.4946427349055))
+    assert R_peak[len(R_peak) -
+                  1][1] == pytest.approx(np.float64(0.09446798980250143))

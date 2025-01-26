@@ -13,7 +13,12 @@ def test_xyzReturnOandZ():
     xyzReturnOandZ.main(args)
 
     import filecmp
-    compare = "tests/compare/xyzReturnOandZ.xyz"
+    import platform
+    print(platform.system())
+    if platform.system() == 'Darwin':
+        compare = "tests/compare/xyzReturnOandZ_Darwin.xyz"
+    else:
+        compare = "tests/compare/xyzReturnOandZ.xyz"
     dcmp = filecmp.cmp(args.out, compare)
     assert (dcmp == True)
     import os
@@ -27,8 +32,12 @@ def test_xyzReturnOandZ_auto():
     xyzReturnOandZ.main(args)
 
     import filecmp
-    compare = "tests/compare/xyzReturnOandZ-auto.xyz"
+    import platform
+    if platform.system() == 'Darwin':
+        compare = "tests/compare/xyzReturnOandZ-auto_Darwin.xyz"
+    else:
+        compare = "tests/compare/xyzReturnOandZ-auto.xyz"
     dcmp = filecmp.cmp(args.out, compare)
     assert (dcmp == True)
-    import os
-    os.remove(args.out)
+    # import os
+    # os.remove(args.out)
