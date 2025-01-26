@@ -12,7 +12,7 @@ def test_method_anmrrc():
     file.method_read_anmrrc()
     import sys
     original_stdout = sys.stdout
-    filename = "tests/compare/.anmrrctest"
+    filename = "tests/compare/.anmrrc"
     with open(filename, "w") as f:
         sys.stdout = f
         file.method_print_anmrrc()

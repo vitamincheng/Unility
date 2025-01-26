@@ -8,7 +8,7 @@ import censo_ext.xyzReturnOandZ as xyzReturnOandZ
 
 def test_xyzReturnOandZ():
     x: dict = {"file": "tests/data/crest_conformers.xyz",
-                       "atom": [30, 45, 47], "print": False, "replace": False, "out": "tests/compare/output.xyz"}
+                       "atom": [30, 45, 47], "print": False, "replace": False, "out": "tests/compare/output_xyzReturnOandZ.xyz"}
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
@@ -27,7 +27,7 @@ def test_xyzReturnOandZ():
 
 def test_xyzReturnOandZ_auto():
     x: dict = {"file": "tests/data/crest_conformers.xyz", "auto": True,
-                       "atom": None, "print": False, "replace": False, "out": "tests/compare/output1.xyz"}
+                       "atom": None, "print": False, "replace": False, "out": "tests/compare/output_xyzReturnOandZ_auto.xyz"}
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
@@ -39,5 +39,5 @@ def test_xyzReturnOandZ_auto():
         compare = "tests/compare/xyzReturnOandZ-auto.xyz"
     dcmp = filecmp.cmp(args.out, compare)
     assert (dcmp == True)
-    # import os
-    # os.remove(args.out)
+    import os
+    os.remove(args.out)
