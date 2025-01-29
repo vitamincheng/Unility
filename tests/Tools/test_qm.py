@@ -2,7 +2,6 @@
 import pathlib
 import argparse
 from pathlib import Path
-from tkinter import W
 import pytest
 from icecream import ic
 from censo_ext.Tools.qm import *
