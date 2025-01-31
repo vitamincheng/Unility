@@ -2,7 +2,7 @@
 from icecream import ic
 import matplotlib.pyplot as plt
 from nmrglue.fileio.fileiobase import unit_conversion
-from Tools.spectra import numpy_threshold_3, numpy_threshold_10
+from censo_ext.Tools.spectra import numpy_threshold_3, numpy_threshold_10
 from sys import argv as sysargv
 import numpy as np
 import nmrglue as ng
@@ -218,7 +218,7 @@ def main(args=argparse.Namespace()) -> None:
     x_axis_data = np.sum(data, axis=0)
     y_axis_data = np.sum(data, axis=1)
     # ic(y_axis_data)
-    from Tools.spectra import numpy_threshold_3
+    from censo_ext.Tools.spectra import numpy_threshold_3
     y_thr: float = numpy_threshold_3(y_axis_data)
     x_thr: float = numpy_threshold_3(x_axis_data)
     # ic(y_thr)
@@ -263,7 +263,7 @@ def main(args=argparse.Namespace()) -> None:
             print(f"{uc_13c.ppm(y):>15.4f} {uc_1h.ppm(x):>15.4f}")
             # ax.scatter(uc_1h.ppm(peak[0]), uc_13c.ppm(peak[1]), marker="o", color="r", s=300, alpha=0.5)  # type: ignore # nopep8
 
-    from Tools.utility import save_figure
+    from censo_ext.Tools.utility import save_figure
     save_figure()
     if args.hidden == False:
         plt.show()

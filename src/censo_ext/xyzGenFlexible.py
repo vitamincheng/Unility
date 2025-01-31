@@ -3,7 +3,7 @@ import argparse
 import os
 import numpy as np
 from icecream import ic
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 from pathlib import Path
 
@@ -67,13 +67,13 @@ def cml(descr) -> argparse.Namespace:
 
 
 def read_data(args):
-    from Tools.topo import topo
-    Sts_topo: topo = topo(args.file)
+    from censo_ext.Tools.topo import Topo
+    Sts_topo: Topo = Topo(args.file)
     _, neighbor, circleMols, residualMols = Sts_topo.topology()
     atomsCN: dict = Sts_topo.get_cn()
     # ic(neighbor, circleMols, residualMols)
     # ic(atomsCN)
-    from Tools.ml4nmr import read_mol_neighbors_bond_order
+    from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     _, _, Bond_order = read_mol_neighbors_bond_order(
         args.file)
     # ic(Bond_order)
@@ -136,7 +136,7 @@ def gen_ClassGeometryXYZs(xyzSplitDict: dict, args: argparse.Namespace) -> None:
             pos: str = input()
             loop = False
             for idx in pos.split():
-                from Tools.utility import function_is_int
+                from censo_ext.Tools.utility import function_is_int
                 if (function_is_int(idx)):
                     if int(idx) not in xyzSplitDict.keys():
                         print(" Error numbers and input the data again")
@@ -152,26 +152,26 @@ def gen_ClassGeometryXYZs(xyzSplitDict: dict, args: argparse.Namespace) -> None:
                    if key in idx_xyzSplitDict}
         xyzSplitDict = x
 
-    xyzfile: ClassGeometryXYZs = ClassGeometryXYZs(args.file)
+    xyzfile: GeometryXYZs = GeometryXYZs(args.file)
     xyzfile.method_read_xyz()
     fileNameIn: Path = Path(".in.xyz")
     fileNameOut: Path = Path(".out.xyz")
     xyzfile.set_filename(fileNameIn)
     xyzfile.method_save_xyz([1])
 
-    from Tools.utility import Move_file
+    from censo_ext.Tools.utility import move_file
     for key, value in xyzSplitDict.items():
         # ic(key, value)
-        import xyzSplit
+        import censo_ext.xyzSplit as xyzSplit
         args_x: dict = {"file": fileNameIn,
                         "atom": [key, value], "cut": 3, "print": False, "out": fileNameOut}
         import sys
         sys.stdout = open(os.devnull, 'w')
         xyzSplit.main(argparse.Namespace(**args_x))
         sys.stdout = sys.__stdout__
-        Move_file(fileNameOut, fileNameIn)
+        move_file(fileNameOut, fileNameIn)
 
-    Move_file(fileNameIn, args.out)
+    move_file(fileNameIn, args.out)
     print(f" The data is saved to {args.out} !")
 
 

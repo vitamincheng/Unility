@@ -7,7 +7,7 @@
 from pathlib import Path
 import numpy as np
 from icecream import ic
-from censo_ext.Tools.utility import IsExist
+from censo_ext.Tools.utility import is_exist
 import os
 from ase.data import covalent_radii
 custom_radii: np.ndarray = covalent_radii.copy()
@@ -126,7 +126,7 @@ def read_mol_neighbors(DirFileName: Path):
     import ase.io
     from ase import neighborlist
     # ic(DirFileName)
-    IsExist(DirFileName)
+    is_exist(DirFileName)
     mol = ase.io.read(str(DirFileName), format='xyz')
     # ic([atom for atom in mol])
 

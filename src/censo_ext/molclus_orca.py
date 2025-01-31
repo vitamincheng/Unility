@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import subprocess
-from Tools.utility import Delete_All_files, IsExistReturnBool
+from censo_ext.Tools.utility import delete_all_files, is_exist_return_bool
 from pathlib import Path
 
 descr = """
@@ -81,9 +81,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml(descr)
 
     import os
-    from Tools.utility import IsExist
-    IsExist(args.file)
-    IsExist_template: bool = IsExistReturnBool(args.template)
+    from censo_ext.Tools.utility import is_exist
+    is_exist(args.file)
+    IsExist_template: bool = is_exist_return_bool(args.template)
 
     template_inp: str = ".template.inp"
     if IsExist_template == False:
@@ -96,7 +96,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             print("* xyzfile 0 1 [xyzfile]")
         sys.stdout = original_stdout
 
-    infile: ClassGeometryXYZs = ClassGeometryXYZs(args.file)
+    infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
     singleXYZ: Path = Path("[xyzfile]")
 
@@ -129,7 +129,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(" Loading setting file ...")
     print(" All conformer in the inputted geometry file will be processed")
     subprocess.call("rm -f isomers.xyz *.tmp", shell=True)
-    Delete_All_files(singleXYZ)
+    delete_all_files(singleXYZ)
     print(" Cleaning old input and temporary files ...")
     print(" Running: rm isomers.xyz *.tmp")
     templateFileIsExists: bool = False
@@ -184,7 +184,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                         idx1_str+".gbw", shell=True)
 
     if templateFileIsExists:
-        outfile: ClassGeometryXYZs = ClassGeometryXYZs(args.out)
+        outfile: GeometryXYZs = GeometryXYZs(args.out)
         outfile.method_read_xyz()
         outfile.method_comment_new()
         outfile.method_save_xyz([])
@@ -201,7 +201,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                         ".out "+templateName+"_property.txt "+templateName+"_trj.xyz "+templateName+".opt ", shell=True)
         subprocess.call("rm -rf "+templateName+".cpcm_corr "+templateName+".densitiesinfo "+templateName+".property.txt "+templateName +
                         ".bibtex ", shell=True)
-        Delete_All_files(singleXYZ, template_inp)
+        delete_all_files(singleXYZ, template_inp)
 
 
 if __name__ == "__main__":

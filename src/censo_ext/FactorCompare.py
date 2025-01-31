@@ -4,7 +4,7 @@ import os
 import numpy as np
 from sys import argv as sysargv
 from icecream import ic
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 descr = """
 ________________________________________________________________________________
@@ -45,10 +45,10 @@ def cml(descr) -> argparse.Namespace:
 
 
 def cal_rmsd(xyzfile, idx_p, idx_q) -> float:
-    import Tools.calculate_rmsd
+    import censo_ext.Tools.calculate_rmsd as calculate_rmsd
     x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
                "ignore_Hydrogen": True, "quiet": True, "debug": False}
-    coord_square, result_rmsd = Tools.calculate_rmsd.main_xyz(
+    coord_square, result_rmsd = calculate_rmsd.main_xyz(
         xyzfile, idx_p, idx_q, args=argparse.Namespace(**x))
     return result_rmsd
 
@@ -59,12 +59,12 @@ def Factor_xyzCompare(args) -> None:
     import sys
     subprocess.call(
         "cat "+str(args.file[0])+" "+str(args.file[1])+"> tmp_save.xyz", shell=True)
-    xyzfile_P: ClassGeometryXYZs = ClassGeometryXYZs(args.file[0])
+    xyzfile_P: GeometryXYZs = GeometryXYZs(args.file[0])
     xyzfile_P.method_read_xyz()
-    xyzfile_Q: ClassGeometryXYZs = ClassGeometryXYZs(args.file[1])
+    xyzfile_Q: GeometryXYZs = GeometryXYZs(args.file[1])
     xyzfile_Q.method_read_xyz()
 
-    xyzfile_One: ClassGeometryXYZs = ClassGeometryXYZs(Path("tmp_save.xyz"))
+    xyzfile_One: GeometryXYZs = GeometryXYZs(Path("tmp_save.xyz"))
     xyzfile_One.method_read_xyz()
     nSt_P: int = len(xyzfile_P)
     nSt_Q: int = len(xyzfile_Q)
@@ -103,8 +103,8 @@ def Factor_xyzCompare(args) -> None:
     shutil.copyfile(new_cwd+"/weight_P", original_cwd+"/weight_P")
 
     file_weight: Path = Path("weight_P")
-    from Tools.utility import IsExist
-    IsExist(file_weight)
+    from censo_ext.Tools.utility import is_exist
+    is_exist(file_weight)
 
     print(" Reading the ", file_weight, " file ")
 

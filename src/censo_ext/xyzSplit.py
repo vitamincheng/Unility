@@ -2,7 +2,7 @@
 from scipy.spatial.transform import Rotation as R
 import argparse
 import numpy as np
-from censo_ext.Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
 from icecream import ic
 from sys import argv as sysargv
 descr = """
@@ -105,22 +105,22 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         ic()
         os._exit(0)
 
-    from censo_ext.Tools.utility import DeleteFileBool
+    from censo_ext.Tools.utility import delete_file_bool
     Delete_work: bool = False
     if not args.print:
-        Delete_work = DeleteFileBool(args.out)
+        Delete_work = delete_file_bool(args.out)
 
     idx1_p, idx1_q = args.atom[0], args.atom[1]
     nCutters: int = args.cut
 
     x: dict = {"file": args.file, "bond_broken": [
         idx1_q, idx1_p], "print": False, "debug": False}
-    from censo_ext.Tools.topo import topo
-    Sts_topo: topo = topo(x["file"])
+    from censo_ext.Tools.topo import Topo
+    Sts_topo: Topo = Topo(x["file"])
     idx0_list: list[int] = [
-        x-1 for x in Sts_topo.Broken_bond_H(argparse.Namespace(**x))]
+        x-1 for x in Sts_topo.method_broken_bond_H(argparse.Namespace(**x))]
     # ic(idx1_list)
-    infile: ClassGeometryXYZs = ClassGeometryXYZs(args.file)
+    infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
     # outfile = zyzfile.ClassGeometryXYZs(args.out)
     # ic(infile.get_nSt(),nCutters)

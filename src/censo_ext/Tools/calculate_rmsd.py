@@ -19,7 +19,7 @@ from numpy import ndarray
 from pathlib import Path
 import censo_ext.Tools.Parameter as Parameter
 import censo_ext.Tools.topo as topo
-from censo_ext.Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
 
 METHOD_KABSCH = "kabsch"
 ROTATION_METHODS = [METHOD_KABSCH]
@@ -333,7 +333,7 @@ def getCoordinates(xyzfile, idx):
     return np.array(atoms), np.array(V)
 
 
-def main_xyz(xyzfile: ClassGeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> Tuple[dict[int, float], float]:
+def main_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> Tuple[dict[int, float], float]:
     '''
     Read xyz file and calculate rmsd
     xyzfile is class ClassGeometryXYZs
@@ -389,9 +389,9 @@ def main_xyz(xyzfile: ClassGeometryXYZs, idx_p: int, idx_q: int, args: argparse.
             xyzfile.method_save_xyz([idx_p])
             x: dict = {"file": xyz_tmp, "bond_broken": [
                 args.bond_broken[0], args.bond_broken[1]], "print": False, "debug": False}
-            from censo_ext.Tools.topo import topo
-            Sts_topo: topo = topo(x["file"])
-            idx1_Res_Atoms: list[int] = Sts_topo.Broken_bond(
+            from censo_ext.Tools.topo import Topo
+            Sts_topo: Topo = Topo(x["file"])
+            idx1_Res_Atoms: list[int] = Sts_topo.method_broken_bond(
                 argparse.Namespace(**x))
             # idx1_Res_Atoms: list[int] = topo.Broken_bond(
             #    argparse.Namespace(**x))

@@ -17,7 +17,7 @@ def rosenbrock(x0) -> float:
 
     np.savetxt(fileNameB, orcaS_Table, fmt="%10d %10.5f %10d")
 
-    import anmr
+    import censo_ext.anmr as anmr
     x: dict = {'out': 'output.dat', 'mf': 500.0, 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
                'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': False}
     import sys
@@ -25,7 +25,7 @@ def rosenbrock(x0) -> float:
     np_dat: np.ndarray = anmr.main(args=argparse.Namespace(**x))
     sys.stdout = sys.__stdout__
 
-    from Tools.anmrfile import CensoDat
+    from censo_ext.Tools.anmrfile import CensoDat
     Dat_Cal: CensoDat = CensoDat(fileName=x["out"])
     Dat_Ref: CensoDat = CensoDat(fileName=Path("1r.dat"))
     Dat_Cal.method_normalize_dat()
@@ -118,8 +118,8 @@ def group_scan(inGroup: list[int] = []) -> None:
 
 
 def new() -> None:
-    from Tools.utility import IsExistReturnBool
-    if IsExistReturnBool(fileNameB):
+    from censo_ext.Tools.utility import is_exist_return_bool
+    if is_exist_return_bool(fileNameB):
         return
     else:
         orcaS_Table: np.ndarray = np.genfromtxt(fileName)

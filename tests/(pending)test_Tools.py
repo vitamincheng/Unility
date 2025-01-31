@@ -30,7 +30,7 @@ if __name__ == "__main__":
         if nCH == 1:
 
             from censo_ext.Tools.anmrfile import *
-            anmr = ClassAnmr(Path("../tests/04.Hydrogen"))
+            anmr = Anmr(Path("../tests/04.Hydrogen"))
             anmr.method_read_anmrrc()
             anmr.method_print_anmrrc()
             anmr.method_read_nucinfo()
@@ -58,7 +58,7 @@ if __name__ == "__main__":
             # Example for main_xyz
             from censo_ext.Tools.calculate_rmsd import *
 
-            xyzfile = ClassGeometryXYZs(
+            xyzfile = GeometryXYZs(
                 Path("../tests/crest_conformers.xyz"))
             xyzfile.method_read_xyz()
 
@@ -152,8 +152,8 @@ if __name__ == "__main__":
         if nCH == 7:
 
             from censo_ext.Tools.symmetry import *
-            from censo_ext.Tools.xyzfile import ClassGeometryXYZs
-            xyz = ClassGeometryXYZs(Path("../tests/crest_conformers.xyz"))
+            from censo_ext.Tools.xyzfile import GeometryXYZs
+            xyz = GeometryXYZs(Path("../tests/crest_conformers.xyz"))
             xyz.method_read_xyz()
             for idx in range(len(xyz)):
                 pos = ([a.tolist() for a in xyz.Sts[idx].coord])
@@ -171,19 +171,19 @@ if __name__ == "__main__":
             print(" Bonding : ")
             x = {"file": "../tests/crest_conformers.xyz",
                  "bonding": 51, "print": True, "debug": False}
-            Sts_topo: topo = topo(x["file"])
-            Sts_topo.Bonding(argparse.Namespace(**x))
+            Sts_topo: Topo = Topo(x["file"])
+            Sts_topo.method_bonding(argparse.Namespace(**x))
             print("")
 
             print(" Broken_bond_H : ")
             x = {"file": "../tests/crest_conformers.xyz",
                  "bond_broken": [40, 44], "print": True, "debug": False}
-            Sts_topo.Broken_bond_H(argparse.Namespace(**x))
+            Sts_topo.method_broken_bond_H(argparse.Namespace(**x))
 
             print(" Broken_bond : ")
             x = {"file": "../tests/crest_conformers.xyz",
                  "bond_broken": [52, 55], "print": True, "debug": False}
-            Sts_topo.Broken_bond(argparse.Namespace(**x))
+            Sts_topo.method_broken_bond(argparse.Namespace(**x))
 
             mol, neighbors, circle_Mols, residual_Mols = Sts_topo.topology()
             ic(mol)
@@ -199,9 +199,9 @@ if __name__ == "__main__":
         if nCH == 9:
             infile = Path("../tests/crest_conformers.xyz")
             from censo_ext.Tools.utility import *
-            ic(IsExist(infile))
-            ic(IsExistReturnBool(infile))
-            ic(ProgramIsExist("xtb"))
+            ic(is_exist(infile))
+            ic(is_exist_return_bool(infile))
+            ic(program_is_exist("xtb"))
 
         ###############################################################################
         # xyzfile.py
@@ -210,7 +210,7 @@ if __name__ == "__main__":
         if nCH == 10:
 
             from censo_ext.Tools.xyzfile import *
-            infile = ClassGeometryXYZs()
+            infile = GeometryXYZs()
             infile.set_filename(Path("../tests/crest_conformers.xyz"))
             infile.method_read_xyz()
             infile.method_print([])

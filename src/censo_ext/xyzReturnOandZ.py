@@ -4,7 +4,7 @@ import os
 from sys import argv as sysargv
 from scipy.spatial.transform import Rotation as R
 import numpy as np
-from censo_ext.Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
 from icecream import ic
 from pathlib import Path
 
@@ -101,22 +101,23 @@ def cml(descr) -> argparse.Namespace:
 
 
 def idx_3atom_opt(args) -> list[int]:
-    from censo_ext.Tools.factor import FactorAnalysis
+    from censo_ext.Tools.factor import method_factor_analysis
     import argparse
     args_x: dict = {"file": args.file,
                     "factor": 0.5, "debug": False, "opt": False}
-    minor_list, TableSTD = FactorAnalysis(args=argparse.Namespace(**args_x))
+    minor_list, TableSTD = method_factor_analysis(
+        args=argparse.Namespace(**args_x))
     idx1_Low_Factor: np.ndarray = np.array(minor_list)
     idx1_Atom_list: list[int] = list(TableSTD.keys())
     AtomSTD: list[float] = list(TableSTD.values())
 
     idx1_Bonding: list = []
     for idx, x in enumerate(idx1_Low_Factor):
-        from censo_ext.Tools.topo import topo
+        from censo_ext.Tools.topo import Topo
         args_x: dict = {"file": args.file, "bonding": x,
                         "print": False, "debug": False}
-        Sts_topo: topo = topo(args_x["file"])
-        idx1_Bonding.append(Sts_topo.Bonding(
+        Sts_topo: Topo = Topo(args_x["file"])
+        idx1_Bonding.append(Sts_topo.method_bonding(
             args=argparse.Namespace(**args_x)))
 
     idx1_3atom: list[list[int]] = []
@@ -178,7 +179,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         ic()
         os._exit(0)
 
-    infile: ClassGeometryXYZs = ClassGeometryXYZs(args.file)
+    infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
 
     for idx_st in range(len(infile)):

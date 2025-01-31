@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import subprocess
 from pathlib import Path
@@ -120,11 +120,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     single_traj_Name = ".single_traj.xyz"
     temp_isomer_Name = ".isomers_tmp.xyz"
     xtb_cmd: str = ""
-    infile: ClassGeometryXYZs = ClassGeometryXYZs(args.file)
+    infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
-    from Tools.utility import ProgramIsExist
+    from censo_ext.Tools.utility import program_is_exist
     xtb_name = "xtb"
-    ProgramIsExist(xtb_name)
+    program_is_exist(xtb_name)
     xtb_cmd += xtb_name
 
     print(" Inputted geometry file: "+args.file)
@@ -184,7 +184,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args.opt:
         # print("opt")
-        outfile: ClassGeometryXYZs = ClassGeometryXYZs(Path(temp_isomer_Name))
+        outfile: GeometryXYZs = GeometryXYZs(Path(temp_isomer_Name))
         outfile.method_read_xyz()
         outfile.method_comment_new()
         outfile.set_filename(args.out)
@@ -198,8 +198,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     subprocess.call(
         "rm -rf " + " charges wbo xtb.out xtbrestart xtbtopo.mol xtbopt* .xtboptok ", shell=True)
-    from Tools.utility import Delete_All_files
-    Delete_All_files(temp_isomer_Name, single_traj_Name)
+    from censo_ext.Tools.utility import delete_all_files
+    delete_all_files(temp_isomer_Name, single_traj_Name)
 
 
 if __name__ == "__main__":

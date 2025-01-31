@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from censo_ext.Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import os
 from sys import argv as sysargv
@@ -92,7 +92,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(descr)  # Program description
         print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    xyzfile: ClassGeometryXYZs = ClassGeometryXYZs(args.file)
+    xyzfile: GeometryXYZs = GeometryXYZs(args.file)
     xyzfile.method_read_xyz()
 
     if args.keep:

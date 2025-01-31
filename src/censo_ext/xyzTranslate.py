@@ -3,7 +3,7 @@ import argparse
 import os
 import numpy as np
 from icecream import ic
-from censo_ext.Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 
 descr = """
@@ -84,14 +84,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
     try:
-        infile, outfile = ClassGeometryXYZs(), ClassGeometryXYZs()
+        infile, outfile = GeometryXYZs(), GeometryXYZs()
         infile.set_filename(args.file)
         infile.method_read_xyz()
         if args.cut == None:
-            outfile: ClassGeometryXYZs = infile.method_translate_xyzs(
+            outfile: GeometryXYZs = infile.method_translate_xyzs(
                 np.array(args.move))
         elif args.cut:
-            outfile: ClassGeometryXYZs = infile.method_translate_cut_xyzs(
+            outfile: GeometryXYZs = infile.method_translate_cut_xyzs(
                 delta=np.array(args.move), cut=args.cut+1)
         outfile.set_filename(args.out)
         outfile.method_save_xyz([])

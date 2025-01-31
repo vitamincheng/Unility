@@ -221,7 +221,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         output: np.ndarray = np.vstack((ppm, np.real(data))).T[::-1]
         np.savetxt(args.out, output, fmt=" %12.5f  %12.5e")
 
-    from Tools.spectra import numpy_threshold_mean_3
+    from censo_ext.Tools.spectra import numpy_threshold_mean_3
     threshold = numpy_threshold_mean_3(data)*args.thr
 
     # detect all peaks with a threshold
@@ -436,7 +436,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     fig.suptitle(args.path, fontsize=12, y=0.98)
     fig.text(0.5, 0.04, "$\\delta$ / ppm", ha="center", fontsize=12)
 
-    from Tools.utility import save_figure
+    from censo_ext.Tools.utility import save_figure
     save_figure()
 
     if not args.hidden:

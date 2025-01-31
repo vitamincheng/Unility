@@ -5,7 +5,7 @@ from icecream import ic
 import numpy as np
 
 
-def Get_Point_Group(st: list, idx: int, Hydrogen: bool) -> str:
+def method_get_point_group(st: list, idx: int, Hydrogen: bool) -> str:
 
     if Hydrogen == False:
         idx_list = [key-1 for key, value in st[idx].names.items()

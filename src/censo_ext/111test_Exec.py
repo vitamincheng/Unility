@@ -41,7 +41,7 @@ if __name__ == "__main__":
         # anmr.py
         ################################################
         if nCH == 1:
-            import anmr
+            import censo_ext.anmr as anmr
             import argparse
             x: dict = {"auto": True, "average": True, "dir": "../tests/04.Hydrogen",
                        "bobyqa": True, "mf": 500, "thr": None, "json": [-1], "thrab": 0.025,
@@ -73,7 +73,7 @@ if __name__ == "__main__":
         # cregen.py
         ################################################
         if nCH == 3:
-            import cregen
+            import censo_ext.cregen as cregen
             import argparse
             x: dict = {"file": "../tests/crest_conformers.xyz", "rthr": 0.175,
                        "bthr": 0.03, "ethr": 0.15, "ewin": 4, "out": "cluster.xyz"}
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         # datNormalized.py
         ################################################
         if nCH == 4:
-            import datNormalized
+            import censo_ext.datNormalized as datNormalized
             import argparse
 
             x = {"file": "../tests/04.Hydrogen/output.dat",
@@ -100,7 +100,7 @@ if __name__ == "__main__":
         # FactorAnalysis.py
         ################################################
         if nCH == 5:
-            import FactorAnalysis
+            import censo_ext.FactorAnalysis as FactorAnalysis
             import argparse
             x = {"auto": True, "file": "../tests/crest_conformers.xyz",
                  "Analysis": True, "factor": None, "opt": None, "Filter": False}
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         # molclus_orca.py
         ################################################
         if nCH == 7:
-            import molclus_orca
+            import censo_ext.molclus_orca as molclus_orca
             import argparse
             x = {"file": "../tests/crest_conformers.xyz", "template": "template.inp", "remove": True,
                  "chrg": 0, "uhf": 1, "out": "isomers.xyz"}
@@ -134,7 +134,7 @@ if __name__ == "__main__":
         # molclus_xtb.py
         ################################################
         if nCH == 8:
-            import molclus_xtb
+            import censo_ext.molclus_xtb as molclus_xtb
             import argparse
             x = {"file": "../tests/crest_conformers.xyz", "method": "gfn2",
                  "chrg": 0, "uhf": 1, "out": "isomers.xyz", "alpb": None, "gbsa": None, "opt": False}
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         # molManipulate.py
         ################################################
         if nCH == 9:
-            import molManipulate
+            import censo_ext.molManipulate as molManipulate
             import argparse
             x = {"separate": "../tests/crest_conformers3.xyz"}
             molManipulate.main(argparse.Namespace(**x))
@@ -165,7 +165,7 @@ if __name__ == "__main__":
         # xyzReturnOandZ.py
         ################################################
         if nCH == 14:
-            import xyzReturnOandZ
+            import censo_ext.xyzReturnOandZ as xyzReturnOandZ
             import argparse
             x: dict = {"file": "../tests/crest_conformers.xyz",
                        "atom": [30, 45, 47], "print": False, "replace": False, "out": "output.xyz"}
@@ -180,7 +180,7 @@ if __name__ == "__main__":
         # xyzSerial.py
         ################################################
         if nCH == 15:
-            import xyzSerial
+            import censo_ext.xyzSerial as xyzSerial
             import argparse
             x = {"file": "../tests/crest_conformers.xyz", "new": True,
                  "keep": False, "print": False, "out": "output.xyz"}
@@ -199,7 +199,7 @@ if __name__ == "__main__":
         # xyzSplit.py
         ################################################
         if nCH == 16:
-            import xyzSplit
+            import censo_ext.xyzSplit as xyzSplit
             import argparse
             x = {"file": "../tests/crest_conformers1.xyz",
                  "atom": [52, 55], "cut": 12, "print": False, "out": "output.xyz"}
@@ -214,7 +214,7 @@ if __name__ == "__main__":
         # xyzTranslate.py
         ################################################
         if nCH == 17:
-            import xyzTranslate
+            import censo_ext.xyzTranslate as xyzTranslate
             import argparse
             x = {"file": "../tests/crest_conformers.xyz",
                  "move": [5, 0, 0], "cut": None, "out": "output.xyz"}

@@ -107,7 +107,7 @@ def cml(descr) -> argparse.Namespace:
 
 def Boltzmann_enso(np_enso: np.ndarray, TEMP) -> np.ndarray:
     import numpy.lib.recfunctions as rfn
-    from Tools.Parameter import PI, Eh, FACTOR
+    from censo_ext.Tools.Parameter import PI, Eh, FACTOR
     # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
     #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
 
@@ -146,13 +146,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(descr)  # Program description
         print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    from Tools.utility import IsExistReturnBool
+    from censo_ext.Tools.utility import is_exist_return_bool
     from os.path import exists
-    from Tools.Parameter import Eh, Rcal
+    from censo_ext.Tools.Parameter import Eh, Rcal
     import sys
-    fileExists: bool = IsExistReturnBool(args.file)
+    fileExists: bool = is_exist_return_bool(args.file)
     backupfile: Path = Path(args.file + ".backup")
-    backupfileExists: bool = IsExistReturnBool(backupfile)
+    backupfileExists: bool = is_exist_return_bool(backupfile)
 
     print("")
     print(" Reading the input file  : ", args.file)
@@ -160,7 +160,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if fileExists:
         if backupfileExists:
-            backup_file_exists = IsExistReturnBool(backupfile)
+            backup_file_exists = is_exist_return_bool(backupfile)
         else:
             print(" The backup file is not exist. ", backupfile)
             print(" ONOFF args.new : ", args.new)

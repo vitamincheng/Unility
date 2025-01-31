@@ -3,12 +3,12 @@ import argparse
 from pathlib import Path
 import pytest
 from censo_ext.Tools.anmrfile import Anmrrc
-from censo_ext.Tools.anmrfile import ClassAnmr
+from censo_ext.Tools.anmrfile import Anmr
 
 
 def test_method_anmrrc():
     # For Hydrogen
-    file = ClassAnmr(Path("tests/data/04.Hydrogen"))
+    file = Anmr(Path("tests/data/04.Hydrogen"))
     file.method_read_anmrrc()
     import sys
     original_stdout = sys.stdout
@@ -30,7 +30,7 @@ def test_method_anmrrc():
     assert active == ['H']
 
     # For Carbon
-    file = ClassAnmr(Path("tests/data/07.Carbon"))
+    file = Anmr(Path("tests/data/07.Carbon"))
     file.method_read_anmrrc()
     import sys
     original_stdout = sys.stdout
@@ -54,18 +54,18 @@ def test_method_anmrrc():
 
 def test_get_average_orcaSJ_Exist():
     # For Hydrogen
-    file = ClassAnmr(Path("tests/data/04.Hydrogen"))
+    file = Anmr(Path("tests/data/04.Hydrogen"))
     exist = file.get_average_orcaSJ_Exist()
     assert exist == True
     # for Carbon
-    file = ClassAnmr(Path("tests/data/07.Carbon"))
+    file = Anmr(Path("tests/data/07.Carbon"))
     exist = file.get_average_orcaSJ_Exist()
     assert exist == True
 
 
 def test_method_read_enso():
     # For Hydrogen
-    file = ClassAnmr(Path("tests/data/04.Hydrogen"))
+    file = Anmr(Path("tests/data/04.Hydrogen"))
     file.method_read_enso()
 
     import sys
@@ -84,7 +84,7 @@ def test_method_read_enso():
     os.remove(filename)
 
     # for Carbon
-    file = ClassAnmr(Path("tests/data/07.Carbon"))
+    file = Anmr(Path("tests/data/07.Carbon"))
     file.method_read_enso()
 
     import sys

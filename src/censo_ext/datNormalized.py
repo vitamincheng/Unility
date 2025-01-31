@@ -96,9 +96,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
     if args.file != None:
-        from Tools.utility import IsExist
-        IsExist(args.file)
-        from Tools.anmrfile import CensoDat
+        from censo_ext.Tools.utility import is_exist
+        is_exist(args.file)
+        from censo_ext.Tools.anmrfile import CensoDat
         inDat: CensoDat = CensoDat(args.file)
         inDat.method_normalize_dat(
             start=args.start, end=args.end, dpi=args.dpi)

@@ -7,7 +7,7 @@ from censo_ext.Tools.calculate_rmsd import *
 
 def test_calculate_rmsd():
     # for crest_conformers.xyz
-    xyzfile = ClassGeometryXYZs(
+    xyzfile = GeometryXYZs(
         Path("tests/data/crest_conformers.xyz"))
     xyzfile.method_read_xyz()
     x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
@@ -23,7 +23,7 @@ def test_calculate_rmsd():
     assert idx_atom1[1] == pytest.approx(np.float64(0.35959367835047723))
 
     # for isomers.xyz
-    xyzfile = ClassGeometryXYZs(
+    xyzfile = GeometryXYZs(
         Path("tests/data/isomers.xyz"))
     xyzfile.method_read_xyz()
     x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import Tools
-from Tools.xyzfile import ClassGeometryXYZs
+import censo_ext.Tools
+from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import subprocess
 from icecream import ic
@@ -110,11 +110,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list:
     elif _system == "Linux":
         xtb_cmd = "xtb"
 
-    infile: ClassGeometryXYZs = ClassGeometryXYZs(args.file)
+    infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
 
-    from Tools.utility import ProgramIsExist
-    ProgramIsExist("xtb")
+    from censo_ext.Tools.utility import program_is_exist
+    program_is_exist("xtb")
 
     print(" Inputted geometry file: "+args.file)
     xtb_cmd = xtb_cmd + " " + single_traj_Name
@@ -178,8 +178,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list:
                 thermo.append(y.split()[3])
                 # ic(y.split()[3])
     # ic(thermo)
-    from Tools.utility import Delete_All_files
-    Delete_All_files(single_traj_Name, xcontrol_inp)
+    from censo_ext.Tools.utility import delete_all_files
+    delete_all_files(single_traj_Name, xcontrol_inp)
 
     return thermo
 

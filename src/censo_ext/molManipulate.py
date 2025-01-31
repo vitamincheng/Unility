@@ -3,7 +3,7 @@ import argparse
 import os
 from sys import argv as sysargv
 from icecream import ic
-from censo_ext.Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
 
 
 descr = """
@@ -74,7 +74,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
     if args.separate:
-        infile: ClassGeometryXYZs = ClassGeometryXYZs()
+        infile: GeometryXYZs = GeometryXYZs()
         infile.set_filename(args.separate)
         infile.method_read_xyz()
         if len(infile) == 1:
@@ -85,14 +85,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             os._exit(0)
 
     elif args.merge:
-        infile0: ClassGeometryXYZs = ClassGeometryXYZs()
+        infile0: GeometryXYZs = GeometryXYZs()
         infile0.set_filename(args.merge[0])
         infile0.method_read_xyz()
-        infile1: ClassGeometryXYZs = ClassGeometryXYZs()
+        infile1: GeometryXYZs = GeometryXYZs()
         infile1.set_filename(args.merge[1])
         infile1.method_read_xyz()
 
-        outfile: ClassGeometryXYZs = ClassGeometryXYZs()
+        outfile: GeometryXYZs = GeometryXYZs()
         outfile = infile0 + infile1
         outfile.set_filename(args.out)
         outfile.method_save_xyz([])

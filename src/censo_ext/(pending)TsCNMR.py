@@ -126,12 +126,12 @@ def main():
         print("")
         print(" Reading the " + args.file + " file ")
 
-    import Tools.anmrfile as anmrfile
-    anmrSJ = anmrfile.ClassAnmr()
+    import censo_ext.Tools.anmrfile as anmrfile
+    anmrSJ = anmrfile.Anmr()
     anmrSJ.method_read_anmrSJ(args.file)
 
     if args.extra:
-        import Tools.ml4nmr as ml4nmr
+        import censo_ext.Tools.ml4nmr as ml4nmr
         mol, neighbors, bond_order = ml4nmr.read_mol_neighbors_bond_order(
             args.extra)
         List_nProton = [x for x in bond_order.values()]

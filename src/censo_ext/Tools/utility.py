@@ -32,7 +32,7 @@ import os
 
 
 def IsExistsDirFileName(DirFileName: Path):
-    IsExist(DirFileName)
+    is_exist(DirFileName)
     Name: str = DirFileName.name
     Dir: Path = DirFileName.parents[0]
     return Dir, Name
@@ -54,19 +54,19 @@ def function_is_int(string: str) -> bool:
         return False
 
 
-def Move_file(source: Path, destination: Path) -> None:
-    IsExist(source)
+def move_file(source: Path, destination: Path) -> None:
+    is_exist(source)
     import shutil
     shutil.move(source, destination)
 
 
-def Copy_file(source: Path, destination: Path) -> None:
-    IsExist(source)
+def copy_file(source: Path, destination: Path) -> None:
+    is_exist(source)
     import shutil
     shutil.copy(source, destination)
 
 
-def Delete_All_files(*fileNames) -> None:
+def delete_all_files(*fileNames) -> None:
     from os.path import exists
     for file in [*fileNames]:
         IsExists: bool = exists(file)
@@ -75,7 +75,7 @@ def Delete_All_files(*fileNames) -> None:
             os.remove(file)
 
 
-def DeleteFileBool(fileName: Path) -> bool:
+def delete_file_bool(fileName: Path) -> bool:
     import os
     from os.path import exists
     IsExists: bool = exists(fileName)
@@ -90,13 +90,13 @@ def jsonKeys2int(x) -> dict:
     return {int(k): v for k, v in x}
 
 
-def Save_Dict(fileName: Path, Data: dict) -> None:
+def save_dict(fileName: Path, Data: dict) -> None:
     with open(fileName, 'w') as f:
         for key, value in Data.items():
             f.write('%12.5f %12.5e\n' % (key, value))
 
 
-def Save_BOBYQA_orcaS(fileName: Path, Data: dict) -> None:
+def save_BOBYQA_orcaS(fileName: Path, Data: dict) -> None:
     with open(fileName, 'w') as f:
 
         for key, value in Data.items():
@@ -107,9 +107,9 @@ def Save_BOBYQA_orcaS(fileName: Path, Data: dict) -> None:
                 f.write('%10d %12.5f %10d \n' % (key, value, 0))
 
 
-def Load_BOBYQA_orcaS(fileName: Path) -> dict:
+def load_BOBYQA_orcaS(fileName: Path) -> dict:
     from icecream import ic
-    IsExist(fileName)
+    is_exist(fileName)
     lines = open(fileName, "r").readlines()
 
     Data: dict = {}
@@ -127,15 +127,15 @@ def Load_BOBYQA_orcaS(fileName: Path) -> dict:
     return Data
 
 
-def Save_Dict_orcaS(fileName: Path, Data: dict) -> None:
+def save_dict_orcaS(fileName: Path, Data: dict) -> None:
     with open(fileName, 'w') as f:
         for key, value in Data.items():
             f.write('%10d %12.5f \n' % (key, value))
 
 
-def Load_Dict_orcaS(fileName: Path) -> dict:
+def load_dict_orcaS(fileName: Path) -> dict:
     from icecream import ic
-    IsExist(fileName)
+    is_exist(fileName)
     lines: list = open(fileName, "r").readlines()
     Data: dict = {}
     for x in lines:
@@ -143,7 +143,7 @@ def Load_Dict_orcaS(fileName: Path) -> dict:
     return Data
 
 
-def IsExist(fileName: Path) -> None:
+def is_exist(fileName: Path) -> None:
     IsExists: bool = Path(fileName).exists()
     if not IsExists:
         import os
@@ -152,7 +152,7 @@ def IsExist(fileName: Path) -> None:
         os._exit(0)
 
 
-def IsExistReturnBool(fileName: Path) -> bool:
+def is_exist_return_bool(fileName: Path) -> bool:
     IsExists: bool = Path(fileName).exists()
     if IsExists:
         return True
@@ -163,7 +163,7 @@ def IsExistReturnBool(fileName: Path) -> bool:
         return False
 
 
-def ProgramIsExist(ProgramName: str) -> bool:
+def program_is_exist(ProgramName: str) -> bool:
     from shutil import which
     if which(ProgramName):
         return True

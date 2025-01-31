@@ -11,7 +11,7 @@ from graph import Graph
 from pathlib import Path
 
 
-class topo():
+class Topo():
 
     def __init__(self, fileName: Path) -> None:
         self.__fileName: Path = Path(fileName)
@@ -30,7 +30,7 @@ class topo():
             cn[key] = len(value)
         return cn
 
-    def Broken_bond_H(self, args: argparse.Namespace) -> list[int]:
+    def method_broken_bond_H(self, args: argparse.Namespace) -> list[int]:
         """_summary_
         Atom's index of your assigned bond (include 1's atom and include H atom)
         Args:
@@ -41,7 +41,7 @@ class topo():
         Returns:
             [list,int] : the list of atom's index in your assigned bond (include H atom)
         """
-        Result: list[int] = self.Broken_bond(args)
+        Result: list[int] = self.method_broken_bond(args)
         mol, neighbors = self.__mol, self.__neighbors
         idx_H_atom = self.idx_H_atom
         NeighborsAtoms_H_atom: dict[int, int] = {}  # {H:C}
@@ -58,7 +58,7 @@ class topo():
             print(" Terminal_Atoms_int (include H) : ", Result)
         return Result
 
-    def Broken_bond(self, args: argparse.Namespace) -> list[int]:
+    def method_broken_bond(self, args: argparse.Namespace) -> list[int]:
         """_summary_
         Atom's index of your assigned bond (include 1's atom and not include H atom)
         Args:
@@ -97,7 +97,7 @@ class topo():
             print(" Terminal_Atoms (not H) : ", Terminal_Atoms)
         return Terminal_Atoms
 
-    def Bonding(self, args: argparse.Namespace) -> list[int]:
+    def method_bonding(self, args: argparse.Namespace) -> list[int]:
         """_summary_
             Return to list of atom's index of bonding in your speific atom
         Args:

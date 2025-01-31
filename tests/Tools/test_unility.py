@@ -20,10 +20,10 @@ def test_unility_int():
 
 
 def test_unility_IsExistReturnBool():
-    from censo_ext.Tools.utility import IsExistReturnBool
+    from censo_ext.Tools.utility import is_exist_return_bool
     from pathlib import PosixPath
-    assert IsExistReturnBool(Path("tests/Tools/test_unility.py")) == True
-    assert IsExistReturnBool(
+    assert is_exist_return_bool(Path("tests/Tools/test_unility.py")) == True
+    assert is_exist_return_bool(
         Path("tests/Tools/test_unility1.py")) == False
 
 
@@ -34,9 +34,9 @@ def test_unility_IsExistsDirFileName():
 
 
 def test_unility_ProgramIsExist():
-    from censo_ext.Tools.utility import ProgramIsExist
-    assert ProgramIsExist("xtb") == True
-    assert ProgramIsExist("orca") == True
+    from censo_ext.Tools.utility import program_is_exist
+    assert program_is_exist("xtb") == True
+    assert program_is_exist("orca") == True
 
 
 #

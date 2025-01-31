@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 import numpy as np
 from icecream import ic
-from Tools.utility import Delete_All_files
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.utility import delete_all_files
+from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 
 descr = """
@@ -87,23 +87,23 @@ in_file: Path = Path(".traj.xyz")
 
 def xtb(args):
     print(" ========== molclus_xtb.py ==========")
-    from Tools.utility import Copy_file
+    from censo_ext.Tools.utility import copy_file
     import os
     temp_folder: Path = Path(".xtb")
     # if not os.path.isdir(temp_folder):
     if not temp_folder.is_dir():
         temp_folder.mkdir()
-    Copy_file(args.file, temp_folder / in_file)
+    copy_file(args.file, temp_folder / in_file)
 
     working_Dir = os.getcwd()
     temp_folder.mkdir()
     x: dict = {"file": in_file, "method": "gfn2",
                "chrg": 0, "uhf": 1, "out": out_file, "alpb": "CHCl3", "gbsa": None, "opt": True}
-    import molclus_xtb
+    import censo_ext.molclus_xtb as molclus_xtb
     molclus_xtb.main(argparse.Namespace(**x))
     os.chdir(working_Dir)
-    Copy_file(temp_folder / out_file, in_file)
-    Copy_file(temp_folder / out_file, Path("isomers.xyz"))
+    copy_file(temp_folder / out_file, in_file)
+    copy_file(temp_folder / out_file, Path("isomers.xyz"))
     print(" Saved the isomers.xyz in your working directory ")
     import shutil
     shutil.rmtree(temp_folder, ignore_errors=True)
@@ -112,23 +112,23 @@ def xtb(args):
 
 def orca(args, Dir, FileName):
     print(" ========== molclus_orca.py ==========")
-    from Tools.utility import Copy_file
+    from censo_ext.Tools.utility import copy_file
     import os
     temp_folder: Path = Path(".orca")
     if not temp_folder.is_dir():
         temp_folder.mkdir()
-    Copy_file(Path(in_file), temp_folder / in_file)
+    copy_file(Path(in_file), temp_folder / in_file)
 
     working_Dir = os.getcwd()
     temp_folder.mkdir()
-    import molclus_orca
+    import censo_ext.molclus_orca as molclus_orca
 
     x: dict = {"file": in_file, "template": "template.inp", "remove": True,
                "chrg": 0, "uhf": 1, "out": out_file}
     molclus_orca.main(argparse.Namespace(**x))
     os.chdir(working_Dir)
-    Copy_file(temp_folder / out_file, in_file)
-    Copy_file(temp_folder / out_file, Path("isomers.xyz"))
+    copy_file(temp_folder / out_file, in_file)
+    copy_file(temp_folder / out_file, Path("isomers.xyz"))
     print(" Saved the isomers.xyz in your working directory ")
     import shutil
     shutil.rmtree(temp_folder, ignore_errors=True)
@@ -136,14 +136,14 @@ def orca(args, Dir, FileName):
 
 
 def thermo(args) -> list:
-    import molclus_thermo
+    import censo_ext.molclus_thermo as molclus_thermo
     print(" ========= molclus_thermo.py ==========")
-    from Tools.utility import Copy_file
+    from censo_ext.Tools.utility import copy_file
     import os
     thermo_folder: Path = Path(".thermo")
     if not thermo_folder.is_dir():
         thermo_folder.mkdir()
-    Copy_file(in_file, thermo_folder / in_file)
+    copy_file(in_file, thermo_folder / in_file)
 
     working_Dir = os.getcwd()
     os.chdir(thermo_folder)
@@ -158,13 +158,13 @@ def thermo(args) -> list:
 
 
 def ensoGen(args, thermo_list) -> None:
-    from Tools.xyzfile import ClassGeometryXYZs
-    from Tools.anmrfile import ClassAnmr
+    from censo_ext.Tools.xyzfile import GeometryXYZs
+    from censo_ext.Tools.anmrfile import Anmr
     print(" ========= ensoGenFlexible ==========")
-    xyzfile: ClassGeometryXYZs = ClassGeometryXYZs(args.file)
+    xyzfile: GeometryXYZs = GeometryXYZs(args.file)
     xyzfile.method_read_xyz()
     # outAnmr: ClassAnmr = ClassAnmr(Path(args.file).parents[0])
-    outAnmr: ClassAnmr = ClassAnmr()
+    outAnmr: Anmr = Anmr()
     outAnmr.method_create_enso(
         xyzfile.method_ensoGenFlexible(args, thermo_list))
     outAnmr.method_save_enso()
@@ -207,7 +207,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         orca(args, Dir, fileName)
         thermo_list = thermo(args)
         ensoGen(args, thermo_list)
-    Delete_All_files(in_file, out_file)
+    delete_all_files(in_file, out_file)
 
 
 if __name__ == "__main__":

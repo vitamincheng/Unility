@@ -122,7 +122,7 @@ def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> 
 
     output = np.vstack((ppm, np.real(data))).T[::-1]
     # np.savetxt("output.dat", output, fmt=" %12.5f  %12.5e")
-    from Tools.spectra import numpy_threshold_mean_3
+    from censo_ext.Tools.spectra import numpy_threshold_mean_3
     threshold: float = 0
     if isinstance(thr, float):
         threshold: float = numpy_threshold_mean_3(data)*thr
@@ -147,7 +147,7 @@ def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> 
 
 
 def Compare_two_dict(CH1: dict, CH2: dict, StAtoms: dict, Label: int) -> None:
-    from Tools.spectra import find_nearest
+    from censo_ext.Tools.spectra import find_nearest
     for x in CH2.values():
         nearest_peak, idx0 = find_nearest(list(CH1.values()), x)
         # ic(nearest_peak-x)
@@ -254,7 +254,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     output: np.ndarray = np.vstack((ppm, np.real(data))).T[::-1]
     np.savetxt("output.dat", output, fmt=" %12.5f  %12.5e")
-    from Tools.spectra import numpy_threshold_mean_3
+    from censo_ext.Tools.spectra import numpy_threshold_mean_3
     threshold: float = numpy_threshold_mean_3(data)*thr[channel]
 
     # detect all peaks with a threshold

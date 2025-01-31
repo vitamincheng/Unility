@@ -28,7 +28,7 @@ import argparse
 from icecream import ic
 
 
-class ClassGeometry():
+class Geometry():
     '''Stores all of the data in an xyz file (single confromer) '''
 
     def __init__(self, names: dict[int, str], coord: list[np.ndarray], extras: list[str], comment: str = "", energy: float = 0, ncluster: int = 0) -> None:
@@ -44,9 +44,9 @@ class ClassGeometry():
         self.com: np.ndarray = np.array([])
         self.inertia: np.ndarray = np.array([])
 
-    def __add__(self, other: Self) -> ClassGeometry:
+    def __add__(self, other: Self) -> Geometry:
         import copy
-        result: ClassGeometry = copy.deepcopy(self)
+        result: Geometry = copy.deepcopy(self)
         for key in other.names.keys():
             result.names[len(self.names) + key] = other.names[key]
         # coordinates of every atom
@@ -69,14 +69,14 @@ class ClassGeometry():
     def get_comment_energy(self) -> float:
         return self.comment_energy
 
-    def method_translate_xyz(self, delta: np.ndarray) -> ClassGeometry:
+    def method_translate_xyz(self, delta: np.ndarray) -> Geometry:
         import copy
-        result: ClassGeometry = copy.deepcopy(self)
+        result: Geometry = copy.deepcopy(self)
         for x in result.coord:
             x += delta
         return result
 
-    def method_Molecules_Separation_xyz(self, list_idx: list) -> bool:
+    def method_molecules_separation_xyz(self, list_idx: list) -> bool:
         new_names: dict = {}
         idx_names: int = 1
         for name in self.names.copy():
@@ -93,7 +93,7 @@ class ClassGeometry():
         return True
 
     def method_idx_Molecules_xyz(self, fileName: Path) -> list[int]:
-        from censo_ext.Tools.topo import topo
+        from censo_ext.Tools.topo import Topo
         import censo_ext.Tools.ml4nmr as ml4nmr
         mol, neighbors = ml4nmr.read_mol_neighbors(fileName)
         # ic(neighbors)
@@ -110,11 +110,12 @@ class ClassGeometry():
             if len(neighbors[idx_atoms]) == 1:
                 x = {"file": fileName, "bonding": int(
                     idx_atoms), "print": False, "debug": False}
-                Sts_topo: topo = topo(x["file"])  # type: ignore
-                list_neighbors = Sts_topo.Bonding(argparse.Namespace(**x))
+                Sts_topo: Topo = Topo(x["file"])  # type: ignore
+                list_neighbors = Sts_topo.method_bonding(
+                    argparse.Namespace(**x))
                 x = {"file": fileName, "bond_broken": [
                     list_neighbors[0], idx_atoms], "print": False, "debug": False}
-                list_H = Sts_topo.Broken_bond_H(argparse.Namespace(**x))
+                list_H = Sts_topo.method_broken_bond_H(argparse.Namespace(**x))
             elif len(neighbors[idx_atoms]) == 0:
                 list_H = [idx_atoms]
             list_molecule.append(list_H)
@@ -195,14 +196,14 @@ class ClassGeometry():
         self.method_rewrite_comment()
 
 
-class ClassGeometryXYZs():
+class GeometryXYZs():
     '''
     stores all the data in an xyz file (multi-conformers)
     '''
 
     def __init__(self, fileName: Path = Path("")) -> None:
         self.__filename: Path = Path(fileName)
-        self.Sts: list[ClassGeometry] = list()
+        self.Sts: list[Geometry] = list()
 
     def __len__(self) -> int:
         return int(len(self.Sts))
@@ -210,9 +211,9 @@ class ClassGeometryXYZs():
     def set_filename(self, fileName: Path) -> None:
         self.__filename = Path(fileName)
 
-    def method_translate_cut_xyzs(self, delta: np.ndarray, cut: int) -> ClassGeometryXYZs:
+    def method_translate_cut_xyzs(self, delta: np.ndarray, cut: int) -> GeometryXYZs:
         import copy
-        result: ClassGeometryXYZs = ClassGeometryXYZs()
+        result: GeometryXYZs = GeometryXYZs()
         if len(self) == 1:
             for x in np.linspace(0, 1, num=cut, endpoint=True):
                 dSt = self.Sts[0].method_translate_xyz(delta=delta*x)
@@ -223,27 +224,27 @@ class ClassGeometryXYZs():
             print(" All xyzs will to save your xyz file")
             for St in (self.Sts):
                 for x in np.linspace(0, 1, num=cut, endpoint=True):
-                    dSt: ClassGeometry = St.method_translate_xyz(delta=delta*x)
+                    dSt: Geometry = St.method_translate_xyz(delta=delta*x)
                     result.Sts.append(copy.deepcopy(dSt))
             return result
 
-    def method_translate_xyzs(self, delta: np.ndarray) -> ClassGeometryXYZs:
+    def method_translate_xyzs(self, delta: np.ndarray) -> GeometryXYZs:
         import copy
-        result: ClassGeometryXYZs = ClassGeometryXYZs()
+        result: GeometryXYZs = GeometryXYZs()
         for x in self.Sts:
-            x: ClassGeometry = x.method_translate_xyz(delta=delta)
+            x: Geometry = x.method_translate_xyz(delta=delta)
             result.Sts.append(copy.deepcopy(x))
         return result
 
-    def __add__(self, var2: Self) -> ClassGeometryXYZs:
+    def __add__(self, var2: Self) -> GeometryXYZs:
 
-        var3: ClassGeometryXYZs
+        var3: GeometryXYZs
         if len(var2) == 1:
             import copy
-            var3: ClassGeometryXYZs = copy.deepcopy(self)
+            var3: GeometryXYZs = copy.deepcopy(self)
             var3.Sts.append(var2.Sts[0])
 
-            var4: ClassGeometryXYZs = ClassGeometryXYZs()
+            var4: GeometryXYZs = GeometryXYZs()
             for idx in range(0, len(self), 1):
                 var4.Sts.append(
                     var3.Sts[idx] + var3.Sts[-1])
@@ -259,14 +260,14 @@ class ClassGeometryXYZs():
         self.method_save_xyz([idx1])
         list_idx: list = self.Sts[idx1 -
                                   1].method_idx_Molecules_xyz(fileName)
-        from censo_ext.Tools.utility import Delete_All_files
-        Delete_All_files(fileName)
+        from censo_ext.Tools.utility import delete_all_files
+        delete_all_files(fileName)
         for x in list_idx:
             import copy
             self.Sts.append(copy.deepcopy(self.Sts[idx1-1]))
         # ic(len(self.structures))
         for idx, x in enumerate(list_idx):
-            if self.Sts[idx1+idx].method_Molecules_Separation_xyz(x):
+            if self.Sts[idx1+idx].method_molecules_separation_xyz(x):
                 pass
             else:
                 print(" Something wrong in your Molecule Separation xyz file")
@@ -284,18 +285,18 @@ class ClassGeometryXYZs():
             self.method_save_xyz([idx1+idx0+1])
         return True
 
-    def method_Sts_extend(self, Sts_: list[ClassGeometry]) -> None:
+    def method_Sts_extend(self, Sts_: list[Geometry]) -> None:
         raise NotImplementedError
         self.Sts.extend(Sts_)
 
-    def method_Sts_append(self, St: ClassGeometry) -> None:
+    def method_Sts_append(self, St: Geometry) -> None:
         raise NotImplementedError
         self.Sts.append(St)
 
     def method_read_xyz(self) -> None:
         '''reads xyz file and save the data into self geometry object'''
-        from censo_ext.Tools.utility import IsExist
-        IsExist(self.__filename)
+        from censo_ext.Tools.utility import is_exist
+        is_exist(self.__filename)
 
         with open(self.__filename, "r") as f:
             line: str = f.readline()
@@ -319,7 +320,7 @@ class ClassGeometryXYZs():
                     else:
                         extras.append(list([]))
 
-                self.Sts.append(ClassGeometry(
+                self.Sts.append(Geometry(
                     names, coords, comment=comment, extras=extras))
                 line = f.readline()
         self.method_comment_keep()
@@ -418,36 +419,3 @@ class ClassGeometryXYZs():
         if np_enso.dtype.names != None:
             names_anmr = list(np_enso.dtype.names)
         return np_enso[names_anmr[:8]]
-
-    # def method_Boltzmann(self, TEMP=298.15) -> np.ndarray:
-    #    import numpy.lib.recfunctions as rfn
-    #    from censo_ext.Tools.Parameter import PI, Eh, FACTOR
-    #    # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
-    #    #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
-
-    #    # Column 8 is Total Gibbs Free Energy (Eh) = Energy + mRRHO
-    #    np_enso: np.ndarray = np.array(
-    #        [a.comment_energy for a in self.Sts], dtype=[('Total', 'f8')])
-
-    #    # Gibbs_min is lowest energy of Gibbs Free Energy
-    #    Gibbs_min = np_enso['Total'].min()
-
-    #    # Column 9 is delta Gibbs Free Energy (kcal/mol)
-    #    Gibbs: np.ndarray = np.array(
-    #        (np_enso['Total']-Gibbs_min)*Eh, dtype=[('Gibbs', 'f8')])
-    #    np_enso = rfn.merge_arrays((np_enso, Gibbs), flatten=True)
-
-    #    # Column 1o is Qi (each CONFS)
-    #    Qi: np.ndarray = np.array(
-    #        np.exp(-np_enso['Gibbs']/(TEMP*FACTOR)), dtype=[('Qi', 'f8')])
-    #    np_enso = rfn.merge_arrays((np_enso, Qi), flatten=True)
-
-    #    # Qall is sum of Qi
-    #    Qall = np.sum(np_enso['Qi'])
-
-    #    # Column 11 is percentage of each CONFS
-    #    NEW_BW: np.ndarray = np.array(
-    #        np_enso['Qi']/Qall, dtype=[('NEW_BW', 'f8')])
-    #    np_enso = rfn.merge_arrays((np_enso, NEW_BW), flatten=True)
-
-    #    return np_enso

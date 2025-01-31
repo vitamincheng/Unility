@@ -241,8 +241,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
     else:
         Directory_str: Path = Path(args.dir)
 
-    from Tools.anmrfile import ClassAnmr
-    inAnmr: ClassAnmr = ClassAnmr(Directory_str)
+    from censo_ext.Tools.anmrfile import Anmr
+    inAnmr: Anmr = Anmr(Directory_str)
     inAnmr.method_read_anmrrc()
     inAnmr.method_read_nucinfo()
     # ic(inAnmr.get_average_orcaSJ_Exist(), args.average)
@@ -271,7 +271,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
     for idx, x in enumerate(inAnmr.get_Anmr_Active()):
         if idx == 0:
             if x == 'C':
-                from Tools.ml4nmr import read_mol_neighbors_bond_order
+                from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
                 mol, neighbors, bond_order = read_mol_neighbors_bond_order(
                     inAnmr.get_Directory() / in_xyzFileName)
                 inHydrogen = [value+1 for value in bond_order.values()]
@@ -455,7 +455,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
     # Low level QM model
     # see https://nmrsim.readthedocs.io/en/latest/index.html
     #
-    import Tools.qm as qm
+    import censo_ext.Tools.qm as qm
     idx0_peaks_range: list = []
 
     if args.json == None:

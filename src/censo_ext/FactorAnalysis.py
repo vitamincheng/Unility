@@ -4,7 +4,7 @@ import os
 import numpy as np
 from sys import argv as sysargv
 from icecream import ic
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 descr = """
 ________________________________________________________________________________
@@ -148,12 +148,12 @@ def cml(descr) -> argparse.Namespace:
 
 def cal_rmsd_coord(args, xyzfile, idx_cal) -> np.ndarray:
     idx0_cal = [x-1 for x in idx_cal]              # start from 0 to num-1
-    import Tools.calculate_rmsd
+    import censo_ext.Tools.calculate_rmsd as calculate_rmsd
     x = {"remove_idx": args.remove_idx, "add_idx": args.add_idx,
          "bond_broken": args.bond_broken, "ignore_Hydrogen": args.ignore_Hydrogen, "debug": False}
     coord: list = []
     for idx0 in (idx0_cal):
-        coord_square, result_rmsd = Tools.calculate_rmsd.main_xyz(
+        coord_square, result_rmsd = calculate_rmsd.main_xyz(
             xyzfile, idx0_cal[0]+1, idx0+1, args=argparse.Namespace(**x))
         A = list(coord_square.values())
         coord.append(A)
@@ -161,7 +161,7 @@ def cal_rmsd_coord(args, xyzfile, idx_cal) -> np.ndarray:
 
 
 def FactorFilter(args) -> None:
-    xyzfile: ClassGeometryXYZs = ClassGeometryXYZs(args.file)
+    xyzfile: GeometryXYZs = GeometryXYZs(args.file)
     xyzfile.method_read_xyz()
     # start from 1 to num
     idx1_cal: list[int] = [x+1 for x in [*range(len(xyzfile))]]
@@ -218,7 +218,7 @@ def FactorFilter(args) -> None:
         conformers_major = len(idx1_cal)
 
     path: Path = Path("Final_Result")
-    from Tools.utility import IsExistReturnBool
+    from censo_ext.Tools.utility import is_exist_return_bool
     isExist: bool = os.path.exists(path)
     if not isExist:
         path.mkdir()
@@ -257,10 +257,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             args.factor = 0.50
         minor_list: list[int]
         Table_S: dict
-        from Tools.factor import FactorAnalysis, FactorOpt
-        minor_list, Table_S = FactorAnalysis(args)
+        from censo_ext.Tools.factor import method_factor_analysis, method_factor_opt
+        minor_list, Table_S = method_factor_analysis(args)
         if args.opt:
-            FactorOpt(args=args, np_low_factor=minor_list, Table_S=Table_S)
+            method_factor_opt(
+                args=args, np_low_factor=minor_list, Table_S=Table_S)
 
     if args.Filter == True:
         if args.factor == None:

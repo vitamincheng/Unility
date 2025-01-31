@@ -55,8 +55,8 @@ def cml():
 
 
 def Atom_Equivalent(filename: Path = Path("anmrh.out")) -> list:
-    from Tools.anmrfile import ClassAnmr
-    anmr = ClassAnmr()
+    from censo_ext.Tools.anmrfile import Anmr
+    anmr = Anmr()
     anmr.method_read_anmrSJ(filename)
     DataJ: list = anmr.anmrS
     anmr.method_read_nucinfo()
@@ -71,8 +71,8 @@ def Atom_Equivalent(filename: Path = Path("anmrh.out")) -> list:
 
 
 def function_read_orcaJ(fileName: Path = Path("orcaJ.out")) -> np.ndarray:
-    from Tools.anmrfile import orcaSJ
-    single_orcaSJ = orcaSJ()
+    from censo_ext.Tools.anmrfile import OrcaSJ
+    single_orcaSJ = OrcaSJ()
     if single_orcaSJ.method_read_orcaJ(fileName):
         return single_orcaSJ.orcaJCoups
     else:

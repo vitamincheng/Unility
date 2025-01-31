@@ -392,7 +392,7 @@ def plot_nmr_assign(orcaS: np.ndarray, height_thr: float, ppm: list, intensit: l
 
     for idxAtom, peak_ppm in orcaS:
         intensit_max: float = max(intensit[0])
-        from Tools.spectra import find_nearest
+        from censo_ext.Tools.spectra import find_nearest
         value_close, idx_close = find_nearest(ppm[0], peak_ppm)
         idx_intensity: int = intensit[0][idx_close]
         axislist[0].vlines(peak_ppm, ymin=idx_intensity + intensit_max *
@@ -402,7 +402,7 @@ def plot_nmr_assign(orcaS: np.ndarray, height_thr: float, ppm: list, intensit: l
 
     for peak_ppm in ppm_Ref:
         intensit_min: float = min(intensit[1])
-        from Tools.spectra import find_nearest
+        from censo_ext.Tools.spectra import find_nearest
         value_close, idx_close = find_nearest(ppm[1], peak_ppm)
         idx_intensity: int = intensit[1][idx_close]
         axislist[-1].vlines(peak_ppm, ymin=idx_intensity + intensit_min *
@@ -908,10 +908,10 @@ if __name__ == "__main__":
             if args.findpeaks:
                 height_thr_sp: list[float] = []
                 for idx_file in args.file:
-                    from Tools.utility import IsExist
-                    IsExist(idx_file)
+                    from censo_ext.Tools.utility import is_exist
+                    is_exist(idx_file)
                     orcaS_Ref = np.genfromtxt(idx_file, usecols=(0, 1))
-                    from Tools.spectra import numpy_threshold_10
+                    from censo_ext.Tools.spectra import numpy_threshold_10
                     thr: float = numpy_threshold_10(orcaS_Ref.T[1])
                     y_heighest = max(orcaS_Ref.T[1])
                     height_thr_sp.append(thr + y_heighest*0.01)
@@ -925,16 +925,16 @@ if __name__ == "__main__":
                 args.orientation = [1, -1]
                 from pathlib import Path
                 filename: Path = Path("Average/NMR/orcaS-BOBYQA.out")
-                from Tools.utility import IsExist
-                IsExist(filename)
+                from censo_ext.Tools.utility import is_exist
+                is_exist(filename)
 
                 orcaS: np.ndarray = np.genfromtxt(filename, usecols=(0, 1))
                 orcaS.T[1] = orcaS.T[1]*(-1)
-                IsExist(args.file[1])
+                is_exist(args.file[1])
 
                 orcaS_Ref: np.ndarray = np.genfromtxt(
                     args.file[1], usecols=(0, 1))
-                from Tools.spectra import numpy_threshold_3
+                from censo_ext.Tools.spectra import numpy_threshold_3
                 height_thr: float = numpy_threshold_3(orcaS_Ref.T[1])
 
                 plot_nmr_assign(orcaS, height_thr, ppm, intensit)

@@ -4,7 +4,7 @@ from icecream import ic
 import nmrglue as ng
 import matplotlib.pyplot as plt
 import numpy as np
-from Tools.spectra import *
+from censo_ext.Tools.spectra import *
 
 
 def Load_dat(fileName_H, FileName_C) -> tuple[np.ndarray, np.ndarray]:
@@ -16,7 +16,7 @@ def Load_dat(fileName_H, FileName_C) -> tuple[np.ndarray, np.ndarray]:
 
 def Load_Directory(directory_H, directory_C) -> tuple[np.ndarray, np.ndarray]:
 
-    import anmr
+    import censo_ext.anmr as anmr
     x: dict = {"auto": True, "average": True,
                "bobyqa": True, "mf": 500, "dir": directory_H, "thr": None, "json": [-1], "thrab": 0.025,
                "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
@@ -59,7 +59,7 @@ def plot_2D_basic(data_x, data_y):
 
 def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, np.ndarray], dict, dict]:
 
-    from Tools.ml4nmr import read_mol_neighbors_bond_order
+    from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     from pathlib import Path
     mol, neighbor, bond_order = read_mol_neighbors_bond_order(
         Path("Test/04.Hydrogen/crest_conformers.xyz"))
@@ -96,7 +96,7 @@ def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, np.ndar
         if len(idx0_neighbor) != 0:
             for idx0 in idx0_neighbor:
 
-                import anmr
+                import censo_ext.anmr as anmr
                 import os
                 import argparse
                 import sys
@@ -175,7 +175,7 @@ def main(args=argparse.Namespace()) -> None:
         ax, data_x, data_y)
     # plot_target(ax)
     print_report(bond_order, neighbor, idxAtoms_H, idxAtoms_C)
-    from Tools.utility import save_figure
+    from censo_ext.Tools.utility import save_figure
     save_figure()
     # if hidden == False:
     ax.set_xlim(max(data_x.T[0]), min(data_x.T[0]))
