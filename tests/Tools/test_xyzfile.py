@@ -1,8 +1,8 @@
-import pathlib
-import argparse
 from pathlib import Path
 import pytest
 from censo_ext.Tools.xyzfile import GeometryXYZs
+import os
+import filecmp
 
 
 def test_method_read_xyz():
@@ -75,11 +75,9 @@ def test_method_save_xyz():
     outfile = Path("tests/compare/output.xyz")
     file.set_filename(outfile)
     file.method_save_xyz([])
-    import filecmp
     dcmp = filecmp.cmp(outfile,
                        'tests/compare/xyzfile-1.xyz')
     assert (dcmp == True)
-    import os
     os.remove(outfile)
     # for isomers.xyz
     file = GeometryXYZs(Path("tests/data/isomers.xyz"))
@@ -88,11 +86,9 @@ def test_method_save_xyz():
     outfile = Path("tests/compare/output.xyz")
     file.set_filename(outfile)
     file.method_save_xyz([])
-    import filecmp
     dcmp = filecmp.cmp(outfile,
                        'tests/compare/xyzfile-2.xyz')
     assert (dcmp == True)
-    import os
     os.remove(outfile)
 
 #

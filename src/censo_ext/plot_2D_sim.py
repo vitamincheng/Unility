@@ -4,7 +4,8 @@ from icecream import ic
 import nmrglue as ng
 import matplotlib.pyplot as plt
 import numpy as np
-from censo_ext.Tools.spectra import *
+import os
+import sys
 
 
 def Load_dat(fileName_H, FileName_C) -> tuple[np.ndarray, np.ndarray]:
@@ -97,9 +98,6 @@ def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, np.ndar
             for idx0 in idx0_neighbor:
 
                 import censo_ext.anmr as anmr
-                import os
-                import argparse
-                import sys
                 x = {'out': 'output.dat', 'mf': 500.0, "dir": "Test/04.Hydrogen", 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
                      'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': True, 'json': [idx0]}
 

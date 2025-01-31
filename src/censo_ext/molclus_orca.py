@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 from censo_ext.Tools.xyzfile import GeometryXYZs
+import os
+import sys
 import argparse
 import subprocess
 from censo_ext.Tools.utility import delete_all_files, is_exist_return_bool
@@ -80,14 +82,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
 
-    import os
     from censo_ext.Tools.utility import is_exist
     is_exist(args.file)
     IsExist_template: bool = is_exist_return_bool(args.template)
 
     template_inp: str = ".template.inp"
     if IsExist_template == False:
-        import sys
         original_stdout = sys.stdout
         with open(template_inp, "w") as f:
             sys.stdout = f
@@ -100,7 +100,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     infile.method_read_xyz()
     singleXYZ: Path = Path("[xyzfile]")
 
-    import os
     str_list = os.environ['PATH'].split(":")
     match = [x for x in str_list if "orca" in x]
     print(match)
@@ -161,7 +160,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         if templateFileIsExists:
             templateLines: list = open(
                 templateName + ".xyz", "r").readlines()
-            import re
             for idy, y in enumerate(templateLines):
                 if re.search(r"Coordinates from ORCA-job "+templateName, y) and get_energy:
                     # get_comment_template = idy

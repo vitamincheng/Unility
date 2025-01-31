@@ -3,8 +3,9 @@ import pathlib
 import argparse
 from pathlib import Path
 import pytest
+import numpy as np
 from icecream import ic
-from censo_ext.Tools.qm import *
+from censo_ext.Tools.qm import qm_partial
 
 
 def test_qm():

@@ -8,6 +8,7 @@ import numpy as np
 from sys import argv as sysargv
 import argparse
 import os
+import sys
 
 # global variable
 peaks_fileName = "plot_1D_DEPT.peaks"
@@ -114,7 +115,6 @@ def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> 
     # args.end                args.start
     # ppm_1h_0                ppm_1h_1
 
-    import numpy as np
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
     ppm = np.linspace(ppm_1h_0, ppm_1h_1, data.shape[0])
     if args.start == None or args.end == None:
@@ -173,7 +173,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(descr)  # Program description
         print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    from pathlib import Path
     path: dict[Path, Path] = {}
 
     ch1: Path = Path('13C')
@@ -246,7 +245,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # args.end                args.start
     # ppm_1h_0                ppm_1h_1
 
-    import numpy as np
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
     ppm: np.ndarray = np.linspace(ppm_1h_0, ppm_1h_1, data.shape[0])
     if args.start == None or args.end == None:
@@ -282,7 +280,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # save to file
     if args.save == True:
-        import sys
         original_stdout = sys.stdout
         with open(peaks_fileName, "w") as f:
             sys.stdout = f

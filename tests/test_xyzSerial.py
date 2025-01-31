@@ -4,6 +4,8 @@ import pytest
 from pathlib import Path
 import argparse
 import censo_ext.xyzSerial as xyzSerial
+import filecmp
+import os
 
 
 def test_xyzSerial_new():
@@ -12,11 +14,9 @@ def test_xyzSerial_new():
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
-    import filecmp
     compare = "tests/compare/xyzSerial-new.xyz"
     dcmp = filecmp.cmp(args.out, compare)
     assert (dcmp == True)
-    import os
     os.remove(args.out)
 
 
@@ -26,9 +26,7 @@ def test_xyzSerial_keep():
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
-    import filecmp
     compare = "tests/compare/xyzSerial-keep.xyz"
     dcmp = filecmp.cmp(args.out, compare)
     assert (dcmp == True)
-    import os
     os.remove(args.out)

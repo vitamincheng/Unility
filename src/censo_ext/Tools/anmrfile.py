@@ -3,9 +3,11 @@
 from __future__ import annotations
 from typing_extensions import Self
 import os
+import sys
 import numpy as np
 from icecream import ic
 from pathlib import Path
+from censo_ext.Tools.utility import is_exist, is_exist_return_bool
 # from dataclasses import dataclass
 
 
@@ -150,7 +152,6 @@ class Anmr():
 
     def method_read_anmrrc(self, fileName=Path(".anmrrc")) -> None:
         '''Read .anmrrc setting file from censo '''
-        from censo_ext.Tools.utility import is_exist
         DirFileName: Path = self.__Directory / fileName
         is_exist(DirFileName)
         self.__AnmrParams: Anmrrc = Anmrrc(DirFileName)
@@ -370,7 +371,6 @@ class Anmr():
 
     def method_read_folder_orcaSJ(self) -> None:
 
-        import os
         Dir: Path = self.__Directory
         print("Files and directories in ", Dir, " : ")
 
@@ -400,7 +400,6 @@ class Anmr():
                     print("Something wrong in your orcaJ.out")
                 self.orcaSJ.append(iter)
 
-                # from icecream import ic
                 # ic(iter.orcaSParams)
                 # ic(iter.orcaJCoups)
 
@@ -413,7 +412,6 @@ class Anmr():
         fileName_Av_orcaAtoms: Path = self.__Directory / \
             Path("Average/NMR/orcaA.out")
 
-        from censo_ext.Tools.utility import is_exist_return_bool
         if is_exist_return_bool(fileName_Av_orcaS) and is_exist_return_bool(fileName_Av_orcaAtoms) and is_exist_return_bool(fileName_Av_orcaJ):
             return True
         else:
@@ -477,7 +475,6 @@ class Anmr():
         '''
         Read the file anmr.out from anmr program
         '''
-        from censo_ext.Tools.utility import is_exist
         filename = self.__Directory / Path(filename)
         is_exist(filename)
 
@@ -586,7 +583,6 @@ class Anmr():
                 print("")
 
     def method_read_nucinfo(self, filename: Path = Path("anmr_nucinfo")) -> None:
-        from censo_ext.Tools.utility import is_exist
         filename = self.__Directory / Path(filename)
         is_exist(filename)
 
@@ -625,7 +621,6 @@ class Anmr():
         ''' anmr_enso :  8 columns '''
         ''' ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi  '''
 
-        from censo_ext.Tools.utility import is_exist
         fileName = self.__Directory / Path(fileName)
         is_exist(fileName)
         self.enso = np.genfromtxt(fileName, names=True)
@@ -641,7 +636,6 @@ class Anmr():
 
     def method_save_enso(self, fileName: Path = Path("anmr_enso.new")) -> None:
         DirFileName: Path = self.__Directory / Path(fileName)
-        import sys
         original_stdout = sys.stdout
         with open(DirFileName, "w") as f:
             sys.stdout = f
@@ -660,7 +654,6 @@ class OrcaSJ():
     def method_read_orcaJ(self, filename: Path = Path("orcaJ.out")) -> bool:
         ''' Read the file orcaJ.out in censo program '''
         print(" method_read_orcaJ", filename)
-        from censo_ext.Tools.utility import is_exist
         is_exist(filename)
 
         start_idx, end_idx = 0, 0
@@ -732,7 +725,6 @@ class OrcaSJ():
     def method_read_orcaS(self, filename: Path = Path("orcaS.out")) -> bool:
         ''' Read the file orcaS.out in censo program '''
         print(" method_read_orcaS", filename)
-        from censo_ext.Tools.utility import is_exist
         is_exist(filename)
 
         start_idx, end_idx = 0, 0
@@ -847,7 +839,6 @@ class OrcaSJ():
 class CensoDat():
 
     def __init__(self, fileName: Path = Path("anmr.dat")) -> None:
-        from censo_ext.Tools.utility import is_exist
         is_exist(fileName)
         self.__fileName: Path = Path(fileName)
         self.__dat: np.ndarray = np.genfromtxt(fileName)
@@ -867,7 +858,6 @@ class CensoDat():
         return Result
 
     def method_save_dat(self) -> None:
-        import sys
         original_stdout = sys.stdout
         with open(self.__fileName, "w") as f:
             sys.stdout = f

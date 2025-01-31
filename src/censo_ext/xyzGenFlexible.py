@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import os
+import sys
 import numpy as np
 from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
@@ -165,7 +166,6 @@ def gen_ClassGeometryXYZs(xyzSplitDict: dict, args: argparse.Namespace) -> None:
         import censo_ext.xyzSplit as xyzSplit
         args_x: dict = {"file": fileNameIn,
                         "atom": [key, value], "cut": 3, "print": False, "out": fileNameOut}
-        import sys
         sys.stdout = open(os.devnull, 'w')
         xyzSplit.main(argparse.Namespace(**args_x))
         sys.stdout = sys.__stdout__

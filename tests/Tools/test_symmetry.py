@@ -1,9 +1,6 @@
-import pathlib
-import argparse
 from pathlib import Path
 import pytest
 from pointgroup import PointGroup
-import censo_ext.Tools.symmetry
 
 
 def test_get_Point_Group():

@@ -64,12 +64,14 @@ if __name__ == "__main__":
 
             x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
                        "ignore_Hydrogen": False, "debug": False}
-            idx_atom1 = main_xyz(xyzfile, 1, 2, args=argparse.Namespace(**x))
+            idx_atom1 = cal_rmsd_xyz(
+                xyzfile, 1, 2, args=argparse.Namespace(**x))
             ic(idx_atom1)
 
             x = {"remove_idx": None, "add_idx": None, "bond_broken": [
                 52, 55], "ignore_Hydrogen": True, "debug": False}
-            idx_atom1 = main_xyz(xyzfile, 1, 2, args=argparse.Namespace(**x))
+            idx_atom1 = cal_rmsd_xyz(
+                xyzfile, 1, 2, args=argparse.Namespace(**x))
             ic(idx_atom1)
 
         ###############################################################################
@@ -126,7 +128,6 @@ if __name__ == "__main__":
 
             R_peak = qm_partial(v=v, J=J, nIntergals=1, idx0_nspins=1,
                                 args=argparse.Namespace(**x))
-            from icecream import ic
             ic(R_peak)
             print_plot(inpeaklist=R_peak, dpi=10000, nIntergals=2,
                        Active_range=10, args=argparse.Namespace(**x), hidden=False)

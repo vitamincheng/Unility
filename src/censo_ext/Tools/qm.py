@@ -202,7 +202,6 @@ def mpl_plot(peaklist, w=1, y_min=-0.01, y_max=1, points=800, limits=None, hidde
 
     """
     from nmrsim.plt import low_high, add_lorentzians
-    import numpy as np
     if hidden == True:
         peaklist.sort()
         if limits:

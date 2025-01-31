@@ -102,7 +102,6 @@ def cml(descr) -> argparse.Namespace:
 
 def idx_3atom_opt(args) -> list[int]:
     from censo_ext.Tools.factor import method_factor_analysis
-    import argparse
     args_x: dict = {"file": args.file,
                     "factor": 0.5, "debug": False, "opt": False}
     minor_list, TableSTD = method_factor_analysis(

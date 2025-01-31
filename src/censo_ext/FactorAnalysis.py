@@ -148,12 +148,12 @@ def cml(descr) -> argparse.Namespace:
 
 def cal_rmsd_coord(args, xyzfile, idx_cal) -> np.ndarray:
     idx0_cal = [x-1 for x in idx_cal]              # start from 0 to num-1
-    import censo_ext.Tools.calculate_rmsd as calculate_rmsd
+    from censo_ext.Tools.calculate_rmsd import cal_rmsd_xyz
     x = {"remove_idx": args.remove_idx, "add_idx": args.add_idx,
          "bond_broken": args.bond_broken, "ignore_Hydrogen": args.ignore_Hydrogen, "debug": False}
     coord: list = []
     for idx0 in (idx0_cal):
-        coord_square, result_rmsd = calculate_rmsd.main_xyz(
+        coord_square, result_rmsd = cal_rmsd_xyz(
             xyzfile, idx0_cal[0]+1, idx0+1, args=argparse.Namespace(**x))
         A = list(coord_square.values())
         coord.append(A)

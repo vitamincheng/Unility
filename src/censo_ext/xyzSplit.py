@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from scipy.spatial.transform import Rotation as R
 import argparse
+import os
 import numpy as np
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from icecream import ic
@@ -101,8 +102,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.cut == None or args.atom == None:
         print(" Please input your atoms that you want to split ")
         print(" Exit to this program !!!")
-        import os
-        ic()
         os._exit(0)
 
     from censo_ext.Tools.utility import delete_file_bool

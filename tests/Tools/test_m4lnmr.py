@@ -3,7 +3,7 @@ import argparse
 from pathlib import Path
 import pytest
 from icecream import ic
-from censo_ext.Tools.ml4nmr import *
+from censo_ext.Tools.ml4nmr import read_mol_neighbors, read_mol_neighbors_bond_order
 
 
 def test_m4nmr():

@@ -26,6 +26,7 @@ import sys
 import numpy as np
 import argparse
 from icecream import ic
+import copy
 
 
 class Geometry():
@@ -70,7 +71,6 @@ class Geometry():
         return self.comment_energy
 
     def method_translate_xyz(self, delta: np.ndarray) -> Geometry:
-        import copy
         result: Geometry = copy.deepcopy(self)
         for x in result.coord:
             x += delta
@@ -212,7 +212,6 @@ class GeometryXYZs():
         self.__filename = Path(fileName)
 
     def method_translate_cut_xyzs(self, delta: np.ndarray, cut: int) -> GeometryXYZs:
-        import copy
         result: GeometryXYZs = GeometryXYZs()
         if len(self) == 1:
             for x in np.linspace(0, 1, num=cut, endpoint=True):
@@ -229,7 +228,6 @@ class GeometryXYZs():
             return result
 
     def method_translate_xyzs(self, delta: np.ndarray) -> GeometryXYZs:
-        import copy
         result: GeometryXYZs = GeometryXYZs()
         for x in self.Sts:
             x: Geometry = x.method_translate_xyz(delta=delta)
@@ -240,7 +238,6 @@ class GeometryXYZs():
 
         var3: GeometryXYZs
         if len(var2) == 1:
-            import copy
             var3: GeometryXYZs = copy.deepcopy(self)
             var3.Sts.append(var2.Sts[0])
 
@@ -263,7 +260,6 @@ class GeometryXYZs():
         from censo_ext.Tools.utility import delete_all_files
         delete_all_files(fileName)
         for x in list_idx:
-            import copy
             self.Sts.append(copy.deepcopy(self.Sts[idx1-1]))
         # ic(len(self.structures))
         for idx, x in enumerate(list_idx):

@@ -1,7 +1,5 @@
-import pathlib
 import argparse
 from pathlib import Path
-from ase.neighborlist import NeighborList
 import pytest
 from censo_ext.Tools.topo import Topo
 

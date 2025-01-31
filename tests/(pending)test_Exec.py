@@ -1,11 +1,9 @@
-from ast import main
-from tkinter import W
+import argparse
+from icecream import ic
 from numpy import ndarray
 
 if __name__ == "__main__":
 
-    import argparse
-    from icecream import ic
     content: dict[int, str] = {
         1:   "anmr.py",
         2:   "BOBYQA.py",
@@ -43,7 +41,6 @@ if __name__ == "__main__":
         ################################################
         if nCH == 1:
             import censo_ext.anmr as anmr
-            import argparse
             x: dict = {"auto": True, "average": True, "dir": "../tests/04.Hydrogen",
                        "bobyqa": True, "mf": 500, "thr": None, "json": [-1], "thrab": 0.025,
                        "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
@@ -75,7 +72,6 @@ if __name__ == "__main__":
         ################################################
         if nCH == 3:
             import censo_ext.cregen as cregen
-            import argparse
             x: dict = {"file": "../tests/crest_conformers.xyz", "rthr": 0.175,
                        "bthr": 0.03, "ethr": 0.15, "ewin": 4, "out": "cluster.xyz"}
             cregen.main(argparse.Namespace(**x))
@@ -85,7 +81,6 @@ if __name__ == "__main__":
         ################################################
         if nCH == 4:
             import censo_ext.datNormalized as datNormalized
-            import argparse
 
             x = {"file": "../tests/04.Hydrogen/output.dat",
                  "start": -5, "end": 15, "dpi": 10000, "out": "output.dat"}
@@ -101,17 +96,16 @@ if __name__ == "__main__":
         # FactorAnalysis.py
         ################################################
         if nCH == 5:
-            import censo_ext.FactorAnalysis as FactorAnalysis
-            import argparse
+            from censo_ext.Tools.factor import method_factor_analysis
             x = {"auto": True, "file": "../tests/crest_conformers.xyz",
                  "Analysis": True, "factor": None, "opt": None, "Filter": False}
-            FactorAnalysis.main(args=argparse.Namespace(**x))
+            method_factor_analysis(args=argparse.Namespace(**x))
             x = {"auto": True, "file": "../tests/crest_conformers.xyz",
                  "Analysis": True, "factor": None, "opt": True, "Filter": False}
-            FactorAnalysis.main(args=argparse.Namespace(**x))
+            method_factor_analysis(args=argparse.Namespace(**x))
             x = {"auto": True, "file": "../tests/crest_conformers.xyz", "thr": 2, "remove_idx": None, "add_idx": None,
                  "bond_broken": [52, 55], "ignore_Hydrogen": True, "Analysis": False, "factor": None, "opt": None, "Filter": True}
-            FactorAnalysis.main(argparse.Namespace(**x))
+            method_factor_analysis(argparse.Namespace(**x))
             # python3 FactorAnalysis.py -A -i ../tests/crest_conformers.xyz --opt
             # python3 FactorAnalysis.py -F -i ../tests/crest_conformers.xyz -bb 52 55 -nh
 
@@ -120,7 +114,7 @@ if __name__ == "__main__":
         ################################################
         if nCH == 7:
             import censo_ext.molclus_orca as molclus_orca
-            import argparse
+
             x = {"file": "../tests/crest_conformers.xyz", "template": "template.inp", "remove": True,
                  "chrg": 0, "uhf": 1, "out": "isomers.xyz"}
             molclus_orca.main(argparse.Namespace(**x))
@@ -136,7 +130,7 @@ if __name__ == "__main__":
         ################################################
         if nCH == 8:
             import censo_ext.molclus_xtb as molclus_xtb
-            import argparse
+
             x = {"file": "../tests/crest_conformers.xyz", "method": "gfn2",
                  "chrg": 0, "uhf": 1, "out": "isomers.xyz", "alpb": None, "gbsa": None, "opt": False}
             molclus_xtb.main(argparse.Namespace(**x))
@@ -152,7 +146,7 @@ if __name__ == "__main__":
         ################################################
         if nCH == 9:
             import censo_ext.molManipulate as molManipulate
-            import argparse
+
             x = {"separate": "../tests/crest_conformers3.xyz"}
             molManipulate.main(argparse.Namespace(**x))
 
@@ -167,7 +161,6 @@ if __name__ == "__main__":
         ################################################
         if nCH == 14:
             import censo_ext.xyzReturnOandZ as xyzReturnOandZ
-            import argparse
             x: dict = {"file": "../tests/crest_conformers.xyz",
                        "atom": [30, 45, 47], "print": False, "replace": False, "out": "output.xyz"}
             xyzReturnOandZ.main(argparse.Namespace(**x))
@@ -182,7 +175,6 @@ if __name__ == "__main__":
         ################################################
         if nCH == 15:
             import censo_ext.xyzSerial as xyzSerial
-            import argparse
             x = {"file": "../tests/crest_conformers.xyz", "new": True,
                  "keep": False, "print": False, "out": "output.xyz"}
             xyzSerial.main(argparse.Namespace(**x))
@@ -201,7 +193,6 @@ if __name__ == "__main__":
         ################################################
         if nCH == 16:
             import censo_ext.xyzSplit as xyzSplit
-            import argparse
             x = {"file": "../tests/crest_conformers1.xyz",
                  "atom": [52, 55], "cut": 12, "print": False, "out": "output.xyz"}
             xyzSplit.main(argparse.Namespace(**x))
@@ -216,7 +207,6 @@ if __name__ == "__main__":
         ################################################
         if nCH == 17:
             import censo_ext.xyzTranslate as xyzTranslate
-            import argparse
             x = {"file": "../tests/crest_conformers.xyz",
                  "move": [5, 0, 0], "cut": None, "out": "output.xyz"}
             xyzTranslate.main(argparse.Namespace(**x))

@@ -4,10 +4,11 @@ import matplotlib.pyplot as plt
 from nmrglue.fileio.fileiobase import unit_conversion
 from censo_ext.Tools.spectra import numpy_threshold_3, numpy_threshold_10
 from sys import argv as sysargv
-import numpy as np
 import nmrglue as ng
 import argparse
 import os
+import numpy as np
+import sys
 
 descr = """
 ________________________________________________________________________________
@@ -85,14 +86,12 @@ def cml(descr) -> argparse.Namespace:
 
 def read_from_bruker(fileName, DeltaF1, DeltaF2):
 
-    import nmrglue as ng
     dic, data_bruker = ng.bruker.read_pdata(fileName)
     udic = ng.bruker.guess_udic(dic, data_bruker)
 
     # ic(udic)
     udic[0]["car"] = udic[0]["car"] - DeltaF1*udic[0]['obs']
     udic[1]["car"] = udic[1]["car"] - DeltaF2*udic[1]['obs']
-    import numpy as np
     data_bruker = data_bruker.astype(np.complex128)
     C = ng.convert.converter()
     C.from_bruker(dic, data_bruker, udic)
@@ -123,7 +122,6 @@ def read_udic(udic, data) -> tuple[unit_conversion, unit_conversion]:
 
 def plot_2D_Basic(udic, data, uc_1h, uc_13c):
     # create the figure
-    import numpy as np
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
     ppm_13c_0, ppm_13c_1 = uc_13c.ppm_limits()
     fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
@@ -161,8 +159,6 @@ def plot_2D_Basic(udic, data, uc_1h, uc_13c):
     contour_num = 20                                # number of contour levels
     # scaling factor between contour levels
     contour_factor = 1.20
-
-    import numpy as np
     cl = contour_start * contour_factor ** np.arange(contour_num)
 
     # plot the contours
@@ -198,8 +194,6 @@ def cal_contour_peak(data, contour_thr_factor: float = 2):
 
 
 def main(args=argparse.Namespace()) -> None:
-    import sys
-    from icecream import ic
     if args == argparse.Namespace():
         args = cml(descr)
     print(descr)  # Program description

@@ -2,6 +2,7 @@
 from icecream import ic
 from pathlib import Path
 import os
+import shutil
 #
 # https://steam.oxxostudio.tw/category/python/library/shutil.html
 #
@@ -56,13 +57,11 @@ def function_is_int(string: str) -> bool:
 
 def move_file(source: Path, destination: Path) -> None:
     is_exist(source)
-    import shutil
     shutil.move(source, destination)
 
 
 def copy_file(source: Path, destination: Path) -> None:
     is_exist(source)
-    import shutil
     shutil.copy(source, destination)
 
 
@@ -71,12 +70,10 @@ def delete_all_files(*fileNames) -> None:
     for file in [*fileNames]:
         IsExists: bool = exists(file)
         if IsExists:
-            import os
             os.remove(file)
 
 
 def delete_file_bool(fileName: Path) -> bool:
-    import os
     from os.path import exists
     IsExists: bool = exists(fileName)
     if IsExists:
@@ -100,7 +97,6 @@ def save_BOBYQA_orcaS(fileName: Path, Data: dict) -> None:
     with open(fileName, 'w') as f:
 
         for key, value in Data.items():
-            from icecream import ic
             if type(value) is list:
                 f.write('%10d %12.5f %10d \n' % (key, value[0], value[1]))
             else:
@@ -108,7 +104,6 @@ def save_BOBYQA_orcaS(fileName: Path, Data: dict) -> None:
 
 
 def load_BOBYQA_orcaS(fileName: Path) -> dict:
-    from icecream import ic
     is_exist(fileName)
     lines = open(fileName, "r").readlines()
 
@@ -119,7 +114,6 @@ def load_BOBYQA_orcaS(fileName: Path) -> dict:
         elif len(x.split()) == 3:
             Data[int(x.split()[0])] = [float(x.split()[1]), int(x.split()[2])]
         else:
-            import os
             print("something wrong in your orcaS.out")
             print("Exit to the program")
             ic()
@@ -134,7 +128,6 @@ def save_dict_orcaS(fileName: Path, Data: dict) -> None:
 
 
 def load_dict_orcaS(fileName: Path) -> dict:
-    from icecream import ic
     is_exist(fileName)
     lines: list = open(fileName, "r").readlines()
     Data: dict = {}
@@ -146,7 +139,6 @@ def load_dict_orcaS(fileName: Path) -> dict:
 def is_exist(fileName: Path) -> None:
     IsExists: bool = Path(fileName).exists()
     if not IsExists:
-        import os
         print(f"{fileName} the file is not exist ...")
         print("    Exit and close the program !!! ")
         os._exit(0)
@@ -168,7 +160,6 @@ def program_is_exist(ProgramName: str) -> bool:
     if which(ProgramName):
         return True
     else:
-        import os
         print(ProgramName, " the program is not exist ...")
         print(" Exit and close the program !!! ")
         os._exit(0)

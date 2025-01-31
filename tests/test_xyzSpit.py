@@ -4,6 +4,8 @@ import pytest
 from pathlib import Path
 import argparse
 import censo_ext.xyzSplit as xyzSplit
+import filecmp
+import os
 
 
 def test_xyzSplit():
@@ -12,9 +14,7 @@ def test_xyzSplit():
     args = argparse.Namespace(**x)
     xyzSplit.main(args)
 
-    import filecmp
     compare = "tests/compare/xyzSplit.xyz"
     dcmp = filecmp.cmp(args.out, compare)
     assert (dcmp == True)
-    import os
     os.remove(args.out)

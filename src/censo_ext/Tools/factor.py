@@ -4,19 +4,19 @@ import argparse
 import numpy as np
 import os
 from icecream import ic
+from censo_ext.Tools.calculate_rmsd import cal_rmsd_xyz
 
 
 def method_factor_analysis(args) -> tuple[list[int], dict]:
 
     xyzfile: GeometryXYZs = GeometryXYZs(args.file)
     xyzfile.method_read_xyz()
-    import censo_ext.Tools.calculate_rmsd as calculate_rmsd
     x: dict = {"remove_idx": None, "add_idx": None,
                "bond_broken": None, "ignore_Hydrogen": True, "debug": False, }
     coord: list = []
     CONF: list = []
     for idx in range(len(xyzfile)):
-        coord_square, result_rmsd = calculate_rmsd.main_xyz(
+        coord_square, result_rmsd = cal_rmsd_xyz(
             xyzfile, 1, idx+1, args=argparse.Namespace(**x))
         var = list(coord_square.values())
         if idx == 0:
@@ -73,9 +73,9 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
     print(" ========== Optimized Broken-Bond Location Process ==========")
     # ic(args,np_low_factor)
     # np_low_factor = minor_list
+    from censo_ext.Tools.topo import Topo
     Bonding_low_factor: list = []
     for x in (np_low_factor):
-        from censo_ext.Tools.topo import Topo
         args_x: dict = {"file": args.file, "bonding": x,
                         "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
@@ -101,7 +101,6 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
     idx_list_ratio: list = []
     list_ratio: list = []
     for idx, x in enumerate(unique_pair_low_factor):
-        from censo_ext.Tools.topo import Topo
 
         args_x = {"file": args.file, "bond_broken": [
             x[0], x[1]], "print": False, "debug": False}

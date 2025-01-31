@@ -4,6 +4,8 @@ import pytest
 from pathlib import Path
 import argparse
 import censo_ext.xyzReturnOandZ as xyzReturnOandZ
+import os
+import filecmp
 
 
 def test_xyzReturnOandZ():
@@ -12,7 +14,6 @@ def test_xyzReturnOandZ():
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
-    import filecmp
     import platform
     print(platform.system())
     if platform.system() == 'Darwin':
@@ -21,7 +22,6 @@ def test_xyzReturnOandZ():
         compare = "tests/compare/xyzReturnOandZ.xyz"
     dcmp = filecmp.cmp(args.out, compare)
     assert (dcmp == True)
-    import os
     os.remove(args.out)
 
 
@@ -31,7 +31,6 @@ def test_xyzReturnOandZ_auto():
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
-    import filecmp
     import platform
     if platform.system() == 'Darwin':
         compare = "tests/compare/xyzReturnOandZ-auto_Darwin.xyz"
@@ -39,5 +38,4 @@ def test_xyzReturnOandZ_auto():
         compare = "tests/compare/xyzReturnOandZ-auto.xyz"
     dcmp = filecmp.cmp(args.out, compare)
     assert (dcmp == True)
-    import os
     os.remove(args.out)

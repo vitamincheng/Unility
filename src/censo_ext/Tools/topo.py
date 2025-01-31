@@ -5,6 +5,7 @@
 
 from sys import argv as sysargv
 import argparse
+import numpy as np
 import censo_ext.Tools.ml4nmr as ml4nmr
 from icecream import ic
 from graph import Graph
@@ -108,7 +109,6 @@ class Topo():
         Returns:
             [list,int] : atom's index of bonding
         """
-        from icecream import ic
         idx_p: int = args.bonding
         # ic(args.file)
         mol, neighbors = self.__mol, self.__neighbors
@@ -133,7 +133,6 @@ class Topo():
         for key, value in neighbors.copy().items():
             if key in idx_H_atoms:
                 del neighbors[key]
-        import numpy as np
         for key, value in neighbors.copy().items():
             neighbors[key] = np.array(
                 [a for a in value if a not in idx_H_atoms])

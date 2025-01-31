@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import os
+import shutil
 from pathlib import Path
 import numpy as np
 from icecream import ic
@@ -88,7 +89,6 @@ in_file: Path = Path(".traj.xyz")
 def xtb(args):
     print(" ========== molclus_xtb.py ==========")
     from censo_ext.Tools.utility import copy_file
-    import os
     temp_folder: Path = Path(".xtb")
     # if not os.path.isdir(temp_folder):
     if not temp_folder.is_dir():
@@ -105,7 +105,6 @@ def xtb(args):
     copy_file(temp_folder / out_file, in_file)
     copy_file(temp_folder / out_file, Path("isomers.xyz"))
     print(" Saved the isomers.xyz in your working directory ")
-    import shutil
     shutil.rmtree(temp_folder, ignore_errors=True)
     print(" ========== End ==========")
 
@@ -113,7 +112,6 @@ def xtb(args):
 def orca(args, Dir, FileName):
     print(" ========== molclus_orca.py ==========")
     from censo_ext.Tools.utility import copy_file
-    import os
     temp_folder: Path = Path(".orca")
     if not temp_folder.is_dir():
         temp_folder.mkdir()
@@ -130,7 +128,6 @@ def orca(args, Dir, FileName):
     copy_file(temp_folder / out_file, in_file)
     copy_file(temp_folder / out_file, Path("isomers.xyz"))
     print(" Saved the isomers.xyz in your working directory ")
-    import shutil
     shutil.rmtree(temp_folder, ignore_errors=True)
     print(" ========== End ==========")
 
@@ -139,7 +136,6 @@ def thermo(args) -> list:
     import censo_ext.molclus_thermo as molclus_thermo
     print(" ========= molclus_thermo.py ==========")
     from censo_ext.Tools.utility import copy_file
-    import os
     thermo_folder: Path = Path(".thermo")
     if not thermo_folder.is_dir():
         thermo_folder.mkdir()
@@ -151,7 +147,6 @@ def thermo(args) -> list:
                     "method": "gfn2", "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1}
     thermo: list = molclus_thermo.main(argparse.Namespace(**args_x))
     os.chdir(working_Dir)
-    import shutil
     shutil.rmtree(thermo_folder, ignore_errors=True)
     print(" ========== End ==========")
     return thermo

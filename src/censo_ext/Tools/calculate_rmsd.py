@@ -21,21 +21,21 @@ import censo_ext.Tools.Parameter as Parameter
 import censo_ext.Tools.topo as topo
 from censo_ext.Tools.xyzfile import GeometryXYZs
 
-METHOD_KABSCH = "kabsch"
-ROTATION_METHODS = [METHOD_KABSCH]
+# METHOD_KABSCH = "kabsch"
+# ROTATION_METHODS = [METHOD_KABSCH]
 
 NAMES_ELEMENT = {value: key for key, value in Parameter.ELEMENT_NAMES.items()}
 
 
-class RmsdCallable(Protocol):
-    def __call__(self, P: ndarray, Q: ndarray, **kwargs: Any,) -> float | None:
-        """
-        Protocol for a rotation callable function
-
-        return:
-            RMSD after rotation
-        """
-
+# class RmsdCallable(Protocol):
+#    def __call__(self, P: ndarray, Q: ndarray, **kwargs: Any,) -> float | None:
+#        """
+#        Protocol for a rotation callable function
+#
+#        return:
+#            RMSD after rotation
+#        """
+#
 
 def str_atom(atom: int) -> str:
     """
@@ -112,9 +112,7 @@ def kabsch_rmsd(P: ndarray, Q: ndarray, idx_atom1: list, W: Optional[ndarray] = 
 
     if W is not None:
         print("show me the W")
-        ic()
-        import os
-        os._exit(0)
+        exit(1)
         return kabsch_weighted_rmsd(P, Q, W)
 
     P = kabsch_rotate(P, Q)
@@ -333,7 +331,7 @@ def getCoordinates(xyzfile, idx):
     return np.array(atoms), np.array(V)
 
 
-def main_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> Tuple[dict[int, float], float]:
+def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> Tuple[dict[int, float], float]:
     '''
     Read xyz file and calculate rmsd
     xyzfile is class ClassGeometryXYZs
@@ -348,13 +346,9 @@ def main_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Names
 
     idx_atom1: np.ndarray = np.array([], dtype=int)
 
-    p_size = p_all.shape[0]
-    q_size = q_all.shape[0]
-
-    if not p_size == q_size:
+    if p_all.shape[0] != q_all.shape[0]:
         print("error: Structures not same size")
-        ic()
-        os._exit(0)
+        exit(1)
 
     # Typing
     index: Union[Set[int], List[int], ndarray]
@@ -372,15 +366,6 @@ def main_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Names
 
         p_view = np.where(p_all_atoms != 1)  # type: ignore
         q_view = np.where(q_all_atoms != 1)  # type: ignore
-
-        if args.debug:
-            ic(idx_atom1)
-
-    # if args.debug:
-    #    ic(args.bond_broken)
-    #    ic(args.ignore_Hydrogen)
-    #    ic(idx_atom1)
-    #    os._exit(0)
 
     if args.bond_broken:
         if args.ignore_Hydrogen:
@@ -403,9 +388,7 @@ def main_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Names
             pass
         else:
             print("Only support under ignore Hydrogen condition ")
-            print("Exit to program")
-            ic()
-            os._exit(0)
+            exit(1)
     else:
         pass
 
@@ -424,8 +407,6 @@ def main_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Names
         q_view = index
 
     elif args.add_idx:
-        if args.debug:
-            ic(args.add_idx)
         if args.ignore_Hydrogen:
             idx_atom1 = np.union1d(idx_atom1, args.add_idx)
         else:
@@ -439,8 +420,6 @@ def main_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Names
     if p_view is None:
         p_coord = copy.deepcopy(p_all)
         q_coord = copy.deepcopy(q_all)
-        # p_atoms = copy.deepcopy(p_all_atoms)
-        # q_atoms = copy.deepcopy(q_all_atoms)
 
     else:
         assert p_view is not None
@@ -454,25 +433,13 @@ def main_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Names
     p_coord -= p_cent
     q_coord -= q_cent
 
-    rmsd_method: RmsdCallable
-    # ic(np.array(idx1_Res_Atoms),len(idx1_Res_Atoms))
-    # ic(idx_atom1,len(idx_atom1))
+    # rmsd_method: RmsdCallable
     if (args.add_idx is None) and (args.remove_idx is None) and (args.ignore_Hydrogen is False):
         idx_atom1: np.ndarray = np.arange(len(p_all_atoms), dtype=int)
         idx_atom1 = idx_atom1+1
-    if args.debug:
-        ic(idx_atom1)
 
-    # set rotation method
-    # if args.rotation == METHOD_KABSCH:
-    # rmsd_method = kabsch_rmsd
-    result_rmsd = None
-
-    if not result_rmsd:
-        # coord_square, result_rmsd = rmsd_method(p_coord, q_coord, idx_atom1)
-        # coord_square, result_rmsd = kabsch_rmsd(p_coord, q_coord, list(idx1_Res_Atoms))
-        coord_square, result_rmsd = kabsch_rmsd(
-            p_coord, q_coord, list(idx_atom1))
+    coord_square, result_rmsd = kabsch_rmsd(
+        p_coord, q_coord, list(idx_atom1))
 
     if __name__ == "__main__":
         print(f"{" RMSD":>5s}", end=" ")
@@ -483,7 +450,6 @@ def main_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Names
 
     if len(idx_atom1) == 0:
         print("Someting wrong in your xyzfile (idx_atom)")
-        ic()
-        os._exit(0)
+        exit(1)
     else:
         return coord_square, result_rmsd  # type: ignore

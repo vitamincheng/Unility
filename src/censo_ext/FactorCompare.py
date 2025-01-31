@@ -45,10 +45,10 @@ def cml(descr) -> argparse.Namespace:
 
 
 def cal_rmsd(xyzfile, idx_p, idx_q) -> float:
-    import censo_ext.Tools.calculate_rmsd as calculate_rmsd
+    from censo_ext.Tools.calculate_rmsd import cal_rmsd_xyz
     x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
                "ignore_Hydrogen": True, "quiet": True, "debug": False}
-    coord_square, result_rmsd = calculate_rmsd.main_xyz(
+    coord_square, result_rmsd = cal_rmsd_xyz(
         xyzfile, idx_p, idx_q, args=argparse.Namespace(**x))
     return result_rmsd
 
@@ -82,12 +82,9 @@ def Factor_xyzCompare(args) -> None:
     else:
         print(" Need the crest program !!!!")
         print(" Exit the program ")
-        ic()
-        import os
         os._exit(0)
 
     import shutil
-    import os
     Dir_str = "CREST_P"
     original_cwd: str = os.getcwd()
     new_cwd: str = os.getcwd()+"/"+Dir_str
