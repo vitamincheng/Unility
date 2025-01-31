@@ -17,7 +17,7 @@ dependencies = [
     "icecream",
     "numpy",
     "scipy",
-    "typing_entensions",
+    "typing_extensions",
     "ase",
     "pointgroup",
     "graph-theory",

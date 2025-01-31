@@ -92,3 +92,19 @@ def test_method_read_enso():
     dcmp = filecmp.cmp(filename, source)
     assert (dcmp == True)
     os.remove(filename)
+
+
+def test_Censo():
+    from censo_ext.Tools.anmrfile import CensoDat
+    infile: CensoDat = CensoDat(Path("tests/data/04.Hydrogen/anmr.dat"))
+    assert len(infile) == 77868
+    assert infile.get_fileName() == Path("tests/data/04.Hydrogen/anmr.dat")
+    infile.method_normalize_dat()
+    outfile = Path("tests/compare/out.dat")
+    source = Path("tests/compare/anmr_normal.dat")
+    infile.set_fileName(outfile)
+    infile.method_save_dat()
+
+    dcmp = filecmp.cmp(outfile, source)
+    assert (dcmp == True)
+    os.remove(outfile)

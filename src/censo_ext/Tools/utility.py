@@ -141,7 +141,7 @@ def is_exist(fileName: Path) -> None:
     if not IsExists:
         print(f"{fileName} the file is not exist ...")
         print("    Exit and close the program !!! ")
-        os._exit(0)
+        exit(0)
 
 
 def is_exist_return_bool(fileName: Path) -> bool:
@@ -162,7 +162,7 @@ def program_is_exist(ProgramName: str) -> bool:
     else:
         print(ProgramName, " the program is not exist ...")
         print(" Exit and close the program !!! ")
-        os._exit(0)
+        exit(0)
 
 
 def save_figure(fileName="nmrplot") -> None:
