@@ -4,7 +4,6 @@ import argparse
 import os
 import numpy as np
 from censo_ext.Tools.xyzfile import GeometryXYZs
-from icecream import ic
 from sys import argv as sysargv
 descr = """
 ________________________________________________________________________________
@@ -12,13 +11,13 @@ ________________________________________________________________________________
 | For search the confomrers from various angles of cleavage specifying two atoms                        
 | Usage    : xyzSplit.py [options]                  
 | [Options]
-| Input    : -i xyz file [default traj.xyz]
+| Input    : -i Read xyz file [default traj.xyz]
 | Atom     : -a or --atom [1 2] idx of atom's number  
 |              1 : Fixed atom
-|              2 : Rotation atom (360 degrees) 
-| nCut     : -c or cut numbers cutting numbers of atom in 360 degrees 
-| Output   : -o Saved to xyz file [default output.xyz] 
-| Print    : -p Print the final data on screen
+|              2 : Rotation axis atom (360 degrees) 
+| nCut     : -c or cut Number of cut to make 360 degrees around the roation axis 
+| Output   : -o Save xyz file [default output.xyz] 
+| Print    : -p Print output to screen
 | Packages : Tools 
 | Module   : xyzfile.py / topo.py / unility.py
 |______________________________________________________________________________
@@ -58,24 +57,25 @@ def cml(descr) -> argparse.Namespace:
     parser.add_argument(
         "-a",
         "--atom",
-        dest="atom",
+        dest="atoms",
         action="store",
         type=int,
         nargs=2,
         default=None,
         required=False,
-        help="[1,2] 1: fixed atom 2: rotation atom. Provide two idx of atom's nubmers"
+        metavar=('FIXED', 'ROTATION'),
+        help="two atom indics: first is fixed, second is rotation axis"
     )
 
     parser.add_argument(
         "-c",
         "--cut",
-        dest="cut",
+        dest="cuts",
         action="store",
         type=int,
         default=None,
         required=False,
-        help="Provide the total cutting numbers in your atom's in 360 degrees",
+        help="Number of cuts to make in 360 degrees around the rotation axis",
     )
 
     parser.add_argument(
@@ -84,7 +84,7 @@ def cml(descr) -> argparse.Namespace:
         dest="print",
         action="store_true",
         default=False,
-        help="Print the final data on screen (stdout)",
+        help="Print output to screen",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -95,22 +95,28 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml(descr)
+
+    from censo_ext.Tools.utility import is_exist
+    from pathlib import Path
+    if is_exist(Path(args.file)):
+        pass
+
     if not args.print:
         print(descr)  # Program description
         print("    provided arguments: {}".format(" ".join(sysargv)))
-    # ic(args)
-    if args.cut == None or args.atom == None:
+
+    if args.cuts == None or args.atoms == None:
         print(" Please input your atoms that you want to split ")
         print(" Exit to this program !!!")
-        os._exit(0)
+        exit(0)
 
     from censo_ext.Tools.utility import delete_file_bool
     Delete_work: bool = False
     if not args.print:
         Delete_work = delete_file_bool(args.out)
 
-    idx1_p, idx1_q = args.atom[0], args.atom[1]
-    nCutters: int = args.cut
+    idx1_p, idx1_q = args.atoms[0], args.atoms[1]
+    nCutters: int = args.cuts
 
     x: dict = {"file": args.file, "bond_broken": [
         idx1_q, idx1_p], "print": False, "debug": False}
@@ -118,31 +124,29 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     Sts_topo: Topo = Topo(x["file"])
     idx0_list: list[int] = [
         x-1 for x in Sts_topo.method_broken_bond_H(argparse.Namespace(**x))]
-    # ic(idx1_list)
+
     infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
-    # outfile = zyzfile.ClassGeometryXYZs(args.out)
-    # ic(infile.get_nSt(),nCutters)
-    for idx0_st in range(len(infile)):
 
-        dxyz: np.ndarray = infile.Sts[idx0_st].coord[idx1_p-1].copy()
-        inital: list[np.ndarray] = infile.Sts[idx0_st].coord[:].copy()
+    for idx0_st, St in enumerate(infile.Sts):
+
+        dxyz: np.ndarray = St.coord[idx1_p-1]
+        inital: list[np.ndarray] = St.coord[:].copy()
 
         for nCutter in range(nCutters):
 
-            infile.Sts[idx0_st].coord[:] = inital.copy()
-            infile.Sts[idx0_st].coord[:] -= dxyz
+            St.coord[:] = inital.copy()
+            St.coord[:] -= dxyz
 
-            pq_vector = infile.Sts[idx0_st].coord[idx1_q-1]
-            n_pq_vector = pq_vector/np.linalg.norm(pq_vector)
+            rotation_axis = St.coord[idx1_q-1]
+            rotation_vector = rotation_axis/np.linalg.norm(rotation_axis)
 
-            r_pq = R.from_rotvec(2*np.pi*(nCutter/nCutters)*n_pq_vector)
+            r_pq = R.from_rotvec(2*np.pi*(nCutter/nCutters)*rotation_vector)
 
             for idx in idx0_list:
-                infile.Sts[idx0_st].coord[idx] = r_pq.apply(
-                    infile.Sts[idx0_st].coord[idx])
+                St.coord[idx] = r_pq.apply(St.coord[idx])
 
-            infile.Sts[idx0_st].coord[:] += dxyz
+            St.coord[:] += dxyz
 
             if args.print:
                 infile.method_print([idx0_st+1])
@@ -153,10 +157,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if not args.print:
         if Delete_work == True:
-            print("   ", args.out, " is here, it will be removed.")
-            print("    Overwrite the file : ", args.out)
+            print(f"   {args.out} is here, it will be removed.")
+            print(f"    Overwrite the file : {args.out}")
         else:
-            print("    Create a new file : ",  args.out)
+            print(f"    Create a new file  : {args.out}")
 
 
 if __name__ == "__main__":

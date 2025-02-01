@@ -2,6 +2,7 @@
 import argparse
 import os
 import numpy as np
+from pathlib import Path
 from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
@@ -39,7 +40,7 @@ def cml(descr) -> argparse.Namespace:
         action="store",
         required=False,
         type=int,
-        help="Provide the numbers of cut (not include origin point)",
+        help="Provide the numbers of cut (excluding origin point)",
     )
 
     parser.add_argument(
@@ -50,7 +51,7 @@ def cml(descr) -> argparse.Namespace:
         required=False,
         type=float,
         nargs=3,
-        help="Provide the move of translation",
+        help="Provide a translation vector [x,y,z]. Required if -c is used.",
     )
 
     parser.add_argument(
@@ -60,7 +61,7 @@ def cml(descr) -> argparse.Namespace:
         action="store",
         required=False,
         default="traj.xyz",
-        help="Provide one input xyz file [default traj.xyz]",
+        help="Input xyz file [default traj.xyz]",
     )
 
     parser.add_argument(
@@ -70,10 +71,31 @@ def cml(descr) -> argparse.Namespace:
         action="store",
         required=False,
         default="output.xyz",
-        help="Provide one output xyz file [default output.xyz]",
+        help="Output xyz file [default output.xyz]",
     )
     args: argparse.Namespace = parser.parse_args()
     return args
+
+
+def read_xyz_file(filename: str) -> GeometryXYZs:
+    try:
+        infile = GeometryXYZs()
+        infile.set_filename(Path(filename))
+        infile.method_read_xyz()
+        return infile
+    except Exception as e:
+        print(f"Failed to read file {filename}: {e}")
+        raise
+
+
+def write_xyz_file(outfile: GeometryXYZs, filename: str) -> None:
+    """Write XYZ data to a file."""
+    try:
+        outfile.set_filename(Path(filename))
+        outfile.method_save_xyz([])
+    except Exception as e:
+        print(f"Failed to write file {filename}: {e}")
+        raise
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
@@ -84,21 +106,21 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
     try:
-        infile, outfile = GeometryXYZs(), GeometryXYZs()
-        infile.set_filename(args.file)
-        infile.method_read_xyz()
+        infile = read_xyz_file(args.file)
+
+        outfile = GeometryXYZs()
         if args.cut == None:
             outfile: GeometryXYZs = infile.method_translate_xyzs(
                 np.array(args.move))
         elif args.cut:
             outfile: GeometryXYZs = infile.method_translate_cut_xyzs(
                 delta=np.array(args.move), cut=args.cut+1)
-        outfile.set_filename(args.out)
-        outfile.method_save_xyz([])
+
+        write_xyz_file(outfile, args.out)
 
     except Exception as e:
-        ic(e)
-        os._exit(1)
+        print(f"An error occurred: {e}")
+        exit(1)
 
 
 if __name__ == "__main__":

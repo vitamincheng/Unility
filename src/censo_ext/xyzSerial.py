@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from censo_ext.Tools.xyzfile import GeometryXYZs
+from pathlib import Path
 import argparse
 import os
 from sys import argv as sysargv
@@ -38,7 +39,7 @@ def cml(descr) -> argparse.Namespace:
         action="store",
         required=False,
         default="isomers.xyz",
-        help="Provide one xyz file to reorder the Serial No. [default isomers.xyz]",
+        help="Input xyz file [default isomers.xyz]",
     )
 
     parser.add_argument(
@@ -48,7 +49,7 @@ def cml(descr) -> argparse.Namespace:
         action="store",
         required=False,
         default="output.xyz",
-        help="Provide one xyz file to be saved of the data [dafault output.xyz]",
+        help="Output xyz file [dafault output.xyz]",
     )
 
     parser.add_argument(
@@ -92,30 +93,29 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(descr)  # Program description
         print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    xyzfile: GeometryXYZs = GeometryXYZs(args.file)
+    xyzfile: GeometryXYZs = GeometryXYZs(Path(args.file))
     xyzfile.method_read_xyz()
 
     if args.keep:
         if not args.print:
-            print("keep")
+            print("keep serial numbers")
         xyzfile.method_comment_keep()
 
     elif args.new:
         if not args.print:
-            print("new")
+            print("Reordering serials numbers from 1")
         xyzfile.method_comment_new()
     else:
         print(" Either --new or --keep in your arugment.")
         print(" Exit the program !!!")
-        ic()
-        os._exit(0)
+        exit(0)
 
     if args.print:
         xyzfile.method_print([])
     else:
-        print(f"    Saved to {args.out}")
-        xyzfile.set_filename(args.out)
+        xyzfile.set_filename(Path(args.out))
         xyzfile.method_save_xyz([])
+        print(f"Data saved to : {args.out}")
 
 
 if __name__ == "__main__":
