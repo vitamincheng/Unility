@@ -8,7 +8,7 @@ import filecmp
 import os
 
 
-def test_anmr():
+def test_anmr_bobyqa_true_json():
 
     import censo_ext.anmr as anmr
     import argparse
@@ -18,11 +18,18 @@ def test_anmr():
     peaks = anmr.main(argparse.Namespace(**x))
     assert peaks.shape == (2, 77868)
 
+
+def test_anmr_bobyqa_false_json_off():
+
+    import censo_ext.anmr as anmr
+    import argparse
+
     x: dict = {"auto": True, "average": True, "dir": "tests/data/04.Hydrogen",
                "bobyqa": False, "mf": 500, "thr": None, "json": None, "thrab": 0.025,
                "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
     peaks = anmr.main(argparse.Namespace(**x))
     assert peaks.shape == (2, 77868)
+    os.remove("tests/data/04.Hydrogen/peaks.json")
 
 
 def test_anmr_miss_args():
