@@ -37,3 +37,23 @@ def test_molManipulate():
 
     import shutil
     shutil.rmtree(Dir)
+
+
+def test_molManipulate_multi():
+    x: dict = {"separate": "tests/data/crest_conformers.xyz",
+               "merge": None, "out": "tests/compare/output.xyz"}
+    args = argparse.Namespace(**x)
+
+    with pytest.raises(SystemExit) as e:
+        molManipulate.main(args)
+    assert e.type == SystemExit
+    assert e.value.code == 0   # for argprarse wrong
+
+
+def test_molManipulate_miss_args():
+    x: dict = {}
+    args = argparse.Namespace(**x)
+    with pytest.raises(SystemExit) as e:
+        molManipulate.main(args)
+    assert e.type == SystemExit
+    assert e.value.code == 2  # for argparse error

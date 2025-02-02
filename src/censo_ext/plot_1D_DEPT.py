@@ -158,10 +158,11 @@ def Compare_two_dict(CH1: dict, CH2: dict, StAtoms: dict, Label: int) -> None:
             #    print("some peaks is overlap")
             #    ic(StAtoms)
             #    ic(idx0+1)
-            #    os._exit(0)
+            #    exit(0)
         else:
             print("some peaks is more than 0.02 ppm")
-            os._exit(0)
+            ic()
+            exit(0)
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

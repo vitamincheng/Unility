@@ -31,7 +31,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict]:
     else:
         print("CONF is not exist and so quit this program !!!")
         ic()
-        os._exit(0)
+        exit(1)
 
     Table_S: dict = dict(zip(idx_S, S_std))
 
@@ -117,7 +117,7 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
         if len(STD_L) < 1 or len(STD_R) < 1:
             print("something wrong in your List_STD ")
             ic()
-            os._exit(0)
+            exit(1)
 
         elif len(STD_L) < (nCONFS-2) and len(STD_R) < (nCONFS-2):
 

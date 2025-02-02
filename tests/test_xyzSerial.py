@@ -30,3 +30,24 @@ def test_xyzSerial_keep():
     dcmp = filecmp.cmp(args.out, compare)
     assert (dcmp == True)
     os.remove(args.out)
+
+
+def test_xyzSerial_filename_miss():
+    x: dict = {"file": "tests/data/crest_conformers_xyzSerial000.xyz", "new": True,
+               "keep": True, "out": "tests/compare/output.xyz", "print": False}
+    args = argparse.Namespace(**x)
+
+    with pytest.raises(SystemExit) as e:
+        xyzSerial.main(args)
+    assert e.type == SystemExit
+    assert e.value.code == 1
+
+
+def test_xyzSerial_miss():
+    x: dict = {}
+    args = argparse.Namespace(**x)
+
+    with pytest.raises(SystemExit) as e:
+        xyzSerial.main(args)
+    assert e.type == SystemExit
+    assert e.value.code == 2    # for argprarse wrong

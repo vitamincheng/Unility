@@ -186,7 +186,7 @@ class Geometry():
             print(comments)
             print(" Quit the program !!!")
             ic()
-            os._exit(0)
+            exit(1)
 
         self.method_rewrite_comment()
         return
@@ -249,7 +249,7 @@ class GeometryXYZs():
         else:
             print("Too much xyzs structures in your xyz file")
             ic()
-            os._exit(0)
+            exit(1)
 
     def method_idx_Molecules_xyzs(self, idx1: int = 1) -> bool:
         fileName: Path = Path("~temp.xyz")
@@ -269,7 +269,7 @@ class GeometryXYZs():
                 print(" Something wrong in your Molecule Separation xyz file")
                 print(" Exit to the program !!!")
                 ic()
-                os._exit(0)
+                exit(1)
 
         path = "Separation"
         isExist: bool = os.path.exists(path)

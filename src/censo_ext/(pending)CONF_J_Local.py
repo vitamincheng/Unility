@@ -78,7 +78,8 @@ def function_read_orcaJ(fileName: Path = Path("orcaJ.out")) -> np.ndarray:
     else:
         print(" Someting wrong in your orcaJ.out file")
         print(" Exit to the program !!!")
-        exit(0)
+        ic()
+        exit(1)
 
 
 if __name__ == "__main__":
@@ -112,11 +113,12 @@ if __name__ == "__main__":
                 print(" Something wrong in your orcaJ.out folder")
                 print("", strPathBackup)
                 print(" Exit to the program !!!")
-                os._exit(0)
+                ic()
+                exit(1)
 
         print(" Copy orcaJ.out.backup to orcaJ.out in every NMR folder")
         print(" Recover the orcaJ.out file in your CONF folder")
-        os._exit(0)
+        exit(0)
 
     else:
         path: str = os.getcwd()
@@ -137,7 +139,8 @@ if __name__ == "__main__":
         if not file_exists:
             print(fileName, " the file is not exist ...")
             print("    exit and close the program !!! ")
-            os._exit(0)
+            ic()
+            exit(1)
 
         lines: list[str] = open(fileName, "r").readlines()
         import re

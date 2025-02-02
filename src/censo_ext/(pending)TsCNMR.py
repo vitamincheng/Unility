@@ -120,7 +120,8 @@ def main():
     if file_exists is False:
         print("    " + args.file + " , the file is not exist ...")
         print("    exit and close the program !!! ")
-        os._exit(0)
+        ic()
+        exit(0)
 
     if not args.print:
         print("")

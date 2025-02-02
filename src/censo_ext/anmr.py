@@ -281,8 +281,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                 if not args.thr:
                     args.thr = args.lw * 0.3
                 inJCoups = np.zeros_like(inJCoups)
-                # ic()
-                # os._exit(0)
             elif x == 'H':
                 inHydrogenDict: dict = {}
                 for key, value in inAnmr.Average_orcaSJ.idxAtoms.items():
@@ -302,11 +300,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
             else:
                 print("Other Active Nuclear element, waiting to build")
                 ic()
-                os._exit(0)
+                exit(0)
         elif idx >= 1:
             print("only for ONE Active Nuclear element, waiting to build")
             ic()
-            os._exit(0)
+            exit(0)
 
     # ic(inHydrogen,len(inHydrogen))
     # ic(inidxAtoms,len(inidxAtoms))
@@ -364,7 +362,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                                     ic(idx, x, idy, y)
                                     print("something wrong !!!")
                                     ic()
-                                    os._exit(0)
+                                    exit(1)
 
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
 
@@ -377,7 +375,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
             #        str(inAnmr.Directory/Path("mat_filter_multi.out")), mat_filter_multi, fmt="%d")
             # else:
             #    ic()
-            #    os._exit(0)
+            #    exit(0)
 
             idx0_ab_connect: list = []
             for idx, x in enumerate(mat_filter_ab_quartet):
@@ -403,7 +401,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                     idx0_ab_group_set.append(group)
                 else:
                     ic()
-                    os._exit(0)
+                    print("something wrong")
+                    exit(1)
             # ic(idx0_ab_group_set)
 
             # CH3 Equivalent is manually control by symmetry
@@ -446,8 +445,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                     args.thr = args.thr + 0.030
                 else:
                     print(" Need to tidy the nspins of AB quartet and use cmd -thrab ")
-                    ic()
-                    os._exit(0)
+                    exit(0)
             else:
                 print(" Use this parameter to calculate the Full Spectra")
                 break
@@ -494,7 +492,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                     Result_qm_multiplet = Result_qm_base
                 else:
                     ic()
-                    os._exit(0)
+                    print("Something wrong")
+                    exit(1)
             from nmrsim.math import normalize_peaklist
             Result_qm_multiplet: list[np.ndarray] = np.array(
                 normalize_peaklist(Result_qm_multiplet, inHydrogen[idx])).tolist()
@@ -544,8 +543,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
         #    Final_Result_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range, hidden=not args.show)
     else:
         print("dpi and Active_range is wrong")
-        ic()
-        os._exit(0)
+        exit(0)
 
     if not args.bobyqa:
         print(" the spectra is saved to : ", args.out)

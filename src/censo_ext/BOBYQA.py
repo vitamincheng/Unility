@@ -132,7 +132,7 @@ def new() -> None:
         print("               Above 100 - Use BOBYQA groups to find the peaks ")
         print(" Run this program again")
         ic()
-        os._exit(0)
+        exit(0)
 
 
 def main() -> None:

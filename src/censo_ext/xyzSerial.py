@@ -105,10 +105,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         if not args.print:
             print("Reordering serials numbers from 1")
         xyzfile.method_comment_new()
-    else:
-        print(" Either --new or --keep in your arugment.")
-        print(" Exit the program !!!")
-        exit(0)
 
     if args.print:
         xyzfile.method_print([])

@@ -112,6 +112,7 @@ def kabsch_rmsd(P: ndarray, Q: ndarray, idx_atom1: list, W: Optional[ndarray] = 
 
     if W is not None:
         print("show me the W")
+        ic()
         exit(1)
         return kabsch_weighted_rmsd(P, Q, W)
 
@@ -348,7 +349,7 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     if p_all.shape[0] != q_all.shape[0]:
         print("error: Structures not same size")
-        exit(1)
+        exit(0)
 
     # Typing
     index: Union[Set[int], List[int], ndarray]
@@ -388,7 +389,7 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
             pass
         else:
             print("Only support under ignore Hydrogen condition ")
-            exit(1)
+            exit(0)
     else:
         pass
 
@@ -450,6 +451,7 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     if len(idx_atom1) == 0:
         print("Someting wrong in your xyzfile (idx_atom)")
+        ic()
         exit(1)
     else:
         return coord_square, result_rmsd  # type: ignore

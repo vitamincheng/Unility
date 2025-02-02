@@ -83,6 +83,7 @@ def read_xyz_file(filename: str) -> GeometryXYZs:
         infile.set_filename(Path(filename))
         infile.method_read_xyz()
         return infile
+
     except Exception as e:
         print(f"Failed to read file {filename}: {e}")
         raise

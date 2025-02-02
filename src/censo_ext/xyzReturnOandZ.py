@@ -165,7 +165,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.atom == None and args.auto == False:
         print(" No any sepific atom in your provided arguments ")
         ic()
-        os._exit(0)
+        exit(0)
     elif args.atom != None:
         p_idx, q_idx, r_idx = args.atom[0], args.atom[1], args.atom[2]
     elif args.atom == None and args.auto == True:
@@ -176,7 +176,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     else:
         print("Something wrong in your provided argments ")
         ic()
-        os._exit(0)
+        exit(1)
 
     infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()

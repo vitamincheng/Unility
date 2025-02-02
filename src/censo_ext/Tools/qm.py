@@ -192,7 +192,7 @@ def print_plot(inpeaklist: list, dpi: int, nIntergals: int, args: argparse.Names
     else:
         print("something wrong in your print_plot method hidden setting")
         ic()
-        os._exit(0)
+        exit(1)
 
 
 def mpl_plot(peaklist, w=1, y_min=-0.01, y_max=1, points=800, limits=None, hidden=False):
@@ -215,7 +215,7 @@ def mpl_plot(peaklist, w=1, y_min=-0.01, y_max=1, points=800, limits=None, hidde
     else:
         print("Please use the nmrsim mplplot ")
         ic()
-        os._exit(0)
+        exit(0)
 
 
 def qm_base(v: list, J: np.ndarray, nIntergals, idx0_nspins, args: argparse.Namespace) -> list:

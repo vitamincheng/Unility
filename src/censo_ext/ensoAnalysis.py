@@ -177,17 +177,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print(
                     " IF you want to Create a New project, please Add -n or --new in arugment.")
                 print(" Exit and Close the program !!!")
-                sys.exit()
+                exit(0)
     else:
         print(" the file is not exist.", args.file)
         print(" Exit and Close the program !!! ")
-        sys.exit()
+        exit(0)
 
     if fileExists == False or backupfileExists == False:
         print("    " + args.file + " or " +
               str(backupfile) + " , the file is not exist ...")
         print("    exit and close the program !!! ")
-        sys.exit()
+        exit(0)
 
     np.set_printoptions(precision=4, linewidth=75, suppress=True)
 
@@ -255,7 +255,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("And Save to the original file : " + args.file)
         print("Finished ...")
         print("")
-        os._exit(0)
+        exit(0)
 
     # Average of CONFS
     # For after degeneracy and reduce the Gibbs free energy of ensemble

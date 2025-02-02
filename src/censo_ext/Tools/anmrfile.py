@@ -168,7 +168,7 @@ class Anmr():
             print(" Need to read the anmr_nucinfo and anmr_enso enso")
             print(" Exit the program !!! ")
             ic()
-            os._exit(0)
+            exit(0)
         else:
             # for Normal of weight of anmr_enso
             weight = self.enso['BW']
@@ -178,7 +178,7 @@ class Anmr():
             if (np.sum(switch) == 0):
                 print("anmr_enso: Table - ONOFF is Zero ")
                 ic()
-                os._exit(0)
+                exit(0)
 
             # ic(switch)
             weight = weight*switch
@@ -234,7 +234,7 @@ class Anmr():
             print(" Need to read the anmr_nucinfo and anmr_enso enso")
             print(" Exit the program !!! ")
             ic()
-            os._exit(0)
+            exit(1)
         else:
             print("===== Update the equivalent of SParams and JCoups =====")
 
@@ -495,8 +495,9 @@ class Anmr():
         if start_shielding_idx != 0:
             nNuclei: int = start_idx - start_shielding_idx - 2
         else:
+            print("Something wrong")
             ic()
-            os._exit(0)
+            exit(1)
         # print(int(nNuclei/6),nNuclei%6)
         nLines = 0
         for idx in range(int(nNuclei/6)):
@@ -698,7 +699,7 @@ class OrcaSJ():
             print(filename, " the data of the file is some error ...")
             print("    exit and close the program !!! ")
             ic()
-            os._exit(0)
+            exit(0)
 
         for idx, line in enumerate(lines):
             if idx >= start_idx and idx <= end_idx:
@@ -758,7 +759,7 @@ class OrcaSJ():
         else:
             print("This program is not work with before orca 5.0 ")
             ic()
-            os._exit(0)
+            exit(0)
         # ic(start_idx,end_idx)
 
         for idx, line in enumerate(lines):
@@ -791,7 +792,7 @@ class OrcaSJ():
             print("your orcaJ and orcaS is not fit each other")
             print("    exit and close the program !!! ")
             ic()
-            os._exit(0)
+            exit(0)
 
     def method_save_orcaJ(self) -> list:
         raise NotImplementedError
@@ -816,7 +817,7 @@ class OrcaSJ():
             print("your orcaJ and orcaS is not fit each other")
             print("    exit and close the program !!! ")
             ic()
-            os._exit(0)
+            exit(0)
 
     def method_print_orcaS(self) -> None:
         if len(self.idxAtoms) == len(self.orcaSParams):
@@ -828,7 +829,7 @@ class OrcaSJ():
             print("your orcaJ and orcaS is not fit each other")
             print("    exit and close the program !!! ")
             ic()
-            os._exit(0)
+            exit(0)
 
     def method_print_orcaJ(self) -> None:
         for idx in range(self.orcaJCoups[0].size):
@@ -894,7 +895,7 @@ class CensoDat():
         else:
             print("two dat file is not the same scale")
             ic()
-            os._exit(0)
+            exit(0)
         return self
 
     def set_fileName(self, fileName: Path) -> None:

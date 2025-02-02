@@ -23,3 +23,16 @@ def test_anmr():
                "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
     peaks = anmr.main(argparse.Namespace(**x))
     assert peaks.shape == (2, 77868)
+
+
+def test_anmr_miss_args():
+
+    import censo_ext.anmr as anmr
+    import argparse
+    x: dict = {}
+    args = argparse.Namespace(**x)
+
+    with pytest.raises(SystemExit) as e:
+        anmr.main(args)
+    assert e.type == SystemExit
+    assert e.value.code == 2  # for argparse error

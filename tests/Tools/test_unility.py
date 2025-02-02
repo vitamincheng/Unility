@@ -59,7 +59,7 @@ def test_unility_ProgramIsExist():
     with pytest.raises(SystemExit) as e:
         program_is_exist("kkk")
     assert e.type == SystemExit
-    assert e.value.code == 0
+    assert e.value.code == 1
 
 
 def test_unility_is_exist():
@@ -68,7 +68,7 @@ def test_unility_is_exist():
     with pytest.raises(SystemExit) as e:
         is_exist(Path("kkk.xyz"))
     assert e.type == SystemExit
-    assert e.value.code == 0
+    assert e.value.code == 1
 
     #
     #

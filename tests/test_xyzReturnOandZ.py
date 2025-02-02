@@ -39,3 +39,12 @@ def test_xyzReturnOandZ_auto():
     dcmp = filecmp.cmp(args.out, compare)
     assert (dcmp == True)
     os.remove(args.out)
+
+
+def test_xyzReturnOandZ_miss_args():
+    x: dict = {}
+    args = argparse.Namespace(**x)
+    with pytest.raises(SystemExit) as e:
+        xyzReturnOandZ.main(args)
+    assert e.type == SystemExit
+    assert e.value.code == 2  # for argparse error

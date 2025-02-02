@@ -106,7 +106,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if len(match) == 0:
         print(" Need the orca program !!!!")
         print(" Exit the program ")
-        os._exit(0)
+        exit(0)
     orca_path = match[0]+"/orca"
 
 #    orca_path="~/orca_5_0_4_linux_x86-64_shared_openmpi411/orca"

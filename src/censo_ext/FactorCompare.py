@@ -82,7 +82,7 @@ def Factor_xyzCompare(args) -> None:
     else:
         print(" Need the crest program !!!!")
         print(" Exit the program ")
-        os._exit(0)
+        exit(0)
 
     import shutil
     Dir_str = "CREST_P"
@@ -181,8 +181,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.file == None:
         print(" Your input file is wrong (two input file) !!!")
         print(" Exit to quit the program ")
-        ic()
-        os._exit(0)
+        exit(0)
     elif len(args.file) == 2:
         Factor_xyzCompare(args)
 

@@ -81,8 +81,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             infile.method_idx_Molecules_xyzs(idx1=1)
         else:
             print("Only use single conformer in your xyz file")
-            ic()
-            os._exit(0)
+            exit(0)
 
     elif args.merge:
         infile0: GeometryXYZs = GeometryXYZs()
@@ -96,12 +95,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         outfile = infile0 + infile1
         outfile.set_filename(args.out)
         outfile.method_save_xyz([])
-
-    else:
-        print(" Something wrong in your parse argument")
-        print(" Exit to the program ")
-        ic()
-        os._exit(0)
 
 
 if __name__ == "__main__":

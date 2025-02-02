@@ -302,7 +302,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     np_peaks = np_peaks[np_peaks['cID'] != x]
                 else:
                     print("your delete element is wrong cID")
-                    os._exit(0)
+                    ic()
+                    exit(1)
 
         if args.merge != False:
             min_cID = np.array(args.merge).min()
@@ -321,7 +322,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     # ic(np_peaks[args_x][0])
                 else:
                     print("your merge element is wrong cID")
-                    os._exit(0)
+                    ic()
+                    exit(1)
             # ic(min_cID, start, end)
 
             # Remove unnecessary entry
@@ -374,7 +376,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     np_peaks, args_x[0], (args.cut, l_peaks, cut_center, data[start+cut_argmin:max].sum()))
             else:
                 print("your merge element is wrong cID")
-                os._exit(0)
+                ic()
+                exit(1)
 
             # Draw the intergral lines
     if args.auto == True or args.manual == True:
