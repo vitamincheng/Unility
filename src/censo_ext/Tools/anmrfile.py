@@ -459,7 +459,8 @@ class Anmr():
         Av_orcaJ: Path = self.__Directory / Path("Average/NMR/orcaJ.out")      # nopep8
         Av_orcaAtoms: Path = self.__Directory / Path("Average/NMR/orcaA.out")  # nopep8
 
-        Path("Average/NMR").mkdir(parents=True, exist_ok=True)
+        Path(self.__Directory / Path("Average/NMR")
+             ).mkdir(parents=True, exist_ok=True)
 
         from censo_ext.Tools.utility import save_dict_orcaS
         save_dict_orcaS(Av_orcaS, self.Average_orcaSJ.orcaSParams)
@@ -615,7 +616,7 @@ class Anmr():
         if len(self.enso[0]) != 8:
             print("something wrong in your anmr_enso file")
             ic()
-            os._exit(0)
+            exit(0)
 
     def method_read_enso(self, fileName: Path = Path("anmr_enso")) -> None:
         ''' anmr_enso :  8 columns '''
@@ -627,7 +628,7 @@ class Anmr():
         if len(self.enso[0]) != 8:
             print("something wrong in your anmr_enso file")
             ic()
-            os._exit(0)
+            exit(0)
 
     def method_print_enso(self) -> None:
         print("ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi     ")

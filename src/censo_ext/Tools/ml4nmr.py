@@ -46,77 +46,77 @@ covalent_rad_d3 = 4.0 / 3.0 * covalent_rad_2009
 ########## END GLOBAL DECLARATIONS ##########
 
 
-def get_number_nmr(outlist: list) -> int:
-    """Get number of calculated NMR nuclei (not necessarily only 1H and 13C).
-
-    outlist: list of lines read from a calculation output file
-    """
-
-    n_nmr: int = 0
-    for line in outlist[outlist.index('                            *     ORCA property calculations      *\n'):]:
-        if 'Number of nuclei for epr/nmr' in line:
-            n_nmr = int(line.split()[-1])
-    if n_nmr == 0:
-        print("ERROR: Number of calculated NMR nuclei was not found in ORCA output!")
-        exit()
-
-    return n_nmr
-
-
-def read_orca(filename: Path = Path("orcaS.out")) -> tuple:
-    """Read the DFT output from ORCA calculations."""
-
-    data: list[str] = open(filename, 'r').readlines()
-
-    # get number of calculated NMR nuclei
-    n_nmr: int = get_number_nmr(data)
-
-    # get the range in which the shieldings are listed
-    start: int = data.index('CHEMICAL SHIELDING SUMMARY (ppm)\n') + 6
-    end: int = start + n_nmr
-
-    shieldings: list = []
-    for line in data[start:end]:
-        tmp: list[str] = line.split()
-        shieldings.append({
-            # ORCA starts at 0 counting the nuc numbers
-            'idx_nuclei': int(tmp[0]) + 1,
-            'element': tmp[1].upper(),
-            'Shielding': float(tmp[2])
-        })
-
-    # make sure the shieldings are ordered according to the atom numbering (store as tuple)
-    return tuple(sorted(shieldings, key=lambda s: s['idx_nuclei']))
-
-
-def getref_orca(filename: Path = Path("orcaS.out")) -> tuple[list, list]:
-    """Get the reference shieldings from the DFT output (ORCA).
-
-    ATTENTION: all Hs and all Cs are averaged, works e.g. for TMS and CH4.
-    """
-    data: list[str] = open(filename, 'r').readlines()
-
-    # get number of calculated NMR nuclei
-    n_nmr: int = get_number_nmr(data)
-
-    # get the range in which the shieldings are listed
-    start: int = data.index('CHEMICAL SHIELDING SUMMARY (ppm)\n') + 6
-    end: int = start + n_nmr
-
-    list_h: list = []
-    list_c: list = []
-    idx_h, idx_c = 0, 0
-
-    for line in data[start:end]:
-        tmp: list = line.split()
-        if tmp[1].upper() == 'H':
-            list_h.append(float(tmp[2]))
-            idx_h += 1
-        if tmp[1].upper() == 'C':
-            list_c.append(float(tmp[2]))
-            idx_c += 1
-
-    return list_h, list_c
+# def get_number_nmr(outlist: list) -> int:
+#    """Get number of calculated NMR nuclei (not necessarily only 1H and 13C).
+#
+#    outlist: list of lines read from a calculation output file
+#    """
+#
+#    n_nmr: int = 0
+#    for line in outlist[outlist.index('                            *     ORCA property calculations      *\n'):]:
+#        if 'Number of nuclei for epr/nmr' in line:
+#            n_nmr = int(line.split()[-1])
+#    if n_nmr == 0:
+#        print("ERROR: Number of calculated NMR nuclei was not found in ORCA output!")
+#        exit()
+#
+#    return n_nmr
+#
+#
+# def read_orca(filename: Path = Path("orcaS.out")) -> tuple:
+#    """Read the DFT output from ORCA calculations."""
+#
+#    data: list[str] = open(filename, 'r').readlines()
+#
+#    # get number of calculated NMR nuclei
+#    n_nmr: int = get_number_nmr(data)
+#
+#    # get the range in which the shieldings are listed
+#    start: int = data.index('CHEMICAL SHIELDING SUMMARY (ppm)\n') + 6
+#    end: int = start + n_nmr
+#
+#    shieldings: list = []
+#    for line in data[start:end]:
+#        tmp: list[str] = line.split()
+#        shieldings.append({
+#            # ORCA starts at 0 counting the nuc numbers
+#            'idx_nuclei': int(tmp[0]) + 1,
+#            'element': tmp[1].upper(),
+#            'Shielding': float(tmp[2])
+#        })
+#
+#    # make sure the shieldings are ordered according to the atom numbering (store as tuple)
+#    return tuple(sorted(shieldings, key=lambda s: s['idx_nuclei']))
+#
+#
+# def getref_orca(filename: Path = Path("orcaS.out")) -> tuple[list, list]:
+#    """Get the reference shieldings from the DFT output (ORCA).
+#
+#    ATTENTION: all Hs and all Cs are averaged, works e.g. for TMS and CH4.
+#    """
+#    data: list[str] = open(filename, 'r').readlines()
+#
+#    # get number of calculated NMR nuclei
+#    n_nmr: int = get_number_nmr(data)
+#
+#    # get the range in which the shieldings are listed
+#    start: int = data.index('CHEMICAL SHIELDING SUMMARY (ppm)\n') + 6
+#    end: int = start + n_nmr
+#
+#    list_h: list = []
+#    list_c: list = []
+#    idx_h, idx_c = 0, 0
+#
+#    for line in data[start:end]:
+#        tmp: list = line.split()
+#        if tmp[1].upper() == 'H':
+#            list_h.append(float(tmp[2]))
+#            idx_h += 1
+#        if tmp[1].upper() == 'C':
+#            list_c.append(float(tmp[2]))
+#            idx_c += 1
+#
+#    return list_h, list_c
 
 
 def read_mol_neighbors(DirFileName: Path):

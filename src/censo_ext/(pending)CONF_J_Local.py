@@ -78,7 +78,7 @@ def function_read_orcaJ(fileName: Path = Path("orcaJ.out")) -> np.ndarray:
     else:
         print(" Someting wrong in your orcaJ.out file")
         print(" Exit to the program !!!")
-        os._exit(0)
+        exit(0)
 
 
 if __name__ == "__main__":

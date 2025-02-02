@@ -256,30 +256,12 @@ if __name__ == "__main__":
     x: dict = {"out": "output.dat", "start": -
                0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False}
 
-    # v = [-550]
-    # J = np.array([[0]])
-    # v = [-1547.2525, -1495.11334]
-    # J = np.array([[0, -15.2], [-15.2, 0]])
-
-    # v = [485.0, 515.0, 600.0]
-    # J = np.array([[  0,  10,   15],
-    #              [ 10,   0,    2],
-    #              [ 15,   2,    0]])
-    #   49 53 54 58
     v: list = [964, 2775.76, 2768.20, 928]
 
     J: np.ndarray = np.array([[0.0,   0.0,   0.0,   0.0],
                              [0.0,   0.0, 16.97,   0.0],
                               [0.0, 16.97,   0.0,   7.0],
                               [0.0,   0.0,   7.0,   0.0]])
-
-    # J = np.array([[   0,   6.8, -1.7,  1.2 ],
-    #              [ 6.8,     0,16.97, -1.97],
-    #              [-1.7, 16.97,    0,  6.43],
-    #              [ 1.2, -1.97, 6.43,     0]])
-
-    # R_peak = qm_partial(v=v, J=J, nIntergals=1, idx0_nspins=0,
-    #                    args=argparse.Namespace(**x))
 
     R_peak: list = qm_full(v=v, J=J, nIntergals=1,
                            args=argparse.Namespace(**x))
