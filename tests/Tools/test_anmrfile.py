@@ -60,6 +60,15 @@ def test_get_average_orcaSJ_Exist():
     assert exist == True
 
 
+def test_method_read_enso_error():
+    # For Hydrogen
+    file = Anmr(Path("tests/data/04.Hydrogen"))
+    with pytest.raises(SystemExit) as e:
+        file.method_read_enso(Path("anmr_enso_error"))
+    assert e.type == SystemExit
+    assert e.value.code == 1
+
+
 def test_method_read_enso():
     # For Hydrogen
     file = Anmr(Path("tests/data/04.Hydrogen"))
@@ -108,3 +117,25 @@ def test_Censo():
     dcmp = filecmp.cmp(outfile, source)
     assert (dcmp == True)
     os.remove(outfile)
+
+
+def test_method_read_anmrSJ_H():
+    file = Anmr(Path("tests/data/04.Hydrogen"))
+    file.method_read_anmrSJ(Path("anmrh0.out"))
+    assert len(file.anmrS) == 33
+    assert file.anmrS[0] == [1, 4, 1, 2.317]
+    assert file.anmrS[-1] == [33, 71, 3, 1.104]
+    assert len(file.anmrJ[0]) == 33
+    assert file.anmrJ[0][1] == -13.04873
+    assert file.anmrJ[-1][-2] == -0.00107
+
+
+def test_method_read_anmrSJ_C():
+    file = Anmr(Path("tests/data/07.Carbon"))
+    file.method_read_anmrSJ(Path("anmrc.out"))
+    assert len(file.anmrS) == 28
+    assert file.anmrS[0] == [1, 1, 1, 125.371]
+    assert file.anmrS[-1] == [28, 61, 1, 9.315]
+    assert len(file.anmrJ[0]) == 28
+    assert file.anmrJ[0][1] == 0.00000
+    assert file.anmrJ[-1][-2] == -0.00000

@@ -69,17 +69,3 @@ def test_unility_is_exist():
         is_exist(Path("kkk.xyz"))
     assert e.type == SystemExit
     assert e.value.code == 1
-
-    #
-    #
-    #
-    #
-    #
-    # def example():
-    #    print("foo")
-    #
-    #
-    # def test_spam(capsys):
-    #    example()
-    #    captured = capsys.readouterr()
-    #    assert captured.out == "foo\n"

@@ -93,32 +93,32 @@ def save_dict(fileName: Path, Data: dict) -> None:
             f.write('%12.5f %12.5e\n' % (key, value))
 
 
-def save_BOBYQA_orcaS(fileName: Path, Data: dict) -> None:
-    with open(fileName, 'w') as f:
-
-        for key, value in Data.items():
-            if type(value) is list:
-                f.write('%10d %12.5f %10d \n' % (key, value[0], value[1]))
-            else:
-                f.write('%10d %12.5f %10d \n' % (key, value, 0))
-
-
-def load_BOBYQA_orcaS(fileName: Path) -> dict:
-    is_exist(fileName)
-    lines = open(fileName, "r").readlines()
-
-    Data: dict = {}
-    for x in lines:
-        if len(x.split()) == 2:
-            Data[int(x.split()[0])] = [float(x.split()[1])]
-        elif len(x.split()) == 3:
-            Data[int(x.split()[0])] = [float(x.split()[1]), int(x.split()[2])]
-        else:
-            print("something wrong in your orcaS.out")
-            print("Exit to the program")
-            ic()
-            exit(1)
-    return Data
+# def save_BOBYQA_orcaS(fileName: Path, Data: dict) -> None:
+#    with open(fileName, 'w') as f:
+#
+#        for key, value in Data.items():
+#            if type(value) is list:
+#                f.write('%10d %12.5f %10d \n' % (key, value[0], value[1]))
+#            else:
+#                f.write('%10d %12.5f %10d \n' % (key, value, 0))
+#
+#
+# def load_BOBYQA_orcaS(fileName: Path) -> dict:
+#    is_exist(fileName)
+#    lines = open(fileName, "r").readlines()
+#
+#    Data: dict = {}
+#    for x in lines:
+#        if len(x.split()) == 2:
+#            Data[int(x.split()[0])] = [float(x.split()[1])]
+#        elif len(x.split()) == 3:
+#            Data[int(x.split()[0])] = [float(x.split()[1]), int(x.split()[2])]
+#        else:
+#            print("something wrong in your orcaS.out")
+#            print("Exit to the program")
+#            ic()
+#            exit(1)
+#    return Data
 
 
 def save_dict_orcaS(fileName: Path, Data: dict) -> None:

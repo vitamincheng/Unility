@@ -24,12 +24,9 @@ def test_qm():
 
     assert len(R_peak) == 16
     assert R_peak[0][0] == pytest.approx(np.float64(2751.6221950398317))
-
     assert R_peak[0][1] == pytest.approx(np.float64(0.004640626007360023))
-    assert R_peak[len(R_peak) -
-                  1][0] == pytest.approx(np.float64(2773.4946427349055))
-    assert R_peak[len(R_peak) -
-                  1][1] == pytest.approx(np.float64(0.09446798980250143))
+    assert R_peak[-1][0] == pytest.approx(np.float64(2773.4946427349055))
+    assert R_peak[-1][1] == pytest.approx(np.float64(0.09446798980250143))
 
     x = {"out": "output.dat", "start": -
          0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False, "bobyqa": True}
@@ -37,9 +34,6 @@ def test_qm():
 
     assert len(R_peak) == 36
     assert R_peak[0][0] == pytest.approx(np.float64(924.4933121601566))
-
     assert R_peak[0][1] == pytest.approx(np.float64(0.03113112356179515))
-    assert R_peak[len(R_peak) -
-                  1][0] == pytest.approx(np.float64(931.493373552777))
-    assert R_peak[len(R_peak) -
-                  1][1] == pytest.approx(np.float64(0.03136887192481798))
+    assert R_peak[-1][0] == pytest.approx(np.float64(931.493373552777))
+    assert R_peak[-1][1] == pytest.approx(np.float64(0.03136887192481798))

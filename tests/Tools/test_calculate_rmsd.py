@@ -22,6 +22,8 @@ def test_calculate_rmsd():
         52, 55], "ignore_Hydrogen": True, "debug": False}
     idx_atom1 = cal_rmsd_xyz(xyzfile, 1, 2, args=argparse.Namespace(**x))
     assert len(idx_atom1[0]) == 24
+    assert idx_atom1[0][1] == pytest.approx(np.float64(0.0022804570676915915))
+    assert idx_atom1[0][24] == pytest.approx(np.float64(0.02272775019255817))
     assert idx_atom1[1] == pytest.approx(np.float64(0.35959367835047723))
 
     # for isomers.xyz
@@ -33,4 +35,6 @@ def test_calculate_rmsd():
     idx_atom1 = cal_rmsd_xyz(xyzfile, 1, 2, args=argparse.Namespace(**x))
 
     assert len(idx_atom1[0]) == 17
+    assert idx_atom1[0][1] == pytest.approx(np.float64(0.052818544187445145))
+    assert idx_atom1[0][17] == pytest.approx(np.float64(0.5847626056423644))
     assert idx_atom1[1] == pytest.approx(np.float64(0.9657626138106812))

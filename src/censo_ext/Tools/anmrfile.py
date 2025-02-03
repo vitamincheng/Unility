@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #  Module anmr/ censo           [08.27.2024] vitamin.cheng@gmail.com
 from __future__ import annotations
+# from numpy import exceptions
 from typing_extensions import Self
 import os
 import sys
@@ -617,7 +618,7 @@ class Anmr():
         if len(self.enso[0]) != 8:
             print("something wrong in your anmr_enso file")
             ic()
-            exit(0)
+            exit(1)
 
     def method_read_enso(self, fileName: Path = Path("anmr_enso")) -> None:
         ''' anmr_enso :  8 columns '''
@@ -625,11 +626,13 @@ class Anmr():
 
         fileName = self.__Directory / Path(fileName)
         is_exist(fileName)
+
         self.enso = np.genfromtxt(fileName, names=True)
+
         if len(self.enso[0]) != 8:
             print("something wrong in your anmr_enso file")
             ic()
-            exit(0)
+            exit(1)
 
     def method_print_enso(self) -> None:
         print("ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi     ")

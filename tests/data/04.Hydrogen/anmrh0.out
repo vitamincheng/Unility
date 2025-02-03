@@ -1,0 +1,3318 @@
+vitamin-x300
+       +--------------------------------------+
+       |              A N M R                 |
+       |             S. Grimme                |
+       |      Universitaet Bonn, MCTC         |
+       |             1989-2019                |
+       |            version 3.5.1             |
+       |     Sat Feb  9 06:41:57 CET 2019     |
+       +--------------------------------------+
+       Based on a TurboPascal program written  
+       in 1989 which was translated to F90 in  
+       2005 and re-activated in 2017.          
+       Please cite work employing this code as:
+       ANMR Ver. 3.5: An automatic, QC based
+       coupled NMR spectra simulation program.
+       S. Grimme, Universitaet Bonn, 2019
+       S. Grimme, C. Bannwarth, S. Dohm, A. Hansen
+       J. Pisarek, P. Pracht, J. Seibert, F. Neese
+       Angew. Chem. Int. Ed. 2017, 56, 14763-14769.
+       DOI:10.1002/anie.201708266               
+ 
+ 
+ =============================
+    # OMP threads =           8
+ =============================
+ reading <.anmrrc> for standard data
+ Read ORCA from anmrrc
+           1   31.7900000000000       0.000000000000000E+000           1
+           6   188.570000000000       0.000000000000000E+000           0
+1H resonance frequency (-mf <real>)    :  500.00
+line width             (-lw <real>)    :    1.00
+number of all conformers               :54
+temperature in K                       :  298.15
+remove J couplings to OH groups        : T
+maximum spin system size in a fragment :10
+fragmentation type (0=none,1=at,2=mol) : 2
+chemical shift scalings a,b            :    1.00    0.00
+spin-spin coupling scal factor         :    1.07
+plot offset                            :    0.00
+Active nuclei                          :H 
+ 
+ reading from anmr_enso
+ conformational energies:          54
+   0.000   1.738   1.068   0.171   1.805   1.107   0.918   2.628   2.066   1.483
+   3.479   2.628   0.756   2.814   2.007   0.588   2.692   1.868   2.077   3.485
+   3.351   4.182   2.044   5.545   2.048   4.062   3.227   0.288   2.085   1.399
+   0.439   2.115   1.467   1.224   2.966   2.342   1.715   3.781   2.943   1.049
+   3.109   2.320   0.917   2.951   2.175   2.386   3.742   2.951   4.492   2.323
+   5.839   2.337   4.358   3.519
+ conformational RRHO energies:
+   0.000   0.310   0.546   0.188   0.200   0.673   0.165   0.185   0.631   0.348
+   0.597   0.883   0.101   0.319   0.759   0.468   0.483   0.847   0.442   0.801
+   0.889   0.283   0.755   0.527   0.514   0.646   0.830  -0.025   0.318   0.509
+   0.100   0.204   0.634   0.153   0.188   0.594   0.313   0.625   0.817   0.425
+   0.376   0.755   0.507   0.466   0.814   0.420   0.632   0.813   0.280   0.725
+   0.508   0.501   0.612   0.793
+ conformational Gsolv free energies:
+   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000
+   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000
+   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000
+   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000
+   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000
+   0.000   0.000   0.000   0.000
+ conformational free energies:
+   0.000   2.048   1.614   0.359   2.005   1.781   1.083   2.813   2.697   1.831
+   4.077   3.510   0.857   3.133   2.766   1.055   3.175   2.715   2.519   4.286
+   4.239   4.464   2.799   6.071   2.562   4.708   4.057   0.263   2.403   1.909
+   0.539   2.319   2.101   1.377   3.155   2.936   2.029   4.406   3.760   1.473
+   3.485   3.075   1.424   3.417   2.989   2.806   4.374   3.764   4.772   3.048
+   6.348   2.838   4.970   4.311
+ gi per conformer:
+    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00
+    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00
+    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00
+    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00
+    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00    1.00
+    1.00    1.00    1.00    1.00
+ conformational populations calculated by anmr:
+   0.254   0.008   0.017   0.138   0.009   0.013   0.041   0.002   0.003   0.012
+   0.000   0.001   0.060   0.001   0.002   0.043   0.001   0.003   0.004   0.000
+   0.000   0.000   0.002   0.000   0.003   0.000   0.000   0.163   0.004   0.010
+   0.102   0.005   0.007   0.025   0.001   0.002   0.008   0.000   0.000   0.021
+   0.001   0.001   0.023   0.001   0.002   0.002   0.000   0.000   0.000   0.001
+   0.000   0.002   0.000   0.000
+ conformational populations calculated by enso:
+ These are used:
+   0.254   0.008   0.017   0.139   0.009   0.013   0.041   0.002   0.003   0.011
+   0.000   0.001   0.060   0.001   0.002   0.043   0.001   0.003   0.004   0.000
+   0.000   0.000   0.002   0.000   0.003   0.000   0.000   0.163   0.004   0.010
+   0.102   0.005   0.007   0.025   0.001   0.002   0.008   0.000   0.000   0.021
+   0.001   0.001   0.023   0.001   0.002   0.002   0.000   0.000   0.000   0.002
+   0.000   0.002   0.000   0.000
+   1(   1)    25.4
+   2(   2)     0.8
+   3(   3)     1.7
+   4(   4)    13.9
+   5(   5)     0.9
+   6(   6)     1.3
+   7(   7)     4.1
+   8(   8)     0.2
+   9(   9)     0.3
+  10(  10)     1.1
+  11(  11)     0.0
+  12(  12)     0.1
+  13(  13)     6.0
+  14(  14)     0.1
+  15(  15)     0.2
+  16(  16)     4.3
+  17(  17)     0.1
+  18(  18)     0.3
+  19(  19)     0.4
+  20(  20)     0.0
+  21(  21)     0.0
+  22(  22)     0.0
+  23(  23)     0.2
+  24(  24)     0.0
+  25(  25)     0.3
+  26(  26)     0.0
+  27(  27)     0.0
+  28(  28)    16.3
+  29(  29)     0.4
+  30(  30)     1.0
+  31(  31)    10.2
+  32(  32)     0.5
+  33(  33)     0.7
+  34(  34)     2.5
+  35(  35)     0.1
+  36(  36)     0.2
+  37(  37)     0.8
+  38(  38)     0.0
+  39(  39)     0.0
+  40(  40)     2.1
+  41(  41)     0.1
+  42(  42)     0.1
+  43(  43)     2.3
+  44(  44)     0.1
+  45(  45)     0.2
+  46(  46)     0.2
+  47(  47)     0.0
+  48(  48)     0.0
+  49(  49)     0.0
+  50(  50)     0.1
+  51(  51)     0.0
+  52(  52)     0.2
+  53(  53)     0.0
+  54(  54)     0.0
+ensemble average free energy (Eh)     :-1167.787894
+ensemble entropy (cal/mol K)          :    4.995
+ensemble total free energy (kcal/mol) :-1167.788602
+ removing acidic XH           36
+ reading rotamer data from  <anmr_rotamer>
+ number of unique conformers from CREST   320
+ number of unique conformers from enso             54
+ conformer      1 averaging over   21 rotamers
+ rotamer           20
+ conformer      2 averaging over    1 rotamers
+ conformer      3 averaging over   23 rotamers
+ rotamer           20
+ conformer      4 averaging over    6 rotamers
+ conformer      5 averaging over    2 rotamers
+ conformer      6 averaging over    1 rotamers
+ conformer      7 averaging over    1 rotamers
+ conformer      8 averaging over    2 rotamers
+ conformer      9 averaging over    1 rotamers
+ conformer     10 averaging over    4 rotamers
+ conformer     11 averaging over    3 rotamers
+ conformer     12 averaging over    1 rotamers
+ conformer     13 averaging over    2 rotamers
+ conformer     14 averaging over    2 rotamers
+ conformer     15 averaging over    1 rotamers
+ conformer     16 averaging over    8 rotamers
+ conformer     17 averaging over    1 rotamers
+ conformer     18 averaging over    1 rotamers
+ conformer     19 averaging over   10 rotamers
+ conformer     20 averaging over    2 rotamers
+ conformer     21 averaging over    1 rotamers
+ conformer     22 averaging over    1 rotamers
+ conformer     23 averaging over    1 rotamers
+ conformer     24 averaging over    7 rotamers
+ conformer     25 averaging over    7 rotamers
+ conformer     26 averaging over    2 rotamers
+ conformer     27 averaging over    1 rotamers
+ conformer     28 averaging over    3 rotamers
+ conformer     29 averaging over    7 rotamers
+ conformer     30 averaging over    3 rotamers
+ conformer     31 averaging over    7 rotamers
+ conformer     32 averaging over    1 rotamers
+ conformer     33 averaging over    1 rotamers
+ conformer     34 averaging over    2 rotamers
+ conformer     35 averaging over    6 rotamers
+ conformer     36 averaging over    4 rotamers
+ conformer     37 averaging over    1 rotamers
+ conformer     38 averaging over    1 rotamers
+ conformer     39 averaging over    1 rotamers
+ conformer     40 averaging over    1 rotamers
+ conformer     41 averaging over    1 rotamers
+ conformer     42 averaging over    4 rotamers
+ conformer     43 averaging over    1 rotamers
+ conformer     44 averaging over    1 rotamers
+ conformer     45 averaging over    1 rotamers
+ conformer     46 averaging over    1 rotamers
+ conformer     47 averaging over    6 rotamers
+ conformer     48 averaging over    3 rotamers
+ conformer     49 averaging over    3 rotamers
+ conformer     50 averaging over    1 rotamers
+ conformer     51 averaging over    1 rotamers
+ conformer     52 averaging over    2 rotamers
+ conformer     53 averaging over    1 rotamers
+ conformer     54 averaging over    3 rotamers
+ conformer     55 averaging over    1 rotamers
+ conformer     55 not in anmr_enso, skipping 
+ conformer     56 averaging over    1 rotamers
+ conformer     56 not in anmr_enso, skipping 
+ conformer     57 averaging over    4 rotamers
+ conformer     57 not in anmr_enso, skipping 
+ conformer     58 averaging over    3 rotamers
+ conformer     58 not in anmr_enso, skipping 
+ conformer     59 averaging over    1 rotamers
+ conformer     59 not in anmr_enso, skipping 
+ conformer     60 averaging over    1 rotamers
+ conformer     60 not in anmr_enso, skipping 
+ conformer     61 averaging over    1 rotamers
+ conformer     61 not in anmr_enso, skipping 
+ conformer     62 averaging over    4 rotamers
+ conformer     62 not in anmr_enso, skipping 
+ conformer     63 averaging over    1 rotamers
+ conformer     63 not in anmr_enso, skipping 
+ conformer     64 averaging over    2 rotamers
+ conformer     64 not in anmr_enso, skipping 
+ conformer     65 averaging over    1 rotamers
+ conformer     65 not in anmr_enso, skipping 
+ conformer     66 averaging over    1 rotamers
+ conformer     66 not in anmr_enso, skipping 
+ conformer     67 averaging over    3 rotamers
+ conformer     67 not in anmr_enso, skipping 
+ conformer     68 averaging over    5 rotamers
+ conformer     68 not in anmr_enso, skipping 
+ conformer     69 averaging over    1 rotamers
+ conformer     69 not in anmr_enso, skipping 
+ conformer     70 averaging over    3 rotamers
+ conformer     70 not in anmr_enso, skipping 
+ conformer     71 averaging over    2 rotamers
+ conformer     71 not in anmr_enso, skipping 
+ conformer     72 averaging over    2 rotamers
+ conformer     72 not in anmr_enso, skipping 
+ conformer     73 averaging over    3 rotamers
+ conformer     73 not in anmr_enso, skipping 
+ conformer     74 averaging over    1 rotamers
+ conformer     74 not in anmr_enso, skipping 
+ conformer     75 averaging over    2 rotamers
+ conformer     75 not in anmr_enso, skipping 
+ conformer     76 averaging over    1 rotamers
+ conformer     76 not in anmr_enso, skipping 
+ conformer     77 averaging over    2 rotamers
+ conformer     77 not in anmr_enso, skipping 
+ conformer     78 averaging over    1 rotamers
+ conformer     78 not in anmr_enso, skipping 
+ conformer     79 averaging over    1 rotamers
+ conformer     79 not in anmr_enso, skipping 
+ conformer     80 averaging over    4 rotamers
+ conformer     80 not in anmr_enso, skipping 
+ conformer     81 averaging over    3 rotamers
+ conformer     81 not in anmr_enso, skipping 
+ conformer     82 averaging over    1 rotamers
+ conformer     82 not in anmr_enso, skipping 
+ conformer     83 averaging over    2 rotamers
+ conformer     83 not in anmr_enso, skipping 
+ conformer     84 averaging over    2 rotamers
+ conformer     84 not in anmr_enso, skipping 
+ conformer     85 averaging over    1 rotamers
+ conformer     85 not in anmr_enso, skipping 
+ conformer     86 averaging over    1 rotamers
+ conformer     86 not in anmr_enso, skipping 
+ conformer     87 averaging over    2 rotamers
+ conformer     87 not in anmr_enso, skipping 
+ conformer     88 averaging over    1 rotamers
+ conformer     88 not in anmr_enso, skipping 
+ conformer     89 averaging over    6 rotamers
+ conformer     89 not in anmr_enso, skipping 
+ conformer     90 averaging over    2 rotamers
+ conformer     90 not in anmr_enso, skipping 
+ conformer     91 averaging over    1 rotamers
+ conformer     91 not in anmr_enso, skipping 
+ conformer     92 averaging over    1 rotamers
+ conformer     92 not in anmr_enso, skipping 
+ conformer     93 averaging over    1 rotamers
+ conformer     93 not in anmr_enso, skipping 
+ conformer     94 averaging over    2 rotamers
+ conformer     94 not in anmr_enso, skipping 
+ conformer     95 averaging over    1 rotamers
+ conformer     95 not in anmr_enso, skipping 
+ conformer     96 averaging over    1 rotamers
+ conformer     96 not in anmr_enso, skipping 
+ conformer     97 averaging over    1 rotamers
+ conformer     97 not in anmr_enso, skipping 
+ conformer     98 averaging over    3 rotamers
+ conformer     98 not in anmr_enso, skipping 
+ conformer     99 averaging over    1 rotamers
+ conformer     99 not in anmr_enso, skipping 
+ conformer    100 averaging over    6 rotamers
+ conformer    100 not in anmr_enso, skipping 
+ conformer    101 averaging over    1 rotamers
+ conformer    101 not in anmr_enso, skipping 
+ conformer    102 averaging over    1 rotamers
+ conformer    102 not in anmr_enso, skipping 
+ conformer    103 averaging over    7 rotamers
+ conformer    103 not in anmr_enso, skipping 
+ conformer    104 averaging over    1 rotamers
+ conformer    104 not in anmr_enso, skipping 
+ conformer    105 averaging over    2 rotamers
+ conformer    105 not in anmr_enso, skipping 
+ conformer    106 averaging over    1 rotamers
+ conformer    106 not in anmr_enso, skipping 
+ conformer    107 averaging over    1 rotamers
+ conformer    107 not in anmr_enso, skipping 
+ conformer    108 averaging over    1 rotamers
+ conformer    108 not in anmr_enso, skipping 
+ conformer    109 averaging over    3 rotamers
+ conformer    109 not in anmr_enso, skipping 
+ conformer    110 averaging over    2 rotamers
+ conformer    110 not in anmr_enso, skipping 
+ conformer    111 averaging over    6 rotamers
+ conformer    111 not in anmr_enso, skipping 
+ conformer    112 averaging over    1 rotamers
+ conformer    112 not in anmr_enso, skipping 
+ conformer    113 averaging over    2 rotamers
+ conformer    113 not in anmr_enso, skipping 
+ conformer    114 averaging over    4 rotamers
+ conformer    114 not in anmr_enso, skipping 
+ conformer    115 averaging over    1 rotamers
+ conformer    115 not in anmr_enso, skipping 
+ conformer    116 averaging over    3 rotamers
+ conformer    116 not in anmr_enso, skipping 
+ conformer    117 averaging over    2 rotamers
+ conformer    117 not in anmr_enso, skipping 
+ conformer    118 averaging over    1 rotamers
+ conformer    118 not in anmr_enso, skipping 
+ conformer    119 averaging over    2 rotamers
+ conformer    119 not in anmr_enso, skipping 
+ conformer    120 averaging over    3 rotamers
+ conformer    120 not in anmr_enso, skipping 
+ conformer    121 averaging over    1 rotamers
+ conformer    121 not in anmr_enso, skipping 
+ conformer    122 averaging over    1 rotamers
+ conformer    122 not in anmr_enso, skipping 
+ conformer    123 averaging over    1 rotamers
+ conformer    123 not in anmr_enso, skipping 
+ conformer    124 averaging over    1 rotamers
+ conformer    124 not in anmr_enso, skipping 
+ conformer    125 averaging over    5 rotamers
+ conformer    125 not in anmr_enso, skipping 
+ conformer    126 averaging over    2 rotamers
+ conformer    126 not in anmr_enso, skipping 
+ conformer    127 averaging over    1 rotamers
+ conformer    127 not in anmr_enso, skipping 
+ conformer    128 averaging over    1 rotamers
+ conformer    128 not in anmr_enso, skipping 
+ conformer    129 averaging over    3 rotamers
+ conformer    129 not in anmr_enso, skipping 
+ conformer    130 averaging over    3 rotamers
+ conformer    130 not in anmr_enso, skipping 
+ conformer    131 averaging over    2 rotamers
+ conformer    131 not in anmr_enso, skipping 
+ conformer    132 averaging over    1 rotamers
+ conformer    132 not in anmr_enso, skipping 
+ conformer    133 averaging over    6 rotamers
+ conformer    133 not in anmr_enso, skipping 
+ conformer    134 averaging over    1 rotamers
+ conformer    134 not in anmr_enso, skipping 
+ conformer    135 averaging over    1 rotamers
+ conformer    135 not in anmr_enso, skipping 
+ conformer    136 averaging over    2 rotamers
+ conformer    136 not in anmr_enso, skipping 
+ conformer    137 averaging over    1 rotamers
+ conformer    137 not in anmr_enso, skipping 
+ conformer    138 averaging over    1 rotamers
+ conformer    138 not in anmr_enso, skipping 
+ conformer    139 averaging over    1 rotamers
+ conformer    139 not in anmr_enso, skipping 
+ conformer    140 averaging over    3 rotamers
+ conformer    140 not in anmr_enso, skipping 
+ conformer    141 averaging over    1 rotamers
+ conformer    141 not in anmr_enso, skipping 
+ conformer    142 averaging over    2 rotamers
+ conformer    142 not in anmr_enso, skipping 
+ conformer    143 averaging over    1 rotamers
+ conformer    143 not in anmr_enso, skipping 
+ conformer    144 averaging over    1 rotamers
+ conformer    144 not in anmr_enso, skipping 
+ conformer    145 averaging over    3 rotamers
+ conformer    145 not in anmr_enso, skipping 
+ conformer    146 averaging over    2 rotamers
+ conformer    146 not in anmr_enso, skipping 
+ conformer    147 averaging over    5 rotamers
+ conformer    147 not in anmr_enso, skipping 
+ conformer    148 averaging over    1 rotamers
+ conformer    148 not in anmr_enso, skipping 
+ conformer    149 averaging over    1 rotamers
+ conformer    149 not in anmr_enso, skipping 
+ conformer    150 averaging over    3 rotamers
+ conformer    150 not in anmr_enso, skipping 
+ conformer    151 averaging over    2 rotamers
+ conformer    151 not in anmr_enso, skipping 
+ conformer    152 averaging over    1 rotamers
+ conformer    152 not in anmr_enso, skipping 
+ conformer    153 averaging over    1 rotamers
+ conformer    153 not in anmr_enso, skipping 
+ conformer    154 averaging over    1 rotamers
+ conformer    154 not in anmr_enso, skipping 
+ conformer    155 averaging over    2 rotamers
+ conformer    155 not in anmr_enso, skipping 
+ conformer    156 averaging over    1 rotamers
+ conformer    156 not in anmr_enso, skipping 
+ conformer    157 averaging over    2 rotamers
+ conformer    157 not in anmr_enso, skipping 
+ conformer    158 averaging over    2 rotamers
+ conformer    158 not in anmr_enso, skipping 
+ conformer    159 averaging over    1 rotamers
+ conformer    159 not in anmr_enso, skipping 
+ conformer    160 averaging over    3 rotamers
+ conformer    160 not in anmr_enso, skipping 
+ conformer    161 averaging over    2 rotamers
+ conformer    161 not in anmr_enso, skipping 
+ conformer    162 averaging over    1 rotamers
+ conformer    162 not in anmr_enso, skipping 
+ conformer    163 averaging over    6 rotamers
+ conformer    163 not in anmr_enso, skipping 
+ conformer    164 averaging over    1 rotamers
+ conformer    164 not in anmr_enso, skipping 
+ conformer    165 averaging over    5 rotamers
+ conformer    165 not in anmr_enso, skipping 
+ conformer    166 averaging over    1 rotamers
+ conformer    166 not in anmr_enso, skipping 
+ conformer    167 averaging over    1 rotamers
+ conformer    167 not in anmr_enso, skipping 
+ conformer    168 averaging over    5 rotamers
+ conformer    168 not in anmr_enso, skipping 
+ conformer    169 averaging over    1 rotamers
+ conformer    169 not in anmr_enso, skipping 
+ conformer    170 averaging over    1 rotamers
+ conformer    170 not in anmr_enso, skipping 
+ conformer    171 averaging over    1 rotamers
+ conformer    171 not in anmr_enso, skipping 
+ conformer    172 averaging over    3 rotamers
+ conformer    172 not in anmr_enso, skipping 
+ conformer    173 averaging over    1 rotamers
+ conformer    173 not in anmr_enso, skipping 
+ conformer    174 averaging over    3 rotamers
+ conformer    174 not in anmr_enso, skipping 
+ conformer    175 averaging over    2 rotamers
+ conformer    175 not in anmr_enso, skipping 
+ conformer    176 averaging over    2 rotamers
+ conformer    176 not in anmr_enso, skipping 
+ conformer    177 averaging over    1 rotamers
+ conformer    177 not in anmr_enso, skipping 
+ conformer    178 averaging over    2 rotamers
+ conformer    178 not in anmr_enso, skipping 
+ conformer    179 averaging over    2 rotamers
+ conformer    179 not in anmr_enso, skipping 
+ conformer    180 averaging over    1 rotamers
+ conformer    180 not in anmr_enso, skipping 
+ conformer    181 averaging over    3 rotamers
+ conformer    181 not in anmr_enso, skipping 
+ conformer    182 averaging over    2 rotamers
+ conformer    182 not in anmr_enso, skipping 
+ conformer    183 averaging over    1 rotamers
+ conformer    183 not in anmr_enso, skipping 
+ conformer    184 averaging over    2 rotamers
+ conformer    184 not in anmr_enso, skipping 
+ conformer    185 averaging over    1 rotamers
+ conformer    185 not in anmr_enso, skipping 
+ conformer    186 averaging over    1 rotamers
+ conformer    186 not in anmr_enso, skipping 
+ conformer    187 averaging over    2 rotamers
+ conformer    187 not in anmr_enso, skipping 
+ conformer    188 averaging over    5 rotamers
+ conformer    188 not in anmr_enso, skipping 
+ conformer    189 averaging over    8 rotamers
+ conformer    189 not in anmr_enso, skipping 
+ conformer    190 averaging over    2 rotamers
+ conformer    190 not in anmr_enso, skipping 
+ conformer    191 averaging over    1 rotamers
+ conformer    191 not in anmr_enso, skipping 
+ conformer    192 averaging over    1 rotamers
+ conformer    192 not in anmr_enso, skipping 
+ conformer    193 averaging over    2 rotamers
+ conformer    193 not in anmr_enso, skipping 
+ conformer    194 averaging over    1 rotamers
+ conformer    194 not in anmr_enso, skipping 
+ conformer    195 averaging over    1 rotamers
+ conformer    195 not in anmr_enso, skipping 
+ conformer    196 averaging over    3 rotamers
+ conformer    196 not in anmr_enso, skipping 
+ conformer    197 averaging over    2 rotamers
+ conformer    197 not in anmr_enso, skipping 
+ conformer    198 averaging over    1 rotamers
+ conformer    198 not in anmr_enso, skipping 
+ conformer    199 averaging over    1 rotamers
+ conformer    199 not in anmr_enso, skipping 
+ conformer    200 averaging over    2 rotamers
+ conformer    200 not in anmr_enso, skipping 
+ conformer    201 averaging over    1 rotamers
+ conformer    201 not in anmr_enso, skipping 
+ conformer    202 averaging over    1 rotamers
+ conformer    202 not in anmr_enso, skipping 
+ conformer    203 averaging over    2 rotamers
+ conformer    203 not in anmr_enso, skipping 
+ conformer    204 averaging over    3 rotamers
+ conformer    204 not in anmr_enso, skipping 
+ conformer    205 averaging over    4 rotamers
+ conformer    205 not in anmr_enso, skipping 
+ conformer    206 averaging over    1 rotamers
+ conformer    206 not in anmr_enso, skipping 
+ conformer    207 averaging over    1 rotamers
+ conformer    207 not in anmr_enso, skipping 
+ conformer    208 averaging over    2 rotamers
+ conformer    208 not in anmr_enso, skipping 
+ conformer    209 averaging over    1 rotamers
+ conformer    209 not in anmr_enso, skipping 
+ conformer    210 averaging over    1 rotamers
+ conformer    210 not in anmr_enso, skipping 
+ conformer    211 averaging over    5 rotamers
+ conformer    211 not in anmr_enso, skipping 
+ conformer    212 averaging over    2 rotamers
+ conformer    212 not in anmr_enso, skipping 
+ conformer    213 averaging over    6 rotamers
+ conformer    213 not in anmr_enso, skipping 
+ conformer    214 averaging over    1 rotamers
+ conformer    214 not in anmr_enso, skipping 
+ conformer    215 averaging over    1 rotamers
+ conformer    215 not in anmr_enso, skipping 
+ conformer    216 averaging over    1 rotamers
+ conformer    216 not in anmr_enso, skipping 
+ conformer    217 averaging over    1 rotamers
+ conformer    217 not in anmr_enso, skipping 
+ conformer    218 averaging over    2 rotamers
+ conformer    218 not in anmr_enso, skipping 
+ conformer    219 averaging over    1 rotamers
+ conformer    219 not in anmr_enso, skipping 
+ conformer    220 averaging over    2 rotamers
+ conformer    220 not in anmr_enso, skipping 
+ conformer    221 averaging over    1 rotamers
+ conformer    221 not in anmr_enso, skipping 
+ conformer    222 averaging over    1 rotamers
+ conformer    222 not in anmr_enso, skipping 
+ conformer    223 averaging over    1 rotamers
+ conformer    223 not in anmr_enso, skipping 
+ conformer    224 averaging over    1 rotamers
+ conformer    224 not in anmr_enso, skipping 
+ conformer    225 averaging over    1 rotamers
+ conformer    225 not in anmr_enso, skipping 
+ conformer    226 averaging over    1 rotamers
+ conformer    226 not in anmr_enso, skipping 
+ conformer    227 averaging over    1 rotamers
+ conformer    227 not in anmr_enso, skipping 
+ conformer    228 averaging over    1 rotamers
+ conformer    228 not in anmr_enso, skipping 
+ conformer    229 averaging over    1 rotamers
+ conformer    229 not in anmr_enso, skipping 
+ conformer    230 averaging over    1 rotamers
+ conformer    230 not in anmr_enso, skipping 
+ conformer    231 averaging over    2 rotamers
+ conformer    231 not in anmr_enso, skipping 
+ conformer    232 averaging over    2 rotamers
+ conformer    232 not in anmr_enso, skipping 
+ conformer    233 averaging over    4 rotamers
+ conformer    233 not in anmr_enso, skipping 
+ conformer    234 averaging over    1 rotamers
+ conformer    234 not in anmr_enso, skipping 
+ conformer    235 averaging over    1 rotamers
+ conformer    235 not in anmr_enso, skipping 
+ conformer    236 averaging over    1 rotamers
+ conformer    236 not in anmr_enso, skipping 
+ conformer    237 averaging over    1 rotamers
+ conformer    237 not in anmr_enso, skipping 
+ conformer    238 averaging over    1 rotamers
+ conformer    238 not in anmr_enso, skipping 
+ conformer    239 averaging over    1 rotamers
+ conformer    239 not in anmr_enso, skipping 
+ conformer    240 averaging over    3 rotamers
+ conformer    240 not in anmr_enso, skipping 
+ conformer    241 averaging over    2 rotamers
+ conformer    241 not in anmr_enso, skipping 
+ conformer    242 averaging over    3 rotamers
+ conformer    242 not in anmr_enso, skipping 
+ conformer    243 averaging over    3 rotamers
+ conformer    243 not in anmr_enso, skipping 
+ conformer    244 averaging over    1 rotamers
+ conformer    244 not in anmr_enso, skipping 
+ conformer    245 averaging over    1 rotamers
+ conformer    245 not in anmr_enso, skipping 
+ conformer    246 averaging over    1 rotamers
+ conformer    246 not in anmr_enso, skipping 
+ conformer    247 averaging over    1 rotamers
+ conformer    247 not in anmr_enso, skipping 
+ conformer    248 averaging over    1 rotamers
+ conformer    248 not in anmr_enso, skipping 
+ conformer    249 averaging over    1 rotamers
+ conformer    249 not in anmr_enso, skipping 
+ conformer    250 averaging over    1 rotamers
+ conformer    250 not in anmr_enso, skipping 
+ conformer    251 averaging over    1 rotamers
+ conformer    251 not in anmr_enso, skipping 
+ conformer    252 averaging over    2 rotamers
+ conformer    252 not in anmr_enso, skipping 
+ conformer    253 averaging over    1 rotamers
+ conformer    253 not in anmr_enso, skipping 
+ conformer    254 averaging over    2 rotamers
+ conformer    254 not in anmr_enso, skipping 
+ conformer    255 averaging over    3 rotamers
+ conformer    255 not in anmr_enso, skipping 
+ conformer    256 averaging over    2 rotamers
+ conformer    256 not in anmr_enso, skipping 
+ conformer    257 averaging over    6 rotamers
+ conformer    257 not in anmr_enso, skipping 
+ conformer    258 averaging over    1 rotamers
+ conformer    258 not in anmr_enso, skipping 
+ conformer    259 averaging over    2 rotamers
+ conformer    259 not in anmr_enso, skipping 
+ conformer    260 averaging over    1 rotamers
+ conformer    260 not in anmr_enso, skipping 
+ conformer    261 averaging over    1 rotamers
+ conformer    261 not in anmr_enso, skipping 
+ conformer    262 averaging over    1 rotamers
+ conformer    262 not in anmr_enso, skipping 
+ conformer    263 averaging over    1 rotamers
+ conformer    263 not in anmr_enso, skipping 
+ conformer    264 averaging over    3 rotamers
+ conformer    264 not in anmr_enso, skipping 
+ conformer    265 averaging over    1 rotamers
+ conformer    265 not in anmr_enso, skipping 
+ conformer    266 averaging over    1 rotamers
+ conformer    266 not in anmr_enso, skipping 
+ conformer    267 averaging over    2 rotamers
+ conformer    267 not in anmr_enso, skipping 
+ conformer    268 averaging over    1 rotamers
+ conformer    268 not in anmr_enso, skipping 
+ conformer    269 averaging over    2 rotamers
+ conformer    269 not in anmr_enso, skipping 
+ conformer    270 averaging over    2 rotamers
+ conformer    270 not in anmr_enso, skipping 
+ conformer    271 averaging over    1 rotamers
+ conformer    271 not in anmr_enso, skipping 
+ conformer    272 averaging over    1 rotamers
+ conformer    272 not in anmr_enso, skipping 
+ conformer    273 averaging over    3 rotamers
+ conformer    273 not in anmr_enso, skipping 
+ conformer    274 averaging over    1 rotamers
+ conformer    274 not in anmr_enso, skipping 
+ conformer    275 averaging over    1 rotamers
+ conformer    275 not in anmr_enso, skipping 
+ conformer    276 averaging over    2 rotamers
+ conformer    276 not in anmr_enso, skipping 
+ conformer    277 averaging over    1 rotamers
+ conformer    277 not in anmr_enso, skipping 
+ conformer    278 averaging over    4 rotamers
+ conformer    278 not in anmr_enso, skipping 
+ conformer    279 averaging over    2 rotamers
+ conformer    279 not in anmr_enso, skipping 
+ conformer    280 averaging over    3 rotamers
+ conformer    280 not in anmr_enso, skipping 
+ conformer    281 averaging over    2 rotamers
+ conformer    281 not in anmr_enso, skipping 
+ conformer    282 averaging over    3 rotamers
+ conformer    282 not in anmr_enso, skipping 
+ conformer    283 averaging over    1 rotamers
+ conformer    283 not in anmr_enso, skipping 
+ conformer    284 averaging over    1 rotamers
+ conformer    284 not in anmr_enso, skipping 
+ conformer    285 averaging over    1 rotamers
+ conformer    285 not in anmr_enso, skipping 
+ conformer    286 averaging over    1 rotamers
+ conformer    286 not in anmr_enso, skipping 
+ conformer    287 averaging over    1 rotamers
+ conformer    287 not in anmr_enso, skipping 
+ conformer    288 averaging over    1 rotamers
+ conformer    288 not in anmr_enso, skipping 
+ conformer    289 averaging over    4 rotamers
+ conformer    289 not in anmr_enso, skipping 
+ conformer    290 averaging over    2 rotamers
+ conformer    290 not in anmr_enso, skipping 
+ conformer    291 averaging over    1 rotamers
+ conformer    291 not in anmr_enso, skipping 
+ conformer    292 averaging over    1 rotamers
+ conformer    292 not in anmr_enso, skipping 
+ conformer    293 averaging over    3 rotamers
+ conformer    293 not in anmr_enso, skipping 
+ conformer    294 averaging over    2 rotamers
+ conformer    294 not in anmr_enso, skipping 
+ conformer    295 averaging over    1 rotamers
+ conformer    295 not in anmr_enso, skipping 
+ conformer    296 averaging over    2 rotamers
+ conformer    296 not in anmr_enso, skipping 
+ conformer    297 averaging over    1 rotamers
+ conformer    297 not in anmr_enso, skipping 
+ conformer    298 averaging over    1 rotamers
+ conformer    298 not in anmr_enso, skipping 
+ conformer    299 averaging over    1 rotamers
+ conformer    299 not in anmr_enso, skipping 
+ conformer    300 averaging over    1 rotamers
+ conformer    300 not in anmr_enso, skipping 
+ conformer    301 averaging over    1 rotamers
+ conformer    301 not in anmr_enso, skipping 
+ conformer    302 averaging over    1 rotamers
+ conformer    302 not in anmr_enso, skipping 
+ conformer    303 averaging over    1 rotamers
+ conformer    303 not in anmr_enso, skipping 
+ conformer    304 averaging over    4 rotamers
+ conformer    304 not in anmr_enso, skipping 
+ conformer    305 averaging over    4 rotamers
+ conformer    305 not in anmr_enso, skipping 
+ conformer    306 averaging over    1 rotamers
+ conformer    306 not in anmr_enso, skipping 
+ conformer    307 averaging over    1 rotamers
+ conformer    307 not in anmr_enso, skipping 
+ conformer    308 averaging over    2 rotamers
+ conformer    308 not in anmr_enso, skipping 
+ conformer    309 averaging over    3 rotamers
+ conformer    309 not in anmr_enso, skipping 
+ conformer    310 averaging over    2 rotamers
+ conformer    310 not in anmr_enso, skipping 
+ conformer    311 averaging over    1 rotamers
+ conformer    311 not in anmr_enso, skipping 
+ conformer    312 averaging over    1 rotamers
+ conformer    312 not in anmr_enso, skipping 
+ conformer    313 averaging over    1 rotamers
+ conformer    313 not in anmr_enso, skipping 
+ conformer    314 averaging over    1 rotamers
+ conformer    314 not in anmr_enso, skipping 
+ conformer    315 averaging over    1 rotamers
+ conformer    315 not in anmr_enso, skipping 
+ conformer    316 averaging over    2 rotamers
+ conformer    316 not in anmr_enso, skipping 
+ conformer    317 averaging over    1 rotamers
+ conformer    317 not in anmr_enso, skipping 
+ conformer    318 averaging over    1 rotamers
+ conformer    318 not in anmr_enso, skipping 
+ conformer    319 averaging over    1 rotamers
+ conformer    319 not in anmr_enso, skipping 
+ conformer    320 averaging over    1 rotamers
+ conformer    320 not in anmr_enso, skipping 
+ average over  180 in CRE 
+ ====================================================
+         reading J/sigma data for conformer            1
+ ====================================================
+ reading CONF1/NMR/orcaS.out
+ reading CONF1/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.421
+   2         5         1         2.738
+   3         9         1         2.218
+   4        10         1         2.452
+   5        11         1         1.683
+   6        12         1         1.931
+   7        14         1         4.055
+   8        17         1         4.997
+   9        18         1         5.279
+  10        20         1         6.382
+  11        22         1         6.187
+  12        25         1         2.877
+  13        26         1         1.745
+  14        28         1         1.546
+  15        29         1         1.674
+  16        31         1         2.025
+  17        32         1         1.362
+  18        34         1         2.024
+  19        38         1         1.392
+  20        39         1         1.539
+  21        41         1         1.710
+  22        42         1         1.232
+  23        43         1         1.233
+  24        46         3         0.585
+  25        49         1         1.800
+  26        53         1         5.267
+  27        54         1         5.221
+  28        58         1         1.345
+  29        59         1         1.039
+  30        62         3         1.029
+  31        65         3         0.905
+  32        68         3         0.942
+  33        71         3         1.101
+ writing spin system data for this confomer to tmpanmr.1
+ ====================================================
+         reading J/sigma data for conformer            2
+ ====================================================
+ reading CONF2/NMR/orcaS.out
+ reading CONF2/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.428
+   2         5         1         2.740
+   3         9         1         2.220
+   4        10         1         2.453
+   5        11         1         1.684
+   6        12         1         1.934
+   7        14         1         4.059
+   8        17         1         4.995
+   9        18         1         5.279
+  10        20         1         6.392
+  11        22         1         6.202
+  12        25         1         2.890
+  13        26         1         1.774
+  14        28         1         1.549
+  15        29         1         1.672
+  16        31         1         2.045
+  17        32         1         1.366
+  18        34         1         2.025
+  19        38         1         1.445
+  20        39         1         1.537
+  21        41         1         2.161
+  22        42         1         1.115
+  23        43         1         1.612
+  24        46         3         0.619
+  25        49         1         1.949
+  26        53         1         5.609
+  27        54         1         5.216
+  28        58         1         1.357
+  29        59         1         1.064
+  30        62         3         1.012
+  31        65         3         0.915
+  32        68         3         0.953
+  33        71         3         1.030
+ writing spin system data for this confomer to tmpanmr.2
+ ====================================================
+         reading J/sigma data for conformer            3
+ ====================================================
+ reading CONF3/NMR/orcaS.out
+ reading CONF3/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.423
+   2         5         1         2.742
+   3         9         1         2.225
+   4        10         1         2.455
+   5        11         1         1.688
+   6        12         1         1.934
+   7        14         1         4.056
+   8        17         1         5.004
+   9        18         1         5.288
+  10        20         1         6.384
+  11        22         1         6.209
+  12        25         1         2.881
+  13        26         1         1.739
+  14        28         1         1.545
+  15        29         1         1.677
+  16        31         1         2.056
+  17        32         1         1.330
+  18        34         1         1.949
+  19        38         1         1.457
+  20        39         1         1.607
+  21        41         1         1.920
+  22        42         1         1.542
+  23        43         1         1.095
+  24        46         3         0.606
+  25        49         1         1.952
+  26        53         1         5.880
+  27        54         1         5.103
+  28        58         1         1.399
+  29        59         1         1.031
+  30        62         3         1.040
+  31        65         3         0.917
+  32        68         3         0.962
+  33        71         3         1.140
+ writing spin system data for this confomer to tmpanmr.3
+ ====================================================
+         reading J/sigma data for conformer            4
+ ====================================================
+ reading CONF4/NMR/orcaS.out
+ reading CONF4/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.419
+   2         5         1         2.738
+   3         9         1         2.218
+   4        10         1         2.452
+   5        11         1         1.681
+   6        12         1         1.929
+   7        14         1         4.056
+   8        17         1         4.995
+   9        18         1         5.279
+  10        20         1         6.381
+  11        22         1         6.186
+  12        25         1         2.879
+  13        26         1         1.745
+  14        28         1         1.545
+  15        29         1         1.675
+  16        31         1         2.027
+  17        32         1         1.369
+  18        34         1         2.024
+  19        38         1         1.395
+  20        39         1         1.531
+  21        41         1         1.697
+  22        42         1         1.219
+  23        43         1         1.241
+  24        46         3         0.583
+  25        49         1         1.831
+  26        53         1         5.298
+  27        54         1         5.274
+  28        58         1         1.803
+  29        59         1         1.369
+  30        62         3         1.099
+  31        65         3         0.823
+  32        68         3         0.917
+  33        71         3         1.122
+ writing spin system data for this confomer to tmpanmr.4
+ ====================================================
+         reading J/sigma data for conformer            5
+ ====================================================
+ reading CONF5/NMR/orcaS.out
+ reading CONF5/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.427
+   2         5         1         2.740
+   3         9         1         2.219
+   4        10         1         2.456
+   5        11         1         1.682
+   6        12         1         1.934
+   7        14         1         4.057
+   8        17         1         5.002
+   9        18         1         5.283
+  10        20         1         6.393
+  11        22         1         6.194
+  12        25         1         2.888
+  13        26         1         1.770
+  14        28         1         1.546
+  15        29         1         1.675
+  16        31         1         2.038
+  17        32         1         1.367
+  18        34         1         2.031
+  19        38         1         1.431
+  20        39         1         1.536
+  21        41         1         2.193
+  22        42         1         1.114
+  23        43         1         1.642
+  24        46         3         0.608
+  25        49         1         1.963
+  26        53         1         5.662
+  27        54         1         5.380
+  28        58         1         1.841
+  29        59         1         1.411
+  30        62         3         1.078
+  31        65         3         0.880
+  32        68         3         0.914
+  33        71         3         1.028
+ writing spin system data for this confomer to tmpanmr.5
+ ====================================================
+         reading J/sigma data for conformer            6
+ ====================================================
+ reading CONF6/NMR/orcaS.out
+ reading CONF6/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.423
+   2         5         1         2.741
+   3         9         1         2.227
+   4        10         1         2.456
+   5        11         1         1.688
+   6        12         1         1.934
+   7        14         1         4.057
+   8        17         1         5.006
+   9        18         1         5.290
+  10        20         1         6.385
+  11        22         1         6.209
+  12        25         1         2.882
+  13        26         1         1.742
+  14        28         1         1.545
+  15        29         1         1.678
+  16        31         1         2.062
+  17        32         1         1.332
+  18        34         1         1.952
+  19        38         1         1.464
+  20        39         1         1.607
+  21        41         1         1.956
+  22        42         1         1.559
+  23        43         1         1.072
+  24        46         3         0.611
+  25        49         1         1.984
+  26        53         1         5.885
+  27        54         1         5.152
+  28        58         1         1.866
+  29        59         1         1.400
+  30        62         3         1.121
+  31        65         3         0.819
+  32        68         3         0.917
+  33        71         3         1.140
+ writing spin system data for this confomer to tmpanmr.6
+ ====================================================
+         reading J/sigma data for conformer            7
+ ====================================================
+ reading CONF7/NMR/orcaS.out
+ reading CONF7/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.421
+   2         5         1         2.739
+   3         9         1         2.218
+   4        10         1         2.450
+   5        11         1         1.683
+   6        12         1         1.930
+   7        14         1         4.056
+   8        17         1         4.996
+   9        18         1         5.279
+  10        20         1         6.382
+  11        22         1         6.190
+  12        25         1         2.878
+  13        26         1         1.748
+  14        28         1         1.548
+  15        29         1         1.674
+  16        31         1         2.025
+  17        32         1         1.365
+  18        34         1         2.026
+  19        38         1         1.395
+  20        39         1         1.534
+  21        41         1         1.704
+  22        42         1         1.232
+  23        43         1         1.230
+  24        46         3         0.588
+  25        49         1         1.789
+  26        53         1         5.310
+  27        54         1         5.630
+  28        58         1         1.832
+  29        59         1         1.426
+  30        62         3         0.862
+  31        65         3         0.989
+  32        68         3         0.843
+  33        71         3         1.081
+ writing spin system data for this confomer to tmpanmr.7
+ ====================================================
+         reading J/sigma data for conformer            8
+ ====================================================
+ reading CONF8/NMR/orcaS.out
+ reading CONF8/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.426
+   2         5         1         2.740
+   3         9         1         2.216
+   4        10         1         2.454
+   5        11         1         1.682
+   6        12         1         1.934
+   7        14         1         4.059
+   8        17         1         4.991
+   9        18         1         5.276
+  10        20         1         6.391
+  11        22         1         6.196
+  12        25         1         2.890
+  13        26         1         1.772
+  14        28         1         1.541
+  15        29         1         1.671
+  16        31         1         2.044
+  17        32         1         1.368
+  18        34         1         2.027
+  19        38         1         1.435
+  20        39         1         1.515
+  21        41         1         2.217
+  22        42         1         1.079
+  23        43         1         1.627
+  24        46         3         0.612
+  25        49         1         1.954
+  26        53         1         5.666
+  27        54         1         5.654
+  28        58         1         1.869
+  29        59         1         1.461
+  30        62         3         0.848
+  31        65         3         0.999
+  32        68         3         0.888
+  33        71         3         1.037
+ writing spin system data for this confomer to tmpanmr.8
+ ====================================================
+         reading J/sigma data for conformer            9
+ ====================================================
+ reading CONF9/NMR/orcaS.out
+ reading CONF9/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.425
+   2         5         1         2.743
+   3         9         1         2.225
+   4        10         1         2.459
+   5        11         1         1.687
+   6        12         1         1.936
+   7        14         1         4.059
+   8        17         1         5.005
+   9        18         1         5.290
+  10        20         1         6.386
+  11        22         1         6.210
+  12        25         1         2.880
+  13        26         1         1.744
+  14        28         1         1.546
+  15        29         1         1.677
+  16        31         1         2.060
+  17        32         1         1.321
+  18        34         1         1.957
+  19        38         1         1.461
+  20        39         1         1.610
+  21        41         1         1.932
+  22        42         1         1.541
+  23        43         1         1.028
+  24        46         3         0.612
+  25        49         1         1.974
+  26        53         1         5.918
+  27        54         1         5.536
+  28        58         1         1.908
+  29        59         1         1.406
+  30        62         3         0.869
+  31        65         3         1.006
+  32        68         3         0.866
+  33        71         3         1.139
+ writing spin system data for this confomer to tmpanmr.9
+ ====================================================
+         reading J/sigma data for conformer           10
+ ====================================================
+ reading CONF10/NMR/orcaS.out
+ reading CONF10/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.422
+   2         5         1         2.736
+   3         9         1         2.218
+   4        10         1         2.451
+   5        11         1         1.681
+   6        12         1         1.931
+   7        14         1         4.056
+   8        17         1         4.996
+   9        18         1         5.280
+  10        20         1         6.384
+  11        22         1         6.195
+  12        25         1         2.880
+  13        26         1         1.748
+  14        28         1         1.561
+  15        29         1         1.676
+  16        31         1         2.035
+  17        32         1         1.367
+  18        34         1         2.032
+  19        38         1         1.382
+  20        39         1         1.541
+  21        41         1         1.681
+  22        42         1         1.285
+  23        43         1         1.210
+  24        46         3         0.605
+  25        49         1         1.802
+  26        53         1         5.190
+  27        54         1         5.999
+  28        58         1         1.481
+  29        59         1         0.929
+  30        62         3         1.092
+  31        65         3         1.043
+  32        68         3         0.990
+  33        71         3         1.101
+ writing spin system data for this confomer to tmpanmr.10
+ ====================================================
+         reading J/sigma data for conformer           11
+ ====================================================
+ reading CONF11/NMR/orcaS.out
+ reading CONF11/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.426
+   2         5         1         2.737
+   3         9         1         2.219
+   4        10         1         2.454
+   5        11         1         1.682
+   6        12         1         1.932
+   7        14         1         4.059
+   8        17         1         4.992
+   9        18         1         5.278
+  10        20         1         6.390
+  11        22         1         6.197
+  12        25         1         2.886
+  13        26         1         1.775
+  14        28         1         1.553
+  15        29         1         1.674
+  16        31         1         2.047
+  17        32         1         1.376
+  18        34         1         2.019
+  19        38         1         1.418
+  20        39         1         1.518
+  21        41         1         2.060
+  22        42         1         1.028
+  23        43         1         1.657
+  24        46         3         0.615
+  25        49         1         2.006
+  26        53         1         5.526
+  27        54         1         6.024
+  28        58         1         1.587
+  29        59         1         0.867
+  30        62         3         1.084
+  31        65         3         1.038
+  32        68         3         1.007
+  33        71         3         1.013
+ writing spin system data for this confomer to tmpanmr.11
+ ====================================================
+         reading J/sigma data for conformer           12
+ ====================================================
+ reading CONF12/NMR/orcaS.out
+ reading CONF12/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.424
+   2         5         1         2.745
+   3         9         1         2.226
+   4        10         1         2.448
+   5        11         1         1.692
+   6        12         1         1.935
+   7        14         1         4.058
+   8        17         1         4.998
+   9        18         1         5.286
+  10        20         1         6.385
+  11        22         1         6.219
+  12        25         1         2.886
+  13        26         1         1.746
+  14        28         1         1.558
+  15        29         1         1.671
+  16        31         1         2.060
+  17        32         1         1.319
+  18        34         1         1.959
+  19        38         1         1.474
+  20        39         1         1.601
+  21        41         1         1.952
+  22        42         1         1.560
+  23        43         1         1.008
+  24        46         3         0.620
+  25        49         1         1.983
+  26        53         1         5.764
+  27        54         1         5.882
+  28        58         1         1.551
+  29        59         1         0.868
+  30        62         3         1.098
+  31        65         3         1.066
+  32        68         3         1.004
+  33        71         3         1.162
+ writing spin system data for this confomer to tmpanmr.12
+ ====================================================
+         reading J/sigma data for conformer           13
+ ====================================================
+ reading CONF13/NMR/orcaS.out
+ reading CONF13/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.424
+   2         5         1         2.740
+   3         9         1         2.218
+   4        10         1         2.452
+   5        11         1         1.686
+   6        12         1         1.931
+   7        14         1         4.054
+   8        17         1         5.002
+   9        18         1         5.282
+  10        20         1         6.384
+  11        22         1         6.189
+  12        25         1         2.877
+  13        26         1         1.752
+  14        28         1         1.553
+  15        29         1         1.682
+  16        31         1         2.038
+  17        32         1         1.375
+  18        34         1         2.046
+  19        38         1         1.393
+  20        39         1         1.551
+  21        41         1         1.704
+  22        42         1         1.246
+  23        43         1         1.267
+  24        46         3         0.600
+  25        49         1         1.857
+  26        53         1         5.185
+  27        54         1         5.747
+  28        58         1         2.145
+  29        59         1         1.436
+  30        62         3         1.062
+  31        65         3         0.745
+  32        68         3         1.085
+  33        71         3         1.095
+ writing spin system data for this confomer to tmpanmr.13
+ ====================================================
+         reading J/sigma data for conformer           14
+ ====================================================
+ reading CONF14/NMR/orcaS.out
+ reading CONF14/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.426
+   2         5         1         2.740
+   3         9         1         2.220
+   4        10         1         2.451
+   5        11         1         1.687
+   6        12         1         1.931
+   7        14         1         4.058
+   8        17         1         4.990
+   9        18         1         5.276
+  10        20         1         6.389
+  11        22         1         6.199
+  12        25         1         2.890
+  13        26         1         1.776
+  14        28         1         1.550
+  15        29         1         1.671
+  16        31         1         2.056
+  17        32         1         1.376
+  18        34         1         2.019
+  19        38         1         1.424
+  20        39         1         1.512
+  21        41         1         2.061
+  22        42         1         1.031
+  23        43         1         1.653
+  24        46         3         0.618
+  25        49         1         2.017
+  26        53         1         5.510
+  27        54         1         5.739
+  28        58         1         2.239
+  29        59         1         1.468
+  30        62         3         1.063
+  31        65         3         0.709
+  32        68         3         1.091
+  33        71         3         1.045
+ writing spin system data for this confomer to tmpanmr.14
+ ====================================================
+         reading J/sigma data for conformer           15
+ ====================================================
+ reading CONF15/NMR/orcaS.out
+ reading CONF15/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.424
+   2         5         1         2.744
+   3         9         1         2.226
+   4        10         1         2.459
+   5        11         1         1.689
+   6        12         1         1.935
+   7        14         1         4.059
+   8        17         1         5.006
+   9        18         1         5.290
+  10        20         1         6.386
+  11        22         1         6.209
+  12        25         1         2.881
+  13        26         1         1.741
+  14        28         1         1.547
+  15        29         1         1.679
+  16        31         1         2.060
+  17        32         1         1.321
+  18        34         1         1.952
+  19        38         1         1.463
+  20        39         1         1.613
+  21        41         1         1.929
+  22        42         1         1.570
+  23        43         1         1.008
+  24        46         3         0.619
+  25        49         1         2.029
+  26        53         1         5.763
+  27        54         1         5.646
+  28        58         1         2.194
+  29        59         1         1.448
+  30        62         3         1.084
+  31        65         3         0.691
+  32        68         3         1.120
+  33        71         3         1.167
+ writing spin system data for this confomer to tmpanmr.15
+ ====================================================
+         reading J/sigma data for conformer           16
+ ====================================================
+ reading CONF16/NMR/orcaS.out
+ reading CONF16/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.420
+   2         5         1         2.740
+   3         9         1         2.216
+   4        10         1         2.451
+   5        11         1         1.683
+   6        12         1         1.929
+   7        14         1         4.054
+   8        17         1         5.000
+   9        18         1         5.279
+  10        20         1         6.383
+  11        22         1         6.182
+  12        25         1         2.880
+  13        26         1         1.747
+  14        28         1         1.549
+  15        29         1         1.682
+  16        31         1         2.039
+  17        32         1         1.377
+  18        34         1         2.043
+  19        38         1         1.398
+  20        39         1         1.544
+  21        41         1         1.737
+  22        42         1         1.239
+  23        43         1         1.275
+  24        46         3         0.602
+  25        49         1         1.863
+  26        53         1         5.152
+  27        54         1         5.576
+  28        58         1         2.080
+  29        59         1         1.570
+  30        62         3         0.856
+  31        65         3         1.043
+  32        68         3         0.734
+  33        71         3         1.097
+ writing spin system data for this confomer to tmpanmr.16
+ ====================================================
+         reading J/sigma data for conformer           17
+ ====================================================
+ reading CONF17/NMR/orcaS.out
+ reading CONF17/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.424
+   2         5         1         2.743
+   3         9         1         2.220
+   4        10         1         2.452
+   5        11         1         1.687
+   6        12         1         1.931
+   7        14         1         4.058
+   8        17         1         4.992
+   9        18         1         5.275
+  10        20         1         6.392
+  11        22         1         6.193
+  12        25         1         2.894
+  13        26         1         1.771
+  14        28         1         1.542
+  15        29         1         1.670
+  16        31         1         2.056
+  17        32         1         1.365
+  18        34         1         2.017
+  19        38         1         1.437
+  20        39         1         1.522
+  21        41         1         2.116
+  22        42         1         1.054
+  23        43         1         1.641
+  24        46         3         0.628
+  25        49         1         2.004
+  26        53         1         5.442
+  27        54         1         5.579
+  28        58         1         2.168
+  29        59         1         1.556
+  30        62         3         0.857
+  31        65         3         1.059
+  32        68         3         0.704
+  33        71         3         1.052
+ writing spin system data for this confomer to tmpanmr.17
+ ====================================================
+         reading J/sigma data for conformer           18
+ ====================================================
+ reading CONF18/NMR/orcaS.out
+ reading CONF18/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.424
+   2         5         1         2.744
+   3         9         1         2.226
+   4        10         1         2.461
+   5        11         1         1.688
+   6        12         1         1.935
+   7        14         1         4.058
+   8        17         1         5.011
+   9        18         1         5.292
+  10        20         1         6.388
+  11        22         1         6.208
+  12        25         1         2.883
+  13        26         1         1.738
+  14        28         1         1.547
+  15        29         1         1.680
+  16        31         1         2.060
+  17        32         1         1.323
+  18        34         1         1.961
+  19        38         1         1.464
+  20        39         1         1.618
+  21        41         1         1.943
+  22        42         1         1.566
+  23        43         1         1.021
+  24        46         3         0.623
+  25        49         1         2.010
+  26        53         1         5.722
+  27        54         1         5.458
+  28        58         1         2.130
+  29        59         1         1.607
+  30        62         3         0.874
+  31        65         3         1.056
+  32        68         3         0.690
+  33        71         3         1.161
+ writing spin system data for this confomer to tmpanmr.18
+ ====================================================
+         reading J/sigma data for conformer           19
+ ====================================================
+ reading CONF19/NMR/orcaS.out
+ reading CONF19/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.420
+   2         5         1         2.740
+   3         9         1         2.218
+   4        10         1         2.454
+   5        11         1         1.682
+   6        12         1         1.930
+   7        14         1         4.055
+   8        17         1         5.002
+   9        18         1         5.281
+  10        20         1         6.383
+  11        22         1         6.183
+  12        25         1         2.880
+  13        26         1         1.745
+  14        28         1         1.544
+  15        29         1         1.678
+  16        31         1         2.031
+  17        32         1         1.367
+  18        34         1         2.038
+  19        38         1         1.404
+  20        39         1         1.545
+  21        41         1         1.778
+  22        42         1         1.262
+  23        43         1         1.281
+  24        46         3         0.601
+  25        49         1         1.786
+  26        53         1         5.180
+  27        54         1         5.603
+  28        58         1         1.517
+  29        59         1         1.485
+  30        62         3         0.953
+  31        65         3         0.962
+  32        68         3         0.947
+  33        71         3         1.057
+ writing spin system data for this confomer to tmpanmr.19
+ ====================================================
+         reading J/sigma data for conformer           20
+ ====================================================
+ reading CONF20/NMR/orcaS.out
+ reading CONF20/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.418
+   2         5         1         2.739
+   3         9         1         2.221
+   4        10         1         2.446
+   5        11         1         1.683
+   6        12         1         1.929
+   7        14         1         4.057
+   8        17         1         4.988
+   9        18         1         5.269
+  10        20         1         6.392
+  11        22         1         6.203
+  12        25         1         2.912
+  13        26         1         1.763
+  14        28         1         1.545
+  15        29         1         1.669
+  16        31         1         2.070
+  17        32         1         1.373
+  18        34         1         2.024
+  19        38         1         1.437
+  20        39         1         1.509
+  21        41         1         2.093
+  22        42         1         1.039
+  23        43         1         1.626
+  24        46         3         0.613
+  25        49         1         2.019
+  26        53         1         5.473
+  27        54         1         6.003
+  28        58         1         1.593
+  29        59         1         0.857
+  30        62         3         1.074
+  31        65         3         1.055
+  32        68         3         1.010
+  33        71         3         1.018
+ writing spin system data for this confomer to tmpanmr.20
+ ====================================================
+         reading J/sigma data for conformer           21
+ ====================================================
+ reading CONF21/NMR/orcaS.out
+ reading CONF21/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.421
+   2         5         1         2.741
+   3         9         1         2.225
+   4        10         1         2.462
+   5        11         1         1.685
+   6        12         1         1.933
+   7        14         1         4.059
+   8        17         1         5.007
+   9        18         1         5.289
+  10        20         1         6.385
+  11        22         1         6.202
+  12        25         1         2.880
+  13        26         1         1.736
+  14        28         1         1.545
+  15        29         1         1.678
+  16        31         1         2.052
+  17        32         1         1.318
+  18        34         1         1.948
+  19        38         1         1.457
+  20        39         1         1.605
+  21        41         1         1.911
+  22        42         1         1.524
+  23        43         1         0.969
+  24        46         3         0.626
+  25        49         1         2.038
+  26        53         1         5.811
+  27        54         1         5.476
+  28        58         1         1.593
+  29        59         1         1.543
+  30        62         3         0.956
+  31        65         3         0.923
+  32        68         3         0.965
+  33        71         3         1.141
+ writing spin system data for this confomer to tmpanmr.21
+ ====================================================
+         reading J/sigma data for conformer           22
+ ====================================================
+ reading CONF22/NMR/orcaS.out
+ reading CONF22/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.419
+   2         5         1         2.740
+   3         9         1         2.218
+   4        10         1         2.453
+   5        11         1         1.683
+   6        12         1         1.930
+   7        14         1         4.054
+   8        17         1         5.000
+   9        18         1         5.281
+  10        20         1         6.382
+  11        22         1         6.186
+  12        25         1         2.878
+  13        26         1         1.741
+  14        28         1         1.543
+  15        29         1         1.675
+  16        31         1         2.024
+  17        32         1         1.361
+  18        34         1         2.036
+  19        38         1         1.395
+  20        39         1         1.537
+  21        41         1         1.751
+  22        42         1         1.248
+  23        43         1         1.259
+  24        46         3         0.583
+  25        49         1         1.669
+  26        53         1         5.436
+  27        54         1         5.316
+  28        58         1         2.139
+  29        59         1         1.548
+  30        62         3         1.079
+  31        65         3         1.049
+  32        68         3         1.206
+  33        71         3         1.080
+ writing spin system data for this confomer to tmpanmr.22
+ ====================================================
+         reading J/sigma data for conformer           23
+ ====================================================
+ reading CONF23/NMR/orcaS.out
+ reading CONF23/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.424
+   2         5         1         2.744
+   3         9         1         2.228
+   4        10         1         2.463
+   5        11         1         1.689
+   6        12         1         1.935
+   7        14         1         4.058
+   8        17         1         5.012
+   9        18         1         5.292
+  10        20         1         6.392
+  11        22         1         6.202
+  12        25         1         2.885
+  13        26         1         1.741
+  14        28         1         1.546
+  15        29         1         1.679
+  16        31         1         2.055
+  17        32         1         1.321
+  18        34         1         1.953
+  19        38         1         1.469
+  20        39         1         1.607
+  21        41         1         1.948
+  22        42         1         1.564
+  23        43         1         1.005
+  24        46         3         0.627
+  25        49         1         2.024
+  26        53         1         5.761
+  27        54         1         5.643
+  28        58         1         2.198
+  29        59         1         1.451
+  30        62         3         1.085
+  31        65         3         0.693
+  32        68         3         1.117
+  33        71         3         1.165
+ writing spin system data for this confomer to tmpanmr.23
+ Population below pthr
+ ====================================================
+         reading J/sigma data for conformer           24
+ ====================================================
+ reading CONF24/NMR/orcaS.out
+ reading CONF24/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.424
+   2         5         1         2.744
+   3         9         1         2.226
+   4        10         1         2.457
+   5        11         1         1.690
+   6        12         1         1.935
+   7        14         1         4.055
+   8        17         1         5.011
+   9        18         1         5.291
+  10        20         1         6.387
+  11        22         1         6.207
+  12        25         1         2.883
+  13        26         1         1.739
+  14        28         1         1.546
+  15        29         1         1.678
+  16        31         1         2.054
+  17        32         1         1.316
+  18        34         1         1.968
+  19        38         1         1.460
+  20        39         1         1.615
+  21        41         1         1.947
+  22        42         1         1.539
+  23        43         1         1.018
+  24        46         3         0.623
+  25        49         1         2.010
+  26        53         1         6.018
+  27        54         1         5.153
+  28        58         1         2.210
+  29        59         1         1.560
+  30        62         3         1.082
+  31        65         3         1.069
+  32        68         3         1.198
+  33        71         3         1.099
+ writing spin system data for this confomer to tmpanmr.24
+ ====================================================
+         reading J/sigma data for conformer           25
+ ====================================================
+ reading CONF25/NMR/orcaS.out
+ reading CONF25/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.421
+   2         5         1         2.740
+   3         9         1         2.218
+   4        10         1         2.452
+   5        11         1         1.684
+   6        12         1         1.931
+   7        14         1         4.055
+   8        17         1         5.000
+   9        18         1         5.280
+  10        20         1         6.384
+  11        22         1         6.185
+  12        25         1         2.881
+  13        26         1         1.745
+  14        28         1         1.548
+  15        29         1         1.680
+  16        31         1         2.037
+  17        32         1         1.369
+  18        34         1         2.028
+  19        38         1         1.385
+  20        39         1         1.540
+  21        41         1         1.668
+  22        42         1         1.204
+  23        43         1         1.265
+  24        46         3         0.595
+  25        49         1         1.824
+  26        53         1         5.178
+  27        54         1         5.463
+  28        58         1         2.024
+  29        59         1         1.876
+  30        62         3         0.833
+  31        65         3         0.997
+  32        68         3         0.781
+  33        71         3         1.114
+ writing spin system data for this confomer to tmpanmr.25
+ ====================================================
+         reading J/sigma data for conformer           26
+ ====================================================
+ reading CONF26/NMR/orcaS.out
+ reading CONF26/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.426
+   2         5         1         2.741
+   3         9         1         2.221
+   4        10         1         2.450
+   5        11         1         1.687
+   6        12         1         1.932
+   7        14         1         4.057
+   8        17         1         4.996
+   9        18         1         5.278
+  10        20         1         6.392
+  11        22         1         6.200
+  12        25         1         2.892
+  13        26         1         1.776
+  14        28         1         1.555
+  15        29         1         1.677
+  16        31         1         2.047
+  17        32         1         1.374
+  18        34         1         2.025
+  19        38         1         1.421
+  20        39         1         1.526
+  21        41         1         2.135
+  22        42         1         1.064
+  23        43         1         1.656
+  24        46         3         0.622
+  25        49         1         2.027
+  26        53         1         5.498
+  27        54         1         5.462
+  28        58         1         2.022
+  29        59         1         1.902
+  30        62         3         0.869
+  31        65         3         1.005
+  32        68         3         0.761
+  33        71         3         1.021
+ writing spin system data for this confomer to tmpanmr.26
+ ====================================================
+         reading J/sigma data for conformer           27
+ ====================================================
+ reading CONF27/NMR/orcaS.out
+ reading CONF27/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.425
+   2         5         1         2.745
+   3         9         1         2.227
+   4        10         1         2.459
+   5        11         1         1.691
+   6        12         1         1.936
+   7        14         1         4.057
+   8        17         1         5.012
+   9        18         1         5.293
+  10        20         1         6.389
+  11        22         1         6.211
+  12        25         1         2.885
+  13        26         1         1.742
+  14        28         1         1.549
+  15        29         1         1.682
+  16        31         1         2.068
+  17        32         1         1.326
+  18        34         1         1.966
+  19        38         1         1.463
+  20        39         1         1.622
+  21        41         1         1.989
+  22        42         1         1.578
+  23        43         1         1.052
+  24        46         3         0.633
+  25        49         1         2.021
+  26        53         1         5.777
+  27        54         1         5.317
+  28        58         1         2.072
+  29        59         1         1.906
+  30        62         3         0.843
+  31        65         3         1.014
+  32        68         3         0.799
+  33        71         3         1.146
+ writing spin system data for this confomer to tmpanmr.27
+ ====================================================
+         reading J/sigma data for conformer           28
+ ====================================================
+ reading CONF28/NMR/orcaS.out
+ reading CONF28/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.149
+   2         5         1         2.656
+   3         9         1         2.219
+   4        10         1         2.360
+   5        11         1         2.158
+   6        12         1         1.256
+   7        14         1         3.602
+   8        17         1         4.929
+   9        18         1         5.268
+  10        20         1         6.338
+  11        22         1         6.076
+  12        25         1         2.897
+  13        26         1         1.793
+  14        28         1         1.560
+  15        29         1         1.638
+  16        31         1         2.042
+  17        32         1         1.388
+  18        34         1         2.013
+  19        38         1         1.391
+  20        39         1         1.489
+  21        41         1         1.726
+  22        42         1         1.232
+  23        43         1         1.211
+  24        46         3         0.561
+  25        49         1         1.798
+  26        53         1         5.274
+  27        54         1         5.215
+  28        58         1         1.345
+  29        59         1         1.035
+  30        62         3         1.029
+  31        65         3         0.908
+  32        68         3         0.941
+  33        71         3         1.105
+ writing spin system data for this confomer to tmpanmr.28
+ ====================================================
+         reading J/sigma data for conformer           29
+ ====================================================
+ reading CONF29/NMR/orcaS.out
+ reading CONF29/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.153
+   2         5         1         2.662
+   3         9         1         2.221
+   4        10         1         2.359
+   5        11         1         2.160
+   6        12         1         1.258
+   7        14         1         3.606
+   8        17         1         4.936
+   9        18         1         5.273
+  10        20         1         6.344
+  11        22         1         6.089
+  12        25         1         2.905
+  13        26         1         1.820
+  14        28         1         1.566
+  15        29         1         1.636
+  16        31         1         2.060
+  17        32         1         1.387
+  18        34         1         2.018
+  19        38         1         1.445
+  20        39         1         1.492
+  21        41         1         2.180
+  22        42         1         1.126
+  23        43         1         1.586
+  24        46         3         0.593
+  25        49         1         1.945
+  26        53         1         5.602
+  27        54         1         5.217
+  28        58         1         1.357
+  29        59         1         1.065
+  30        62         3         1.015
+  31        65         3         0.918
+  32        68         3         0.955
+  33        71         3         1.030
+ writing spin system data for this confomer to tmpanmr.29
+ ====================================================
+         reading J/sigma data for conformer           30
+ ====================================================
+ reading CONF30/NMR/orcaS.out
+ reading CONF30/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.154
+   2         5         1         2.658
+   3         9         1         2.225
+   4        10         1         2.367
+   5        11         1         2.161
+   6        12         1         1.260
+   7        14         1         3.605
+   8        17         1         4.938
+   9        18         1         5.277
+  10        20         1         6.342
+  11        22         1         6.096
+  12        25         1         2.900
+  13        26         1         1.788
+  14        28         1         1.565
+  15        29         1         1.642
+  16        31         1         2.068
+  17        32         1         1.354
+  18        34         1         1.939
+  19        38         1         1.451
+  20        39         1         1.563
+  21        41         1         1.938
+  22        42         1         1.541
+  23        43         1         1.071
+  24        46         3         0.582
+  25        49         1         1.947
+  26        53         1         5.881
+  27        54         1         5.099
+  28        58         1         1.397
+  29        59         1         1.028
+  30        62         3         1.043
+  31        65         3         0.921
+  32        68         3         0.966
+  33        71         3         1.142
+ writing spin system data for this confomer to tmpanmr.30
+ ====================================================
+         reading J/sigma data for conformer           31
+ ====================================================
+ reading CONF31/NMR/orcaS.out
+ reading CONF31/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.150
+   2         5         1         2.656
+   3         9         1         2.219
+   4        10         1         2.362
+   5        11         1         2.159
+   6        12         1         1.258
+   7        14         1         3.601
+   8        17         1         4.928
+   9        18         1         5.268
+  10        20         1         6.338
+  11        22         1         6.079
+  12        25         1         2.896
+  13        26         1         1.794
+  14        28         1         1.564
+  15        29         1         1.640
+  16        31         1         2.037
+  17        32         1         1.390
+  18        34         1         2.020
+  19        38         1         1.383
+  20        39         1         1.494
+  21        41         1         1.712
+  22        42         1         1.224
+  23        43         1         1.208
+  24        46         3         0.559
+  25        49         1         1.811
+  26        53         1         5.303
+  27        54         1         5.326
+  28        58         1         1.833
+  29        59         1         1.390
+  30        62         3         1.088
+  31        65         3         0.845
+  32        68         3         0.913
+  33        71         3         1.112
+ writing spin system data for this confomer to tmpanmr.31
+ ====================================================
+         reading J/sigma data for conformer           32
+ ====================================================
+ reading CONF32/NMR/orcaS.out
+ reading CONF32/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.152
+   2         5         1         2.661
+   3         9         1         2.221
+   4        10         1         2.360
+   5        11         1         2.159
+   6        12         1         1.258
+   7        14         1         3.605
+   8        17         1         4.935
+   9        18         1         5.271
+  10        20         1         6.344
+  11        22         1         6.088
+  12        25         1         2.906
+  13        26         1         1.819
+  14        28         1         1.570
+  15        29         1         1.637
+  16        31         1         2.055
+  17        32         1         1.390
+  18        34         1         2.024
+  19        38         1         1.432
+  20        39         1         1.490
+  21        41         1         2.214
+  22        42         1         1.119
+  23        43         1         1.618
+  24        46         3         0.582
+  25        49         1         1.955
+  26        53         1         5.656
+  27        54         1         5.377
+  28        58         1         1.839
+  29        59         1         1.409
+  30        62         3         1.083
+  31        65         3         0.885
+  32        68         3         0.916
+  33        71         3         1.029
+ writing spin system data for this confomer to tmpanmr.32
+ ====================================================
+         reading J/sigma data for conformer           33
+ ====================================================
+ reading CONF33/NMR/orcaS.out
+ reading CONF33/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.155
+   2         5         1         2.659
+   3         9         1         2.225
+   4        10         1         2.367
+   5        11         1         2.162
+   6        12         1         1.260
+   7        14         1         3.607
+   8        17         1         4.938
+   9        18         1         5.277
+  10        20         1         6.342
+  11        22         1         6.093
+  12        25         1         2.898
+  13        26         1         1.791
+  14        28         1         1.565
+  15        29         1         1.641
+  16        31         1         2.074
+  17        32         1         1.354
+  18        34         1         1.942
+  19        38         1         1.461
+  20        39         1         1.565
+  21        41         1         1.975
+  22        42         1         1.555
+  23        43         1         1.049
+  24        46         3         0.590
+  25        49         1         1.975
+  26        53         1         5.890
+  27        54         1         5.150
+  28        58         1         1.869
+  29        59         1         1.402
+  30        62         3         1.121
+  31        65         3         0.823
+  32        68         3         0.922
+  33        71         3         1.142
+ writing spin system data for this confomer to tmpanmr.33
+ ====================================================
+         reading J/sigma data for conformer           34
+ ====================================================
+ reading CONF34/NMR/orcaS.out
+ reading CONF34/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.150
+   2         5         1         2.657
+   3         9         1         2.220
+   4        10         1         2.361
+   5        11         1         2.159
+   6        12         1         1.257
+   7        14         1         3.603
+   8        17         1         4.930
+   9        18         1         5.269
+  10        20         1         6.338
+  11        22         1         6.079
+  12        25         1         2.896
+  13        26         1         1.796
+  14        28         1         1.563
+  15        29         1         1.638
+  16        31         1         2.038
+  17        32         1         1.388
+  18        34         1         2.019
+  19        38         1         1.387
+  20        39         1         1.490
+  21        41         1         1.716
+  22        42         1         1.239
+  23        43         1         1.209
+  24        46         3         0.564
+  25        49         1         1.776
+  26        53         1         5.305
+  27        54         1         5.638
+  28        58         1         1.826
+  29        59         1         1.424
+  30        62         3         0.858
+  31        65         3         0.989
+  32        68         3         0.846
+  33        71         3         1.083
+ writing spin system data for this confomer to tmpanmr.34
+ ====================================================
+         reading J/sigma data for conformer           35
+ ====================================================
+ reading CONF35/NMR/orcaS.out
+ reading CONF35/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.153
+   2         5         1         2.662
+   3         9         1         2.218
+   4        10         1         2.358
+   5        11         1         2.159
+   6        12         1         1.258
+   7        14         1         3.605
+   8        17         1         4.933
+   9        18         1         5.270
+  10        20         1         6.343
+  11        22         1         6.088
+  12        25         1         2.906
+  13        26         1         1.819
+  14        28         1         1.566
+  15        29         1         1.638
+  16        31         1         2.054
+  17        32         1         1.393
+  18        34         1         2.023
+  19        38         1         1.422
+  20        39         1         1.476
+  21        41         1         2.206
+  22        42         1         1.085
+  23        43         1         1.625
+  24        46         3         0.577
+  25        49         1         1.937
+  26        53         1         5.685
+  27        54         1         5.689
+  28        58         1         1.860
+  29        59         1         1.464
+  30        62         3         0.849
+  31        65         3         1.002
+  32        68         3         0.896
+  33        71         3         1.034
+ writing spin system data for this confomer to tmpanmr.35
+ ====================================================
+         reading J/sigma data for conformer           36
+ ====================================================
+ reading CONF36/NMR/orcaS.out
+ reading CONF36/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.156
+   2         5         1         2.659
+   3         9         1         2.223
+   4        10         1         2.366
+   5        11         1         2.161
+   6        12         1         1.260
+   7        14         1         3.605
+   8        17         1         4.936
+   9        18         1         5.275
+  10        20         1         6.342
+  11        22         1         6.093
+  12        25         1         2.898
+  13        26         1         1.790
+  14        28         1         1.565
+  15        29         1         1.640
+  16        31         1         2.070
+  17        32         1         1.349
+  18        34         1         1.941
+  19        38         1         1.453
+  20        39         1         1.560
+  21        41         1         1.929
+  22        42         1         1.530
+  23        43         1         1.000
+  24        46         3         0.584
+  25        49         1         1.969
+  26        53         1         5.944
+  27        54         1         5.495
+  28        58         1         1.933
+  29        59         1         1.426
+  30        62         3         0.881
+  31        65         3         1.004
+  32        68         3         0.854
+  33        71         3         1.148
+ writing spin system data for this confomer to tmpanmr.36
+ ====================================================
+         reading J/sigma data for conformer           37
+ ====================================================
+ reading CONF37/NMR/orcaS.out
+ reading CONF37/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.150
+   2         5         1         2.654
+   3         9         1         2.223
+   4        10         1         2.360
+   5        11         1         2.156
+   6        12         1         1.256
+   7        14         1         3.600
+   8        17         1         4.926
+   9        18         1         5.267
+  10        20         1         6.339
+  11        22         1         6.069
+  12        25         1         2.896
+  13        26         1         1.799
+  14        28         1         1.575
+  15        29         1         1.637
+  16        31         1         2.046
+  17        32         1         1.390
+  18        34         1         2.023
+  19        38         1         1.381
+  20        39         1         1.494
+  21        41         1         1.698
+  22        42         1         1.272
+  23        43         1         1.199
+  24        46         3         0.578
+  25        49         1         1.802
+  26        53         1         5.188
+  27        54         1         5.983
+  28        58         1         1.489
+  29        59         1         0.928
+  30        62         3         1.091
+  31        65         3         1.042
+  32        68         3         0.995
+  33        71         3         1.098
+ writing spin system data for this confomer to tmpanmr.37
+ ====================================================
+         reading J/sigma data for conformer           38
+ ====================================================
+ reading CONF38/NMR/orcaS.out
+ reading CONF38/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.151
+   2         5         1         2.660
+   3         9         1         2.217
+   4        10         1         2.359
+   5        11         1         2.159
+   6        12         1         1.260
+   7        14         1         3.602
+   8        17         1         4.931
+   9        18         1         5.266
+  10        20         1         6.340
+  11        22         1         6.090
+  12        25         1         2.908
+  13        26         1         1.817
+  14        28         1         1.564
+  15        29         1         1.641
+  16        31         1         2.061
+  17        32         1         1.396
+  18        34         1         2.015
+  19        38         1         1.411
+  20        39         1         1.484
+  21        41         1         2.080
+  22        42         1         1.039
+  23        43         1         1.627
+  24        46         3         0.584
+  25        49         1         2.000
+  26        53         1         5.511
+  27        54         1         6.026
+  28        58         1         1.588
+  29        59         1         0.866
+  30        62         3         1.080
+  31        65         3         1.046
+  32        68         3         1.008
+  33        71         3         1.011
+ writing spin system data for this confomer to tmpanmr.38
+ ====================================================
+         reading J/sigma data for conformer           39
+ ====================================================
+ reading CONF39/NMR/orcaS.out
+ reading CONF39/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.154
+   2         5         1         2.658
+   3         9         1         2.229
+   4        10         1         2.369
+   5        11         1         2.161
+   6        12         1         1.260
+   7        14         1         3.604
+   8        17         1         4.938
+   9        18         1         5.278
+  10        20         1         6.344
+  11        22         1         6.092
+  12        25         1         2.900
+  13        26         1         1.792
+  14        28         1         1.571
+  15        29         1         1.640
+  16        31         1         2.068
+  17        32         1         1.344
+  18        34         1         1.948
+  19        38         1         1.460
+  20        39         1         1.566
+  21        41         1         1.953
+  22        42         1         1.563
+  23        43         1         0.991
+  24        46         3         0.589
+  25        49         1         1.973
+  26        53         1         5.766
+  27        54         1         5.883
+  28        58         1         1.550
+  29        59         1         0.867
+  30        62         3         1.095
+  31        65         3         1.072
+  32        68         3         1.008
+  33        71         3         1.166
+ writing spin system data for this confomer to tmpanmr.39
+ ====================================================
+         reading J/sigma data for conformer           40
+ ====================================================
+ reading CONF40/NMR/orcaS.out
+ reading CONF40/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.150
+   2         5         1         2.657
+   3         9         1         2.220
+   4        10         1         2.361
+   5        11         1         2.159
+   6        12         1         1.257
+   7        14         1         3.603
+   8        17         1         4.928
+   9        18         1         5.268
+  10        20         1         6.338
+  11        22         1         6.082
+  12        25         1         2.897
+  13        26         1         1.799
+  14        28         1         1.567
+  15        29         1         1.645
+  16        31         1         2.056
+  17        32         1         1.401
+  18        34         1         2.031
+  19        38         1         1.392
+  20        39         1         1.496
+  21        41         1         1.712
+  22        42         1         1.244
+  23        43         1         1.243
+  24        46         3         0.575
+  25        49         1         1.855
+  26        53         1         5.192
+  27        54         1         5.748
+  28        58         1         2.140
+  29        59         1         1.431
+  30        62         3         1.065
+  31        65         3         0.745
+  32        68         3         1.085
+  33        71         3         1.098
+ writing spin system data for this confomer to tmpanmr.40
+ ====================================================
+         reading J/sigma data for conformer           41
+ ====================================================
+ reading CONF41/NMR/orcaS.out
+ reading CONF41/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.153
+   2         5         1         2.662
+   3         9         1         2.217
+   4        10         1         2.360
+   5        11         1         2.160
+   6        12         1         1.262
+   7        14         1         3.601
+   8        17         1         4.933
+   9        18         1         5.266
+  10        20         1         6.341
+  11        22         1         6.096
+  12        25         1         2.911
+  13        26         1         1.818
+  14        28         1         1.564
+  15        29         1         1.644
+  16        31         1         2.065
+  17        32         1         1.400
+  18        34         1         2.019
+  19        38         1         1.408
+  20        39         1         1.490
+  21        41         1         2.075
+  22        42         1         1.043
+  23        43         1         1.635
+  24        46         3         0.581
+  25        49         1         2.004
+  26        53         1         5.506
+  27        54         1         5.756
+  28        58         1         2.224
+  29        59         1         1.442
+  30        62         3         1.074
+  31        65         3         0.710
+  32        68         3         1.111
+  33        71         3         1.038
+ writing spin system data for this confomer to tmpanmr.41
+ ====================================================
+         reading J/sigma data for conformer           42
+ ====================================================
+ reading CONF42/NMR/orcaS.out
+ reading CONF42/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.155
+   2         5         1         2.661
+   3         9         1         2.228
+   4        10         1         2.370
+   5        11         1         2.163
+   6        12         1         1.263
+   7        14         1         3.607
+   8        17         1         4.941
+   9        18         1         5.280
+  10        20         1         6.344
+  11        22         1         6.104
+  12        25         1         2.902
+  13        26         1         1.791
+  14        28         1         1.566
+  15        29         1         1.643
+  16        31         1         2.080
+  17        32         1         1.345
+  18        34         1         1.951
+  19        38         1         1.461
+  20        39         1         1.572
+  21        41         1         1.961
+  22        42         1         1.579
+  23        43         1         0.998
+  24        46         3         0.596
+  25        49         1         2.026
+  26        53         1         5.749
+  27        54         1         5.627
+  28        58         1         2.204
+  29        59         1         1.447
+  30        62         3         1.084
+  31        65         3         0.688
+  32        68         3         1.107
+  33        71         3         1.163
+ writing spin system data for this confomer to tmpanmr.42
+ ====================================================
+         reading J/sigma data for conformer           43
+ ====================================================
+ reading CONF43/NMR/orcaS.out
+ reading CONF43/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.150
+   2         5         1         2.658
+   3         9         1         2.218
+   4        10         1         2.361
+   5        11         1         2.159
+   6        12         1         1.258
+   7        14         1         3.603
+   8        17         1         4.928
+   9        18         1         5.267
+  10        20         1         6.338
+  11        22         1         6.085
+  12        25         1         2.899
+  13        26         1         1.797
+  14        28         1         1.564
+  15        29         1         1.645
+  16        31         1         2.057
+  17        32         1         1.400
+  18        34         1         2.033
+  19        38         1         1.392
+  20        39         1         1.498
+  21        41         1         1.764
+  22        42         1         1.250
+  23        43         1         1.254
+  24        46         3         0.577
+  25        49         1         1.851
+  26        53         1         5.140
+  27        54         1         5.585
+  28        58         1         2.075
+  29        59         1         1.559
+  30        62         3         0.855
+  31        65         3         1.044
+  32        68         3         0.740
+  33        71         3         1.101
+ writing spin system data for this confomer to tmpanmr.43
+ ====================================================
+         reading J/sigma data for conformer           44
+ ====================================================
+ reading CONF44/NMR/orcaS.out
+ reading CONF44/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.152
+   2         5         1         2.661
+   3         9         1         2.218
+   4        10         1         2.360
+   5        11         1         2.159
+   6        12         1         1.261
+   7        14         1         3.601
+   8        17         1         4.934
+   9        18         1         5.267
+  10        20         1         6.342
+  11        22         1         6.100
+  12        25         1         2.911
+  13        26         1         1.811
+  14        28         1         1.558
+  15        29         1         1.644
+  16        31         1         2.068
+  17        32         1         1.395
+  18        34         1         2.017
+  19        38         1         1.408
+  20        39         1         1.497
+  21        41         1         2.111
+  22        42         1         1.057
+  23        43         1         1.638
+  24        46         3         0.577
+  25        49         1         1.993
+  26        53         1         5.462
+  27        54         1         5.593
+  28        58         1         2.165
+  29        59         1         1.563
+  30        62         3         0.856
+  31        65         3         1.060
+  32        68         3         0.708
+  33        71         3         1.045
+ writing spin system data for this confomer to tmpanmr.44
+ ====================================================
+         reading J/sigma data for conformer           45
+ ====================================================
+ reading CONF45/NMR/orcaS.out
+ reading CONF45/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.155
+   2         5         1         2.662
+   3         9         1         2.224
+   4        10         1         2.368
+   5        11         1         2.164
+   6        12         1         1.261
+   7        14         1         3.608
+   8        17         1         4.940
+   9        18         1         5.279
+  10        20         1         6.343
+  11        22         1         6.101
+  12        25         1         2.900
+  13        26         1         1.789
+  14        28         1         1.564
+  15        29         1         1.643
+  16        31         1         2.078
+  17        32         1         1.347
+  18        34         1         1.944
+  19        38         1         1.462
+  20        39         1         1.566
+  21        41         1         1.952
+  22        42         1         1.567
+  23        43         1         0.995
+  24        46         3         0.597
+  25        49         1         2.004
+  26        53         1         5.724
+  27        54         1         5.457
+  28        58         1         2.128
+  29        59         1         1.605
+  30        62         3         0.874
+  31        65         3         1.058
+  32        68         3         0.691
+  33        71         3         1.162
+ writing spin system data for this confomer to tmpanmr.45
+ ====================================================
+         reading J/sigma data for conformer           46
+ ====================================================
+ reading CONF46/NMR/orcaS.out
+ reading CONF46/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.152
+   2         5         1         2.659
+   3         9         1         2.215
+   4        10         1         2.360
+   5        11         1         2.160
+   6        12         1         1.258
+   7        14         1         3.605
+   8        17         1         4.929
+   9        18         1         5.268
+  10        20         1         6.338
+  11        22         1         6.082
+  12        25         1         2.897
+  13        26         1         1.795
+  14        28         1         1.561
+  15        29         1         1.639
+  16        31         1         2.050
+  17        32         1         1.392
+  18        34         1         2.024
+  19        38         1         1.402
+  20        39         1         1.496
+  21        41         1         1.791
+  22        42         1         1.268
+  23        43         1         1.257
+  24        46         3         0.579
+  25        49         1         1.781
+  26        53         1         5.176
+  27        54         1         5.594
+  28        58         1         1.518
+  29        59         1         1.484
+  30        62         3         0.954
+  31        65         3         0.969
+  32        68         3         0.949
+  33        71         3         1.062
+ writing spin system data for this confomer to tmpanmr.46
+ ====================================================
+         reading J/sigma data for conformer           47
+ ====================================================
+ reading CONF47/NMR/orcaS.out
+ reading CONF47/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.154
+   2         5         1         2.661
+   3         9         1         2.224
+   4        10         1         2.360
+   5        11         1         2.158
+   6        12         1         1.261
+   7        14         1         3.604
+   8        17         1         4.934
+   9        18         1         5.265
+  10        20         1         6.345
+  11        22         1         6.085
+  12        25         1         2.915
+  13        26         1         1.812
+  14        28         1         1.560
+  15        29         1         1.637
+  16        31         1         2.070
+  17        32         1         1.395
+  18        34         1         2.017
+  19        38         1         1.413
+  20        39         1         1.488
+  21        41         1         2.091
+  22        42         1         1.046
+  23        43         1         1.623
+  24        46         3         0.585
+  25        49         1         1.997
+  26        53         1         5.495
+  27        54         1         6.014
+  28        58         1         1.592
+  29        59         1         0.864
+  30        62         3         1.076
+  31        65         3         1.054
+  32        68         3         1.009
+  33        71         3         1.013
+ writing spin system data for this confomer to tmpanmr.47
+ ====================================================
+         reading J/sigma data for conformer           48
+ ====================================================
+ reading CONF48/NMR/orcaS.out
+ reading CONF48/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.159
+   2         5         1         2.659
+   3         9         1         2.219
+   4        10         1         2.368
+   5        11         1         2.158
+   6        12         1         1.264
+   7        14         1         3.607
+   8        17         1         4.935
+   9        18         1         5.277
+  10        20         1         6.344
+  11        22         1         6.096
+  12        25         1         2.898
+  13        26         1         1.795
+  14        28         1         1.570
+  15        29         1         1.637
+  16        31         1         2.072
+  17        32         1         1.337
+  18        34         1         1.956
+  19        38         1         1.468
+  20        39         1         1.566
+  21        41         1         1.979
+  22        42         1         1.561
+  23        43         1         0.994
+  24        46         3         0.602
+  25        49         1         1.972
+  26        53         1         5.768
+  27        54         1         5.881
+  28        58         1         1.553
+  29        59         1         0.875
+  30        62         3         1.106
+  31        65         3         1.058
+  32        68         3         1.003
+  33        71         3         1.157
+ writing spin system data for this confomer to tmpanmr.48
+ ====================================================
+         reading J/sigma data for conformer           49
+ ====================================================
+ reading CONF49/NMR/orcaS.out
+ reading CONF49/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.151
+   2         5         1         2.656
+   3         9         1         2.217
+   4        10         1         2.361
+   5        11         1         2.159
+   6        12         1         1.257
+   7        14         1         3.603
+   8        17         1         4.929
+   9        18         1         5.268
+  10        20         1         6.336
+  11        22         1         6.076
+  12        25         1         2.895
+  13        26         1         1.792
+  14        28         1         1.562
+  15        29         1         1.637
+  16        31         1         2.042
+  17        32         1         1.388
+  18        34         1         2.022
+  19        38         1         1.393
+  20        39         1         1.486
+  21        41         1         1.765
+  22        42         1         1.252
+  23        43         1         1.233
+  24        46         3         0.559
+  25        49         1         1.666
+  26        53         1         5.443
+  27        54         1         5.317
+  28        58         1         2.134
+  29        59         1         1.551
+  30        62         3         1.079
+  31        65         3         1.053
+  32        68         3         1.210
+  33        71         3         1.082
+ writing spin system data for this confomer to tmpanmr.49
+ ====================================================
+         reading J/sigma data for conformer           50
+ ====================================================
+ reading CONF50/NMR/orcaS.out
+ reading CONF50/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.158
+   2         5         1         2.662
+   3         9         1         2.228
+   4        10         1         2.368
+   5        11         1         2.161
+   6        12         1         1.264
+   7        14         1         3.605
+   8        17         1         4.940
+   9        18         1         5.280
+  10        20         1         6.345
+  11        22         1         6.093
+  12        25         1         2.901
+  13        26         1         1.788
+  14        28         1         1.569
+  15        29         1         1.642
+  16        31         1         2.071
+  17        32         1         1.347
+  18        34         1         1.945
+  19        38         1         1.460
+  20        39         1         1.568
+  21        41         1         1.947
+  22        42         1         1.567
+  23        43         1         0.984
+  24        46         3         0.594
+  25        49         1         2.019
+  26        53         1         5.769
+  27        54         1         5.647
+  28        58         1         2.196
+  29        59         1         1.450
+  30        62         3         1.085
+  31        65         3         0.694
+  32        68         3         1.123
+  33        71         3         1.167
+ writing spin system data for this confomer to tmpanmr.50
+ Population below pthr
+ ====================================================
+         reading J/sigma data for conformer           51
+ ====================================================
+ reading CONF51/NMR/orcaS.out
+ reading CONF51/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.154
+   2         5         1         2.659
+   3         9         1         2.224
+   4        10         1         2.368
+   5        11         1         2.162
+   6        12         1         1.261
+   7        14         1         3.605
+   8        17         1         4.936
+   9        18         1         5.276
+  10        20         1         6.342
+  11        22         1         6.096
+  12        25         1         2.901
+  13        26         1         1.788
+  14        28         1         1.563
+  15        29         1         1.640
+  16        31         1         2.069
+  17        32         1         1.341
+  18        34         1         1.951
+  19        38         1         1.456
+  20        39         1         1.562
+  21        41         1         1.957
+  22        42         1         1.536
+  23        43         1         0.989
+  24        46         3         0.595
+  25        49         1         2.003
+  26        53         1         6.020
+  27        54         1         5.155
+  28        58         1         2.210
+  29        59         1         1.559
+  30        62         3         1.084
+  31        65         3         1.073
+  32        68         3         1.193
+  33        71         3         1.101
+ writing spin system data for this confomer to tmpanmr.51
+ ====================================================
+         reading J/sigma data for conformer           52
+ ====================================================
+ reading CONF52/NMR/orcaS.out
+ reading CONF52/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.149
+   2         5         1         2.655
+   3         9         1         2.222
+   4        10         1         2.362
+   5        11         1         2.159
+   6        12         1         1.257
+   7        14         1         3.602
+   8        17         1         4.929
+   9        18         1         5.267
+  10        20         1         6.340
+  11        22         1         6.077
+  12        25         1         2.901
+  13        26         1         1.793
+  14        28         1         1.564
+  15        29         1         1.643
+  16        31         1         2.054
+  17        32         1         1.394
+  18        34         1         2.016
+  19        38         1         1.382
+  20        39         1         1.490
+  21        41         1         1.679
+  22        42         1         1.208
+  23        43         1         1.239
+  24        46         3         0.570
+  25        49         1         1.819
+  26        53         1         5.179
+  27        54         1         5.464
+  28        58         1         2.019
+  29        59         1         1.878
+  30        62         3         0.831
+  31        65         3         0.997
+  32        68         3         0.780
+  33        71         3         1.116
+ writing spin system data for this confomer to tmpanmr.52
+ ====================================================
+         reading J/sigma data for conformer           53
+ ====================================================
+ reading CONF53/NMR/orcaS.out
+ reading CONF53/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.152
+   2         5         1         2.660
+   3         9         1         2.222
+   4        10         1         2.361
+   5        11         1         2.159
+   6        12         1         1.259
+   7        14         1         3.604
+   8        17         1         4.938
+   9        18         1         5.269
+  10        20         1         6.345
+  11        22         1         6.094
+  12        25         1         2.913
+  13        26         1         1.817
+  14        28         1         1.563
+  15        29         1         1.643
+  16        31         1         2.063
+  17        32         1         1.395
+  18        34         1         2.019
+  19        38         1         1.413
+  20        39         1         1.488
+  21        41         1         2.149
+  22        42         1         1.074
+  23        43         1         1.630
+  24        46         3         0.589
+  25        49         1         2.023
+  26        53         1         5.496
+  27        54         1         5.473
+  28        58         1         2.018
+  29        59         1         1.897
+  30        62         3         0.871
+  31        65         3         1.003
+  32        68         3         0.764
+  33        71         3         1.020
+ writing spin system data for this confomer to tmpanmr.53
+ ====================================================
+         reading J/sigma data for conformer           54
+ ====================================================
+ reading CONF54/NMR/orcaS.out
+ reading CONF54/NMR/orcaJ.out
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.154
+   2         5         1         2.659
+   3         9         1         2.230
+   4        10         1         2.371
+   5        11         1         2.163
+   6        12         1         1.263
+   7        14         1         3.606
+   8        17         1         4.940
+   9        18         1         5.279
+  10        20         1         6.346
+  11        22         1         6.102
+  12        25         1         2.905
+  13        26         1         1.790
+  14        28         1         1.567
+  15        29         1         1.645
+  16        31         1         2.086
+  17        32         1         1.350
+  18        34         1         1.953
+  19        38         1         1.460
+  20        39         1         1.573
+  21        41         1         2.006
+  22        42         1         1.578
+  23        43         1         1.028
+  24        46         3         0.607
+  25        49         1         2.017
+  26        53         1         5.777
+  27        54         1         5.305
+  28        58         1         2.076
+  29        59         1         1.909
+  30        62         3         0.845
+  31        65         3         1.015
+  32        68         3         0.799
+  33        71         3         1.147
+ writing spin system data for this confomer to tmpanmr.54
+ =====================================================
+             average over conformers
+ =====================================================
+conformer   1 (normalized) population :   0.254
+conformer   2 (normalized) population :   0.008
+conformer   3 (normalized) population :   0.017
+conformer   4 (normalized) population :   0.139
+conformer   5 (normalized) population :   0.009
+conformer   6 (normalized) population :   0.013
+conformer   7 (normalized) population :   0.041
+conformer   8 (normalized) population :   0.002
+conformer   9 (normalized) population :   0.003
+conformer  10 (normalized) population :   0.011
+conformer  11 (normalized) population :   0.000
+conformer  12 (normalized) population :   0.001
+conformer  13 (normalized) population :   0.060
+conformer  14 (normalized) population :   0.001
+conformer  15 (normalized) population :   0.002
+conformer  16 (normalized) population :   0.043
+conformer  17 (normalized) population :   0.001
+conformer  18 (normalized) population :   0.003
+conformer  19 (normalized) population :   0.004
+conformer  20 (normalized) population :   0.000
+conformer  21 (normalized) population :   0.000
+conformer  22 (normalized) population :   0.000
+conformer  23 (normalized) population :   0.002
+conformer  25 (normalized) population :   0.003
+conformer  26 (normalized) population :   0.000
+conformer  27 (normalized) population :   0.000
+conformer  28 (normalized) population :   0.163
+conformer  29 (normalized) population :   0.004
+conformer  30 (normalized) population :   0.010
+conformer  31 (normalized) population :   0.102
+conformer  32 (normalized) population :   0.005
+conformer  33 (normalized) population :   0.007
+conformer  34 (normalized) population :   0.025
+conformer  35 (normalized) population :   0.001
+conformer  36 (normalized) population :   0.002
+conformer  37 (normalized) population :   0.008
+conformer  38 (normalized) population :   0.000
+conformer  39 (normalized) population :   0.000
+conformer  40 (normalized) population :   0.021
+conformer  41 (normalized) population :   0.001
+conformer  42 (normalized) population :   0.001
+conformer  43 (normalized) population :   0.023
+conformer  44 (normalized) population :   0.001
+conformer  45 (normalized) population :   0.002
+conformer  46 (normalized) population :   0.002
+conformer  47 (normalized) population :   0.000
+conformer  48 (normalized) population :   0.000
+conformer  49 (normalized) population :   0.000
+conformer  50 (normalized) population :   0.002
+conformer  52 (normalized) population :   0.002
+conformer  53 (normalized) population :   0.000
+conformer  54 (normalized) population :   0.000
+
+   #  in coord file  # nucs   delta(ppm)
+   1         4         1         2.317  +/-      0.01
+   2         5         1         2.707  +/-      0.00
+   3         9         1         2.219  +/-      0.00
+   4        10         1         2.417  +/-      0.00
+   5        11         1         1.866  +/-      0.00
+   6        12         1         1.672  +/-      0.00
+   7        14         1         3.882  +/-      0.00
+   8        17         1         4.972  +/-      0.00
+   9        18         1         5.276  +/-      0.00
+  10        20         1         6.366  +/-      0.00
+  11        22         1         6.147  +/-      0.00
+  12        25         1         2.886  +/-      0.00
+  13        26         1         1.765  +/-      0.00
+  14        28         1         1.553  +/-      0.00
+  15        29         1         1.662  +/-      0.00
+  16        31         1         2.036  +/-      0.00
+  17        32         1         1.373  +/-      0.00
+  18        34         1         2.019  +/-      0.00
+  19        38         1         1.397  +/-      0.00
+  20        39         1         1.525  +/-      0.00
+  21        41         1         1.744  +/-      0.00
+  22        42         1         1.249  +/-      0.00
+  23        43         1         1.234  +/-      0.00
+  24        46         3         0.581  +/-      0.00
+  25        49         1         1.829  +/-      0.00
+  26        53         1         5.313  +/-      0.00
+  27        54         1         5.358  +/-      0.00
+  28        58         1         1.648  +/-      0.00
+  29        59         1         1.240  +/-      0.00
+  30        62         3         1.026  +/-      0.00
+  31        65         3         0.892  +/-      0.00
+  32        68         3         0.927  +/-      0.00
+  33        71         3         1.104  +/-      0.00
+
+ MATRIX PRINTED:  conformer average J (Hz) matrix
+
+           1         2         3         4         5         6
+
+    1   0.00000
+    2 -13.04873   0.00000
+    3   0.51754   0.00297   0.00000
+    4   0.05160   0.39913 -14.00096   0.00000
+    5  -0.17614   0.83715   4.71097   9.57287   0.00000
+    6   1.04114  -0.13532   6.40269   4.73845 -12.89667   0.00000
+    7   6.34721   3.49537   0.25527  -0.72522   3.02194   6.30750
+    8   0.29664   0.45132  -1.30179  -2.04045   0.33969   0.47404
+    9   0.47161   0.47776  -1.59526  -2.22117   0.17708   0.19184
+   10  -1.60452  -2.19058   0.36240   0.34953  -0.06220  -0.11644
+   11   0.47648   0.74682  -0.02322  -0.04345   0.02401   0.05204
+   12   0.03908   0.05503  -0.00380  -0.00675   0.00078   0.00285
+   13   1.00331   1.45225  -0.05792  -0.15876   0.00000   0.00000
+   14  -0.04251  -0.06871   0.00459   0.00874   0.00000   0.00000
+   15   0.02657   0.04264   0.00000   0.00000   0.00000   0.00000
+   16   0.00000   0.00004   0.00000   0.00000   0.00000   0.00000
+   17   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   18   0.98273   1.60965  -0.05237  -0.13618   0.00000   0.00000
+   19  -0.01748  -0.02804   0.00107   0.00240   0.00000  -0.00123
+   20  -0.01526  -0.00998   0.00030   0.00084  -0.00040  -0.00000
+   21   0.00000   0.00000   0.00000   0.00007   0.00000   0.00000
+   22   0.00000   0.00000   0.00038   0.00062   0.00000   0.00000
+   23   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   24  -0.00461   0.00558   0.00068  -0.00095  -0.00023   0.00000
+   25   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   26   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   27   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   28   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   29   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   30   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   31   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   32   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   33   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+
+           7         8         9        10        11        12
+
+    7   0.00000
+    8  -0.15745   0.00000
+    9  -0.16202   1.19843   0.00000
+   10   0.28763   0.68320   0.59586   0.00000
+   11  -0.04395  -0.10247   0.06264  11.89228   0.00000
+   12  -0.00153  -0.01874  -0.01598  -0.60998  -0.73002   0.00000
+   13  -0.06187  -0.30297  -0.28887   0.92677  -2.82707 -13.66353
+   14   0.00153   0.01321   0.01223  -0.04652   0.19222   4.34759
+   15  -0.00152  -0.00532   0.00000   0.05479   0.65780   2.31962
+   16   0.00000  -0.02789   0.00000   0.07279  -0.22448   0.67407
+   17   0.00000  -0.00162   0.00000   0.00541  -0.02698  -0.50166
+   18  -0.04015  -0.31845  -0.30710   1.03928  -2.46308  -0.12896
+   19   0.00077   0.00526   0.00500  -0.01603   0.05388  -0.05520
+   20   0.00039   0.00285   0.00414   0.09391  -0.55700  -0.08015
+   21   0.00000   0.00002  -0.00001   0.01030  -0.01135  -0.01917
+   22   0.00000   0.00100   0.00137  -0.00616   0.06054   0.06738
+   23   0.00000  -0.00100   0.00000   0.00456  -0.02416  -0.02407
+   24   0.00023  -0.00049  -0.00094  -0.00044   0.00813  -0.02128
+   25   0.00000  -0.00123  -0.00122   0.00545  -0.01574   0.00224
+   26   0.00000   0.00000   0.00000   0.00000   0.00121   0.00000
+   27   0.00000   0.00000   0.00000   0.00000  -0.00090   0.00000
+   28   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   29   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   30   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   31   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   32   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   33   0.00000   0.00000   0.00000  -0.00001   0.00153   0.02259
+
+          13        14        15        16        17        18
+
+   13   0.00000
+   14  12.98612   0.00000
+   15   5.23737 -13.58955   0.00000
+   16  -0.63689   4.02077   2.61124   0.00000
+   17  -0.35368  12.98971   4.14578 -12.97763   0.00000
+   18  -2.21771   0.06517   0.28475   0.02898  -0.32467   0.00000
+   19   0.27394   0.00447  -0.03586   0.51571  -0.03637   6.46909
+   20   0.17677   0.00104  -0.02844  -0.01307   0.12478  12.18659
+   21  -0.01305   0.01936   0.14446  -0.00276  -0.03364  -0.24457
+   22   0.01104   0.02176  -0.02510   0.01370   0.07942  -0.42436
+   23  -0.01803   0.01302  -0.01090  -0.25909  -0.37429  -0.20736
+   24  -0.03011  -0.12661  -0.04675  -0.20532   0.63977  -0.10482
+   25  -0.01453   0.02994   0.02215   0.02942   0.00968  -0.00127
+   26   0.00090   0.00087   0.00226  -0.00387   0.00091   0.00343
+   27  -0.00007   0.00000  -0.00003  -0.00013  -0.00188  -0.00325
+   28   0.00000   0.00000   0.00000  -0.00055   0.00030   0.00084
+   29   0.00000   0.00000   0.00000   0.00000   0.00004   0.00002
+   30   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   31   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   32   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+   33   0.00182  -0.00805  -0.00839  -0.16648  -0.04876   0.00289
+
+          19        20        21        22        23        24
+
+   19   0.00000
+   20 -12.23146   0.00000
+   21   9.49834   6.74472   0.00000
+   22   2.61861  11.59028 -13.78291   0.00000
+   23  -0.26185  -0.46790   9.52745   8.67244   0.00000
+   24   0.01874  -0.01371  -0.06896  -0.01508   0.29918   0.00000
+   25   0.10027  -0.00818  -0.20161  -0.43147  10.37498  -0.13002
+   26  -0.00141   0.00231   0.08027  -0.02716  -0.28541   0.12147
+   27   0.00264   0.00501  -0.11446   0.02521   0.07377  -0.00293
+   28  -0.00071   0.00045   0.03494  -0.00477   0.01046   0.00023
+   29  -0.00005  -0.00006   0.00044   0.00086   0.00058  -0.00001
+   30  -0.00014   0.00019  -0.00438   0.00073  -0.00292   0.00006
+   31   0.00015   0.00023  -0.00438  -0.00411  -0.00049   0.00000
+   32   0.00010   0.00017  -0.00446  -0.00405  -0.00011  -0.00000
+   33   0.01308   0.01214   0.03630  -0.00003  -0.30548  -0.03476
+
+          25        26        27        28        29        30
+
+   25   0.00000
+   26   9.32147   0.00000
+   27  -0.77765  16.14738   0.00000
+   28   0.04453  -1.05748   8.94810   0.00000
+   29   0.01489   0.11270  -0.32510   6.27012   0.00000
+   30   0.03644  -0.04547  -0.20683   7.81926  -0.29348   0.00000
+   31  -0.00065   0.02231   0.00479  -0.20266   4.78687   0.03352
+   32   0.00044   0.01599   0.01598  -0.27315   6.87586  -0.00161
+   33   5.52549  -0.12547  -0.13204   0.09490   0.00890  -0.00311
+
+          31        32        33
+ 
+   31   0.00000
+   32   0.85427   0.00000
+   33  -0.00117  -0.00107   0.00000
+ ====================================================
+               building sub-systems
+ ====================================================
+J neighbors of spin     1 :   2   3   5   6   7   8   9  10  11  13  18
+J neighbors of spin     2 :   1   4   5   6   7   8   9  10  11  13  18
+J neighbors of spin     3 :   1   4   5   6   7   8   9  10
+J neighbors of spin     4 :   2   3   5   6   7   8   9  10  13  18
+J neighbors of spin     5 :   1   2   3   4   6   7   8   9
+J neighbors of spin     6 :   1   2   3   4   5   7   8   9  10
+J neighbors of spin     7 :   1   2   3   4   5   6   8   9  10
+J neighbors of spin     8 :   1   2   3   4   5   6   7   9  10  11  13  18
+J neighbors of spin     9 :   1   2   3   4   5   6   7   8  10  13  18
+J neighbors of spin    10 :   1   2   3   4   6   7   8   9  11  12  13  18
+J neighbors of spin    11 :   1   2   8  10  12  13  14  15  16  18  20
+J neighbors of spin    12 :  10  11  13  14  15  16  17  18
+J neighbors of spin    13 :   1   2   4   8   9  10  11  12  14  15  16  17  18  19  20
+J neighbors of spin    14 :  11  12  13  15  16  17  24
+J neighbors of spin    15 :  11  12  13  14  16  17  18  21
+J neighbors of spin    16 :  11  12  13  14  15  17  19  23  24  33
+J neighbors of spin    17 :  12  13  14  15  16  18  20  23  24
+J neighbors of spin    18 :   1   2   4   8   9  10  11  12  13  15  17  19  20  21  22  23  24
+J neighbors of spin    19 :  13  16  18  20  21  22  23  25
+J neighbors of spin    20 :  11  13  17  18  19  21  22  23
+J neighbors of spin    21 :  15  18  19  20  22  23  25  27
+J neighbors of spin    22 :  18  19  20  21  23  25
+J neighbors of spin    23 :  16  17  18  19  20  21  22  24  25  26  33
+J neighbors of spin    24 :  14  16  17  18  23  25  26
+J neighbors of spin    25 :  19  21  22  23  24  26  27  33
+J neighbors of spin    26 :  23  24  25  27  28  29  33
+J neighbors of spin    27 :  21  25  26  28  29  30  33
+J neighbors of spin    28 :  26  27  29  30  31  32
+J neighbors of spin    29 :  26  27  28  30  31  32
+J neighbors of spin    30 :  27  28  29
+J neighbors of spin    31 :  28  29  32
+J neighbors of spin    32 :  28  29  31
+J neighbors of spin    33 :  16  23  25  26  27
+ 1:10   max/av. J neglected :   8.948   1.607
+ 2: 9   max/av. J neglected :   8.948   1.477
+ 3: 8   max/av. J neglected :   9.322   1.406
+ 4: 7   max/av. J neglected :   9.322   1.257
+ 5: 6   max/av. J neglected :   2.218   0.566
+ selected scheme            5
+ system  largest neglected JAB   nuclei (dummy atoms are negative)
+    1         0.474        8  -4  -3  -9 -10
+    2         0.299       24 -17
+    3         0.478        9  -4  -3  -8 -10
+    4         1.452       12  13  14  15  16  17 -11 -18 -24 -21
+    5         0.203       31 -29 -32
+    6         0.325       29  32 -28 -31
+    7         0.293       30 -28
+    8         0.273       28 -27 -30 -29 -26
+    9         0.305       33 -25
+   10         0.325       26  27 -25 -28
+   11         0.374       23  25 -21 -26 -22 -33 -20 -27
+   12         0.159        3   4   5   6  -9  -8  -7  -1 -10  -2
+   13         0.557       10  11  -2 -13  -1 -18  -8 -12  -9 -15
+   14         2.218       18  19  20  21  22 -11 -16 -23 -25 -17
+   15         0.747        1   2   7 -10 -18  -6 -13  -5  -4  -3
+            === FRAGMENTED SYSTEM ===
+ ====================================================
+      solving (J/sigma) averaged spin Hamiltonian
+ ====================================================
+          spinsystem            1  with            5  spins
+            32 product functions     6 Mt blocks, largest is     10
+  1(   1)  4(  10)  2(   5)  3(  10)  6(   1)  5(   5) 
+first maxtrix multiply,  sparsity in %    98.438 ...
+second maxtrix multiply, sparsity in %    78.906 ...
+          spinsystem            2  with            2  spins
+             8 product functions     5 Mt blocks, largest is      2
+  2(   2)  5(   1)  3(   2)  4(   2)  1(   1) 
+first maxtrix multiply,  sparsity in %    90.625 ...
+second maxtrix multiply, sparsity in %    78.125 ...
+             4 product functions     3 Mt blocks, largest is      2
+  2(   2)  1(   1)  3(   1) 
+first maxtrix multiply,  sparsity in %    87.500 ...
+second maxtrix multiply, sparsity in %    62.500 ...
+          spinsystem            3  with            5  spins
+            32 product functions     6 Mt blocks, largest is     10
+  5(   5)  6(   1)  2(   5)  1(   1)  3(  10)  4(  10) 
+first maxtrix multiply,  sparsity in %    98.438 ...
+second maxtrix multiply, sparsity in %    78.906 ...
+          spinsystem            4  with           10  spins
+          2048 product functions    13 Mt blocks, largest is    420
+  3(  46) 11(  46)  5( 255) 12(  10) 13(   1)  4( 130)  1(   1)  7( 420)  9( 255)  2(  10)  6( 372) 10( 130)  8( 372) 
+first maxtrix multiply,  sparsity in %    99.854 ...
+second maxtrix multiply, sparsity in %    97.661 ...
+          1024 product functions    11 Mt blocks, largest is    252
+  7( 210)  3(  45)  1(   1)  2(  10)  8( 120) 11(   1)  5( 210)  4( 120)  9(  45) 10(  10)  6( 252) 
+first maxtrix multiply,  sparsity in %    99.707 ...
+second maxtrix multiply, sparsity in %    95.978 ...
+          spinsystem            5  with            3  spins
+            32 product functions     8 Mt blocks, largest is      7
+  1(   1)  5(   7)  3(   5)  4(   7)  2(   3)  8(   1)  6(   5)  7(   3) 
+first maxtrix multiply,  sparsity in %    97.656 ...
+second maxtrix multiply, sparsity in %    83.594 ...
+            16 product functions     6 Mt blocks, largest is      4
+  1(   1)  5(   3)  3(   4)  2(   3)  6(   1)  4(   4) 
+first maxtrix multiply,  sparsity in %    96.875 ...
+second maxtrix multiply, sparsity in %    79.688 ...
+            16 product functions     6 Mt blocks, largest is      4
+  4(   4)  5(   3)  6(   1)  3(   4)  2(   3)  1(   1) 
+first maxtrix multiply,  sparsity in %    95.312 ...
+second maxtrix multiply, sparsity in %    79.688 ...
+             8 product functions     4 Mt blocks, largest is      3
+  4(   1)  3(   3)  1(   1)  2(   3) 
+first maxtrix multiply,  sparsity in %    93.750 ...
+second maxtrix multiply, sparsity in %    68.750 ...
+          spinsystem            6  with            4  spins
+            64 product functions     9 Mt blocks, largest is     14
+  5(  14)  3(   8)  6(  12)  9(   1)  1(   1)  4(  12)  8(   4)  7(   8)  2(   4) 
+first maxtrix multiply,  sparsity in %    98.047 ...
+second maxtrix multiply, sparsity in %    85.010 ...
+            32 product functions     7 Mt blocks, largest is      8
+  4(   8)  2(   4)  1(   1)  3(   7)  7(   1)  6(   4)  5(   7) 
+first maxtrix multiply,  sparsity in %    96.875 ...
+second maxtrix multiply, sparsity in %    81.055 ...
+            32 product functions     7 Mt blocks, largest is      8
+  4(   8)  2(   4)  1(   1)  3(   7)  6(   4)  5(   7)  7(   1) 
+first maxtrix multiply,  sparsity in %    96.094 ...
+second maxtrix multiply, sparsity in %    81.055 ...
+            16 product functions     5 Mt blocks, largest is      6
+  4(   4)  5(   1)  2(   4)  3(   6)  1(   1) 
+first maxtrix multiply,  sparsity in %    93.750 ...
+second maxtrix multiply, sparsity in %    73.047 ...
+          spinsystem            7  with            2  spins
+             8 product functions     5 Mt blocks, largest is      2
+  2(   2)  3(   2)  1(   1)  4(   2)  5(   1) 
+first maxtrix multiply,  sparsity in %    90.625 ...
+second maxtrix multiply, sparsity in %    78.125 ...
+             4 product functions     3 Mt blocks, largest is      2
+  2(   2)  3(   1)  1(   1) 
+first maxtrix multiply,  sparsity in %    87.500 ...
+second maxtrix multiply, sparsity in %    62.500 ...
+          spinsystem            8  with            5  spins
+            64 product functions     8 Mt blocks, largest is     15
+  5(  15)  8(   1)  4(  15)  2(   5)  1(   1)  6(  11)  3(  11)  7(   5) 
+first maxtrix multiply,  sparsity in %    99.219 ...
+second maxtrix multiply, sparsity in %    87.085 ...
+            32 product functions     6 Mt blocks, largest is     10
+  4(  10)  5(   5)  3(  10)  6(   1)  1(   1)  2(   5) 
+first maxtrix multiply,  sparsity in %    98.438 ...
+second maxtrix multiply, sparsity in %    79.883 ...
+          spinsystem            9  with            2  spins
+             8 product functions     5 Mt blocks, largest is      2
+  4(   2)  3(   2)  5(   1)  2(   2)  1(   1) 
+first maxtrix multiply,  sparsity in %    90.625 ...
+second maxtrix multiply, sparsity in %    78.125 ...
+             4 product functions     3 Mt blocks, largest is      2
+  3(   1)  2(   2)  1(   1) 
+first maxtrix multiply,  sparsity in %    87.500 ...
+second maxtrix multiply, sparsity in %    62.500 ...
+          spinsystem           10  with            4  spins
+            16 product functions     5 Mt blocks, largest is      6
+  4(   4)  2(   4)  5(   1)  3(   6)  1(   1) 
+first maxtrix multiply,  sparsity in %    93.750 ...
+second maxtrix multiply, sparsity in %    73.438 ...
+          spinsystem           11  with            8  spins
+           512 product functions    11 Mt blocks, largest is    112
+  7(  98)  3(  29) 11(   1)  5(  98)  8(  64)  1(   1)  9(  29)  2(   8)  4(  64) 10(   8)  6( 112) 
+first maxtrix multiply,  sparsity in %    99.805 ...
+second maxtrix multiply, sparsity in %    93.897 ...
+           256 product functions     9 Mt blocks, largest is     70
+  1(   1)  5(  70)  9(   1)  4(  56)  6(  56)  3(  28)  7(  28)  2(   8)  8(   8) 
+first maxtrix multiply,  sparsity in %    99.609 ...
+second maxtrix multiply, sparsity in %    90.094 ...
+          spinsystem           12  with           10  spins
+          1024 product functions    11 Mt blocks, largest is    252
+  7( 210)  9(  45) 10(  10)  8( 120) 11(   1)  1(   1)  2(  10)  3(  45)  5( 210)  4( 120)  6( 252) 
+first maxtrix multiply,  sparsity in %    99.805 ...
+second maxtrix multiply, sparsity in %    95.681 ...
+          spinsystem           13  with           10  spins
+          1024 product functions    11 Mt blocks, largest is    252
+  1(   1)  7( 210)  3(  45)  9(  45) 11(   1)  2(  10)  8( 120)  5( 210) 10(  10)  4( 120)  6( 252) 
+first maxtrix multiply,  sparsity in %    99.902 ...
+second maxtrix multiply, sparsity in %    96.795 ...
+          spinsystem           14  with           10  spins
+          1024 product functions    11 Mt blocks, largest is    252
+  7( 210) 10(  10)  9(  45)  5( 210)  3(  45)  8( 120)  1(   1) 11(   1)  2(  10)  4( 120)  6( 252) 
+first maxtrix multiply,  sparsity in %    99.756 ...
+second maxtrix multiply, sparsity in %    94.688 ...
+          spinsystem           15  with           10  spins
+          1024 product functions    11 Mt blocks, largest is    252
+  1(   1)  5( 210)  8( 120)  2(  10)  3(  45) 10(  10)  7( 210) 11(   1)  9(  45)  4( 120)  6( 252) 
+first maxtrix multiply,  sparsity in %    99.854 ...
+second maxtrix multiply, sparsity in %    95.430 ...
+ done.
+       41556  non-zero transitions.
+ spectrum on <anmr.dat>
+ Range (delta in ppm)  -0.419541381835937        7.38591064453125     
+ Range (delta in Hz)    -209.770690917969        3692.95532226562     
+ Min/max Int.      )    0.500000009934114     
+ computing spectrum ...
+ done.
+ writing output file ...
+ done.
+ All done.
