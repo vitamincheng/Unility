@@ -74,7 +74,7 @@ def function_read_orcaJ(fileName: Path = Path("orcaJ.out")) -> np.ndarray:
     from censo_ext.Tools.anmrfile import OrcaSJ
     single_orcaSJ = OrcaSJ()
     if single_orcaSJ.method_read_orcaJ(fileName):
-        return single_orcaSJ.orcaJCoups
+        return single_orcaSJ.JCoups
     else:
         print(" Someting wrong in your orcaJ.out file")
         print(" Exit to the program !!!")

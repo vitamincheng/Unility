@@ -219,7 +219,7 @@ if __name__ == "__main__":
             print(infile.Sts[0].method_computeCOM())
             print(infile.Sts[0].method_computeInertia())
 
-            infile.method_idx_Molecules_xyzs(idx1=1)
+            infile.method_idx_molecules_xyzs(idx1=1)
 
         ic(content)
         nCH = int(input())

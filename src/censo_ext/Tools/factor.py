@@ -14,45 +14,39 @@ def method_factor_analysis(args) -> tuple[list[int], dict]:
     x: dict = {"remove_idx": None, "add_idx": None,
                "bond_broken": None, "ignore_Hydrogen": True, "debug": False, }
     coord: list = []
-    CONF: list = []
+    idx_element: list = []
     for idx in range(len(xyzfile)):
         coord_square, result_rmsd = cal_rmsd_xyz(
             xyzfile, 1, idx+1, args=argparse.Namespace(**x))
         var = list(coord_square.values())
         if idx == 0:
-            CONF = list(coord_square.keys())
+            idx_element = list(coord_square.keys())
         coord.append(var)
 
-    np_R: np.ndarray = np.array(coord).T
-    S_std: np.ndarray = np.std(np_R, axis=1)
-
-    if len(CONF) != 0:
-        idx_S = CONF
+    if len(idx_element) != 0:
+        idx_STD: list = idx_element
     else:
-        print("CONF is not exist and so quit this program !!!")
+        print("idx_coord is not exist and so quit this program !!!")
         ic()
         exit(1)
 
-    Table_S: dict = dict(zip(idx_S, S_std))
+    dict_idx_STD: dict = dict(zip(idx_STD, np.std(np.array(coord).T, axis=1)))
+    Avg_STD: np.float64 = np.average(np.array(list(dict_idx_STD.values())))
 
-    S_average_std: np.float64 = np.average(np.array(list(Table_S.values())))
     print(" ========== Factor Analysis Processing ========== ")
-
     print("\n Average of STD      : ", end="")
-    # print("{:>12.8}".format(S_average_std))
-    print(f"{S_average_std:>12.8f}")
+    print(f"{Avg_STD:>12.8f}")
     print(f" Threshold {
-          args.factor:3.2f} *STD : {S_average_std*args.factor:>12.8}", "\n")
-
+          args.factor:3.2f} *STD : {Avg_STD*args.factor:>12.8}", "\n")
+    print(f" Atom        STD     Major (>STD)  or    Low (<({args.factor}STD)")
     idx1_major_factor: list[int] = []
     idx1_minor_factor: list[int] = []
-    print(f" Atom        STD     Major (>STD)  or    Low (<({args.factor}STD)")
 
-    for idx, x in Table_S.items():
-        if (x >= S_average_std):   # type: ignore
+    for idx, x in dict_idx_STD.items():
+        if (x >= Avg_STD):   # type: ignore
             print(f"{int(idx):>5d} {x:>10.5f}     Major factor")
             idx1_major_factor.append(idx)
-        elif (x <= S_average_std*args.factor):
+        elif (x <= Avg_STD*args.factor):
             print(f"{int(idx):>5d} {x:>10.5f}", " "*23, "Low factor")
             idx1_minor_factor.append(idx)
         else:
@@ -60,7 +54,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict]:
 
     print("\n Major Factor List: ", idx1_major_factor)
     print(" ========== Finished ==========")
-    return idx1_minor_factor, Table_S
+    return idx1_minor_factor, dict_idx_STD
 
 
 def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
@@ -71,79 +65,77 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
 
     print(" ")
     print(" ========== Optimized Broken-Bond Location Process ==========")
-    # ic(args,np_low_factor)
-    # np_low_factor = minor_list
     from censo_ext.Tools.topo import Topo
-    Bonding_low_factor: list = []
-    for x in (np_low_factor):
-        args_x: dict = {"file": args.file, "bonding": x,
+    bonding_low_factor: list = []
+    for idx in (np_low_factor):
+        args_x: dict = {"file": args.file, "bonding": idx,
                         "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
-        Bonding_low_factor.append(
+        bonding_low_factor.append(
             np.array(Sts_topo.method_bonding(argparse.Namespace(**args_x))))
 
     Pair_low_factor: list = []
 
     for idx, x in enumerate(np_low_factor):
-        for idy, y in enumerate(Bonding_low_factor[idx]):
-            Pair_low_factor.append([x, int(Bonding_low_factor[idx][idy])])
+        for idy, y in enumerate(bonding_low_factor[idx]):
+            Pair_low_factor.append([x, int(bonding_low_factor[idx][idy])])
 
     for idx, x in enumerate(Pair_low_factor):
         if x[0] > x[1]:
             x[0], x[1] = x[1], x[0]
 
-    temp = set(tuple(element) for element in Pair_low_factor)
-    unique_pair_low_factor: list[list] = [list(t) for t in set(temp)]
+    unique_pair_low_factor: list[list] = [
+        list(t) for t in set(tuple(x) for x in Pair_low_factor)]
 
-    nCONFS: int = len(np.array(list(Table_S.keys())))
+    nCONFS: int = len(list(Table_S.keys()))
     idx_STD: dict = Table_S
 
-    idx_list_ratio: list = []
+    idx_ratio: list = []
     list_ratio: list = []
     for idx, x in enumerate(unique_pair_low_factor):
 
         args_x = {"file": args.file, "bond_broken": [
             x[0], x[1]], "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
-        STD_L: list[int] = Sts_topo.method_broken_bond(
+        idx_STD_L: list[int] = Sts_topo.method_broken_bond(
             argparse.Namespace(**args_x))
         args_x = {"file": args.file, "bond_broken": [
             x[1], x[0]], "print": False, "debug": False}
-        STD_R: list[int] = Sts_topo.method_broken_bond(
+        idx_STD_R: list[int] = Sts_topo.method_broken_bond(
             argparse.Namespace(**args_x))
 
-        total_std_L, total_std_R = 0, 0
+        total_STD_L, total_STD_R = 0, 0
 
-        if len(STD_L) < 1 or len(STD_R) < 1:
+        if len(idx_STD_L) < 1 or len(idx_STD_R) < 1:
             print("something wrong in your List_STD ")
             ic()
             exit(1)
 
-        elif len(STD_L) < (nCONFS-2) and len(STD_R) < (nCONFS-2):
+        elif len(idx_STD_L) < (nCONFS-2) and len(idx_STD_R) < (nCONFS-2):
 
             print(f" Index of atoms :      {x[0]:4d}   vs {x[1]:4d}")
-            print(f" Sizes of deviation :  {int(len(STD_L)): 4d}   vs {int(len(STD_R)): 4d}")  # nopep8
+            print(f" Sizes of deviation :  {int(len(idx_STD_L)): 4d}   vs {int(len(idx_STD_R)): 4d}")  # nopep8
 
-            for y in (STD_L):
-                total_std_L += idx_STD[y]
-            for y in (STD_R):
-                total_std_R += idx_STD[y]
+            for y in idx_STD_L:
+                total_STD_L += idx_STD[y]
+            for y in idx_STD_R:
+                total_STD_R += idx_STD[y]
 
-            print(f" STD :           {float(total_std_L):10.5f}   vs {float(total_std_R): 10.5f}")  # nopep8
-            print(f" STD/STD =    {(total_std_L/total_std_R):10.7f}")
-            if total_std_L/total_std_R < 1:
-                print(f" RATIO   =    {(total_std_L/total_std_R):10.7f}")
-                idx_list_ratio.append([x[1], x[0]])
-                list_ratio.append(total_std_L/total_std_R)
+            print(f" STD :           {float(total_STD_L):10.5f}   vs {float(total_STD_R): 10.5f}")  # nopep8
+            print(f" STD/STD =    {(total_STD_L/total_STD_R):10.7f}")
+            if total_STD_L/total_STD_R < 1:
+                print(f" RATIO   =    {(total_STD_L/total_STD_R):10.7f}")
+                idx_ratio.append([x[1], x[0]])
+                list_ratio.append(total_STD_L/total_STD_R)
             else:
-                print(f" RATIO   =    {(total_std_R/total_std_L):10.7f}")
-                idx_list_ratio.append([x[0], x[1]])
-                list_ratio.append(total_std_R/total_std_L)
+                print(f" RATIO   =    {(total_STD_R/total_STD_L):10.7f}")
+                idx_ratio.append([x[0], x[1]])
+                list_ratio.append(total_STD_R/total_STD_L)
             print("")
 
     print("")
 
-    print(f" The Optimized Broken-bond location :  {idx_list_ratio[list_ratio.index(max(list_ratio))]}")  # nopep8
+    print(f" The Optimized Broken-bond location :  {idx_ratio[list_ratio.index(max(list_ratio))]}")  # nopep8
     print(f" The max ratio location :  {max(list_ratio)}")
     if max(list_ratio) <= 0.60:
         print(" Ratio is below 0.60")
@@ -151,4 +143,4 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
         print(" Not recommended to use it.")
         return False
     print(" ========== Finished ========== ")
-    return True, idx_list_ratio[list_ratio.index(max(list_ratio))], max(list_ratio)
+    return True, idx_ratio[list_ratio.index(max(list_ratio))], max(list_ratio)

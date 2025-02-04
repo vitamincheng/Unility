@@ -49,14 +49,14 @@ def test_method_anmrrc():
     assert active == ['C']
 
 
-def test_get_average_orcaSJ_Exist():
+def test_get_avg_orcaSJ_Exist():
     # For Hydrogen
     file = Anmr(Path("tests/data/04.Hydrogen"))
-    exist = file.get_average_orcaSJ_Exist()
+    exist = file.get_avg_orcaSJ_Exist()
     assert exist == True
     # for Carbon
     file = Anmr(Path("tests/data/07.Carbon"))
-    exist = file.get_average_orcaSJ_Exist()
+    exist = file.get_avg_orcaSJ_Exist()
     assert exist == True
 
 

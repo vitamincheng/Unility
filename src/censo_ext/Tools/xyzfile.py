@@ -77,7 +77,7 @@ class Geometry():
             np.array(self.coord)[list_idx0]).tolist()
         return True
 
-    def method_idx_Molecules_xyz(self, fileName: Path) -> list[int]:
+    def method_idx_molecules_xyz(self, fileName: Path) -> list[int]:
         from censo_ext.Tools.topo import Topo
         import censo_ext.Tools.ml4nmr as ml4nmr
         mol, neighbors = ml4nmr.read_mol_neighbors(fileName)
@@ -236,12 +236,12 @@ class GeometryXYZs():
             ic()
             exit(1)
 
-    def method_idx_Molecules_xyzs(self, idx1: int = 1) -> bool:
+    def method_idx_molecules_xyzs(self, idx1: int = 1) -> bool:
         fileName: Path = Path("~temp.xyz")
         self.set_filename(fileName)
         self.method_save_xyz([idx1])
         list_idx: list = self.Sts[idx1 -
-                                  1].method_idx_Molecules_xyz(fileName)
+                                  1].method_idx_molecules_xyz(fileName)
         from censo_ext.Tools.utility import delete_all_files
         delete_all_files(fileName)
         for x in list_idx:
@@ -358,7 +358,7 @@ class GeometryXYZs():
         #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
 
         # Column 8 is Total Gibbs Free Energy (Eh) = Energy + mRRHO
-        ic(thermo_list)
+        # ic(thermo_list)
         TEMP = args.temp
         np_enso: np.ndarray = np.zeros((len(self.Sts),), dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
                                                                 ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')])

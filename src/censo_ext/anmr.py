@@ -246,34 +246,34 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
     inAnmr.method_read_anmrrc()
     inAnmr.method_read_nucinfo()
     # ic(inAnmr.get_average_orcaSJ_Exist(), args.average)
-    if inAnmr.get_average_orcaSJ_Exist() and args.average:
-        inAnmr.method_load_average_orcaSJ(args=args)
+    if inAnmr.get_avg_orcaSJ_Exist() and args.average:
+        inAnmr.method_load_avg_orcaSJ(args=args)
     else:
         inAnmr.method_read_enso()
         inAnmr.method_read_folder_orcaSJ()
-        inAnmr.method_update_equivalent_orcaSJ()
-        inAnmr.method_average_orcaSJ()
-        inAnmr.method_save_average_orcaSJ()
+        inAnmr.method_update_equiv_orcaSJ()
+        inAnmr.method_avg_orcaSJ()
+        inAnmr.method_save_avg_orcaSJ()
 
     inSParams: np.ndarray = np.array(
-        list(inAnmr.Average_orcaSJ.orcaSParams.values()))*args.mf
+        list(inAnmr.avg_orcaSJ.SParams.values()))*args.mf
 
     # idxinSParams:np.ndarray = np.array(list(inAnmr.Average_orcaSJ.orcaSParams.keys()))
     # np.savetxt("inSParams.out",np.array(np.stack([idxinSParams,inSParams]).T), fmt=' %4.0f   %10.6f')
 
-    inJCoups: np.ndarray = np.array(inAnmr.Average_orcaSJ.orcaJCoups)
-    inidxAtoms: dict[int, str] = inAnmr.Average_orcaSJ.idxAtoms
+    inJCoups: np.ndarray = np.array(inAnmr.avg_orcaSJ.JCoups)
+    inidxAtoms: dict[int, str] = inAnmr.avg_orcaSJ.idxAtoms
     dpi: int | None = None
     Active_range: int | None = None
     inHydrogen: list[int] = []
-    in_xyzFileName: Path = Path("crest_conformers.xyz")
+    in_File: Path = Path("crest_conformers.xyz")
     # ic(inAnmr.Directory)
     for idx, x in enumerate(inAnmr.get_Anmr_Active()):
         if idx == 0:
             if x == 'C':
                 from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
                 mol, neighbors, bond_order = read_mol_neighbors_bond_order(
-                    inAnmr.get_Directory() / in_xyzFileName)
+                    inAnmr.get_Directory() / in_File)
                 inHydrogen = [value+1 for value in bond_order.values()]
                 Active_range = 200
                 dpi = 500
@@ -283,10 +283,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                 inJCoups = np.zeros_like(inJCoups)
             elif x == 'H':
                 inHydrogenDict: dict = {}
-                for key, value in inAnmr.Average_orcaSJ.idxAtoms.items():
+                for key, value in inAnmr.avg_orcaSJ.idxAtoms.items():
                     inHydrogenDict[key] = len(inAnmr.nucinfo[1][key-1][2])
-                for x in inAnmr.get_list_idx1AcidAtomsNoShowRemoveH(
-                        inAnmr.get_Directory()/in_xyzFileName):
+                for x in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
+                        inAnmr.get_Directory()/in_File):
                     if x in inHydrogenDict.keys():
                         del inHydrogenDict[x]
                         del inidxAtoms[x]
@@ -407,26 +407,23 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
 
             # CH3 Equivalent is manually control by symmetry
             # So if chemical shift in AB quartet region need to move to multiplet
-            List_Equivalent3: list = []
+            list_Equivalent3: list = []
             for idx, x in enumerate(inAnmr.nucinfo[1]):
                 if x[1] == 3:
                     for idy, y in enumerate(inidxAtoms):
                         if y == min(x[2]):
-                            List_Equivalent3.append(idy)
-            Set_Equivalent3 = set(List_Equivalent3)
+                            list_Equivalent3.append(idy)
+            set_Equivalent3: set = set(list_Equivalent3)
 
-            # Set_Equivalent3 is idx0 numbers
+            # Equivalent3 is idx0 numbers
             for idx, x in enumerate(idx0_ab_group_set):
-                Set_move = x.intersection(Set_Equivalent3)
-                if not len(Set_move) == 0:
+                set_move: set = x.intersection(set_Equivalent3)
+                if not len(set_move) == 0:
                     idx0_ab_group_set[idx] = set(x).difference(
-                        Set_move).union(set([idx]))
-                    Set_move = Set_move.difference(set([idx]))
-                for idy, y in enumerate(Set_move):
+                        set_move).union(set([idx]))
+                    set_move = set_move.difference(set([idx]))
+                for idy, y in enumerate(set_move):
                     mat_filter_multi[idx][y] = 1
-
-            # np.savetxt("mat_filter_ab_quartet.out", mat_filter_ab_quartet, fmt="%d")
-            # np.savetxt("mat_filter_multi.out", mat_filter_multi, fmt="%d")
 
             print(" ===== Processing =====")
             print(" threshold of JCoupling  : ", f'{args.thr:>3.5f}')
@@ -469,10 +466,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
 
             v: np.ndarray = inSParams[idx0_set]
             J: np.ndarray = inJCoups[idx0_set].T[idx0_set]
-            # ic(v,J)
+
             Result_qm_base: list[np.ndarray] = qm.qm_base(v=list(
                 v), J=J, nIntergals=inHydrogen[idx0_set.index(idx)], idx0_nspins=idx0_set.index(idx), args=args)
-            # ic(idx, Result_qm_base)
+
             Result_qm_multiplet: list[np.ndarray] = []
             for idz, z in enumerate(Result_qm_base):
                 list_multiplicity: list = list(set([x*idx for idx, x in enumerate(
@@ -510,17 +507,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
 
         idx0_peaks_range: list = [*range(len(Result_peaks))]
 
-        # with open("peaks_setting.json","wb") as final:
-        #    pickle.dump(idx0_ab_group_set,final)
-
     else:
         import json
         import pickle
         with open(str(inAnmr.get_Directory()/Path("peaks.json")), "r") as json_file:
             Result_peaks = json.load(json_file)
 
-        # with open("peaks_setting.json","rb") as pickle_file:
-        #    idx0_ab_group_set = pickle.load(pickle_file)
         if args.json[0] == -1:
             idx0_peaks_range: list = [*range(len(Result_peaks))]
         else:
@@ -539,10 +531,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
     if dpi != None and Active_range != None:
         np_dat: np.ndarray = qm.print_plot(
             Final_Result_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range, hidden=not args.show)
-        # np_dat: np.ndarray = qm.print_plot(
-        #    Final_Result_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range, hidden=not args.show)
     else:
         print("dpi and Active_range is wrong")
+        ic()
         exit(0)
 
     if not args.bobyqa:

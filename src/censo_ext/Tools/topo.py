@@ -25,8 +25,7 @@ class Topo():
         """
         Get the coordination number (CN) as number of neighbors (input is neighbors from read_mol)
         """
-        # ic(self.__neighbors)
-        cn = {}
+        cn: dict = {}
         for key, value in self.__neighbors.items():
             cn[key] = len(value)
         return cn
@@ -126,68 +125,59 @@ class Topo():
         mol, neighbors = self.__mol, self.__neighbors.copy()
         # neighbors is removed all H-atoms
         idx_H_atoms: list[int] = self.idx_H_atom
-        # ic(mol)
-        # ic(idx_H_atoms)
-        # ic(self.__neighbors)
-        # ic(neighbors)
         for key, value in neighbors.copy().items():
             if key in idx_H_atoms:
                 del neighbors[key]
         for key, value in neighbors.copy().items():
             neighbors[key] = np.array(
                 [a for a in value if a not in idx_H_atoms])
-        # ic(idx_H_atoms)
-        # ic(mol, neighbors)
+
         # Tranfer neighbors to Graph
         graph_in: list = list()
         for key, value in neighbors.items():
             for x in value:
                 graph_in.append((key, x))
         g = Graph(from_list=graph_in)
-        # ic(graph_in)
+
         # Get the node of bonding numbers 3 to 6
         circle_Atoms: list[int] = list()
         # for a in [3, 4, 5, 6]:
         for a in [3,]:
-            # ic(g.nodes(in_degree=a))  # type: ignore
             circle_Atoms.extend(g.nodes(in_degree=a))  # type: ignore
         circle_Atoms.sort()
-        # ic(circle_Atoms)
+
         # use Graph Theory to collect the circle sturcutres and not repeated
         circle_Mols: list[list[int]] = list()
         for atom in circle_Atoms:
             for neighbors_atoms in neighbors[atom]:
-                # ic(atom, neighbors_atoms)
                 start: int = atom
                 end = neighbors_atoms
                 g = Graph(from_list=graph_in)
                 g.del_edge(start, end)
                 # circle_Mols.append
                 for x in g.all_paths(start, end):
-                    # ic(start, end, mol)
                     the_same: bool = False
                     for circle_Mol in circle_Mols:
                         if set(x) == set(circle_Mol):
                             the_same = True
                     if the_same == False:
                         circle_Mols.append(x)
-        # ic(circle_Mols)
+
         # Remove the repeated the same Atoms by use the set function (the same of the length)
         for x in circle_Mols.copy():
             if len(set(x)) != len(x):
                 circle_Mols.remove(x)
-        # ic(circle_Mols)
+
         # 2D list to flatten to 1D list
         flat_circle_Mols: list = []
         for row in circle_Mols:
             flat_circle_Mols += row
+
         # Get residual atoms of circule molecules by use difference set
         residual_atoms = list(
             set(neighbors.keys()).difference(set(flat_circle_Mols)))
         residual_atoms.sort()
-        # ic(flat_circle_Mols)
-        # ic(circle_Mols)
-        # ic(residual_atoms)
+
         # g_straight is the Graph and delete the edge of every circle_Mol
         g = Graph(from_list=graph_in)
         for circle_Mol in circle_Mols:
@@ -197,7 +187,7 @@ class Topo():
                 g.del_edge(start, end)
                 g.del_edge(end, start)
         g_straight: Graph = g.copy()
-        # ic(g_straight.nodes())
+
         # residual_Mols is use graph : is_connected to find the connect node and append
         residual_Mols: list = []
         for atom in residual_atoms:
@@ -205,12 +195,10 @@ class Topo():
             for node in list(g_straight.nodes()):  # type: ignore
                 if g_straight.is_connected(atom, node) == True:
                     Mols.append(node)
-            # ic(Mols)
             the_same: bool = False
             for residual_Mol in residual_Mols:
                 if set(Mols) == set(residual_Mol):
                     the_same = True
             if the_same == False:
                 residual_Mols.append(Mols)
-        # ic(residual_Mols)
         return mol, neighbors, circle_Mols, residual_Mols

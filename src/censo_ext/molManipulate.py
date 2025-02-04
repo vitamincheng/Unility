@@ -78,7 +78,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         infile.set_filename(args.separate)
         infile.method_read_xyz()
         if len(infile) == 1:
-            infile.method_idx_Molecules_xyzs(idx1=1)
+            infile.method_idx_molecules_xyzs(idx1=1)
         else:
             print("Only use single conformer in your xyz file")
             exit(0)

@@ -175,13 +175,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
     WorkingDir: str = os.getcwd()
+
     # from Tools.utility import IsExistsDirFileName
-    args.file
     p = Path(args.file)
-    fileName = p.name
-    Dir = p.parents[0]
-    # Dir, Name = IsExistsDirFileName(Path(args.dir) / Path(args.file))
-    # args.file, args.dir = Name, str(Dir)
+    fileName: str = p.name
+    Dir: Path = p.parents[0]
 
     if args.manual == True:
         choice_xtb: str = input(

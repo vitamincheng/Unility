@@ -320,7 +320,7 @@ def centroid(X: ndarray) -> ndarray:
     return C
 
 
-def getCoordinates(xyzfile, idx):
+def get_Coordinates(xyzfile, idx):
     '''
     Read xyz file to data 
     idx is Serial No. (from 0) in xyz file
@@ -342,8 +342,8 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     xyz_tmp: Path = Path(".tmp.xyz")
     idx_p -= 1
     idx_q -= 1
-    p_all_atoms, p_all = getCoordinates(xyzfile, idx_p)
-    q_all_atoms, q_all = getCoordinates(xyzfile, idx_q)
+    p_all_atoms, p_all = get_Coordinates(xyzfile, idx_p)
+    q_all_atoms, q_all = get_Coordinates(xyzfile, idx_q)
 
     idx_atom1: np.ndarray = np.array([], dtype=int)
 

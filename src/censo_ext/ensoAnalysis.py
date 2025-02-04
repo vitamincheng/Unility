@@ -259,12 +259,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # Average of CONFS
     # For after degeneracy and reduce the Gibbs free energy of ensemble
-    average_nums = int(np.sum(anmr_enso['ONOFF']))
-    average_fraction = 1/average_nums
+    avg_nums = int(np.sum(anmr_enso['ONOFF']))
+    avg_fraction = 1/avg_nums
 
     print(" the name of input file          : " + args.file)
     print(" the name of input file energy   : ", backupfile)
-    print(" number of CONFS                 : {:d}".format(average_nums))
+    print(" number of CONFS                 : {:d}".format(avg_nums))
     print("")
     print(" ----- Average CONFS -----")
 
@@ -273,22 +273,22 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(" (1) Gibbs Free Energy of ensemble of average CONFS from Entropy ")
         print("")
         print("     Weight of every CONFS           : {: .4f}".format(
-            average_fraction))
-    average_wlnw = math.log(average_fraction)*(average_fraction)
+            avg_fraction))
+    avg_wlnw = math.log(avg_fraction)*(avg_fraction)
 
     if args.complete:
         print(
-            "     Weight*ln(weight) for one CONF  : {: .4f}".format(average_wlnw))
+            "     Weight*ln(weight) for one CONF  : {: .4f}".format(avg_wlnw))
         print(
-            "     Entropy of one CONF (cal/mol.K) : {: .4f}".format(average_wlnw*(-Rcal)))
+            "     Entropy of one CONF (cal/mol.K) : {: .4f}".format(avg_wlnw*(-Rcal)))
         print("     Temperature (K)                 : {: .2f}".format(TEMP))
-    Reduced_energy = average_wlnw*(-Rcal)*TEMP/(-1000)
+    Reduced_energy = avg_wlnw*(-Rcal)*TEMP/(-1000)
 
     if args.complete:
         print(
             "     Gibbs Free Energy  of one CONF  (kcal/mol)    : {: .4f}".format(Reduced_energy))
         print("     Gibbs Free Energy  of all CONFS (kcal/mol)    : {: .4f}".format(
-            Reduced_energy*average_nums))
+            Reduced_energy*avg_nums))
         print("")
         print("")
 
@@ -310,10 +310,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             insert_zero = True
 
     np_average_Gibbs: np.ndarray = anmr_enso['Gibbs'] * \
-        anmr_enso['ONOFF']*(1/average_nums)
+        anmr_enso['ONOFF']*(1/avg_nums)
 
     if args.complete:
-        print("     Weight of every CONFS           : "+str(1/average_nums))
+        print("     Weight of every CONFS           : "+str(1/avg_nums))
         print("     Eref*weight of every CONFS      : "+str(np_average_Gibbs))
     Lift_energy: float = np.sum(np_average_Gibbs)
 
@@ -350,7 +350,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("")
 
     print(" (1) Gibbs Free Energy from Entropy (kcal/mol)                   : {: .4f}".format(
-        Reduced_energy*average_nums))
+        Reduced_energy*avg_nums))
     print(
         " (2) Gibbs Free Energy from Average energy (kcal/mol)            : {: .4f}".format(Lift_energy))
     print(
@@ -358,7 +358,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("")
 
     Gibbs_Free_Energy: float = Lift_energy - \
-        Lift_boltzmann_energy + Reduced_energy*average_nums
+        Lift_boltzmann_energy + Reduced_energy*avg_nums
     if (Gibbs_Free_Energy) >= 0:
         rule = "(Forbidden)"
     else:
@@ -398,7 +398,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             (average_Gibbs_Eh-result_enso['Gibbs']/Eh)*(result_enso['ONOFF'])
         result_enso['mRRHO'] = result_enso['mRRHO'] + \
             Reduced_energy_Eh*result_enso['ONOFF']
-        result_enso['BW'] = average_fraction
+        result_enso['BW'] = avg_fraction
         if result_enso.dtype.names != None:
             names_anmr = list(result_enso.dtype.names)
         np.savetxt("average_enso", result_enso[names_anmr[:8]], comments="", header="ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi",

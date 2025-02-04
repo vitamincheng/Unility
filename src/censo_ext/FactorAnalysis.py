@@ -166,56 +166,55 @@ def FactorFilter(args) -> None:
     # start from 1 to num
     idx1_cal: list[int] = [x+1 for x in [*range(len(xyzfile))]]
 
-    conformers_major: int = len(xyzfile)
+    nConformers: int = len(xyzfile)
 
     if not args.thr:
         args.thr = 2
-        if int(conformers_major / 10) > args.thr:
-            args.thr = int(conformers_major / 10)
+        if int(nConformers / 10) > args.thr:
+            args.thr = int(nConformers / 10)
 
     print("")
-    print(" Total conformers     : ", conformers_major)
+    print(" Total conformers     : ", nConformers)
     print(" Threshold conformers : ", args.thr)
     print("")
 
     idx1_sperate: int = 1
-    idx1_minor_list: list = []
+    idx1_minor: list = []
     major_idx, minor_idx = [], []
 
-    while (conformers_major > args.thr):
+    while (nConformers > args.thr):
         print(" ========== Processing ", idx1_sperate, " ==========")
         np_S: np.ndarray = cal_rmsd_coord(args, xyzfile, idx1_cal).T
-        S_std: np.ndarray = np.std(np_S, axis=0)
-        S_average_std: np.float64 = np.average(S_std)
-        print(" Average of STD       : ", f"{S_average_std:10.5f}")
+        S_STD: np.ndarray = np.std(np_S, axis=0)
+        S_avg_STD: np.float64 = np.average(S_STD)
+        print(" Average of STD       : ", f"{S_avg_STD:10.5f}")
         print(" Factor of STD ranges : ", f"{args.factor:10.5f}")
-        print(" Limits of STD        : ", f"{S_average_std*args.factor: 10.5f}", "\n")  # nopep8
+        print(" Limits of STD        : ", f"{S_avg_STD*args.factor: 10.5f}", "\n")  # nopep8
 
-        S_std_array: np.ndarray = S_std
         counter_major, counter_minor = 0, 0
         major_idx, minor_idx = [], []
         print(" CONF        STD  in major.xyz      idx     in minor.xyz    idx")
         import copy
-        idx_cal_CONF: list = copy.deepcopy(idx1_cal)
+        idx1_cal_CONF: list = copy.deepcopy(idx1_cal)
 
-        for idx in range(len(S_std_array)):
-            if (S_std_array[idx] >= S_average_std*args.factor):
-                print(f"{idx_cal_CONF[idx]:>5d} {S_std_array[idx]: > 10.5f}  major factor    {(counter_major+1): > 5d}")  # nopep8
-                major_idx.append(idx_cal_CONF[idx])
+        for idx in range(len(S_STD)):
+            if (S_STD[idx] >= S_avg_STD*args.factor):
+                print(f"{idx1_cal_CONF[idx]:>5d} {S_STD[idx]: > 10.5f}  major factor    {(counter_major+1): > 5d}")  # nopep8
+                major_idx.append(idx1_cal_CONF[idx])
                 counter_major += 1
             else:
-                print(f"{idx_cal_CONF[idx]:>5d} {S_std_array[idx]: > 10.5f}", " "*26, f"minor factor  {(counter_minor+1): > 5d}")  # nopep8
-                minor_idx.append(idx_cal_CONF[idx])
-                idx1_cal.remove(idx_cal_CONF[idx])
+                print(f"{idx1_cal_CONF[idx]:>5d} {S_STD[idx]: > 10.5f}", " "*26, f"minor factor  {(counter_minor+1): > 5d}")  # nopep8
+                minor_idx.append(idx1_cal_CONF[idx])
+                idx1_cal.remove(idx1_cal_CONF[idx])
                 counter_minor += 1
 
         print("")
         print(" Major idx: \n", major_idx)
         print(" Minor idx: \n", minor_idx)
-        idx1_minor_list.append(minor_idx)
+        idx1_minor.append(minor_idx)
         print(""*2)
         idx1_sperate += 1
-        conformers_major = len(idx1_cal)
+        nConformers = len(idx1_cal)
 
     path: Path = Path("Final_Result")
     from censo_ext.Tools.utility import is_exist_return_bool
@@ -226,16 +225,16 @@ def FactorFilter(args) -> None:
     print(" ========== Finally Data ==========")
 
     nMinor: list = []
-    for idx, x in enumerate(idx1_minor_list):
+    for idx, x in enumerate(idx1_minor):
         xyzfile.set_filename(path / Path("minor"+str(idx+1)+".xyz"))
         xyzfile.method_save_xyz(x)
         print(f" minor{str(idx+1)}.xyz  : {x}")
         nMinor.append(len(x))
 
-    residue_fileName: Path = Path("residue.xyz")
-    xyzfile.set_filename(path / residue_fileName)
+    residue_file: Path = Path("residue.xyz")
+    xyzfile.set_filename(path / residue_file)
     xyzfile.method_save_xyz(major_idx)
-    print(f" {residue_fileName} : {major_idx}")
+    print(f" {residue_file} : {major_idx}")
 
     np_nMinor: np.ndarray = np.array(nMinor)
     print(" Coefficient of variation : ", np_nMinor.std()/np_nMinor.mean())

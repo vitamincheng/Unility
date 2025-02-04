@@ -125,13 +125,10 @@ def read_mol_neighbors(DirFileName: Path):
     # read the .xyz coordinates from the molecular structures
     import ase.io
     from ase import neighborlist
-    # ic(DirFileName)
     is_exist(DirFileName)
     mol = ase.io.read(str(DirFileName), format='xyz')
-    # ic([atom for atom in mol])
 
     # use covalent radii as thresholds for neighbor determination (what about vdW radii?)
-    # ic([atom.number for atom in mol])
     cutoffs = [custom_radii[atom.number] for atom in mol]  # type: ignore
 
     # build neighbor list and write list of neighboring atoms to the dict neighbors
@@ -146,7 +143,6 @@ def read_mol_neighbors(DirFileName: Path):
         neighbors[idx+1] = indices+1
 
         # exit if an H atom has not exactly 1 neighbor
-
         if mol.get_atomic_numbers()[idx] == 1 and len(neighbors[idx+1]) != 1:  # type: ignore # nopep8
             print(f"ERROR: H atom {idx+1} has not exactly one neighbor! File in: {DirFileName}")  # nopep8
             exit(0)

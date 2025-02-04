@@ -5,21 +5,20 @@ from icecream import ic
 import numpy as np
 
 
-def method_get_point_group(st: list, idx: int, Hydrogen: bool) -> str:
+def method_get_point_group(Sts: list, idx: int, Hydrogen: bool) -> str:
+    # Sts : the list of xyz files
+    # idx : the number of xyz file
 
     if Hydrogen == False:
-        idx_list = [key-1 for key, value in st[idx].names.items()
-                    if value != 'H']
+        idx_names: list = [key-1 for key, value in Sts[idx].names.items()
+                           if value != 'H']
 
-        # ic(idx_list)
-        # ic(np.array(list(st[idx].names.values()))[idx_list])
-        # ic(np.array(st[idx].coordinates)[idx_list])
-        pos = np.array(st[idx].coordinates)[idx_list]
-        sym = np.array(list(st[idx].names.values()))[idx_list]
+        pos: np.ndarray = np.array(Sts[idx].coordinates)[idx_names]
+        sym: np.ndarray = np.array(list(Sts[idx].names.values()))[idx_names]
 
     else:
-        pos = np.array([a.tolist() for a in st[idx].coordinates])
-        sym = np.array([a for a in st[idx].names.values()])
+        pos: np.ndarray = np.array([a.tolist() for a in Sts[idx].coordinates])
+        sym: np.ndarray = np.array([a for a in Sts[idx].names.values()])
 
     pg1 = PointGroup(pos, sym)
     return pg1.get_point_group()

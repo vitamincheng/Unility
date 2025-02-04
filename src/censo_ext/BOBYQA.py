@@ -26,8 +26,8 @@ def rosenbrock(x0) -> float:
     sys.stdout = sys.__stdout__
 
     from censo_ext.Tools.anmrfile import CensoDat
-    Dat_Cal: CensoDat = CensoDat(fileName=x["out"])
-    Dat_Ref: CensoDat = CensoDat(fileName=Path("1r.dat"))
+    Dat_Cal: CensoDat = CensoDat(file=x["out"])
+    Dat_Ref: CensoDat = CensoDat(file=Path("1r.dat"))
     Dat_Cal.method_normalize_dat()
     Dat_Ref.method_normalize_dat()
     Diff: CensoDat = Dat_Cal.method_subtract_dat(Dat_Ref)
