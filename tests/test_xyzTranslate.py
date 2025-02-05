@@ -76,3 +76,8 @@ def test_xyzTranslate_miss_file():
         xyzTranslate.main(args)
     assert e.type == SystemExit
     assert e.value.code == 1
+
+
+# if __name__ == "__main__":
+#    import cProfile
+#    cProfile.run("test_xyzTranslate_move()", sort="cumtime")

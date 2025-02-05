@@ -34,3 +34,8 @@ def test_anmr_miss_args():
         anmr.main(args)
     assert e.type == SystemExit
     assert e.value.code == 2  # for argparse error
+
+
+# if __name__ == "__main__":
+#    import cProfile
+#    cProfile.run("test_anmr_bobyqa_false_json_off()", sort="cumtime")
