@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from re import I
 import censo_ext.Tools
 from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
@@ -100,15 +101,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list:
     if args == argparse.Namespace():
         args = cml(descr)
 
-    single_traj_Name = ".temp.xyz"
+    single_xyz_name = ".temp.xyz"
 
     import platform
     _system: str = platform.system()
-    xtb_cmd: str = ""
+
+    # Default to xtb command
+    xtb_cmd: str = "xtb"
     if _system == "Darwin":
         xtb_cmd = "/opt/homebrew/bin/xtb"
-    elif _system == "Linux":
-        xtb_cmd = "xtb"
 
     infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
@@ -117,7 +118,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list:
     program_is_exist("xtb")
 
     print(" Inputted geometry file: "+args.file)
-    xtb_cmd = xtb_cmd + " " + single_traj_Name
+    xtb_cmd = xtb_cmd + " " + single_xyz_name
+
     print(" Loading basic information from the inputted geometry file ...")
     print(f" There are totally        {str(len(infile))} geometries in the inputted geometry file\n")  # nopep8
     print(f" Setting method :  {args.method}")
@@ -126,6 +128,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list:
         cmd_solvent: str = args.alpb
     elif args.gbsa:
         cmd_solvent: str = args.gbsa
+
     print(" Setting solvent : " + cmd_solvent)
     print(" Loading setting data ...")
     xtb_cmd = xtb_cmd + " --" + args.method + " --bhess vtight"
@@ -140,7 +143,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list:
     print(" Cleaning old input and temporary files ...")
     print(" Running: rm isomers.xyz *.tmp")
 
-#    xtb_cmd = xtb_cmd + " --enso -I ../xcontrol-inp | tee thermo.out"
     xtb_cmd = xtb_cmd + " --enso -I ../xcontrol-inp > thermo.out"
     xcontrol_inp: str = "xcontrol-inp"
     import sys
@@ -158,10 +160,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list:
         print("$end")
     sys.stdout = original_stdout
 
-    # ic(xtb_cmd)
     thermo: list = []
     for idx in range(1, len(infile)+1, 1):
-        infile.set_filename(Path(single_traj_Name))
+        infile.set_filename(Path(single_xyz_name))
         infile.method_save_xyz([idx])
         print(f"                          *** Configuration         {str(idx)}  ****")  # nopep8
         print(f" Loading geometry	 {str(idx)}  from the inputted geometry file")      # nopep8
@@ -169,17 +170,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list:
         subprocess.call(xtb_cmd, shell=True)
         print(f" Running:  {xtb_cmd}")
 
-        # get_energy: int | None = None
-        # print("singe point")
         thermo_lines: list = open("thermo.out", "r").readlines()
         import re
         for idy, y in enumerate(thermo_lines):
             if re.search(r'contrib\.', y):
                 thermo.append(y.split()[3])
-                # ic(y.split()[3])
-    # ic(thermo)
+
     from censo_ext.Tools.utility import delete_all_files
-    delete_all_files(single_traj_Name, xcontrol_inp)
+    delete_all_files(single_xyz_name, xcontrol_inp)
 
     return thermo
 

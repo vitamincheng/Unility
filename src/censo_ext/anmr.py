@@ -237,15 +237,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
     if args == argparse.Namespace():
         args = cml("")
     if args.dir == None:
-        Directory_str: Path = Path(".")
+        Directory: Path = Path(".")
     else:
-        Directory_str: Path = Path(args.dir)
+        Directory: Path = Path(args.dir)
 
     from censo_ext.Tools.anmrfile import Anmr
-    inAnmr: Anmr = Anmr(Directory_str)
+    inAnmr: Anmr = Anmr(Directory)
     inAnmr.method_read_anmrrc()
     inAnmr.method_read_nucinfo()
-    # ic(inAnmr.get_average_orcaSJ_Exist(), args.average)
+
     if inAnmr.get_avg_orcaSJ_Exist() and args.average:
         inAnmr.method_load_avg_orcaSJ(args=args)
     else:
@@ -262,7 +262,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
     # np.savetxt("inSParams.out",np.array(np.stack([idxinSParams,inSParams]).T), fmt=' %4.0f   %10.6f')
 
     inJCoups: np.ndarray = np.array(inAnmr.avg_orcaSJ.JCoups)
-    inidxAtoms: dict[int, str] = inAnmr.avg_orcaSJ.idxAtoms
+    in_idxAtoms: dict[int, str] = inAnmr.avg_orcaSJ.idxAtoms
     dpi: int | None = None
     Active_range: int | None = None
     inHydrogen: list[int] = []
@@ -289,8 +289,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                         inAnmr.get_Directory()/in_File):
                     if x in inHydrogenDict.keys():
                         del inHydrogenDict[x]
-                        del inidxAtoms[x]
-                # ic(inHydrogenDict, len(inHydrogenDict))
+                        del in_idxAtoms[x]
                 inHydrogen = [value for value in inHydrogenDict.values()]
                 Active_range = 10
                 dpi = 10000
@@ -306,18 +305,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
             ic()
             exit(0)
 
-    # ic(inHydrogen,len(inHydrogen))
-    # ic(inidxAtoms,len(inidxAtoms))
-    # ic(inSParams,len(inSParams))
-    # ic(inJCoups,inJCoups.shape)
-
     idx0_ab_group_set: list = []
     mat_filter_multi: np.ndarray = np.array([])
-    # ic(args.json)
-    if args.json == None:
 
+    if args.json == None:
         inJCoups_origin: np.ndarray = copy.deepcopy(inJCoups)
-        # ic(inJCoups_origin)
+
         while (1):
             # Delete Too Small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
             # 1: keep and 0: neglect
@@ -326,10 +319,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
             mat_filter_low_factor = (np.abs(inJCoups_origin) > args.thr) * 1
             inJCoups = copy.deepcopy(inJCoups_origin)
             inJCoups *= mat_filter_low_factor
-            # np.savetxt(str(inAnmr.Directory/Path("mat_filter_low_factor.out")),
-            #           mat_filter_low_factor, fmt="%d")
-            # np.savetxt(str(inAnmr.Directory/Path("JJ-filter.out")),
-            #           inJCoups, fmt="%6.2f")
             mat_filter_ab_quartet: np.ndarray = np.zeros(
                 (inSParams.size, inSParams.size), dtype=int)
 
@@ -366,17 +355,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
 
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
 
-            # if mat_filter_multi.size != 0 and mat_filter_low_factor.size != 0 and mat_filter_ab_quartet.size != 0:
-            #    np.savetxt(str(inAnmr.Directory/Path("mat_filter_low_factor.out")),
-            #               mat_filter_low_factor, fmt="%d")
-            #    np.savetxt(str(inAnmr.Directory/Path("mat_filter_ab_quartet.out")),
-            #               mat_filter_ab_quartet, fmt="%d")
-            #    np.savetxt(
-            #        str(inAnmr.Directory/Path("mat_filter_multi.out")), mat_filter_multi, fmt="%d")
-            # else:
-            #    ic()
-            #    exit(0)
-
             idx0_ab_connect: list = []
             for idx, x in enumerate(mat_filter_ab_quartet):
                 group = set((x*(idx+1)).nonzero()[0])
@@ -400,17 +378,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                             bond_penetration += 1
                     idx0_ab_group_set.append(group)
                 else:
-                    ic()
                     print("something wrong")
+                    ic()
                     exit(1)
-            # ic(idx0_ab_group_set)
 
             # CH3 Equivalent is manually control by symmetry
             # So if chemical shift in AB quartet region need to move to multiplet
             list_Equivalent3: list = []
             for idx, x in enumerate(inAnmr.nucinfo[1]):
                 if x[1] == 3:
-                    for idy, y in enumerate(inidxAtoms):
+                    for idy, y in enumerate(in_idxAtoms):
                         if y == min(x[2]):
                             list_Equivalent3.append(idy)
             set_Equivalent3: set = set(list_Equivalent3)
@@ -488,8 +465,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                 elif len(inJ) == 0:
                     Result_qm_multiplet = Result_qm_base
                 else:
-                    ic()
                     print("Something wrong")
+                    ic()
                     exit(1)
             from nmrsim.math import normalize_peaklist
             Result_qm_multiplet: list[np.ndarray] = np.array(

@@ -13,7 +13,7 @@ def method_get_point_group(Sts: list, idx: int, Hydrogen: bool) -> str:
         idx_names: list = [key-1 for key, value in Sts[idx].names.items()
                            if value != 'H']
 
-        pos: np.ndarray = np.array(Sts[idx].coordinates)[idx_names]
+        pos: np.ndarray = np.array(Sts[idx].coordinate)[idx_names]
         sym: np.ndarray = np.array(list(Sts[idx].names.values()))[idx_names]
 
     else:

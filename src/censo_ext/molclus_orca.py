@@ -82,10 +82,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
 
+    # Ensure input file exists
     from censo_ext.Tools.utility import is_exist
     is_exist(args.file)
     IsExist_template: bool = is_exist_return_bool(args.template)
 
+    # Define default template
     template_inp: str = ".template.inp"
     if IsExist_template == False:
         original_stdout = sys.stdout
@@ -96,25 +98,25 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             print("* xyzfile 0 1 [xyzfile]")
         sys.stdout = original_stdout
 
+    # Read input file
     infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
     singleXYZ: Path = Path("[xyzfile]")
 
+    # Find orca executable path
     str_list = os.environ['PATH'].split(":")
     match = [x for x in str_list if "orca" in x]
-    print(match)
     if len(match) == 0:
         print(" Need the orca program !!!!")
         print(" Exit the program ")
         exit(0)
     orca_path = match[0]+"/orca"
-
 #    orca_path="~/orca_5_0_4_linux_x86-64_shared_openmpi411/orca"
 #    orca_path="~/orca_6_0_0_linux_x86-64_avx2_shared_openmpi416/orca"
     if IsExist_template == True:
-        templateName: str = args.template[:-4]
+        template_name: str = args.template[:-4]
     else:
-        templateName: str = template_inp[:-4]
+        template_name: str = template_inp[:-4]
 
     print(" Inputted geometry file: " + args.file)
     print(" Loading basic information from the inputted geometry file ...")
@@ -143,12 +145,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
               " from the inputted geometry file")
         print(" Generating  file...")
 
-        orca_cmd: str = orca_path + " "+args.template+" > " + templateName + ".out "
+        # Run orca
+        orca_cmd: str = orca_path + " "+args.template+" > " + template_name + ".out "
         subprocess.call(orca_cmd, shell=True)
         print(" Running: " + orca_cmd)
 
-        orca_lines: list[str] = open(templateName + ".out", "r").readlines()
-
+        orca_lines: list[str] = open(template_name + ".out", "r").readlines()
         import re
         get_energy: int | None = None
         for idy, y in enumerate(orca_lines):
@@ -156,29 +158,29 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 get_energy = idy
 
         from os.path import exists
-        templateFileIsExists = exists(templateName + ".xyz")
+        templateFileIsExists = exists(template_name + ".xyz")
         if templateFileIsExists:
             templateLines: list = open(
-                templateName + ".xyz", "r").readlines()
+                template_name + ".xyz", "r").readlines()
             for idy, y in enumerate(templateLines):
-                if re.search(r"Coordinates from ORCA-job "+templateName, y) and get_energy:
+                if re.search(r"Coordinates from ORCA-job "+template_name, y) and get_energy:
                     # get_comment_template = idy
                     templateLines[idy] = str(
                         orca_lines[get_energy].split()[4] + "\n")
-            open(templateName + ".xyz", "w").writelines(templateLines)
+            open(template_name + ".xyz", "w").writelines(templateLines)
 
-            subprocess.call("cat " + templateName +
+            subprocess.call("cat " + template_name +
                             ".xyz >> " + args.out, shell=True)
-            subprocess.call("mv -f " + templateName +
+            subprocess.call("mv -f " + template_name +
                             ".xyz " + idx1_str + ".xyz", shell=True)
         else:
             if get_energy:
                 infile.Sts[idx1 -
                            1].comment_energy = float(orca_lines[get_energy].split()[4])
 
-        subprocess.call("mv -f " + templateName + ".out " +
+        subprocess.call("mv -f " + template_name + ".out " +
                         idx1_str+".out", shell=True)
-        subprocess.call("mv -f " + templateName + ".gbw " +
+        subprocess.call("mv -f " + template_name + ".gbw " +
                         idx1_str+".gbw", shell=True)
 
     if templateFileIsExists:
@@ -195,9 +197,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(f" Saved to  {args.out} \n All is done !!!")
 
     if args.remove == True:
-        subprocess.call("rm -rf "+templateName+".cpcm "+templateName+".densities "+templateName+".engrad "+templateName +
-                        ".out "+templateName+"_property.txt "+templateName+"_trj.xyz "+templateName+".opt ", shell=True)
-        subprocess.call("rm -rf "+templateName+".cpcm_corr "+templateName+".densitiesinfo "+templateName+".property.txt "+templateName +
+        subprocess.call("rm -rf "+template_name+".cpcm "+template_name+".densities "+template_name+".engrad "+template_name +
+                        ".out "+template_name+"_property.txt "+template_name+"_trj.xyz "+template_name+".opt ", shell=True)
+        subprocess.call("rm -rf "+template_name+".cpcm_corr "+template_name+".densitiesinfo "+template_name+".property.txt "+template_name +
                         ".bibtex ", shell=True)
         delete_all_files(singleXYZ, template_inp)
 

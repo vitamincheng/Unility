@@ -76,22 +76,19 @@ def Factor_xyzCompare(args) -> None:
     result = np.array(result)
     result = (result.reshape(nSt_P, nSt_Q).T)
 
-    from shutil import which
-    if which("crest"):
-        pass
-    else:
+    import shutil
+    if not shutil.which("crest"):
         print(" Need the crest program !!!!")
         print(" Exit the program ")
-        exit(0)
+        exit(1)
 
-    import shutil
     Dir_str = "CREST_P"
     original_cwd: str = os.getcwd()
     new_cwd: str = os.getcwd()+"/"+Dir_str
     from os.path import exists
     if not exists(Dir_str):
         os.makedirs(Dir_str)
-    # shutil.copyfile(original_cwd+"/"+args.file[0],new_cwd+"/"+args.file[0])
+
     shutil.copyfile(original_cwd+"/"+args.file[0], new_cwd+"/"+args.file[0])
     os.chdir(new_cwd)
     subprocess.call("crest "+args.file[0]+" --cregen "+args.file[0] +
@@ -106,62 +103,64 @@ def Factor_xyzCompare(args) -> None:
     print(" Reading the ", file_weight, " file ")
 
     lines: list[str] = open(file_weight, "r").readlines()
-    start_idx: int = 0
-    end_idx: int = 0
-    for idx, line in enumerate(lines):
+
+    start_idx0: int = 0
+    end_idx0: int = 0
+    for idx0, line in enumerate(lines):
         if re.search(r"Erel/kcal", line):
-            start_idx = idx+1
+            start_idx0 = idx0+1
         if re.search(r"ensemble average energy", line):
-            end_idx = idx-3
+            end_idx0 = idx0-3
     struct_crest: np.ndarray = np.array([])
-    for idx, line in enumerate(lines):
-        if idx >= start_idx and idx <= end_idx:
+    for idx0, line in enumerate(lines):
+        if idx0 >= start_idx0 and idx0 <= end_idx0:
             struct_crest: np.ndarray = np.append(
                 struct_crest, [float(line.split()[1]), float(line.split()[3])])
     struct_crest = np.reshape(struct_crest, (int(len(struct_crest)/2), 2))
 
     np.set_printoptions(suppress=True)
 
+    # Output results
     print("")
     print(" ========== Structure_Integrity_Compare ========== ")
 
-    np_R: np.ndarray = result
-    min_R = np_R.min(0)
-    idx_R: np.ndarray = np.array([], dtype=int)
+    np_Result: np.ndarray = result
+    min_Result = np_Result.min(0)
+    idx_Result: np.ndarray = np.array([], dtype=int)
 
-    for idx in range(len(np_R[0])):
-        idx_R = np.append(idx_R, np.where(
-            np_R.T[idx] == np_R.min(0)[idx])[0][0]+1)
+    for idx in range(len(np_Result[0])):
+        idx_Result = np.append(idx_Result, np.where(
+            np_Result.T[idx] == np_Result.min(0)[idx])[0][0]+1)
 
-    sort_R: np.ndarray = np.copy(min_R)
-    sort_R.sort()
+    sort_Result: np.ndarray = np.copy(min_Result)
+    sort_Result.sort()
 
-    diff2_R: np.ndarray = np.diff(np.diff(sort_R))
-    std_diff2_R: float = diff2_R.std()
+    diff2_Result: np.ndarray = np.diff(np.diff(sort_Result))
+    STD_diff2_R: float = diff2_Result.std()
 
     idx_max_diff2_R: np.ndarray = np.array([], dtype=int)
-    for idx, num in enumerate(diff2_R):
-        if num > std_diff2_R:
+    for idx, num in enumerate(diff2_Result):
+        if num > STD_diff2_R:
             idx_max_diff2_R: np.ndarray = np.append(idx_max_diff2_R, idx)
 
-    thr = sort_R[idx_max_diff2_R[0]+2]
+    thr = sort_Result[idx_max_diff2_R[0]+2]
 
     print(f" threhsold(thr) is : {thr}")
     print("")
     print("   P_idx Erel/kcal weight/tot     STD<thr    Q_idx         STD>thr    Q_idx")
 
     weight_total = 0
-    for idx, x in enumerate(min_R):
+    for idx0, x in enumerate(min_Result):
 
-        print(f"{(idx+1):>8d}", end="")
-        print(f"{(struct_crest.T[0][idx]):10.3f} {(struct_crest.T[1][idx]):10.5f}", end="")  # nopep8
+        print(f"{(idx0+1):>8d}", end="")
+        print(f"{(struct_crest.T[0][idx0]):10.3f} {(struct_crest.T[1][idx0]):10.5f}", end="")  # nopep8
 
         if x < thr:
-            print(f"{x:>12.5f} {(idx_R[idx]):>8d}")
-            weight_total = weight_total + struct_crest.T[1][idx]
+            print(f"{x:>12.5f} {(idx_Result[idx0]):>8d}")
+            weight_total = weight_total + struct_crest.T[1][idx0]
         else:
             print(" "*25, end="")
-            print(f"{x:>12.5f} {idx_R[idx]:>8d}")
+            print(f"{x:>12.5f} {idx_Result[idx0]:>8d}")
 
     print("")
     print(f"Weight_total  :  {weight_total:>12.5f}")
@@ -178,12 +177,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    if args.file == None:
-        print(" Your input file is wrong (two input file) !!!")
+    if args.file is None or len(args.file) != 2:
+        print(" Your input files are wrong (two input file) !!!")
         print(" Exit to quit the program ")
-        exit(0)
-    elif len(args.file) == 2:
-        Factor_xyzCompare(args)
+        exit(1)
+
+    Factor_xyzCompare(args)
 
 
 if __name__ == "__main__":

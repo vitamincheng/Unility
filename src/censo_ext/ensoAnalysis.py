@@ -309,13 +309,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         if (anmr_enso['ONOFF'][i]) == 1 and (anmr_enso['Gibbs'][i]) == 0:
             insert_zero = True
 
-    np_average_Gibbs: np.ndarray = anmr_enso['Gibbs'] * \
+    avg_Gibbs: np.ndarray = anmr_enso['Gibbs'] * \
         anmr_enso['ONOFF']*(1/avg_nums)
 
     if args.complete:
         print("     Weight of every CONFS           : "+str(1/avg_nums))
-        print("     Eref*weight of every CONFS      : "+str(np_average_Gibbs))
-    Lift_energy: float = np.sum(np_average_Gibbs)
+        print("     Eref*weight of every CONFS      : "+str(avg_Gibbs))
+    Lift_energy: float = np.sum(avg_Gibbs)
 
     if args.complete:
         print(
@@ -377,16 +377,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         Reduced_energy_Eh = Reduced_energy / Eh
         # Gibbs_min is lowest energy of Gibbs Free Energy
         Gibbs_min = anmr_enso['Total'].min()
-        list_Gibbs_Eh: np.ndarray = np.copy(
+        Gibbs_Eh: np.ndarray = np.copy(
             (anmr_enso['Total']-Gibbs_min)*anmr_enso['ONOFF'])
         insert_zero = False
         for i in range(anmr_enso['Total'].size):
-            if (anmr_enso['ONOFF'][i]) == 1 and (list_Gibbs_Eh[i]) == 0.0:
+            if (anmr_enso['ONOFF'][i]) == 1 and (Gibbs_Eh[i]) == 0.0:
                 insert_zero = True
-        list_Gibbs_Eh = list_Gibbs_Eh[list_Gibbs_Eh != 0]
+        Gibbs_Eh = Gibbs_Eh[Gibbs_Eh != 0]
         if insert_zero == True:
-            list_Gibbs_Eh = np.insert(list_Gibbs_Eh, 0, 0)
-        average_Gibbs_Eh = np.average(list_Gibbs_Eh)
+            Gibbs_Eh = np.insert(Gibbs_Eh, 0, 0)
+        avg_Gibbs_Eh = np.average(Gibbs_Eh)
 
         result_enso: np.ndarray = np.copy(anmr_enso)
 
@@ -395,7 +395,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8'), ('Total', '<f8'), ('Gibbs', '<f8'),
         # ('Qi', '<f8'), ('NEW_BW', '<f8')])
         result_enso['Energy'] = result_enso['Energy'] + \
-            (average_Gibbs_Eh-result_enso['Gibbs']/Eh)*(result_enso['ONOFF'])
+            (avg_Gibbs_Eh-result_enso['Gibbs']/Eh)*(result_enso['ONOFF'])
         result_enso['mRRHO'] = result_enso['mRRHO'] + \
             Reduced_energy_Eh*result_enso['ONOFF']
         result_enso['BW'] = avg_fraction

@@ -72,9 +72,9 @@ class Geometry():
                 del self.names[name]
         self.names = new_names
         self.nAtoms = len(self.names)
-        list_idx0 = [x-1 for x in list_idx]
+        idx0_St: list = [x-1 for x in list_idx]
         self.coord: list[np.ndarray] = (
-            np.array(self.coord)[list_idx0]).tolist()
+            np.array(self.coord)[idx0_St]).tolist()
         return True
 
     def method_idx_molecules_xyz(self, fileName: Path) -> list[int]:
@@ -83,30 +83,29 @@ class Geometry():
         mol, neighbors = ml4nmr.read_mol_neighbors(fileName)
         # ic(neighbors)
         idx_molecule = set([*range(1, len(neighbors)+1, 1)])
-        list_molecule = []
+        molecules = []
         while (len(idx_molecule) != 0):
             idx_atoms = 0
-            list_H: list = []
+            Hydrogen: list = []
             for x in idx_molecule:
                 if len(neighbors[x]) == 1 or len(neighbors[x]) == 0:
                     idx_atoms = x
                     break
-            # ic(neighbors[idx_atoms])
             if len(neighbors[idx_atoms]) == 1:
                 x = {"file": fileName, "bonding": int(
                     idx_atoms), "print": False, "debug": False}
                 Sts_topo: Topo = Topo(x["file"])  # type: ignore
-                list_neighbors = Sts_topo.method_bonding(
+                neighbors_bonding = Sts_topo.method_bonding(
                     argparse.Namespace(**x))
                 x = {"file": fileName, "bond_broken": [
-                    list_neighbors[0], idx_atoms], "print": False, "debug": False}
-                list_H = Sts_topo.method_broken_bond_H(argparse.Namespace(**x))
+                    neighbors_bonding[0], idx_atoms], "print": False, "debug": False}
+                Hydrogen = Sts_topo.method_broken_bond_H(
+                    argparse.Namespace(**x))
             elif len(neighbors[idx_atoms]) == 0:
-                list_H = [idx_atoms]
-            list_molecule.append(list_H)
-            idx_molecule = idx_molecule.difference(set(list_H))
-        # ic(list_molecule)
-        return list_molecule
+                Hydrogen = [idx_atoms]
+            molecules.append(Hydrogen)
+            idx_molecule = idx_molecule.difference(set(Hydrogen))
+        return molecules
 
     def method_computeCOM(self) -> np.ndarray:
         '''

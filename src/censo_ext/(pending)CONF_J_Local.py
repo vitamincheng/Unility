@@ -14,7 +14,6 @@ ________________________________________________________________________________
 |           So overwrite the orcaJ.out file for average JCoup constant
 | Default : Overwrite orcaJ.out and backup the old data to orcaJ.out.backup           
 | Recover : -r Copy the orcaJ.out.backup to orcaJ.out  
-| Debug   : -d Show the all detail of process
 | Needed  : orcaJ.out in each CONF folder, coord, anmrh.out, anmr_nucinfo   
 | Package : Tools                  
 | Module  : anmrfile.py 
@@ -41,39 +40,27 @@ def cml():
         required=False,
         help="COPY the orcaJ.out.backup to orca.out ",
     )
-    parser.add_argument(
-        "-d",
-        "--debug",
-        dest="debug",
-        action="store_true",
-        required=False,
-        help="Show the all detail of process ",
-    )
 
     args: argparse.Namespace = parser.parse_args()
     return args
 
 
-def Atom_Equivalent(filename: Path = Path("anmrh.out")) -> list:
+def Atom_Equivalent(file: Path = Path("anmrh.out")) -> list:
     from censo_ext.Tools.anmrfile import Anmr
     anmr = Anmr()
-    anmr.method_read_anmrSJ(filename)
+    anmr.method_read_anmrSJ(file)
     DataJ: list = anmr.anmrS
     anmr.method_read_nucinfo()
     AtomEqv: list = []
     for x in ([a[1] for a in DataJ]):
         AtomEqv.append(anmr.nucinfo[1][x-1][2])
-    if args.debug:
-        ic(DataJ)
-        ic(anmr.nucinfo[1])
-        ic(AtomEqv)
     return AtomEqv
 
 
-def function_read_orcaJ(fileName: Path = Path("orcaJ.out")) -> np.ndarray:
+def function_read_orcaJ(file: Path = Path("orcaJ.out")) -> np.ndarray:
     from censo_ext.Tools.anmrfile import OrcaSJ
     single_orcaSJ = OrcaSJ()
-    if single_orcaSJ.method_read_orcaJ(fileName):
+    if single_orcaSJ.method_read_orcaJ(file):
         return single_orcaSJ.JCoups
     else:
         print(" Someting wrong in your orcaJ.out file")
@@ -102,16 +89,16 @@ if __name__ == "__main__":
         print(" Directories = ", dirNames)
 
         for dirName in (dirNames):
-            strPathBackup: str = dirName + "/NMR/orcaJ.out.backup"
-            strPath: str = dirName + "/NMR/orcaJ.out"
+            PathBackup: str = dirName + "/NMR/orcaJ.out.backup"
+            orcaJPath: str = dirName + "/NMR/orcaJ.out"
 
-            if (os.path.exists(strPathBackup) == True):
+            if (os.path.exists(PathBackup) == True):
                 import shutil
-                shutil.copyfile(strPathBackup, strPath)
-                os.remove(strPathBackup)
+                shutil.copyfile(PathBackup, orcaJPath)
+                os.remove(PathBackup)
             else:
                 print(" Something wrong in your orcaJ.out folder")
-                print("", strPathBackup)
+                print("", PathBackup)
                 print(" Exit to the program !!!")
                 ic()
                 exit(1)
@@ -134,15 +121,15 @@ if __name__ == "__main__":
         print(" Directories = ", dirNames)
 
         from os.path import exists
-        fileName: str = "coord"
-        file_exists: bool = exists(fileName)
+        file: str = "coord"
+        file_exists: bool = exists(file)
         if not file_exists:
-            print(fileName, " the file is not exist ...")
+            print(file, " the file is not exist ...")
             print("    exit and close the program !!! ")
             ic()
             exit(1)
 
-        lines: list[str] = open(fileName, "r").readlines()
+        lines: list[str] = open(file, "r").readlines()
         import re
         idx_h_lines: list[int] = []
         for idx, line in enumerate(lines):
@@ -158,15 +145,15 @@ if __name__ == "__main__":
                 idx_Atom_Eqv[idx][idy] = (np_idx_h_lines + 1).tolist().index(y)
 
         for dirName in (dirNames):
-            fileNameJBackup: Path = Path(dirName + "/NMR/orcaJ.out.backup")
-            fileNameJorcaJ: Path = Path(dirName + "/NMR/orcaJ.out")
+            fileBackup: Path = Path(dirName + "/NMR/orcaJ.out.backup")
+            orcaJfile: Path = Path(dirName + "/NMR/orcaJ.out")
 
-            if (os.path.exists(fileNameJBackup) == True):
-                JCoup: np.ndarray = function_read_orcaJ(fileNameJBackup)
+            if (os.path.exists(fileBackup) == True):
+                JCoup: np.ndarray = function_read_orcaJ(fileBackup)
             else:
-                JCoup: np.ndarray = function_read_orcaJ(fileNameJorcaJ)
+                JCoup: np.ndarray = function_read_orcaJ(orcaJfile)
                 import shutil
-                shutil.copyfile(fileNameJorcaJ, fileNameJBackup)
+                shutil.copyfile(orcaJfile, fileBackup)
 
             for i in range(len(idx_Atom_Eqv)-1, -1, -1):
 
@@ -182,12 +169,6 @@ if __name__ == "__main__":
                         for k in range(len(idx_Atom_Eqv[i])-1, -1, -1):
                             JCoup[idx_Atom_Eqv[i][j], idx_Atom_Eqv[i][k]] = 0
             np.set_printoptions(formatter={'float': '{:12.5f}'.format})
-
-            if args.debug:
-                ic(JCoup)
-            if args.debug:
-                print("Saved the J_modify.out")
-                np.savetxt(dirName + "/NMR/J_modify.out", JCoup, fmt='%12.5f')
 
             os.remove(dirName + '/NMR/orcaJ.out')
             with open(dirName + '/NMR/orcaJ.out', 'w') as outfile:

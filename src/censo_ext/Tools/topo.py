@@ -14,11 +14,11 @@ from pathlib import Path
 
 class Topo():
 
-    def __init__(self, fileName: Path) -> None:
-        self.__fileName: Path = Path(fileName)
+    def __init__(self, file: Path) -> None:
+        self.__fileName: Path = Path(file)
         self.__mol, self.__neighbors = ml4nmr.read_mol_neighbors(
             self.__fileName)
-        self.idx_H_atom: list = [idx+1 for idx,
+        self.idx_Hydrogen_atom: list = [idx+1 for idx,
                            i in enumerate(self.__mol) if i.symbol == "H"]  # type: ignore # nopep8
 
     def get_cn(self) -> dict[int, int]:
@@ -43,7 +43,7 @@ class Topo():
         """
         Result: list[int] = self.method_broken_bond(args)
         mol, neighbors = self.__mol, self.__neighbors
-        idx_H_atom = self.idx_H_atom
+        idx_H_atom = self.idx_Hydrogen_atom
         NeighborsAtoms_H_atom: dict[int, int] = {}  # {H:C}
         for idx in idx_H_atom:
             NeighborsAtoms_H_atom[idx] = neighbors[idx][0]
@@ -71,13 +71,13 @@ class Topo():
         """
         idx_p, idx_q = args.bond_broken[0], args.bond_broken[1]
         mol, neighbors = self.__mol, self.__neighbors
-        idx_H_atom: list[int] = self.idx_H_atom
-        idx_H_atom.append(idx_q)
+        idx_Hydrogen_atom: list[int] = self.idx_Hydrogen_atom
+        idx_Hydrogen_atom.append(idx_q)
         NeighborsAtoms_not_H: dict = {}
         for idx in neighbors.keys():
             import numpy as np
             NeighborsAtoms_not_H[idx] = np.array(
-                [i for i in neighbors[idx] if int(i) not in idx_H_atom])
+                [i for i in neighbors[idx] if int(i) not in idx_Hydrogen_atom])
         del NeighborsAtoms_not_H[idx_q]
         Terminal_Atoms: list[int] = [idx_p]
         Complete_Atoms: bool = False
@@ -111,7 +111,7 @@ class Topo():
         idx_p: int = args.bonding
         # ic(args.file)
         mol, neighbors = self.__mol, self.__neighbors
-        idx_H_atom: list = self.idx_H_atom
+        idx_H_atom: list = self.idx_Hydrogen_atom
         Neighbors_Atoms: list[int] = neighbors[idx_p].tolist()
         Neighbors_Atoms = [i for i in Neighbors_Atoms if i not in idx_H_atom]
         Neighbors_Atoms.sort()
@@ -124,13 +124,13 @@ class Topo():
         '''
         mol, neighbors = self.__mol, self.__neighbors.copy()
         # neighbors is removed all H-atoms
-        idx_H_atoms: list[int] = self.idx_H_atom
+        idx_Hydorgen_atoms: list[int] = self.idx_Hydrogen_atom
         for key, value in neighbors.copy().items():
-            if key in idx_H_atoms:
+            if key in idx_Hydorgen_atoms:
                 del neighbors[key]
         for key, value in neighbors.copy().items():
             neighbors[key] = np.array(
-                [a for a in value if a not in idx_H_atoms])
+                [a for a in value if a not in idx_Hydorgen_atoms])
 
         # Tranfer neighbors to Graph
         graph_in: list = list()
@@ -191,14 +191,14 @@ class Topo():
         # residual_Mols is use graph : is_connected to find the connect node and append
         residual_Mols: list = []
         for atom in residual_atoms:
-            Mols: list = []
+            Molecules: list = []
             for node in list(g_straight.nodes()):  # type: ignore
                 if g_straight.is_connected(atom, node) == True:
-                    Mols.append(node)
+                    Molecules.append(node)
             the_same: bool = False
             for residual_Mol in residual_Mols:
-                if set(Mols) == set(residual_Mol):
+                if set(Molecules) == set(residual_Mol):
                     the_same = True
             if the_same == False:
-                residual_Mols.append(Mols)
+                residual_Mols.append(Molecules)
         return mol, neighbors, circle_Mols, residual_Mols
