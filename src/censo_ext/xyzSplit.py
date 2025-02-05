@@ -98,8 +98,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     from censo_ext.Tools.utility import is_exist
     from pathlib import Path
-    if is_exist(Path(args.file)):
-        pass
+    is_exist(Path(args.file))
 
     if not args.print:
         print(descr)  # Program description
@@ -115,28 +114,29 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if not args.print:
         Delete_work = delete_file_bool(args.out)
 
-    idx1_p, idx1_q = args.atoms[0], args.atoms[1]
+    idx1_p, idx1_q = args.atoms
     nCutters: int = args.cuts
 
     x: dict = {"file": args.file, "bond_broken": [
         idx1_q, idx1_p], "print": False, "debug": False}
     from censo_ext.Tools.topo import Topo
     Sts_topo: Topo = Topo(x["file"])
+    args_x = argparse.Namespace(**x)
     idx0_list: list[int] = [
-        x-1 for x in Sts_topo.method_broken_bond_H(argparse.Namespace(**x))]
+        x-1 for x in Sts_topo.method_broken_bond_H(args_x)]
 
     infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
 
-    for idx0_st, St in enumerate(infile.Sts):
+    for idx0_St, St in enumerate(infile.Sts):
 
-        dxyz: np.ndarray = St.coord[idx1_p-1]
-        inital: list[np.ndarray] = St.coord[:].copy()
+        dxyz: np.ndarray = St.coord[idx1_p-1].copy()
+        inital: list[np.ndarray] = St.coord.copy()
 
         for nCutter in range(nCutters):
 
-            St.coord[:] = inital.copy()
-            St.coord[:] -= dxyz
+            St.coord = inital.copy()
+            St.coord -= dxyz
 
             rotation_axis = St.coord[idx1_q-1]
             rotation_vector = rotation_axis/np.linalg.norm(rotation_axis)
@@ -146,14 +146,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             for idx in idx0_list:
                 St.coord[idx] = r_pq.apply(St.coord[idx])
 
-            St.coord[:] += dxyz
+            St.coord += dxyz
 
             if args.print:
-                infile.method_print([idx0_st+1])
+                infile.method_print([idx0_St+1])
             else:
-                # ic(idx0_st,nCutter)
                 infile.set_filename(args.out)
-                infile.method_save_xyz_append([idx0_st+1])
+                infile.method_save_xyz_append([idx0_St+1])
 
     if not args.print:
         if Delete_work == True:

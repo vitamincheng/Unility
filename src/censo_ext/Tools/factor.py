@@ -31,22 +31,22 @@ def method_factor_analysis(args) -> tuple[list[int], dict]:
         exit(1)
 
     dict_idx_STD: dict = dict(zip(idx_STD, np.std(np.array(coord).T, axis=1)))
-    Avg_STD: np.float64 = np.average(np.array(list(dict_idx_STD.values())))
+    avg_STD: np.float64 = np.average(np.array(list(dict_idx_STD.values())))
 
     print(" ========== Factor Analysis Processing ========== ")
     print("\n Average of STD      : ", end="")
-    print(f"{Avg_STD:>12.8f}")
+    print(f"{avg_STD:>12.8f}")
     print(f" Threshold {
-          args.factor:3.2f} *STD : {Avg_STD*args.factor:>12.8}", "\n")
+          args.factor:3.2f} *STD : {avg_STD*args.factor:>12.8}", "\n")
     print(f" Atom        STD     Major (>STD)  or    Low (<({args.factor}STD)")
     idx1_major_factor: list[int] = []
     idx1_minor_factor: list[int] = []
 
     for idx, x in dict_idx_STD.items():
-        if (x >= Avg_STD):   # type: ignore
+        if (x >= avg_STD):   # type: ignore
             print(f"{int(idx):>5d} {x:>10.5f}     Major factor")
             idx1_major_factor.append(idx)
-        elif (x <= Avg_STD*args.factor):
+        elif (x <= avg_STD*args.factor):
             print(f"{int(idx):>5d} {x:>10.5f}", " "*23, "Low factor")
             idx1_minor_factor.append(idx)
         else:

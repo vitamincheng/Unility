@@ -383,8 +383,7 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
             #    argparse.Namespace(**x))
             idx_atom1 = np.array(idx1_Res_Atoms)
             index = idx_atom1-1
-            p_view = index
-            q_view = index
+            p_view, q_view = index, index
 
             pass
         else:
@@ -404,8 +403,7 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
         args.remove_idx = np.array(args.remove_idx)-1
         index = idx_atom1-1
 
-        p_view = index
-        q_view = index
+        p_view, q_vew = index, index
 
     elif args.add_idx:
         if args.ignore_Hydrogen:
@@ -414,8 +412,7 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
             idx_atom1 = args.add_idx
         args.add_idx = idx_atom1-1
 
-        p_view = args.add_idx
-        q_view = args.add_idx
+        p_view, q_view = args.add_idx, args_add_idx
 
     # Set local view
     if p_view is None:
