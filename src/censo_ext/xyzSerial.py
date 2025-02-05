@@ -97,13 +97,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xyzfile.method_read_xyz()
 
     if args.keep:
-        if not args.print:
-            print("keep serial numbers")
+        print("keep serial numbers")
         xyzfile.method_comment_keep()
-
     elif args.new:
-        if not args.print:
-            print("Reordering serials numbers from 1")
+        print("Reordering serials numbers from 1")
         xyzfile.method_comment_new()
 
     if args.print:

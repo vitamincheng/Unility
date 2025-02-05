@@ -166,21 +166,19 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(" No any sepific atom in your provided arguments ")
         ic()
         exit(0)
-    elif args.atom != None:
-        p_idx, q_idx, r_idx = args.atom[0], args.atom[1], args.atom[2]
-    elif args.atom == None and args.auto == True:
+
+    if args.atom == None and args.auto:
         print("\n Automated to set the 3 atoms to return origin and lay on XZ plane")
         print(" First FactorAnalysis.py will executive and second continue the RetrunOandZ.py ")
         idx_atom: list[int] = idx_3atom_opt(args)
-        p_idx, q_idx, r_idx = idx_atom[0], idx_atom[1], idx_atom[2]
+        p_idx, q_idx, r_idx = idx_atom
     else:
-        print("Something wrong in your provided argments ")
-        ic()
-        exit(1)
+        p_idx, q_idx, r_idx = args.atom
 
     infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
 
+    # Process xyz file
     for idx_st in range(len(infile)):
 
         dxyz: np.ndarray = infile.Sts[idx_st].coord[p_idx-1].copy()
@@ -190,7 +188,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             np.sum(np.square(infile.Sts[idx_st].coord[q_idx-1]))))
 
         rotation_axis = infile.Sts[idx_st].coord[q_idx-1]+z_axis
-        rotation_axis = rotation_axis
         if np.linalg.norm(rotation_axis) == 0:
             Normalized_rotation_axis: np.ndarray = np.array([0, 1, 0])
         else:
@@ -207,13 +204,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         infile.Sts[idx_st].coord[:] = R_qr.apply(
             infile.Sts[idx_st].coord[:])
 
+    # Save or print result
     if args.print:
         infile.method_print([])
     else:
-        if args.replace:
-            filename: Path = Path(args.file)
-        else:
-            filename: Path = Path(args.out)
+        filename: Path = Path(args.file) if args.replace else Path(args.out)
         print(f"    Saved to {filename}")
         infile.set_filename(filename)
         infile.method_save_xyz([])
