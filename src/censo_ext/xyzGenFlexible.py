@@ -198,5 +198,5 @@ if __name__ == "__main__":
     main()
 
     # test
-    # python3 xyzGenFlexible.py -i ../tests/crest_conformers.xyz
-    # python3 xyzGenFlexible.py -i ../tests/crest_conformers.xyz -m
+    # python3 xyzGenFlexible.py -i ../tests/data/crest_conformers.xyz
+    # python3 xyzGenFlexible.py -i ../tests/data/crest_conformers.xyz -m

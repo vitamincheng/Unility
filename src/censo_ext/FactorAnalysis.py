@@ -275,3 +275,4 @@ if __name__ == "__main__":
 
 #   test
 #   python3 FactorAnalysis.py -A -i tests/data/crest_conformers.xyz --opt
+#   python3 FactorAnalysis.py -F -i tests/data/crest_conformers.xyz --bb 40 44 -nh
