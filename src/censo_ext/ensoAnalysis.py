@@ -162,9 +162,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         if backupfileExists:
             backup_file_exists = is_exist_return_bool(backupfile)
         else:
+
             print(" The backup file is not exist. ", backupfile)
             print(" ONOFF args.new : ", args.new)
-
             if args.new:
                 print(
                     " Copy your input file to backup file for original Energy for reference")
@@ -177,7 +177,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print(
                     " IF you want to Create a New project, please Add -n or --new in arugment.")
                 print(" Exit and Close the program !!!")
-                exit(0)
+                exit(1)
+
     else:
         print(" the file is not exist.", args.file)
         print(" Exit and Close the program !!! ")
@@ -413,3 +414,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
 if __name__ == "__main__":
     main()
+
+# test
+# python3 ensoAnalysis.py -i tests/data/anmr_enso --new
+# python3 ensoAnalysis.py -i tests/data/anmr_enso
+#

@@ -148,30 +148,29 @@ def gen_ClassGeometryXYZs(xyzSplitDict: dict, args: argparse.Namespace) -> None:
                     print(" Error word and input the data again")
                     loop = True
 
-        # ic(idx_xyzSplitDict)
         x: dict = {key: value for key, value in xyzSplitDict.items()
                    if key in idx_xyzSplitDict}
         xyzSplitDict = x
 
     xyzfile: GeometryXYZs = GeometryXYZs(args.file)
     xyzfile.method_read_xyz()
-    fileNameIn: Path = Path(".in.xyz")
-    fileNameOut: Path = Path(".out.xyz")
-    xyzfile.set_filename(fileNameIn)
+    file_In: Path = Path(".in.xyz")
+    file_Out: Path = Path(".out.xyz")
+    xyzfile.set_filename(file_In)
     xyzfile.method_save_xyz([1])
 
     from censo_ext.Tools.utility import move_file
     for key, value in xyzSplitDict.items():
         # ic(key, value)
         import censo_ext.xyzSplit as xyzSplit
-        args_x: dict = {"file": fileNameIn,
-                        "atom": [key, value], "cut": 3, "print": False, "out": fileNameOut}
+        args_x: dict = {"file": file_In,
+                        "atom": [key, value], "cut": 3, "print": False, "out": file_Out}
         sys.stdout = open(os.devnull, 'w')
         xyzSplit.main(argparse.Namespace(**args_x))
         sys.stdout = sys.__stdout__
-        move_file(fileNameOut, fileNameIn)
+        move_file(file_Out, file_In)
 
-    move_file(fileNameIn, args.out)
+    move_file(file_In, args.out)
     print(f" The data is saved to {args.out} !")
 
 
@@ -190,7 +189,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     xyzSplitDict: dict = get_xyzSplitList(neighbor, circleMols, residualMols,
                                           Bond_order, atomsCN, flattenCircleMols)
-    # ic(xyzSplitDict)
     gen_ClassGeometryXYZs(xyzSplitDict, args)
 
 
