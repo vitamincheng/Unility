@@ -182,7 +182,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     for idx_st in range(len(infile)):
 
         dxyz: np.ndarray = infile.Sts[idx_st].coord[p_idx-1].copy()
-        infile.Sts[idx_st].coord[:] -= dxyz
+        infile.Sts[idx_st].coord -= dxyz
         import math
         z_axis = (0, 0, math.sqrt(
             np.sum(np.square(infile.Sts[idx_st].coord[q_idx-1]))))
@@ -195,14 +195,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 np.linalg.norm(rotation_axis)
 
         R_pq = R.from_rotvec(np.pi*Normalized_rotation_axis)
-        infile.Sts[idx_st].coord[:] = R_pq.apply(
-            infile.Sts[idx_st].coord[:])
+        infile.Sts[idx_st].coord = R_pq.apply(
+            infile.Sts[idx_st].coord)
 
         Angle_qr = np.angle(complex(infile.Sts[idx_st].coord[r_idx-1][0], complex(
             infile.Sts[idx_st].coord[r_idx-1][1])))
         R_qr = R.from_euler('z', -Angle_qr)
-        infile.Sts[idx_st].coord[:] = R_qr.apply(
-            infile.Sts[idx_st].coord[:])
+        infile.Sts[idx_st].coord = R_qr.apply(
+            infile.Sts[idx_st].coord)
 
     # Save or print result
     if args.print:

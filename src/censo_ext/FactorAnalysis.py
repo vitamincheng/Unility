@@ -166,24 +166,24 @@ def FactorFilter(args) -> None:
     # start from 1 to num
     idx1_cal: list[int] = [x+1 for x in [*range(len(xyzfile))]]
 
-    nConformers: int = len(xyzfile)
+    nConfs: int = len(xyzfile)
 
     if not args.thr:
         args.thr = 2
-        if int(nConformers / 10) > args.thr:
-            args.thr = int(nConformers / 10)
+        if int(nConfs / 10) > args.thr:
+            args.thr = int(nConfs / 10)
 
     print("")
-    print(" Total conformers     : ", nConformers)
+    print(" Total conformers     : ", nConfs)
     print(" Threshold conformers : ", args.thr)
     print("")
 
-    idx1_sperate: int = 1
+    idx1_separate: int = 1
     idx1_minor: list = []
     major_idx, minor_idx = [], []
 
-    while (nConformers > args.thr):
-        print(" ========== Processing ", idx1_sperate, " ==========")
+    while (nConfs > args.thr):
+        print(" ========== Processing ", idx1_separate, " ==========")
         np_S: np.ndarray = cal_rmsd_coord(args, xyzfile, idx1_cal).T
         S_STD: np.ndarray = np.std(np_S, axis=0)
         S_avg_STD: np.float64 = np.average(S_STD)
@@ -209,30 +209,30 @@ def FactorFilter(args) -> None:
                 counter_minor += 1
 
         print("")
-        print(" Major idx: \n", major_idx)
-        print(" Minor idx: \n", minor_idx)
-        idx1_minor.append(minor_idx)
+        print(f" Major idx: \n {major_idx}")
+        print(f" Minor idx: \n {minor_idx}")
         print(""*2)
-        idx1_sperate += 1
-        nConformers = len(idx1_cal)
+        idx1_minor.append(minor_idx)
+        idx1_separate += 1
+        nConfs = len(idx1_cal)
 
-    path: Path = Path("Final_Result")
+    Dir_Result: Path = Path("Final_Result")
     from censo_ext.Tools.utility import is_exist_return_bool
-    isExist: bool = os.path.exists(path)
+    isExist: bool = os.path.exists(Dir_Result)
     if not isExist:
-        path.mkdir()
+        Dir_Result.mkdir()
 
     print(" ========== Finally Data ==========")
 
     nMinor: list = []
     for idx, x in enumerate(idx1_minor):
-        xyzfile.set_filename(path / Path("minor"+str(idx+1)+".xyz"))
+        xyzfile.set_filename(Dir_Result / Path(f"minor{str(idx+1)}.xyz"))
         xyzfile.method_save_xyz(x)
         print(f" minor{str(idx+1)}.xyz  : {x}")
         nMinor.append(len(x))
 
     residue_file: Path = Path("residue.xyz")
-    xyzfile.set_filename(path / residue_file)
+    xyzfile.set_filename(Dir_Result / residue_file)
     xyzfile.method_save_xyz(major_idx)
     print(f" {residue_file} : {major_idx}")
 

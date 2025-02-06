@@ -77,25 +77,25 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def read_xyz_file(filename: str) -> GeometryXYZs:
+def read_xyz_file(file: str) -> GeometryXYZs:
     try:
         infile = GeometryXYZs()
-        infile.set_filename(Path(filename))
+        infile.set_filename(Path(file))
         infile.method_read_xyz()
         return infile
 
     except Exception as e:
-        print(f"Failed to read file {filename}: {e}")
+        print(f"Failed to read file {file}: {e}")
         raise
 
 
-def write_xyz_file(outfile: GeometryXYZs, filename: str) -> None:
+def write_xyz_file(outfile: GeometryXYZs, file: str) -> None:
     """Write XYZ data to a file."""
     try:
-        outfile.set_filename(Path(filename))
+        outfile.set_filename(Path(file))
         outfile.method_save_xyz([])
     except Exception as e:
-        print(f"Failed to write file {filename}: {e}")
+        print(f"Failed to write file {file}: {e}")
         raise
 
 

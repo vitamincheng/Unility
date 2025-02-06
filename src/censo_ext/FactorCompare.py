@@ -66,15 +66,15 @@ def Factor_xyzCompare(args) -> None:
 
     xyzfile_One: GeometryXYZs = GeometryXYZs(Path("tmp_save.xyz"))
     xyzfile_One.method_read_xyz()
-    nSt_P: int = len(xyzfile_P)
-    nSt_Q: int = len(xyzfile_Q)
+    nSts_P: int = len(xyzfile_P)
+    nSts_Q: int = len(xyzfile_Q)
 
     result: list | np.ndarray = []
-    for idp in range(nSt_P):
-        for idq in range(nSt_Q):
-            result.append(cal_rmsd(xyzfile_One, idp+1, idq+nSt_P+1))
+    for idx_P in range(nSts_P):
+        for idx_Q in range(nSt_Q):
+            result.append(cal_rmsd(xyzfile_One, idx_P+1, idx_Q+nSts_P+1))
     result = np.array(result)
-    result = (result.reshape(nSt_P, nSt_Q).T)
+    result = (result.reshape(nSts_P, nSt_Q).T)
 
     import shutil
     if not shutil.which("crest"):
@@ -111,12 +111,12 @@ def Factor_xyzCompare(args) -> None:
             start_idx0 = idx0+1
         if re.search(r"ensemble average energy", line):
             end_idx0 = idx0-3
-    struct_crest: np.ndarray = np.array([])
+    St_crest: np.ndarray = np.array([])
     for idx0, line in enumerate(lines):
         if idx0 >= start_idx0 and idx0 <= end_idx0:
-            struct_crest: np.ndarray = np.append(
-                struct_crest, [float(line.split()[1]), float(line.split()[3])])
-    struct_crest = np.reshape(struct_crest, (int(len(struct_crest)/2), 2))
+            St_crest: np.ndarray = np.append(
+                St_crest, [float(line.split()[1]), float(line.split()[3])])
+    St_crest = np.reshape(St_crest, (int(len(St_crest)/2), 2))
 
     np.set_printoptions(suppress=True)
 
@@ -153,11 +153,11 @@ def Factor_xyzCompare(args) -> None:
     for idx0, x in enumerate(min_Result):
 
         print(f"{(idx0+1):>8d}", end="")
-        print(f"{(struct_crest.T[0][idx0]):10.3f} {(struct_crest.T[1][idx0]):10.5f}", end="")  # nopep8
+        print(f"{(St_crest.T[0][idx0]):10.3f} {(St_crest.T[1][idx0]):10.5f}", end="")  # nopep8
 
         if x < thr:
             print(f"{x:>12.5f} {(idx_Result[idx0]):>8d}")
-            weight_total = weight_total + struct_crest.T[1][idx0]
+            weight_total = weight_total + St_crest.T[1][idx0]
         else:
             print(" "*25, end="")
             print(f"{x:>12.5f} {idx_Result[idx0]:>8d}")

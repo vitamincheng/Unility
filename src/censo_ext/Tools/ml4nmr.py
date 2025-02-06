@@ -156,10 +156,8 @@ def read_mol_neighbors_bond_order(DirfileName: Path = Path("crest_conformers.xyz
     # read the .xyz coordinates from the molecular structures
     mol, neighbors = read_mol_neighbors(DirfileName)
 
-    idx_H_atom: list[int] = [idx+1 for idx,
-                             i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
-    idx_C_atom: list[int] = [idx+1 for idx,
-                             i in enumerate(mol) if i.symbol == "C"]  # type: ignore # nopep8
+    idx_H_atom: list[int] = [idx+1 for idx, i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
+    idx_C_atom: list[int] = [idx+1 for idx, i in enumerate(mol) if i.symbol == "C"]  # type: ignore # nopep8
     bond_order: dict[int, int] = {}
     for idx in neighbors.keys():
         count = 0

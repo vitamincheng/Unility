@@ -108,11 +108,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     is_exist(args.file)
 
     if args.file != "isomers.xyz":
-        subprocess.call("cp " + args.file + " isomers.xyz", shell=True)
-        print("  cp " + args.file + " isomers.xyz")
+        subprocess.call(f"cp {args.file} isomers.xyz", shell=True)
+        print(f"  cp {args.file} isomers.xyz")
 
-    crest_cmd: str = "crest isomers.xyz --cregen isomers.xyz --rthr " + str(args.rthr) + " -- bthr " + str(
-        args.bthr) + "--ethr " + str(args.ethr) + " --ewin "+str(args.ewin)+" > isomers.out"
+    crest_cmd: str = f"crest isomers.xyz --cregen isomers.xyz --rthr {str(args.rthr)} -- bthr {str(
+        args.bthr)} --ethr {str(args.ethr)} --ewin {str(args.ewin)} > isomers.out"
 
     from censo_ext.Tools.utility import program_is_exist
     program_is_exist("crest")
@@ -124,8 +124,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     subprocess.call(
         "xyzSerial.py -i cluster.xyz --new --print > tmp && mv -f tmp cluster.xyz", shell=True)
     if args.out != "cluster.xyz":
-        subprocess.call("mv -f cluster.xyz " + args.out, shell=True)
-        print("  mv -f cluster.xyz " + args.out)
+        subprocess.call(f"mv -f cluster.xyz {args.out}", shell=True)
+        print(f"  mv -f cluster.xyz {args.out}")
     if args.file != "isomers.xyz":
         subprocess.call("rm -rf isomers.xyz", shell=True)
 
