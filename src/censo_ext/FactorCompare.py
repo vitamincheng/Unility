@@ -71,10 +71,10 @@ def Factor_xyzCompare(args) -> None:
 
     result: list | np.ndarray = []
     for idx_P in range(nSts_P):
-        for idx_Q in range(nSt_Q):
+        for idx_Q in range(nSts_Q):
             result.append(cal_rmsd(xyzfile_One, idx_P+1, idx_Q+nSts_P+1))
     result = np.array(result)
-    result = (result.reshape(nSts_P, nSt_Q).T)
+    result = (result.reshape(nSts_P, nSts_Q).T)
 
     import shutil
     if not shutil.which("crest"):

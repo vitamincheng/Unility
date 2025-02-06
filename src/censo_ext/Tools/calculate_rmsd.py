@@ -412,7 +412,7 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
             idx_atom1 = args.add_idx
         args.add_idx = idx_atom1-1
 
-        p_view, q_view = args.add_idx, args_add_idx
+        p_view, q_view = args.add_idx, args.add_idx
 
     # Set local view
     if p_view is None:
