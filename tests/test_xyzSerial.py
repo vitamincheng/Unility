@@ -15,8 +15,7 @@ def test_xyzSerial_new():
     xyzSerial.main(args)
 
     compare = "tests/compare/xyzSerial-new.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
@@ -27,8 +26,7 @@ def test_xyzSerial_keep():
     xyzSerial.main(args)
 
     compare = "tests/compare/xyzSerial-keep.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 

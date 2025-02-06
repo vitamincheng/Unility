@@ -66,8 +66,7 @@ def test_ensoAnalysis_Hydrogen_new_read():
 
     out_enso = "average_enso"
     compare = "tests/compare/test_average_enso"
-    dcmp = filecmp.cmp(out_enso, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(out_enso, compare) == True
     os.remove(out_enso)
 
 
@@ -99,8 +98,7 @@ def test_ensoAnalysis_Hydrogen_new_read_miss_args():
 
     out_enso = "average_enso"
     compare = "tests/compare/test_average_enso"
-    dcmp = filecmp.cmp(out_enso, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(out_enso, compare) == True
     os.remove(out_enso)
 
 
@@ -132,8 +130,7 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
 
     out_enso = "average_enso"
     compare = "tests/compare/test_average_enso"
-    dcmp = filecmp.cmp(out_enso, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(out_enso, compare) == True
     os.remove(out_enso)
 
 

@@ -15,8 +15,7 @@ def test_xyzTranslate_move():
     args = argparse.Namespace(**x)
     xyzTranslate.main(args)
     compare = "tests/compare/xyzTranslate-move.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
@@ -26,8 +25,7 @@ def test_xyzTranslate_cut():
     args = argparse.Namespace(**x)
     xyzTranslate.main(args)
     compare = "tests/compare/xyzTranslate-cut.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
@@ -43,8 +41,7 @@ def test_xyzTranslate_cut_move():
     xyzTranslate.main(args)
 
     compare = "tests/compare/xyzTranslate-cut-move.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.file)
     os.remove(args.out)
 

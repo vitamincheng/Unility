@@ -9,23 +9,19 @@ in_np: np.ndarray = np.array(
 
 def test_numpy_threshold_10():
 
-    result = (numpy_threshold_10(in_np))
-    assert result == 246.31578947368422
+    assert numpy_threshold_10(in_np) == 246.31578947368422
 
 
 def test_numpy_threshold_3():
 
-    result = (numpy_threshold_3(in_np))
-    assert result == 73.89473684210526
+    assert numpy_threshold_3(in_np) == 73.89473684210526
 
 
 def test_numpy_threshold_mean_3():
 
-    result = (numpy_threshold_mean_3(in_np))
-    assert result == 36
+    assert numpy_threshold_mean_3(in_np) == 36
 
 
 def test_find_nearest():
 
-    result = (find_nearest(in_np, 24))
-    assert result == (22, 19)
+    assert (find_nearest(in_np, 24)) == (22, 19)

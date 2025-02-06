@@ -20,8 +20,7 @@ def test_xyzReturnOandZ():
         compare = "tests/compare/xyzReturnOandZ_Darwin.xyz"
     else:
         compare = "tests/compare/xyzReturnOandZ.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
@@ -36,8 +35,7 @@ def test_xyzReturnOandZ_auto():
         compare = "tests/compare/xyzReturnOandZ-auto_Darwin.xyz"
     else:
         compare = "tests/compare/xyzReturnOandZ-auto.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 

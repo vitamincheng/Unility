@@ -18,8 +18,7 @@ def test_molManipulate():
     import filecmp
     for dirName in dirNames:
         compare = str("tests/compare/") + str(dirName)
-        dcmp = filecmp.cmp(dirName, compare)
-        assert (dcmp == True)
+        assert filecmp.cmp(dirName, compare) == True
 
     x: dict = {"separate": None, "merge": ["Separation/1.xyz", "Separation/2.xyz"],
                "out": "Separation/1&2.xyz"}
@@ -32,8 +31,7 @@ def test_molManipulate():
 
     import filecmp
     compare = "tests/compare/molManipulate.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(args.out, compare) == True
 
     import shutil
     shutil.rmtree(Dir)

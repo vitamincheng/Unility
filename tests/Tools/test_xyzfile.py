@@ -78,10 +78,9 @@ def test_method_save_xyz():
     outfile = Path("tests/compare/output.xyz")
     file.set_filename(outfile)
     file.method_save_xyz([])
-    dcmp = filecmp.cmp(outfile,
-                       'tests/compare/xyzfile-1.xyz')
-    assert (dcmp == True)
+    assert filecmp.cmp(outfile, 'tests/compare/xyzfile-1.xyz') == True
     os.remove(outfile)
+
     # for isomers.xyz
     file = GeometryXYZs(Path("tests/data/isomers.xyz"))
     file.method_read_xyz()
@@ -89,7 +88,5 @@ def test_method_save_xyz():
     outfile = Path("tests/compare/output.xyz")
     file.set_filename(outfile)
     file.method_save_xyz([])
-    dcmp = filecmp.cmp(outfile,
-                       'tests/compare/xyzfile-2.xyz')
-    assert (dcmp == True)
+    assert filecmp.cmp(outfile, 'tests/compare/xyzfile-2.xyz') == True
     os.remove(outfile)

@@ -82,8 +82,7 @@ def test_method_read_enso():
     sys.stdout = original_stdout
 
     source = "tests/data/04.Hydrogen/anmr_enso"
-    dcmp = filecmp.cmp(filename, source)
-    assert (dcmp == True)
+    assert filecmp.cmp(filename, source)
     os.remove(filename)
 
     # for Carbon

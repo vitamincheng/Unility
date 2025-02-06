@@ -15,8 +15,7 @@ def test_xyzSplit():
     xyzSplit.main(args)
 
     compare = "tests/compare/xyzSplit.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
