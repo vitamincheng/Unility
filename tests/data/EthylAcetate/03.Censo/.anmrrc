@@ -1,0 +1,4 @@
+7 8 XH acid atoms
+ENSO qm= ORCA mf= 500.0 lw= 1.0  J= on S= on T= 298.15 
+TMS[chcl3] revtpss-novdw[SMD]/def2-TZVP//r2scan-3c[SMD]/def2-mTZVPP
+  1  31.820    0.0     1

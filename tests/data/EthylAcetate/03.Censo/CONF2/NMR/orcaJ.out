@@ -1,0 +1,2175 @@
+
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+                                            #,                                       
+                                            ###                                      
+                                            ####                                     
+                                            #####                                    
+                                            ######                                   
+                                           ########,                                 
+                                     ,,################,,,,,                         
+                               ,,#################################,,                 
+                          ,,##########################################,,             
+                       ,#########################################, ''#####,          
+                    ,#############################################,,   '####,        
+                  ,##################################################,,,,####,       
+                ,###########''''           ''''###############################       
+              ,#####''   ,,,,##########,,,,          '''####'''          '####       
+            ,##' ,,,,###########################,,,                        '##       
+           ' ,,###''''                  '''############,,,                           
+         ,,##''                                '''############,,,,        ,,,,,,###''
+      ,#''                                            '''#######################'''  
+     '                                                          ''''####''''         
+             ,#######,   #######,   ,#######,      ##                                
+            ,#'     '#,  ##    ##  ,#'     '#,    #''#        ,####,   ,####,        
+            ##       ##  ##   ,#'  ##            #'  '#       #'       #'  '#        
+            ##       ##  #######   ##           ,######,      #####,   #    #        
+            '#,     ,#'  ##    ##  '#,     ,#' ,#      #,     #,   #   #,  ,#        
+             '#######'   ##     ##  '#######'  #'      '#     '####' # '####'        
+
+
+
+                #########################################################
+                #                        -***-                          #
+                #          Department of theory and spectroscopy        #
+                #                                                       #
+                #                      Frank Neese                      #
+                #                                                       #
+                #     Directorship, Architecture, Infrastructure        #
+                #                    SHARK, DRIVERS                     #
+                #        Core code/Algorithms in most modules           #
+                #                                                       #
+                #        Max Planck Institute fuer Kohlenforschung      #
+                #                Kaiser Wilhelm Platz 1                 #
+                #                 D-45470 Muelheim/Ruhr                 #
+                #                      Germany                          #
+                #                                                       #
+                #                  All rights reserved                  #
+                #                        -***-                          #
+                #########################################################
+
+
+                         Program Version 6.0.1  -  RELEASE   -
+
+
+ With contributions from (in alphabetic order):
+[Max-Planck-Institut fuer Kohlenforschung]                               
+  Daniel Aravena         : Magnetic Suceptibility                        
+  Michael Atanasov       : Ab Initio Ligand Field Theory (pilot matlab implementation)
+  Alexander A. Auer      : GIAO ZORA, VPT2 properties, NMR spectrum      
+  Ute Becker             : All parallelization in ORCA, NUMFREQ, NUMCALC 
+  Giovanni Bistoni       : ED, misc. LED, open-shell LED, HFLD           
+  Martin Brehm           : Molecular dynamics                            
+  Dmytro Bykov           : pre 5.0 version of the SCF Hessian            
+  Marcos Casanova-Páez   : Triplet and SCS-CIS(D). UHF-(DLPNO)-IP/EA/STEOM-CCSD. UHF-CVS-IP/STEOM-CCSD   
+  Vijay G. Chilkuri      : MRCI spin determinant printing, contributions to CSF-ICE 
+  Pauline Colinet        : FMM embedding                                 
+  Dipayan Datta          : RHF DLPNO-CCSD density                        
+  Achintya Kumar Dutta   : EOM-CC, STEOM-CC                              
+  Nicolas Foglia         : Exact transition moments, OPA infrastructure, MCD improvements    
+  Dmitry Ganyushin       : Spin-Orbit,Spin-Spin,Magnetic field MRCI      
+  Miquel Garcia-Rates    : C-PCM and meta-GGA Hessian, CCSD/C-PCM, Gaussian charge scheme 
+  Tiago L. C. Gouveia    : GS-ROHF, GS-ROCIS                             
+  Yang Guo               : DLPNO-NEVPT2, F12-NEVPT2, CIM, IAO-localization        
+  Andreas Hansen         : Spin unrestricted coupled pair/coupled cluster methods 
+  Ingolf Harden          : AUTO-CI MPn and infrastructure                
+  Benjamin Helmich-Paris : MC-RPA, TRAH-(SCF,CASSCF), AVAS, COSX integrals, SCF dyn. polar. 
+  Lee Huntington         : MR-EOM, pCC                                   
+  Robert Izsak           : Overlap fitted RIJCOSX, COSX-SCS-MP3, EOM     
+  Riya Kayal             : Wick's Theorem for AUTO-CI, AUTO-CI UHF-CCSDT 
+  Emily Kempfer          : AUTO-CI, RHF CISDT and CCSDT                  
+  Christian Kollmar      : KDIIS, OOCD, Brueckner-CCSD(T), CCSD density, CASPT2, CASPT2-K, improved NEVPT2 
+  Axel Koslowski         : Symmetry handling                             
+  Simone Kossmann        : meta-GGA functionals, TD-DFT gradient, OOMP2, (MP2 Hessian; deprecated post 5.0) 
+  Lucas Lang             : DCDCAS                                        
+  Marvin Lechner         : AUTO-CI (C++ implementation), FIC-MRCC        
+  Spencer Leger          : CASSCF response                               
+  Dagmar Lenk            : GEPOL surface, SMD, ORCA-2-JSON               
+  Dimitrios Liakos       : Extrapolation schemes; Compound Job, initial MDCI parallelization 
+  Dimitrios Manganas     : Further ROCIS development; embedding schemes. LFT, Crystal Embedding 
+  Dimitrios Pantazis     : SARC Basis sets                               
+  Anastasios Papadopoulos: AUTO-CI, single reference methods and gradients 
+  Taras Petrenko         : pre 6.0 DFT Hessian and TD-DFT gradient, (ASA, deprecated), ECA, 1-Electron XAS/XES, NRVS 
+  Peter Pinski           : DLPNO-MP2, DLPNO-MP2 Gradient                 
+  Christoph Reimann      : Effective Core Potentials                     
+  Marius Retegan         : Local ZFS, SOC                                
+  Christoph Riplinger    : Optimizer, TS searches, QM/MM, DLPNO-CCSD(T), (RO)-DLPNO pert. Triples 
+  Michael Roemelt        : Original ROCIS implementation                 
+  Masaaki Saitow         : Open-shell DLPNO-CCSD energy and density      
+  Barbara Sandhoefer     : DKH picture change effects                    
+  Kantharuban Sivalingam : CASSCF convergence/infrastructure, NEVPT2 and variants, FIC-MRCI 
+  Bernardo de Souza      : ESD, SOC TD-DFT                               
+  Georgi L. Stoychev     : AutoAux, RI-MP2 NMR, DLPNO-MP2 response, X2C  
+  Van Anh Tran           : RI-MP2 g-tensors                              
+  Willem Van den Heuvel  : Paramagnetic NMR                              
+  Zikuan Wang            : NOTCH, Electric field optimization            
+  Frank Wennmohs         : Technical directorship and infrastructure     
+  Hang Xu                : AUTO-CI-Response properties                   
+                                                                         
+[FACCTs GmbH]                                                            
+  Markus Bursch, Miquel Garcia-Rates, Christoph Riplinger, Bernardo de Souza, Georgi L. Stoychev 
+                                                                 
+  APM, Basis sets (HGBS, AHGBS, def-TZVP (Ac-Lr), def2-XVPD (La-Lu)), CI-OPT, improved COSX, DLPNO-Multilevel,           
+  DOCKER, DRACO, updates on ESD, GOAT, IRC, LR-CPCM, MBIS, meta-GGA TD-DFT gradient, ML-optimized integration grids, 
+  MM, NACMEs, nearIR, NEB, NEB-TS, NL-DFT gradient (VV10), 2- and 3-layer-ONIOM, interface openCOSMO-RS, QMMM,   
+  Crystal-QMMM, SF, symmetry and pop. for TD-DFT, r2SCAN hybrids, SOLVATOR                                   
+                                                                         
+[Other institutions]                                                     
+  V. Asgeirsson          : NEB                                           
+  Christoph Bannwarth    : sTDA-DFT, sTD-DFT, PBEh-3c, B97-3c, D3        
+  Sebastian Ehlert       : rSCAN, r2SCAN, r2SCAN-3c, D4, dhf basis sets  
+  Marvin Friede          : D4 for Fr, Ra, Ac-Lr                          
+  Lars Goerigk           : TD-DFT with DH, B97 family of functionals     
+  Stefan Grimme          : VdW corrections, initial TS optimization, DFT functionals, gCP, sTDA/sTD-DF 
+  Waldemar Hujo          : DFT-NL                                        
+  H. Jonsson             : NEB                                           
+  Holger Kruse           : gCP                                           
+  Marcel Mueller         : wB97X-3c, vDZP basis set                      
+  Hagen Neugebauer       : wr2SCAN                                       
+  Tobias Risthaus        : range-separated hybrid DFT                    
+  Lukas Wittmann         : regularized MP2, r2SCAN double-hybrids, wr2SCAN        
+                                                                         
+We gratefully acknowledge several colleagues who have allowed us to      
+interface, adapt or use parts of their codes:                            
+  Ed Valeev, F. Pavosevic, A. Kumar             : LibInt (2-el integral package), F12 methods 
+  Garnet Chan, S. Sharma, J. Yang, R. Olivares  : DMRG                   
+  Ulf Ekstrom                                   : XCFun DFT Library      
+  Mihaly Kallay                                 : mrcc  (arbitrary order and MRCC methods)
+  Frank Weinhold                                : gennbo (NPA and NBO analysis)           
+  Simon Mueller                                 : openCOSMO-RS                            
+  Christopher J. Cramer and Donald G. Truhlar   : smd solvation model                     
+  S Lehtola, MJT Oliveira, MAL Marques          : LibXC Library                           
+  Liviu Ungur et al                             : ANISO software                          
+
+
+ Your calculation uses the libint2 library for the computation of 2-el integrals
+ For citations please refer to: http://libint.valeyev.net
+
+ Your ORCA version has been built with support for libXC version: 6.2.2
+ For citations please refer to: https://libxc.gitlab.io
+
+ This ORCA versions uses:
+   CBLAS   interface :  Fast vector & matrix operations
+   LAPACKE interface :  Fast linear algebra routines
+   SCALAPACK package :  Parallel linear algebra routines
+   Shared memory     :  Shared parallel matrices
+   BLAS/LAPACK       :  OpenBLAS 0.3.27  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Zen SINGLE_THREADED
+        Core in use  :  Zen
+   Copyright (c) 2011-2014, The OpenBLAS Project
+
+
+NOTE: MaxCore=8000 MB was set to SCF,MP2,MDCI,CIPSI,MRCI and CIS
+      => If you want to overwrite this, your respective input block should be placed after the MaxCore statement
+Your calculation utilizes the atom-pairwise dispersion correction
+based on EEQ partial charges (D4)
+
+
+================================================================================
+
+----- Orbital basis set information -----
+Your calculation utilizes the basis: pcJ-0
+   F. Jensen, Theor. Chem. Acc. 126, 371 (2010).
+
+----- AuxJ basis set information -----
+Your calculation utilizes the auxiliary basis: def2/J
+   F. Weigend, Phys. Chem. Chem. Phys. 8, 1057 (2006).
+
+================================================================================
+                                        WARNINGS
+                       Please study these warnings very carefully!
+================================================================================
+
+
+================================================================================
+                                       INPUT FILE
+================================================================================
+NAME = inpJ
+|  1> ! pbe0
+|  2> ! D4
+|  3> ! pcJ-0
+|  4> ! def2/J RIJCOSX
+|  5> ! DEFGRID2
+|  6> ! scfconv7
+|  7> ! smallprint printgap noloewdin
+|  8> ! NOSOSCF
+|  9> %MaxCore 8000
+| 10> %output
+| 11>        print[P_BondOrder_M] 1
+| 12>        print[P_Mayer] 1
+| 13>        print[P_basis] 2
+| 14> end
+| 15> %pal
+| 16>     nprocs 4
+| 17> end
+| 18> ! CPCM(chloroform)
+| 19> *xyz 0 1
+| 20> C   -2.0711701353  -0.8729049682   0.1513153965
+| 21> C   -0.8840449254   0.0343870073   0.0046029790
+| 22> H   -2.1177280592  -1.6043548454  -0.6580213425
+| 23> H   -2.9845289129  -0.2782498339   0.1900950556
+| 24> H   -1.9705930027  -1.4204960866   1.0955519548
+| 25> O   -0.8567536863   1.2029089402   0.3357787237
+| 26> O    0.1687171908  -0.6204063082  -0.5258533211
+| 27> C    1.4144338376   0.1283269722  -0.6503578516
+| 28> C    2.1858416426   0.1181168964   0.6524835371
+| 29> H    1.1830706492   1.1461018636  -0.9774995735
+| 30> H    1.9588290199  -0.3927278506  -1.4418454688
+| 31> H    1.6342951267   0.6387705074   1.4402231847
+| 32> H    3.1445051390   0.6276896228   0.5095214272
+| 33> H    2.3869871608  -0.9077847064   0.9758261034
+| 34> *
+| 35> %eprnmr
+| 36>  Nuclei = all H { ssfc }
+| 37>  SpinSpinRThresh 8.0
+| 38> end
+| 39> 
+| 40>                          ****END OF INPUT****
+================================================================================
+
+                       ****************************
+                       * Single Point Calculation *
+                       ****************************
+
+---------------------------------
+CARTESIAN COORDINATES (ANGSTROEM)
+---------------------------------
+  C     -2.071170   -0.872905    0.151315
+  C     -0.884045    0.034387    0.004603
+  H     -2.117728   -1.604355   -0.658021
+  H     -2.984529   -0.278250    0.190095
+  H     -1.970593   -1.420496    1.095552
+  O     -0.856754    1.202909    0.335779
+  O      0.168717   -0.620406   -0.525853
+  C      1.414434    0.128327   -0.650358
+  C      2.185842    0.118117    0.652484
+  H      1.183071    1.146102   -0.977500
+  H      1.958829   -0.392728   -1.441845
+  H      1.634295    0.638771    1.440223
+  H      3.144505    0.627690    0.509521
+  H      2.386987   -0.907785    0.975826
+
+----------------------------
+CARTESIAN COORDINATES (A.U.)
+----------------------------
+  NO LB      ZA    FRAG     MASS         X           Y           Z
+   0 C     6.0000    0    12.011   -3.913944   -1.649551    0.285945
+   1 C     6.0000    0    12.011   -1.670603    0.064982    0.008698
+   2 H     1.0000    0     1.008   -4.001926   -3.031791   -1.243480
+   3 H     1.0000    0     1.008   -5.639942   -0.525816    0.359228
+   4 H     1.0000    0     1.008   -3.723881   -2.684349    2.070293
+   5 O     8.0000    0    15.999   -1.619030    2.273168    0.634530
+   6 O     8.0000    0    15.999    0.318829   -1.172398   -0.993719
+   7 C     6.0000    0    12.011    2.672893    0.242503   -1.228998
+   8 C     6.0000    0    12.011    4.130642    0.223209    1.233015
+   9 H     1.0000    0     1.008    2.235680    2.165819   -1.847206
+  10 H     1.0000    0     1.008    3.701650   -0.742148   -2.724693
+  11 H     1.0000    0     1.008    3.088370    1.207101    2.721627
+  12 H     1.0000    0     1.008    5.942254    1.186161    0.962856
+  13 H     1.0000    0     1.008    4.510752   -1.715464    1.844044
+
+--------------------------------
+INTERNAL COORDINATES (ANGSTROEM)
+--------------------------------
+ C      0   0   0     0.000000000000     0.00000000     0.00000000
+ C      1   0   0     1.501322592328     0.00000000     0.00000000
+ H      1   2   0     1.091884847513   111.47648431     0.00000000
+ H      1   2   3     1.090569964435   109.64461534   236.86893333
+ H      1   2   3     1.096154400886   108.27165872   118.56700099
+ O      2   1   3     1.214852128153   124.91811353   146.70661361
+ O      2   1   3     1.348497773689   111.24178667   325.66544129
+ C      7   2   1     1.458736736841   116.80976679   183.44578970
+ C      8   7   2     1.514123486170   110.98808755    83.17635841
+ H      8   7   2     1.093808191923   108.81363623   319.74545929
+ H      8   7   2     1.092848064031   104.03364959   203.18620426
+ H      9   8   7     1.093534404694   111.07972358   295.61608851
+ H      9   8   7     1.095051700920   109.30196008   176.16982705
+ H      9   8   7     1.094296136017   110.74553293    56.93888631
+
+---------------------------
+INTERNAL COORDINATES (A.U.)
+---------------------------
+ C      0   0   0     0.000000000000     0.00000000     0.00000000
+ C      1   0   0     2.837088538169     0.00000000     0.00000000
+ H      1   2   0     2.063363331578   111.47648431     0.00000000
+ H      1   2   3     2.060878562663   109.64461534   236.86893333
+ H      1   2   3     2.071431618168   108.27165872   118.56700099
+ O      2   1   3     2.295737815420   124.91811353   146.70661361
+ O      2   1   3     2.548291484475   111.24178667   325.66544129
+ C      7   2   1     2.756612934119   116.80976679   183.44578970
+ C      8   7   2     2.861278721800   110.98808755    83.17635841
+ H      8   7   2     2.066997925775   108.81363623   319.74545929
+ H      8   7   2     2.065183547004   104.03364959   203.18620426
+ H      9   8   7     2.066480542893   111.07972358   295.61608851
+ H      9   8   7     2.069347817223   109.30196008   176.16982705
+ H      9   8   7     2.067920006480   110.74553293    56.93888631
+
+---------------------
+BASIS SET INFORMATION
+---------------------
+There are 3 groups of distinct atoms
+
+ Group   1 Type C   : 7s4p contracted to 4s3p pattern {4111/211}
+ Group   2 Type H   : 5s contracted to 3s pattern {311}
+ Group   3 Type O   : 7s4p contracted to 4s3p pattern {4111/211}
+
+Atom   0C    basis set group =>   1
+Atom   1C    basis set group =>   1
+Atom   2H    basis set group =>   2
+Atom   3H    basis set group =>   2
+Atom   4H    basis set group =>   2
+Atom   5O    basis set group =>   3
+Atom   6O    basis set group =>   3
+Atom   7C    basis set group =>   1
+Atom   8C    basis set group =>   1
+Atom   9H    basis set group =>   2
+Atom  10H    basis set group =>   2
+Atom  11H    basis set group =>   2
+Atom  12H    basis set group =>   2
+Atom  13H    basis set group =>   2
+
+-------------------------
+BASIS SET IN INPUT FORMAT
+-------------------------
+
+ # Basis set for element : H 
+ NewGTO H 
+ S 3 
+   1    1357.7500000000      0.0012928364
+   2      54.3100000000      0.0588280685
+   3       4.3448000000      0.9761499708
+ S 1 
+   1       0.6604910000      1.0000000000
+ S 1 
+   1       0.1366870000      1.0000000000
+  end;
+
+ # Basis set for element : C 
+ NewGTO C 
+ S 4 
+   1  139534.0000000000      0.0001655246
+   2    5581.3600000000      0.0074486101
+   3     446.5090000000      0.1285821065
+   4      67.4620000000      0.9218029311
+ S 1 
+   1      15.0674000000      1.0000000000
+ S 1 
+   1       3.9387600000      1.0000000000
+ S 1 
+   1       0.2999150000      1.0000000000
+ P 2 
+   1      28.3900000000      0.0816325586
+   2       4.3676900000      0.9660360576
+ P 1 
+   1       0.8698170000      1.0000000000
+ P 1 
+   1       0.1889340000      1.0000000000
+  end;
+
+ # Basis set for element : O 
+ NewGTO O 
+ S 4 
+   1  253789.0000000000      0.0001641076
+   2   10151.6000000000      0.0074010921
+   3     812.1250000000      0.1277711901
+   4     122.6930000000      0.9223372164
+ S 1 
+   1      27.5608000000      1.0000000000
+ S 1 
+   1       7.3172600000      1.0000000000
+ S 1 
+   1       0.5792400000      1.0000000000
+ P 2 
+   1      53.4157000000      0.0793786106
+   2       8.2177900000      0.9670506337
+ P 1 
+   1       1.6754400000      1.0000000000
+ P 1 
+   1       0.3506720000      1.0000000000
+  end;
+
+---------------------------------
+AUXILIARY/J BASIS SET INFORMATION
+---------------------------------
+There are 3 groups of distinct atoms
+
+ Group   1 Type C   : 12s5p4d2f1g contracted to 6s4p3d1f1g pattern {711111/2111/211/2/1}
+ Group   2 Type H   : 5s2p1d contracted to 3s1p1d pattern {311/2/1}
+ Group   3 Type O   : 12s5p4d2f1g contracted to 6s4p3d1f1g pattern {711111/2111/211/2/1}
+
+Atom   0C    basis set group =>   1
+Atom   1C    basis set group =>   1
+Atom   2H    basis set group =>   2
+Atom   3H    basis set group =>   2
+Atom   4H    basis set group =>   2
+Atom   5O    basis set group =>   3
+Atom   6O    basis set group =>   3
+Atom   7C    basis set group =>   1
+Atom   8C    basis set group =>   1
+Atom   9H    basis set group =>   2
+Atom  10H    basis set group =>   2
+Atom  11H    basis set group =>   2
+Atom  12H    basis set group =>   2
+Atom  13H    basis set group =>   2
+
+-------------------------------------
+AUXILIARY/J BASIS SET IN INPUT FORMAT
+-------------------------------------
+
+ # Auxiliary/J basis set for element : H 
+ NewAuxJGTO H 
+ S 3 
+   1      15.6752927000      0.1007184237
+   2       3.6063578000      0.3404257499
+   3       1.2080016000      0.6491996172
+ S 1 
+   1       0.4726794000      1.0000000000
+ S 1 
+   1       0.2018100000      1.0000000000
+ P 2 
+   1       2.0281365000      0.5596620919
+   2       0.5358730000      0.5596620919
+ D 1 
+   1       2.2165124000      1.0000000000
+  end;
+
+ # Auxiliary/J basis set for element : C 
+ NewAuxJGTO C 
+ S 7 
+   1    1861.0916331000      0.0134602335
+   2     642.9939764000      0.0299160374
+   3     235.1105725000      0.1008649584
+   4      90.7028894000      0.2370970548
+   5      36.7794552000      0.3924037254
+   6      15.6046273000      0.3195862154
+   7       6.8907294000      0.0530104441
+ S 1 
+   1       3.1478850000     -1.0000000000
+ S 1 
+   1       1.4777287000      1.0000000000
+ S 1 
+   1       0.7076466000      1.0000000000
+ S 1 
+   1       0.3430122000      1.0000000000
+ S 1 
+   1       0.1669453000      1.0000000000
+ P 2 
+   1      13.5472892000     -0.6769313712
+   2       5.4669419000     -0.3779500978
+ P 1 
+   1       2.1751721000      1.0000000000
+ P 1 
+   1       0.8582194000      1.0000000000
+ P 1 
+   1       0.3376720000      1.0000000000
+ D 2 
+   1       5.9287253000     -0.3533329857
+   2       1.9809209000     -0.7456525731
+ D 1 
+   1       0.8055417000     -1.0000000000
+ D 1 
+   1       0.3531244000     -1.0000000000
+ F 2 
+   1       1.6755626000      0.6311076882
+   2       0.5997536000      0.4968166032
+ G 1 
+   1       1.0024600000     -1.0000000000
+  end;
+
+ # Auxiliary/J basis set for element : O 
+ NewAuxJGTO O 
+ S 7 
+   1    2876.8216605000      0.0168151159
+   2    1004.7443032000      0.0340137548
+   3     369.7579954000      0.1194951309
+   4     142.9442404000      0.2664627624
+   5      57.8366425000      0.4202764046
+   6      24.3864983000      0.2765077335
+   7      10.6622662000      0.0057008815
+ S 1 
+   1       4.8070437000     -1.0000000000
+ S 1 
+   1       2.2210770000      1.0000000000
+ S 1 
+   1       1.0447795000      1.0000000000
+ S 1 
+   1       0.4968425000      1.0000000000
+ S 1 
+   1       0.2371384000      1.0000000000
+ P 2 
+   1      64.2613382000     -0.2731534179
+   2      16.3006076000     -0.8168011598
+ P 1 
+   1       4.3550542000      1.0000000000
+ P 1 
+   1       1.2019554000      1.0000000000
+ P 1 
+   1       0.3354196000      1.0000000000
+ D 2 
+   1       9.2146611000     -0.4661230638
+   2       2.8435251000     -0.6600908911
+ D 1 
+   1       0.9955759000     -1.0000000000
+ D 1 
+   1       0.3649441000     -1.0000000000
+ F 2 
+   1       2.6420115000      0.5931563945
+   2       0.7345613000      0.5931563945
+ G 1 
+   1       1.3931000000     -1.0000000000
+  end;
+
+
+
+           ************************************************************
+           *        Program running with 4 parallel MPI-processes     *
+           *              working on a common directory               *
+           ************************************************************
+------------------------------------------------------------------------------
+                             ORCA STARTUP CALCULATIONS
+                           -- RI-GTO INTEGRALS CHOSEN --
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+                   ___                                                        
+                  /   \      - P O W E R E D   B Y -                         
+                 /     \                                                     
+                 |  |  |   _    _      __       _____    __    __             
+                 |  |  |  | |  | |    /  \     |  _  \  |  |  /  |          
+                  \  \/   | |  | |   /    \    | | | |  |  | /  /          
+                 / \  \   | |__| |  /  /\  \   | |_| |  |  |/  /          
+                |  |  |   |  __  | /  /__\  \  |    /   |      \           
+                |  |  |   | |  | | |   __   |  |    \   |  |\   \          
+                \     /   | |  | | |  |  |  |  | |\  \  |  | \   \       
+                 \___/    |_|  |_| |__|  |__|  |_| \__\ |__|  \__/        
+                                                                              
+                      - O R C A' S   B I G   F R I E N D -                    
+                                      &                                       
+                       - I N T E G R A L  F E E D E R -                       
+                                                                              
+ v1 FN, 2020, v2 2021, v3 2022-2024                                           
+------------------------------------------------------------------------------
+
+
+----------------------
+SHARK INTEGRAL PACKAGE
+----------------------
+
+Number of atoms                             ...     14
+Number of basis functions                   ...    102
+Number of shells                            ...     66
+Maximum angular momentum                    ...      1
+Integral batch strategy                     ... SHARK/LIBINT Hybrid
+RI-J (if used) integral strategy            ... SPLIT-RIJ (Revised 2003 algorithm where possible)
+Printlevel                                  ...      1
+Contraction scheme used                     ... SEGMENTED contraction
+Prescreening option                         ... SCHWARTZ
+   Thresh                                   ... 3.000e-11
+   Tcut                                     ... 1.000e-12
+   Tpresel                                  ... 1.000e-12 
+Coulomb Range Separation                    ... NOT USED
+Exchange Range Separation                   ... NOT USED
+Multipole approximations                    ... NOT USED
+Finite Nucleus Model                        ... NOT USED
+CABS basis                                  ... NOT available
+Auxiliary Coulomb fitting basis             ... AVAILABLE
+   # of basis functions in Aux-J            ...    382
+   # of shells in Aux-J                     ...    130
+   Maximum angular momentum in Aux-J        ...      4
+Auxiliary J/K fitting basis                 ... NOT available
+Auxiliary Correlation fitting basis         ... NOT available
+Auxiliary 'external' fitting basis          ... NOT available
+
+Checking pre-screening integrals            ... done (  0.0 sec) Dimension = 66
+Check shell pair data                       ... done (  0.0 sec)
+Shell pair information
+Shell pair cut-off parameter TPreSel        ...   1.0e-12
+Total number of shell pairs                 ...      2211
+Shell pairs after pre-screening             ...      1662
+Total number of primitive shell pairs       ...      5737
+Primitive shell pairs kept                  ...      3136
+          la=0 lb=0:    825 shell pairs
+          la=1 lb=0:    682 shell pairs
+          la=1 lb=1:    155 shell pairs
+
+Calculating one electron integrals          ... done (  0.0 sec)
+Calculating RI/J V-Matrix + Cholesky decomp.... done (  0.0 sec)
+Calculating Nuclear repulsion               ... done (  0.0 sec) ENN=    246.464505583396 Eh
+
+Diagonalization of the overlap matrix:
+Smallest eigenvalue                        ... 3.626e-02
+Time for diagonalization                   ...    0.001 sec
+Threshold for overlap eigenvalues          ... 1.000e-07
+Number of eigenvalues below threshold      ... 0
+Time for construction of square roots      ...    0.001 sec
+Total time needed                          ...    0.003 sec
+
+-------------------
+DFT GRID GENERATION
+-------------------
+
+General Integration Accuracy     IntAcc      ... 4.388
+Radial Grid Type                 RadialGrid  ... OptM3 with GC (2021)
+Angular Grid (max. ang.)         AngularGrid ... 4 (Lebedev-302)
+Angular grid pruning method      GridPruning ... 4 (adaptive)
+Weight generation scheme         WeightScheme... mBecke (2022)
+Basis function cutoff            BFCut       ... 1.0000e-11
+Integration weight cutoff        WCut        ... 1.0000e-14
+Partially contracted basis set               ... off
+Rotationally invariant grid construction     ... off
+Angular grids for H and He will be reduced by one unit
+
+Total number of grid points                  ...    62230
+Total number of batches                      ...      978
+Average number of points per batch           ...       63
+Average number of grid points per atom       ...     4445
+
+--------------------
+COSX GRID GENERATION
+--------------------
+
+GRIDX 1
+-------
+General Integration Accuracy     IntAcc      ... 3.816
+Radial Grid Type                 RadialGrid  ... OptM3 with GC (2021)
+Angular Grid (max. ang.)         AngularGrid ... 1 (Lebedev-50)
+Angular grid pruning method      GridPruning ... 4 (adaptive)
+Weight generation scheme         WeightScheme... mBecke (2022)
+Basis function cutoff            BFCut       ... 1.0000e-11
+Integration weight cutoff        WCut        ... 1.0000e-14
+Partially contracted basis set               ... on
+Rotationally invariant grid construction     ... off
+Angular grids for H and He will be reduced by one unit
+
+Total number of grid points                  ...     7995
+Total number of batches                      ...       72
+Average number of points per batch           ...      111
+Average number of grid points per atom       ...      571
+UseSFitting                                  ... on
+
+GRIDX 2
+-------
+General Integration Accuracy     IntAcc      ... 4.020
+Radial Grid Type                 RadialGrid  ... OptM3 with GC (2021)
+Angular Grid (max. ang.)         AngularGrid ... 2 (Lebedev-110)
+Angular grid pruning method      GridPruning ... 4 (adaptive)
+Weight generation scheme         WeightScheme... mBecke (2022)
+Basis function cutoff            BFCut       ... 1.0000e-11
+Integration weight cutoff        WCut        ... 1.0000e-14
+Partially contracted basis set               ... on
+Rotationally invariant grid construction     ... off
+Angular grids for H and He will be reduced by one unit
+
+Total number of grid points                  ...    17089
+Total number of batches                      ...      140
+Average number of points per batch           ...      122
+Average number of grid points per atom       ...     1221
+UseSFitting                                  ... on
+
+GRIDX 3
+-------
+General Integration Accuracy     IntAcc      ... 4.338
+Radial Grid Type                 RadialGrid  ... OptM3 with GC (2021)
+Angular Grid (max. ang.)         AngularGrid ... 3 (Lebedev-194)
+Angular grid pruning method      GridPruning ... 4 (adaptive)
+Weight generation scheme         WeightScheme... mBecke (2022)
+Basis function cutoff            BFCut       ... 1.0000e-11
+Integration weight cutoff        WCut        ... 1.0000e-14
+Partially contracted basis set               ... on
+Rotationally invariant grid construction     ... off
+Angular grids for H and He will be reduced by one unit
+
+Total number of grid points                  ...    37528
+Total number of batches                      ...      301
+Average number of points per batch           ...      124
+Average number of grid points per atom       ...     2681
+UseSFitting                                  ... on
+Initializing property integral containers    ... done (  0.0 sec)
+
+SHARK setup successfully completed in   0.4 seconds
+
+Maximum memory used throughout the entire STARTUP-calculation: 17.8 MB
+
+
+           ************************************************************
+           *        Program running with 4 parallel MPI-processes     *
+           *              working on a common directory               *
+           ************************************************************
+-------------------------------------------------------------------------------
+                                 ORCA GUESS
+                   Start orbitals & Density for SCF / CASSCF
+-------------------------------------------------------------------------------
+
+------------
+SCF SETTINGS
+------------
+Hamiltonian:
+ Density Functional     Method          .... DFT(GTOs)
+ Exchange Functional    Exchange        .... PBE
+   PBE kappa parameter   XKappa         ....  0.804000
+   PBE mue parameter    XMuePBE         ....  0.219520
+ Correlation Functional Correlation     .... PBE
+   PBE beta parameter  CBetaPBE         ....  0.066725
+ LDA part of GGA corr.  LDAOpt          .... PW91-LDA
+ Gradients option       PostSCFGGA      .... off
+ Hybrid DFT is turned on
+   Fraction HF Exchange ScalHFX         ....  0.250000
+   Scaling of DF-GGA-X  ScalDFX         ....  0.750000
+   Scaling of DF-GGA-C  ScalDFC         ....  1.000000
+   Scaling of DF-LDA-C  ScalLDAC        ....  1.000000
+   Perturbative correction              ....  0.000000
+   NL short-range parameter             ....  6.900000
+ RI-approximation to the Coulomb term is turned on
+   Number of AuxJ basis functions       .... 382
+   RIJ-COSX (HFX calculated with COS-X)).... on
+
+
+General Settings:
+ Integral files         IntName         .... inpJ
+ Hartree-Fock type      HFTyp           .... RHF
+ Total Charge           Charge          ....    0
+ Multiplicity           Mult            ....    1
+ Number of Electrons    NEL             ....   48
+ Basis Dimension        Dim             ....  102
+ Nuclear Repulsion      ENuc            ....    246.4645055834 Eh
+
+Convergence Acceleration:
+ AO-DIIS                CNVDIIS         .... on
+   Start iteration      DIISMaxIt       ....    12
+   Startup error        DIISStart       ....  0.200000
+   # of expansion vecs  DIISMaxEq       ....     5
+   Bias factor          DIISBfac        ....   1.050
+   Max. coefficient     DIISMaxC        ....  10.000
+ MO-DIIS                CNVKDIIS        .... off
+ Trust-Rad. Augm. Hess. CNVTRAH         .... auto
+   Auto Start mean grad. ratio tolernc. ....  1.125000
+   Auto Start start iteration           ....    50
+   Auto Start num. interpolation iter.  ....    10
+   Max. Number of Micro iterations      ....    24
+   Max. Number of Macro iterations      .... Maxiter - #DIIS iter
+   Number of Davidson start vectors     ....     2
+   Converg. threshold    (grad. norm)   ....   1.000e-04
+   Grad. Scal. Fac. for Micro threshold ....   0.100
+   Minimum threshold for Micro iter.    ....   1.000e-02
+   NR start threshold (gradient norm)   ....   1.000e-04
+   Initial trust radius                 ....   0.400
+   Minimum AH scaling param. (alpha)    ....   1.000
+   Maximum AH scaling param. (alpha)    .... 1000.000
+   Quad. conv. algorithm                .... NR
+   White noise on init. David. guess    .... on
+   Maximum white noise                  ....   0.010
+   Pseudo random numbers                .... off
+   Inactive MOs                         .... canonical
+   Orbital update algorithm             .... Taylor
+   Preconditioner                       .... Diag
+   Full preconditioner red. dimension   ....   250
+ SOSCF                  CNVSOSCF        .... off
+ Level Shifting         CNVShift        .... on
+   Level shift para.    LevelShift      ....    0.2500
+   Turn off err/grad.   ShiftErr        ....    0.0010
+ Zerner damping         CNVZerner       .... off
+ Static damping         CNVDamp         .... on
+   Fraction old density DampFac         ....    0.7000
+   Max. Damping (<1)    DampMax         ....    0.9800
+   Min. Damping (>=0)   DampMin         ....    0.0000
+   Turn off err/grad.   DampErr         ....    0.1000
+
+SCF Procedure:
+ Maximum # iterations   MaxIter         ....   125
+ SCF integral mode      SCFMode         .... Direct
+   Integral package                     .... SHARK and LIBINT hybrid scheme
+ Reset frequency        DirectResetFreq ....    20
+ Integral Threshold     Thresh          ....  3.000e-11 Eh
+ Primitive CutOff       TCut            ....  1.000e-12 Eh
+
+Convergence Tolerance:
+ Convergence Check Mode ConvCheckMode   .... Total+1el-Energy
+ Convergence forced     ConvForced      .... 0
+ Energy Change          TolE            ....  1.000e-07 Eh
+ 1-El. energy change                    ....  1.000e-04 Eh
+ DIIS Error             TolErr          ....  1.000e-07
+
+------------------------------
+INITIAL GUESS: MODEL POTENTIAL
+------------------------------
+Loading Hartree-Fock densities                     ... done
+Calculating cut-offs                               ... done
+Initializing the effective Hamiltonian             ... done
+Setting up the integral package (SHARK)            ... done
+Starting the Coulomb interaction                   ... done (   0.0 sec)
+Making the grid                                    ... done (   0.0 sec)
+Mapping shells                                     ... done
+Starting the XC term evaluation                    ... done (   0.0 sec)
+  promolecular density results
+     # of electrons  =     47.998235903
+     EX              =    -39.100480794
+     EC              =     -1.577387714
+     EX+EC           =    -40.677868508
+Transforming the Hamiltonian                       ... done (   0.0 sec)
+Diagonalizing the Hamiltonian                      ... done (   0.0 sec)
+Back transforming the eigenvectors                 ... done (   0.0 sec)
+Now organizing SCF variables                       ... done
+                      ------------------
+                      INITIAL GUESS DONE (   0.1 sec)
+                      ------------------
+             **** ENERGY FILE WAS UPDATED (inpJ.en.tmp) ****
+Finished Guess after   0.1 sec
+Maximum memory used throughout the entire GUESS-calculation: 9.6 MB
+
+
+           ************************************************************
+           *        Program running with 4 parallel MPI-processes     *
+           *              working on a common directory               *
+           ************************************************************
+
+-------------------------------------------------------------------------------------------
+                                      ORCA LEAN-SCF
+                              memory conserving SCF solver
+-------------------------------------------------------------------------------------------
+
+--------------------
+CPCM SOLVATION MODEL
+--------------------
+CPCM parameters:
+  Epsilon                                         ...       4.8030
+  Refrac                                          ...       1.4459
+  Rsolv                                           ...       1.3000
+  Surface type                                    ... GAUSSIAN VDW
+  Discretization scheme                           ... Constant charge density
+    Threshold for H atoms                         ...       5.0000 (charges/Ang^2)
+    Threshold for non-H atoms                     ...       5.0000 (charges/Ang^2)
+  Epsilon function type                           ...         CPCM
+Solvent:                                          ... CHLOROFORM
+Radii:
+  Scheme                                          ... Element-dependent radii
+  Radius for C  used is    3.8550 Bohr (=   2.0400 Ang.)
+  Radius for H  used is    2.4944 Bohr (=   1.3200 Ang.)
+  Radius for O  used is    3.4469 Bohr (=   1.8240 Ang.)
+Calculating surface                               ...        done! (  0.0s)
+Cavity surface points                             ...         1300
+Cavity Volume                                     ...     811.8484
+Cavity Surface-area                               ...     495.1759
+Calculating surface distance matrix               ...        done! (  0.0s)
+Performing Cholesky decomposition & store         ...        done! (  0.0s)
+Overall time for CPCM initialization              ...                 0.0s
+
+----------------------------------------D-I-I-S--------------------------------------------
+Iteration    Energy (Eh)           Delta-E    RMSDP     MaxDP     DIISErr   Damp  Time(sec)
+-------------------------------------------------------------------------------------------
+               ***  Starting incremental Fock matrix formation  ***
+    1    -306.6410626431750188     0.00e+00  3.79e-03  1.06e-01  2.24e-01  0.700   0.2
+
+  HOMO=  23 E= -4.666 eV LUMO=  7.488 eV gap=  12.154 eV
+    2    -306.7123411072334420    -7.13e-02  2.47e-03  6.22e-02  9.29e-02  0.700   0.2
+
+  HOMO=  23 E= -6.580 eV LUMO=  7.375 eV gap=  13.955 eV
+                               ***Turning on AO-DIIS***
+    3    -306.7396346497655486    -2.73e-02  9.40e-04  2.41e-02  3.87e-02  0.700   0.2
+
+  HOMO=  23 E= -8.079 eV LUMO=  7.063 eV gap=  15.142 eV
+    4    -306.7562101848482143    -1.66e-02  1.39e-03  2.88e-02  2.70e-02  0.000   0.2
+
+  HOMO=  23 E= -8.018 eV LUMO=  7.019 eV gap=  15.037 eV
+    5    -306.7927487307324554    -3.65e-02  2.95e-04  8.26e-03  5.60e-03  0.000   0.2
+
+  HOMO=  23 E= -8.031 eV LUMO=  6.960 eV gap=  14.991 eV
+    6    -306.7928777129715172    -1.29e-04  7.82e-05  1.11e-03  2.04e-03  0.000   0.1
+
+  HOMO=  23 E= -8.032 eV LUMO=  6.982 eV gap=  15.014 eV
+    7    -306.7928876883466955    -9.98e-06  2.46e-05  4.40e-04  5.15e-04  0.000   0.1
+
+  HOMO=  23 E= -8.017 eV LUMO=  6.990 eV gap=  15.007 eV
+               *** Restarting incremental Fock matrix formation ***
+                             ****Resetting DIIS****
+    8    -306.7928853990963489     2.29e-06  1.37e-05  3.14e-04  1.52e-04  0.000   0.2
+
+  HOMO=  23 E= -8.016 eV LUMO=  0.186 eV gap=   8.203 eV
+    9    -306.7928855040337339    -1.05e-07  3.65e-06  1.33e-04  7.05e-05  0.000   0.2
+
+  HOMO=  23 E= -8.016 eV LUMO=  0.187 eV gap=   8.203 eV
+   10    -306.7928855160794228    -1.20e-08  1.73e-06  4.97e-05  5.14e-05  0.000   0.2
+                 **** Energy Check signals convergence ****
+
+  HOMO=  23 E= -8.015 eV LUMO=  0.187 eV gap=   8.203 eV
+
+               *****************************************************
+               *                     SUCCESS                       *
+               *           SCF CONVERGED AFTER  10 CYCLES          *
+               *****************************************************
+
+Recomputing exchange energy using gridx3       ... done (    0.257 sec)
+Old exchange energy                            :     -9.953478943 Eh
+New exchange energy                            :     -9.953504285 Eh
+Exchange energy change after final integration :     -0.000025342 Eh
+Total energy after final integration           :   -306.792910858 Eh
+             **** ENERGY FILE WAS UPDATED (inpJ.en.tmp) ****
+
+----------------
+TOTAL SCF ENERGY
+----------------
+
+Total Energy       :       -306.79291085816430 Eh           -8348.25952 eV
+
+Components:
+Nuclear Repulsion  :        246.46450558339578 Eh            6706.64016 eV
+Electronic Energy  :       -553.24954145296681 Eh          -15054.68539 eV
+One Electron Energy:       -904.69026027155189 Eh          -24617.87353 eV
+Two Electron Energy:        351.44071881858508 Eh            9563.18814 eV
+CPCM Dielectric    :         -0.00784964650832 Eh              -0.21360 eV
+
+Virial components:
+Potential Energy   :       -611.53794879105317 Eh          -16640.79359 eV
+Kinetic Energy     :        304.74503793288886 Eh            8292.53407 eV
+Virial Ratio       :          2.00671995494715
+
+DFT components:
+N(Alpha)           :       24.000005388858 electrons
+N(Beta)            :       24.000005388858 electrons
+N(Total)           :       48.000010777716 electrons
+E(X)               :      -29.830411979708 Eh       
+E(C)               :       -1.592648500316 Eh       
+E(XC)              :      -31.423060480024 Eh       
+
+CPCM Solvation Model Properties:
+Surface-charge          :         -0.01297012805805
+Corrected charge        :          0.00000000000000
+Outlying charge corr.   :          0.00001087027357 Eh               0.00030 eV
+Free-energy (cav+disp)  :  This term is not implemented in the current solvation scheme
+
+---------------
+SCF CONVERGENCE
+---------------
+
+  Last Energy change         ...    1.2046e-08  Tolerance :   1.0000e-07
+  Last MAX-Density change    ...    4.9668e-05  Tolerance :   1.0000e-05
+  Last RMS-Density change    ...    1.7344e-06  Tolerance :   1.0000e-06
+  Last DIIS Error            ...    5.1426e-05  Tolerance :   1.0000e-07
+
+
+----------------
+ORBITAL ENERGIES
+----------------
+
+  NO   OCC          E(Eh)            E(eV) 
+   0   2.0000     -19.286900      -524.8232 
+   1   2.0000     -19.232277      -523.3368 
+   2   2.0000     -10.405658      -283.1523 
+   3   2.0000     -10.308156      -280.4992 
+   4   2.0000     -10.251387      -278.9544 
+   5   2.0000     -10.238751      -278.6106 
+   6   2.0000      -1.150556       -31.3082 
+   7   2.0000      -1.062245       -28.9051 
+   8   2.0000      -0.816585       -22.2204 
+   9   2.0000      -0.767550       -20.8861 
+  10   2.0000      -0.676233       -18.4012 
+  11   2.0000      -0.575216       -15.6524 
+  12   2.0000      -0.528346       -14.3770 
+  13   2.0000      -0.506110       -13.7719 
+  14   2.0000      -0.490850       -13.3567 
+  15   2.0000      -0.458625       -12.4798 
+  16   2.0000      -0.443835       -12.0774 
+  17   2.0000      -0.424061       -11.5393 
+  18   2.0000      -0.411708       -11.2031 
+  19   2.0000      -0.391188       -10.6448 
+  20   2.0000      -0.382132       -10.3983 
+  21   2.0000      -0.352271        -9.5858 
+  22   2.0000      -0.319911        -8.7052 
+  23   2.0000      -0.294551        -8.0151 
+  24   0.0000       0.006882         0.1873 
+  25   0.0000       0.125182         3.4064 
+  26   0.0000       0.133764         3.6399 
+  27   0.0000       0.136186         3.7058 
+  28   0.0000       0.144830         3.9410 
+  29   0.0000       0.156328         4.2539 
+  30   0.0000       0.170246         4.6326 
+  31   0.0000       0.175495         4.7755 
+  32   0.0000       0.188612         5.1324 
+  33   0.0000       0.189083         5.1452 
+  34   0.0000       0.262915         7.1543 
+*Only the first 10 virtual orbitals were printed.
+
+                    ********************************
+                    * MULLIKEN POPULATION ANALYSIS *
+                    ********************************
+
+-----------------------
+MULLIKEN ATOMIC CHARGES
+-----------------------
+   0 C :   -0.651423
+   1 C :    0.348607
+   2 H :    0.240335
+   3 H :    0.241373
+   4 H :    0.254173
+   5 O :   -0.334795
+   6 O :   -0.370080
+   7 C :   -0.237743
+   8 C :   -0.625720
+   9 H :    0.227964
+  10 H :    0.253945
+  11 H :    0.218924
+  12 H :    0.218904
+  13 H :    0.215535
+Sum of atomic charges:   -0.0000000
+
+--------------------------------
+MULLIKEN REDUCED ORBITAL CHARGES
+--------------------------------
+  0 C s       :     3.358798  s :     3.358798
+      pz      :     1.206072  p :     3.292626
+      px      :     0.999419
+      py      :     1.087135
+
+  1 C s       :     3.204961  s :     3.204961
+      pz      :     0.820399  p :     2.446432
+      px      :     0.811343
+      py      :     0.814691
+
+  2 H s       :     0.759665  s :     0.759665
+
+  3 H s       :     0.758627  s :     0.758627
+
+  4 H s       :     0.745827  s :     0.745827
+
+  5 O s       :     3.694436  s :     3.694436
+      pz      :     1.442125  p :     4.640359
+      px      :     1.788453
+      py      :     1.409780
+
+  6 O s       :     3.691098  s :     3.691098
+      pz      :     1.700885  p :     4.678982
+      px      :     1.282284
+      py      :     1.695812
+
+  7 C s       :     3.327317  s :     3.327317
+      pz      :     1.049731  p :     2.910426
+      px      :     0.779111
+      py      :     1.081584
+
+  8 C s       :     3.335301  s :     3.335301
+      pz      :     0.993671  p :     3.290419
+      px      :     1.108871
+      py      :     1.187878
+
+  9 H s       :     0.772036  s :     0.772036
+
+ 10 H s       :     0.746055  s :     0.746055
+
+ 11 H s       :     0.781076  s :     0.781076
+
+ 12 H s       :     0.781096  s :     0.781096
+
+ 13 H s       :     0.784465  s :     0.784465
+
+
+------------------------
+MULLIKEN OVERLAP CHARGES
+------------------------
+B(  0-C ,  1-C ) :   0.4291 B(  0-C ,  2-H ) :   0.7404 B(  0-C ,  3-H ) :   0.7575 
+B(  0-C ,  4-H ) :   0.7588 B(  0-C ,  5-O ) :  -0.1568 B(  0-C ,  6-O ) :  -0.1162 
+B(  1-C ,  2-H ) :  -0.0701 B(  1-C ,  3-H ) :  -0.0998 B(  1-C ,  4-H ) :  -0.0821 
+B(  1-C ,  5-O ) :   1.3816 B(  1-C ,  6-O ) :   0.6644 B(  1-C ,  7-C ) :  -0.1357 
+B(  5-O ,  6-O ) :  -0.1275 B(  6-O ,  7-C ) :   0.4990 B(  6-O ,  8-C ) :  -0.0863 
+B(  6-O ,  9-H ) :  -0.0663 B(  7-C ,  8-C ) :   0.5511 B(  7-C ,  9-H ) :   0.7463 
+B(  7-C , 10-H ) :   0.7847 B(  7-C , 11-H ) :  -0.0770 B(  7-C , 12-H ) :  -0.0561 
+B(  7-C , 13-H ) :  -0.0855 B(  8-C ,  9-H ) :  -0.0766 B(  8-C , 10-H ) :  -0.0803 
+B(  8-C , 11-H ) :   0.7699 B(  8-C , 12-H ) :   0.7520 B(  8-C , 13-H ) :   0.7717 
+
+
+
+                      *****************************
+                      * MAYER POPULATION ANALYSIS *
+                      *****************************
+
+  NA   - Mulliken gross atomic population
+  ZA   - Total nuclear charge
+  QA   - Mulliken gross atomic charge
+  VA   - Mayer's total valence
+  BVA  - Mayer's bonded valence
+  FA   - Mayer's free valence
+
+  ATOM       NA         ZA         QA         VA         BVA        FA
+  0 C      6.6514     6.0000    -0.6514     3.6873     3.6873    -0.0000
+  1 C      5.6514     6.0000     0.3486     3.9266     3.9266    -0.0000
+  2 H      0.7597     1.0000     0.2403     0.9467     0.9467    -0.0000
+  3 H      0.7586     1.0000     0.2414     0.9433     0.9433    -0.0000
+  4 H      0.7458     1.0000     0.2542     0.9302     0.9302    -0.0000
+  5 O      8.3348     8.0000    -0.3348     2.2974     2.2974    -0.0000
+  6 O      8.3701     8.0000    -0.3701     2.2047     2.2047    -0.0000
+  7 C      6.2377     6.0000    -0.2377     3.6198     3.6198     0.0000
+  8 C      6.6257     6.0000    -0.6257     3.7545     3.7545     0.0000
+  9 H      0.7720     1.0000     0.2280     0.9469     0.9469     0.0000
+ 10 H      0.7461     1.0000     0.2539     0.9313     0.9313     0.0000
+ 11 H      0.7811     1.0000     0.2189     0.9532     0.9532    -0.0000
+ 12 H      0.7811     1.0000     0.2189     0.9460     0.9460    -0.0000
+ 13 H      0.7845     1.0000     0.2155     0.9479     0.9479    -0.0000
+
+  Mayer bond orders larger than 0.100000
+B(  0-C ,  1-C ) :   0.8524 B(  0-C ,  2-H ) :   0.9213 B(  0-C ,  3-H ) :   0.9264 
+B(  0-C ,  4-H ) :   0.9156 B(  1-C ,  5-O ) :   2.0015 B(  1-C ,  6-O ) :   1.0927 
+B(  5-O ,  6-O ) :   0.1599 B(  6-O ,  7-C ) :   0.8575 B(  7-C ,  8-C ) :   0.9455 
+B(  7-C ,  9-H ) :   0.8955 B(  7-C , 10-H ) :   0.9190 B(  8-C , 11-H ) :   0.9347 
+B(  8-C , 12-H ) :   0.9314 B(  8-C , 13-H ) :   0.9372 
+
+-------
+TIMINGS
+-------
+
+Total SCF time: 0 days 0 hours 0 min 2 sec 
+
+Total time                  ....       2.095 sec
+Sum of individual times     ....       2.081 sec  ( 99.3%)
+
+SCF preparation             ....       0.115 sec  (  5.5%)
+Fock matrix formation       ....       1.898 sec  ( 90.6%)
+  Startup                   ....       0.004 sec  (  0.2% of F)
+  Split-RI-J                ....       0.149 sec  (  7.9% of F)
+  Chain of spheres X        ....       1.006 sec  ( 53.0% of F)
+  XC integration            ....       0.359 sec  ( 18.9% of F)
+    XC Preparation          ....       0.000 sec  (  0.0% of XC)
+    Basis function eval.    ....       0.133 sec  ( 36.9% of XC)
+    Density eval.           ....       0.061 sec  ( 17.1% of XC)
+    XC-Functional eval.     ....       0.043 sec  ( 12.0% of XC)
+    XC-Potential eval.      ....       0.048 sec  ( 13.5% of XC)
+  CPCM terms                ....       0.366 sec  ( 19.3% of F)
+Diagonalization             ....       0.000 sec  (  0.0%)
+Density matrix formation    ....       0.006 sec  (  0.3%)
+Total Energy calculation    ....       0.006 sec  (  0.3%)
+Population analysis         ....       0.002 sec  (  0.1%)
+Orbital Transformation      ....       0.005 sec  (  0.3%)
+Orbital Orthonormalization  ....       0.000 sec  (  0.0%)
+DIIS solution               ....       0.048 sec  (  2.3%)
+Finished LeanSCF after   2.1 sec
+
+Maximum memory used throughout the entire LEANSCF-calculation: 12.0 MB
+
+
+           ************************************************************
+           *        Program running with 4 parallel MPI-processes     *
+           *              working on a common directory               *
+           ************************************************************
+
+------------------------------------------------------------------------------
+                         ORCA PROPERTY INTEGRAL CALCULATIONS
+------------------------------------------------------------------------------
+
+GBWName                                   ... inpJ.gbw
+Number of atoms                           ...     14
+Number of basis functions                 ...    102
+Max core memory                           ...   8000 MB
+
+Dipole integrals                          ... YES
+Quadrupole integrals                      ...  NO
+Linear momentum integrals                 ...  NO
+Angular momentum integrals                ...  NO
+Higher moments length integrals           ...  NO
+Higher moments velocity integrals         ...  NO
+Kinetic energy integrals                  ...  NO
+GIAO right hand sides                     ...  NO
+GIAO dipole derivative integrals          ...  NO
+SOC integrals                             ...  NO
+EPR diamagnetic integrals (GIAO)          ...  NO
+EPR gauge integrals                       ...  NO
+Field gradient integrals                  ...  NO (   0 nuclei)
+Spin-dipole/Fermi contact integrals       ... YES (   8 nuclei)
+Contact density integrals                 ...  NO (   0 nuclei)
+Nucleus-orbit integrals                   ...  NO (   0 nuclei)
+Geometric perturbations                   ...  NO (  14 nuclei)
+
+Choice of electric origin   ... Center of mass
+Position of electric origin ... (  0.0000, -0.0000,  0.0000) 
+Choice of magnetic origin   ... GIAO
+Position of magnetic origin ... (  0.0000,  0.0000,  0.0000) 
+
+Calculating integrals                     ... Electric Dipole (Length)     done (  0.0 sec)
+Calculating integrals                     ... SD/FC/EFG integrals          done (  0.0 sec)
+
+Property integrals calculated in   0.0 sec
+
+Maximum memory used throughout the entire PROPINT-calculation: 6.9 MB
+
+
+-------------------------------------------------------------------------------
+                          DFT DISPERSION CORRECTION                            
+                                                                               
+                                DFTD4 V3.4.0                                   
+-------------------------------------------------------------------------------
+The PBE0 functional is recognized
+Active option DFTDOPT                   ...         5   
+
+-------------------------   ----------------
+Dispersion correction           -0.007639930
+-------------------------   ----------------
+
+
+-------------------------   --------------------
+FINAL SINGLE POINT ENERGY      -306.800550788556
+-------------------------   --------------------
+
+
+
+           ************************************************************
+           *        Program running with 4 parallel MPI-processes     *
+           *              working on a common directory               *
+           ************************************************************
+------------------------------------------------------------------------------
+                            ORCA SCF RESPONSE CALCULATION
+------------------------------------------------------------------------------
+
+GBWName                                 ... inpJ.gbw
+Number of atoms                         ...     14
+Number of basis functions               ...    102
+Max core memory                         ...   8000 MB
+
+Electric field perturbation             ...  NO
+Quadrupolar field perturbation          ...  NO
+Magnetic field perturbation (no GIAO)   ...  NO
+Magnetic field perturbation (with GIAO) ...  NO
+Linear momentum (velocity) perturbation ...  NO
+Spin-orbit coupling perturbation        ...  NO
+Choice of electric origin               ... Center of mass
+Position of electric origin             ...     0.000014    -0.000011     0.000004
+Choice of magnetic origin               ... GIAO
+Position of magnetic origin             ...     0.000000     0.000000     0.000000
+Nuclear geometric perturbations         ...  NO (  42 perturbations)
+Nucleus-orbit perturbations             ...  NO (   0 perturbations)
+Spin-dipole/Fermi contact perturbations ... YES (   7 perturbations)
+
+Total number of real perturbations      ...      0
+Total number of imaginary perturbations ...      0
+Total number of triplet perturbations   ...      7
+Total number of SOC perturbations       ...      0
+
+Using XC Grid                  ... (inpJ.grid_cpscf.tmp) 
+Recalculating density on grid  ... (inpJ.grho_cpscf0.tmp) done
+Calculating the xc-kernel      ... (inpJ.fxc_cpscf0.tmp) done
+
+                               *************************
+                               * TRIPLET PERTURBATIONS *
+                               *************************
+
+
+
+-------------------
+SHARK CP-SCF DRIVER
+-------------------
+
+Dimension of the orbital basis          ...    102
+Dimension of the CPSCF-problem          ...   1872
+Number of operators                     ...      1
+Max. number of iterations               ...    128
+Convergence Tolerance                   ... 1.0e-03
+Number of perturbations                 ...      7
+Perturbation type                       ... TRIPLET
+
+----------------------------
+POPLE LINEAR EQUATION SOLVER
+----------------------------
+
+  ITERATION   0:   ||err||_max =   5.5839e-01 (   0.1 sec   0/  7 done)
+  ITERATION   1:   ||err||_max =   6.8954e-02 (   0.1 sec   0/  7 done)
+  ITERATION   2:   ||err||_max =   1.4239e-02 (   0.1 sec   0/  7 done)
+  ITERATION   3:   ||err||_max =   3.4471e-03 (   0.1 sec   0/  7 done)
+  ITERATION   4:   ||err||_max =   7.8865e-04 (   0.1 sec   7/  7 done)
+
+CP-SCF equations solved in   0.5 sec
+Response densities calculated in   0.0 sec
+
+Maximum memory used throughout the entire SCFRESP-calculation: 12.5 MB
+
+
+           ************************************************************
+           *        Program running with 4 parallel MPI-processes     *
+           *              working on a common directory               *
+           ************************************************************
+
+------------------------------------------------------------------------------
+                              ORCA PROPERTY CALCULATIONS
+------------------------------------------------------------------------------
+
+GBWName                                 ... inpJ.gbw
+Number of atoms                         ...     14
+Number of basis functions               ...    102
+Max core memory                         ...   8000 MB
+
+Electric properties:
+Dipole moment                           ... YES
+Quadrupole moment                       ...  NO
+Static polarizability (Dipole/Dipole)   ...  NO
+Static polarizability (Dipole/Quad.)    ...  NO
+Static polarizability (Quad./Quad.)     ...  NO
+Static polarizability (Velocity)        ...  NO
+
+Atomic electric properties:
+Dipole moment                           ...  NO
+Quadrupole moment                       ...  NO
+Static polarizability                   ...  NO
+
+Choice of electric origin               ... Center of mass
+Position of electric origin             ...     0.000014    -0.000011     0.000004
+
+General magnetic properties:
+Magnetizability                         ...  NO
+
+EPR properties:
+g-Tensor (aka g-matrix)                 ...  NO
+Zero-Field splitting spin-orbit         ...  NO
+Zero-field splitting spin-spin          ...  NO
+Hyperfine couplings                     ...  NO (   0 nuclei)
+Quadrupole couplings                    ...  NO (   0 nuclei)
+Contact density                         ...  NO (   0 nuclei)
+
+NMR properties:
+Chemical shifts                         ...  NO (   0 nuclei)
+Spin-rotation constants                 ...  NO (   0 nuclei)
+Spin-spin couplings                     ... YES (   8 nuclei,   28 pairs)
+
+Choice of magnetic origin               ... GIAO
+Position of magnetic origin             ...     0.000000     0.000000     0.000000
+
+Properties with geometric perturbations:
+SCF Hessian                             ...  NO
+IR spectrum                             ...  NO
+VCD spectrum                            ...  NO
+X-ray spectroscopy properties:
+SCF XES/XAS/RIXS spectra                ...  NO
+
+
+-------------
+DIPOLE MOMENT
+-------------
+
+Method             : SCF
+Type of density    : Electron Density
+Multiplicity       :   1
+Irrep              :   0
+Energy             :  -306.7929108581643050 Eh
+Relativity type    : 
+Basis              : AO
+                                X                 Y                 Z
+Electronic contribution:     -2.613273918       1.324127570      -1.255978360
+Nuclear contribution   :      3.024617533      -2.046933232       1.060925621
+                        -----------------------------------------
+Total Dipole Moment    :      0.411343615      -0.722805662      -0.195052740
+                        -----------------------------------------
+Magnitude (a.u.)       :      0.854223136
+Magnitude (Debye)      :      2.171262660
+
+
+
+--------------------
+Rotational spectrum 
+--------------------
+ 
+Rotational constants in cm-1:             0.242615             0.077156             0.068498 
+Rotational constants in MHz :          7273.418718          2313.070324          2053.520527 
+
+Dipole components along the rotational axes: 
+x,y,z [a.u.] :     0.330229    -0.780735     0.105351 
+x,y,z [Debye]:     0.839376    -1.984471     0.267780 
+
+ 
+
+Dipole moment calculation done in   0.0 sec 
+
+
+-----------------------------------------------------------------------
+                     NMR SPIN-SPIN COUPLING CONSTANTS
+                     ================================
+
+    Number of nuclear pairs to calculate something:       28
+                                                        ----
+    Number of nuclear pairs to calculate DSO   terms:      0
+    Number of nuclear pairs to calculate PSO   terms:      0
+    Number of nuclear pairs to calculate FC    terms:     28
+    Number of nuclear pairs to calculate SD    terms:      0
+    Number of nuclear pairs to calculate SD/FC terms:      0
+-----------------------------------------------------------------------
+
+Processing SD/FC nuclear pairs ... done (   0.0 sec)
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H    3 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7970
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+      -10.7446         0.0000        0.0000
+        0.0000       -10.7446        0.0000
+        0.0000         0.0000      -10.7446
+
+Total spin-spin coupling tensor J (Hz):
+      -10.7446         0.0000        0.0000
+        0.0000       -10.7446        0.0000
+        0.0000         0.0000      -10.7446
+
+ Diagonalized JT*J matrix:
+ 
+ J[2,3](FC)           -10.745          -10.745          -10.745  iso=    -10.745
+              ---------------  ---------------  ---------------  ---------------
+ J[2,3](Total)        -10.745          -10.745          -10.745  iso=    -10.745
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H    4 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7693
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+      -17.1911         0.0000        0.0000
+        0.0000       -17.1911        0.0000
+        0.0000         0.0000      -17.1911
+
+Total spin-spin coupling tensor J (Hz):
+      -17.1911         0.0000        0.0000
+        0.0000       -17.1911        0.0000
+        0.0000         0.0000      -17.1911
+
+ Diagonalized JT*J matrix:
+ 
+ J[2,4](FC)           -17.191          -17.191          -17.191  iso=    -17.191
+              ---------------  ---------------  ---------------  ---------------
+ J[2,4](Total)        -17.191          -17.191          -17.191  iso=    -17.191
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H    9 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     4.3084
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        0.0755         0.0000        0.0000
+        0.0000         0.0755        0.0000
+        0.0000         0.0000        0.0755
+
+Total spin-spin coupling tensor J (Hz):
+        0.0755         0.0000        0.0000
+        0.0000         0.0755        0.0000
+        0.0000         0.0000        0.0755
+
+ Diagonalized JT*J matrix:
+ 
+ J[2,9](FC)             0.075            0.075            0.075  iso=      0.075
+              ---------------  ---------------  ---------------  ---------------
+ J[2,9](Total)          0.075            0.075            0.075  iso=      0.075
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H   10 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     4.3244
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+       -0.0321         0.0000        0.0000
+        0.0000        -0.0321        0.0000
+        0.0000         0.0000       -0.0321
+
+Total spin-spin coupling tensor J (Hz):
+       -0.0321         0.0000        0.0000
+        0.0000        -0.0321        0.0000
+        0.0000         0.0000       -0.0321
+
+ Diagonalized JT*J matrix:
+ 
+ J[2,10](FC)            -0.032           -0.032           -0.032  iso=     -0.032
+               ---------------  ---------------  ---------------  ---------------
+ J[2,10](Total)         -0.032           -0.032           -0.032  iso=     -0.032
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H   11 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     4.8489
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+       -0.0124         0.0000        0.0000
+        0.0000        -0.0124        0.0000
+        0.0000         0.0000       -0.0124
+
+Total spin-spin coupling tensor J (Hz):
+       -0.0124         0.0000        0.0000
+        0.0000        -0.0124        0.0000
+        0.0000         0.0000       -0.0124
+
+ Diagonalized JT*J matrix:
+ 
+ J[2,11](FC)            -0.012           -0.012           -0.012  iso=     -0.012
+               ---------------  ---------------  ---------------  ---------------
+ J[2,11](Total)         -0.012           -0.012           -0.012  iso=     -0.012
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H   12 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     5.8341
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        0.0530         0.0000        0.0000
+        0.0000         0.0530        0.0000
+        0.0000         0.0000        0.0530
+
+Total spin-spin coupling tensor J (Hz):
+        0.0530         0.0000        0.0000
+        0.0000         0.0530        0.0000
+        0.0000         0.0000        0.0530
+
+ Diagonalized JT*J matrix:
+ 
+ J[2,12](FC)             0.053            0.053            0.053  iso=      0.053
+               ---------------  ---------------  ---------------  ---------------
+ J[2,12](Total)          0.053            0.053            0.053  iso=      0.053
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    2 NUCLEUS B = H   13 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     4.8422
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+       -0.0202         0.0000        0.0000
+        0.0000        -0.0202        0.0000
+        0.0000         0.0000       -0.0202
+
+Total spin-spin coupling tensor J (Hz):
+       -0.0202         0.0000        0.0000
+        0.0000        -0.0202        0.0000
+        0.0000         0.0000       -0.0202
+
+ Diagonalized JT*J matrix:
+ 
+ J[2,13](FC)            -0.020           -0.020           -0.020  iso=     -0.020
+               ---------------  ---------------  ---------------  ---------------
+ J[2,13](Total)         -0.020           -0.020           -0.020  iso=     -0.020
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = H    4 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7756
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+      -15.8813         0.0000        0.0000
+        0.0000       -15.8813        0.0000
+        0.0000         0.0000      -15.8813
+
+Total spin-spin coupling tensor J (Hz):
+      -15.8813         0.0000        0.0000
+        0.0000       -15.8813        0.0000
+        0.0000         0.0000      -15.8813
+
+ Diagonalized JT*J matrix:
+ 
+ J[3,4](FC)           -15.881          -15.881          -15.881  iso=    -15.881
+              ---------------  ---------------  ---------------  ---------------
+ J[3,4](Total)        -15.881          -15.881          -15.881  iso=    -15.881
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = H    9 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     4.5564
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+       -0.0015         0.0000        0.0000
+        0.0000        -0.0015        0.0000
+        0.0000         0.0000       -0.0015
+
+Total spin-spin coupling tensor J (Hz):
+       -0.0015         0.0000        0.0000
+        0.0000        -0.0015        0.0000
+        0.0000         0.0000       -0.0015
+
+ Diagonalized JT*J matrix:
+ 
+ J[3,9](FC)            -0.001           -0.001           -0.001  iso=     -0.001
+              ---------------  ---------------  ---------------  ---------------
+ J[3,9](Total)         -0.001           -0.001           -0.001  iso=     -0.001
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = H   10 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     5.2070
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        0.2311         0.0000        0.0000
+        0.0000         0.2311        0.0000
+        0.0000         0.0000        0.2311
+
+Total spin-spin coupling tensor J (Hz):
+        0.2311         0.0000        0.0000
+        0.0000         0.2311        0.0000
+        0.0000         0.0000        0.2311
+
+ Diagonalized JT*J matrix:
+ 
+ J[3,10](FC)             0.231            0.231            0.231  iso=      0.231
+               ---------------  ---------------  ---------------  ---------------
+ J[3,10](Total)          0.231            0.231            0.231  iso=      0.231
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = H   11 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     4.8721
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        0.0198         0.0000        0.0000
+        0.0000         0.0198        0.0000
+        0.0000         0.0000        0.0198
+
+Total spin-spin coupling tensor J (Hz):
+        0.0198         0.0000        0.0000
+        0.0000         0.0198        0.0000
+        0.0000         0.0000        0.0198
+
+ Diagonalized JT*J matrix:
+ 
+ J[3,11](FC)             0.020            0.020            0.020  iso=      0.020
+               ---------------  ---------------  ---------------  ---------------
+ J[3,11](Total)          0.020            0.020            0.020  iso=      0.020
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = H   12 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     6.2039
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        0.0388         0.0000        0.0000
+        0.0000         0.0388        0.0000
+        0.0000         0.0000        0.0388
+
+Total spin-spin coupling tensor J (Hz):
+        0.0388         0.0000        0.0000
+        0.0000         0.0388        0.0000
+        0.0000         0.0000        0.0388
+
+ Diagonalized JT*J matrix:
+ 
+ J[3,12](FC)             0.039            0.039            0.039  iso=      0.039
+               ---------------  ---------------  ---------------  ---------------
+ J[3,12](Total)          0.039            0.039            0.039  iso=      0.039
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    3 NUCLEUS B = H   13 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     5.4651
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        0.0372         0.0000        0.0000
+        0.0000         0.0372        0.0000
+        0.0000         0.0000        0.0372
+
+Total spin-spin coupling tensor J (Hz):
+        0.0372         0.0000        0.0000
+        0.0000         0.0372        0.0000
+        0.0000         0.0000        0.0372
+
+ Diagonalized JT*J matrix:
+ 
+ J[3,13](FC)             0.037            0.037            0.037  iso=      0.037
+               ---------------  ---------------  ---------------  ---------------
+ J[3,13](Total)          0.037            0.037            0.037  iso=      0.037
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    4 NUCLEUS B = H    9 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     4.5641
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        0.3268         0.0000        0.0000
+        0.0000         0.3268        0.0000
+        0.0000         0.0000        0.3268
+
+Total spin-spin coupling tensor J (Hz):
+        0.3268         0.0000        0.0000
+        0.0000         0.3268        0.0000
+        0.0000         0.0000        0.3268
+
+ Diagonalized JT*J matrix:
+ 
+ J[4,9](FC)             0.327            0.327            0.327  iso=      0.327
+              ---------------  ---------------  ---------------  ---------------
+ J[4,9](Total)          0.327            0.327            0.327  iso=      0.327
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    4 NUCLEUS B = H   10 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     4.7891
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        0.0710         0.0000        0.0000
+        0.0000         0.0710        0.0000
+        0.0000         0.0000        0.0710
+
+Total spin-spin coupling tensor J (Hz):
+        0.0710         0.0000        0.0000
+        0.0000         0.0710        0.0000
+        0.0000         0.0000        0.0710
+
+ Diagonalized JT*J matrix:
+ 
+ J[4,10](FC)             0.071            0.071            0.071  iso=      0.071
+               ---------------  ---------------  ---------------  ---------------
+ J[4,10](Total)          0.071            0.071            0.071  iso=      0.071
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    4 NUCLEUS B = H   11 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     4.1659
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+       -0.0428         0.0000        0.0000
+        0.0000        -0.0428        0.0000
+        0.0000         0.0000       -0.0428
+
+Total spin-spin coupling tensor J (Hz):
+       -0.0428         0.0000        0.0000
+        0.0000        -0.0428        0.0000
+        0.0000         0.0000       -0.0428
+
+ Diagonalized JT*J matrix:
+ 
+ J[4,11](FC)            -0.043           -0.043           -0.043  iso=     -0.043
+               ---------------  ---------------  ---------------  ---------------
+ J[4,11](Total)         -0.043           -0.043           -0.043  iso=     -0.043
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    4 NUCLEUS B = H   12 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     5.5410
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        0.0694         0.0000        0.0000
+        0.0000         0.0694        0.0000
+        0.0000         0.0000        0.0694
+
+Total spin-spin coupling tensor J (Hz):
+        0.0694         0.0000        0.0000
+        0.0000         0.0694        0.0000
+        0.0000         0.0000        0.0694
+
+ Diagonalized JT*J matrix:
+ 
+ J[4,12](FC)             0.069            0.069            0.069  iso=      0.069
+               ---------------  ---------------  ---------------  ---------------
+ J[4,12](Total)          0.069            0.069            0.069  iso=      0.069
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    4 NUCLEUS B = H   13 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     4.3893
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+       -0.0322         0.0000        0.0000
+        0.0000        -0.0322        0.0000
+        0.0000         0.0000       -0.0322
+
+Total spin-spin coupling tensor J (Hz):
+       -0.0322         0.0000        0.0000
+        0.0000        -0.0322        0.0000
+        0.0000         0.0000       -0.0322
+
+ Diagonalized JT*J matrix:
+ 
+ J[4,13](FC)            -0.032           -0.032           -0.032  iso=     -0.032
+               ---------------  ---------------  ---------------  ---------------
+ J[4,13](Total)         -0.032           -0.032           -0.032  iso=     -0.032
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    9 NUCLEUS B = H   10 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7848
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+      -10.7625         0.0000        0.0000
+        0.0000       -10.7625        0.0000
+        0.0000         0.0000      -10.7625
+
+Total spin-spin coupling tensor J (Hz):
+      -10.7625         0.0000        0.0000
+        0.0000       -10.7625        0.0000
+        0.0000         0.0000      -10.7625
+
+ Diagonalized JT*J matrix:
+ 
+ J[9,10](FC)           -10.762          -10.762          -10.762  iso=    -10.762
+               ---------------  ---------------  ---------------  ---------------
+ J[9,10](Total)        -10.762          -10.762          -10.762  iso=    -10.762
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    9 NUCLEUS B = H   11 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     2.5112
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        4.7852         0.0000        0.0000
+        0.0000         4.7852        0.0000
+        0.0000         0.0000        4.7852
+
+Total spin-spin coupling tensor J (Hz):
+        4.7852         0.0000        0.0000
+        0.0000         4.7852        0.0000
+        0.0000         0.0000        4.7852
+
+ Diagonalized JT*J matrix:
+ 
+ J[9,11](FC)             4.785            4.785            4.785  iso=      4.785
+               ---------------  ---------------  ---------------  ---------------
+ J[9,11](Total)          4.785            4.785            4.785  iso=      4.785
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    9 NUCLEUS B = H   12 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     2.5154
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        1.7618         0.0000        0.0000
+        0.0000         1.7618        0.0000
+        0.0000         0.0000        1.7618
+
+Total spin-spin coupling tensor J (Hz):
+        1.7618         0.0000        0.0000
+        0.0000         1.7618        0.0000
+        0.0000         0.0000        1.7618
+
+ Diagonalized JT*J matrix:
+ 
+ J[9,12](FC)             1.762            1.762            1.762  iso=      1.762
+               ---------------  ---------------  ---------------  ---------------
+ J[9,12](Total)          1.762            1.762            1.762  iso=      1.762
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H    9 NUCLEUS B = H   13 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     3.0795
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+       13.4653         0.0000        0.0000
+        0.0000        13.4653        0.0000
+        0.0000         0.0000       13.4653
+
+Total spin-spin coupling tensor J (Hz):
+       13.4653         0.0000        0.0000
+        0.0000        13.4653        0.0000
+        0.0000         0.0000       13.4653
+
+ Diagonalized JT*J matrix:
+ 
+ J[9,13](FC)            13.465           13.465           13.465  iso=     13.465
+               ---------------  ---------------  ---------------  ---------------
+ J[9,13](Total)         13.465           13.465           13.465  iso=     13.465
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H   10 NUCLEUS B = H   11 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     3.0783
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+       14.1506         0.0000        0.0000
+        0.0000        14.1506        0.0000
+        0.0000         0.0000       14.1506
+
+Total spin-spin coupling tensor J (Hz):
+       14.1506         0.0000        0.0000
+        0.0000        14.1506        0.0000
+        0.0000         0.0000       14.1506
+
+ Diagonalized JT*J matrix:
+ 
+ J[10,11](FC)            14.151           14.151           14.151  iso=     14.151
+                ---------------  ---------------  ---------------  ---------------
+ J[10,11](Total)         14.151           14.151           14.151  iso=     14.151
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H   10 NUCLEUS B = H   12 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     2.5010
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        2.4270         0.0000        0.0000
+        0.0000         2.4270        0.0000
+        0.0000         0.0000        2.4270
+
+Total spin-spin coupling tensor J (Hz):
+        2.4270         0.0000        0.0000
+        0.0000         2.4270        0.0000
+        0.0000         0.0000        2.4270
+
+ Diagonalized JT*J matrix:
+ 
+ J[10,12](FC)             2.427            2.427            2.427  iso=      2.427
+                ---------------  ---------------  ---------------  ---------------
+ J[10,12](Total)          2.427            2.427            2.427  iso=      2.427
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H   10 NUCLEUS B = H   13 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     2.5087
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+        4.4714         0.0000        0.0000
+        0.0000         4.4714        0.0000
+        0.0000         0.0000        4.4714
+
+Total spin-spin coupling tensor J (Hz):
+        4.4714         0.0000        0.0000
+        0.0000         4.4714        0.0000
+        0.0000         0.0000        4.4714
+
+ Diagonalized JT*J matrix:
+ 
+ J[10,13](FC)             4.471            4.471            4.471  iso=      4.471
+                ---------------  ---------------  ---------------  ---------------
+ J[10,13](Total)          4.471            4.471            4.471  iso=      4.471
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H   11 NUCLEUS B = H   12 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7740
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+      -14.0412         0.0000        0.0000
+        0.0000       -14.0412        0.0000
+        0.0000         0.0000      -14.0412
+
+Total spin-spin coupling tensor J (Hz):
+      -14.0412         0.0000        0.0000
+        0.0000       -14.0412        0.0000
+        0.0000         0.0000      -14.0412
+
+ Diagonalized JT*J matrix:
+ 
+ J[11,12](FC)           -14.041          -14.041          -14.041  iso=    -14.041
+                ---------------  ---------------  ---------------  ---------------
+ J[11,12](Total)        -14.041          -14.041          -14.041  iso=    -14.041
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H   11 NUCLEUS B = H   13 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7816
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+      -11.1985         0.0000        0.0000
+        0.0000       -11.1985        0.0000
+        0.0000         0.0000      -11.1985
+
+Total spin-spin coupling tensor J (Hz):
+      -11.1985         0.0000        0.0000
+        0.0000       -11.1985        0.0000
+        0.0000         0.0000      -11.1985
+
+ Diagonalized JT*J matrix:
+ 
+ J[11,13](FC)           -11.198          -11.198          -11.198  iso=    -11.198
+                ---------------  ---------------  ---------------  ---------------
+ J[11,13](Total)        -11.198          -11.198          -11.198  iso=    -11.198
+
+
+
+-----------------------------------------------------------
+ NUCLEUS A = H   12 NUCLEUS B = H   13 
+ (  1H  gnA =  5.586   1H  gnB =  5.586) r(AB) =     1.7745
+-----------------------------------------------------------
+
+Fermi-contact contribution to J (Hz):
+      -13.9594         0.0000        0.0000
+        0.0000       -13.9594        0.0000
+        0.0000         0.0000      -13.9594
+
+Total spin-spin coupling tensor J (Hz):
+      -13.9594         0.0000        0.0000
+        0.0000       -13.9594        0.0000
+        0.0000         0.0000      -13.9594
+
+ Diagonalized JT*J matrix:
+ 
+ J[12,13](FC)           -13.959          -13.959          -13.959  iso=    -13.959
+                ---------------  ---------------  ---------------  ---------------
+ J[12,13](Total)        -13.959          -13.959          -13.959  iso=    -13.959
+
+
+
+-----------------------------------------------------------------------------
+                SUMMARY OF ISOTROPIC COUPLING CONSTANTS J (Hz)                
+-----------------------------------------------------------------------------
+                  2 H        3 H        4 H        9 H       10 H       11 H  
+      2 H        0.000    -10.745    -17.191      0.075     -0.032     -0.012
+      3 H      -10.745      0.000    -15.881     -0.001      0.231      0.020
+      4 H      -17.191    -15.881      0.000      0.327      0.071     -0.043
+      9 H        0.075     -0.001      0.327      0.000    -10.762      4.785
+     10 H       -0.032      0.231      0.071    -10.762      0.000     14.151
+     11 H       -0.012      0.020     -0.043      4.785     14.151      0.000
+     12 H        0.053      0.039      0.069      1.762      2.427    -14.041
+     13 H       -0.020      0.037     -0.032     13.465      4.471    -11.198
+                 12 H       13 H  
+      2 H        0.053     -0.020
+      3 H        0.039      0.037
+      4 H        0.069     -0.032
+      9 H        1.762     13.465
+     10 H        2.427      4.471
+     11 H      -14.041    -11.198
+     12 H        0.000    -13.959
+     13 H      -13.959      0.000
+
+NMR spin-spin coupling calculation done in   0.0 sec 
+
+Maximum memory used throughout the entire PROP-calculation: 5.7 MB
+
+--------------------------------
+SUGGESTED CITATIONS FOR THIS RUN
+--------------------------------
+
+Below you find a list of papers that are relevant to this ORCA run
+We neither can nor want to force you to cite these papers, but we appreciate if you do
+You receive ORCA, which is the product of decades of hard work by many enthusiastic individuals, for free
+The only thing we kindly ask in return is that you cite our papers,
+We deeply appreciate it, if you show your appreciation for ORCA by not just citing the generic ORCA reference.
+
+Please note that relegating all ORCA citations to the supporting information does *not* help us.
+SI sections are not indexed - citations you put there will not count into any citation statistics
+But we need these citations in order to attract the funding resources that allow us to do what we are doing
+
+Therefore, if you are a happy ORCA user, please consider citing a few of the papers listed below in the main body of your paper
+
+In addition to the list printed below, the program has created the file inpJ.bibtex that contains the list in bibtex format
+You can import this file easily into all common literature databanks and citation aid programs
+
+
+List of essential papers. We consider these as the minimum necessary citations
+
+  1. Neese,F.
+     Software update: the ORCA program system, version 5.0
+     WIRES Comput. Molec. Sci., 2022 12(1)e1606
+     doi.org/10.1002/wcms.1606
+
+List of papers to cite with high priority. The work reported in these papers was absolutely
+necessary for this run to complete.
+Our perspective: the developers of density functionals and basis sets usually get cited in chemistry papers
+Good! But without the algorithms to do something with them, the functionals or basis sets would not do anything.
+Hence, in our opinion, the algorithm design and method developments papers are equally worthy of getting cited
+
+  1. Neese,F.
+     An improvement of the resolution of the identity approximation for the formation of the Coulomb matrix
+     J. Comp. Chem., 2003 24(14)1740-1747
+     doi.org/10.1002/jcc.10318
+  2. Neese,F.; Wennmohs,F.; Hansen,A.; Becker,U.
+     Efficient, approximate and parallel Hartree-Fock and hybrid DFT calculations. A 'chain-of-spheres' algorithm for the Hartree-Fock exchange
+     Chem. Phys., 2009 356(1-3)98-109
+     doi.org/10.1016/j.chemphys.2008.10.036
+  3. Stoychev,G.L.; Auer,A.A.; Izsak,R.; Neese,F.
+     Self-Consistent Field Calculation of Nuclear Magnetic Resonance Chemical Shielding Constants Using Gauge-Including Atomic Orbitals and Approximate Two-Electron Integrals
+     J. Chem. Theory Comput., 2018 14(2)619-637
+     doi.org/10.1021/acs.jctc.7b01006
+  4. Garcia-Rates,M.; Neese,F.
+     Effect of the Solute Cavity on the Solvation Energy and its Derivatives within the Framework of the Gaussian Charge Scheme
+     J. Comput. Chem., 2020 41 922-939
+     doi.org/10.1002/jcc.26139
+  5. Helmich-Paris,B.; de Souza,B.; Neese,F.; Izsák,R.
+     An improved chain of spheres for exchange algorithm
+     J. Chem. Phys., 2021 155 104109
+     doi.org/doi: 10.1063/5.0058766.
+  6. Neese,F.
+     The SHARK Integral Generation and Digestion System
+     J. Comp. Chem., 2022  1-16
+     doi.org/10.1002/jcc.26942
+  7. Grimme,S.; Bannwarth,C.; Dohm,S.; Hansen,A.; Pisarek,J.; Pracht,P.; Seibert,J.; Neese,F.
+     Fully Automated Quantum-Chemistry-Based Computation of Spin-Spin-Coupled Nuclear Magnetic Resonance Spectra
+     Angew. Chem., Int. Ed., 2017 56 14763-14769
+     doi.org/10.1002/anie.201708266
+  8. Caldeweyher,E.; Bannwarth,C.; Grimme,S.
+     Extension of the D3 dispersion coefficient model
+     J. Chem. Phys., 2017 147 034112
+     doi.org/10.1063/1.4993215
+  9. Caldeweyher,E.; Ehlert,S.; Hansen,A.; Neugebauer,H.; Spicher,S.; Bannwarth,C.; Grimme,S.
+     A generally applicable atomic-charge dependent London dispersion correction
+     J. Chem. Phys., 2019 150 154122
+     doi.org/10.1063/1.5090222
+ 10. Caldeweyher,E.; Mewes,J.; Ehlert,S.; Grimme,S.
+     Extension and evaluation of the D4 London-dispersion model for periodic systems
+     Phys. Chem. Chem. Phys., 2020 22(16)8499-8512
+     doi.org/10.1039/D0CP00502A
+ 11. Wittmann,L.; Gordiy,I.; Friede,M.; Helmich-Paris,B.; Grimme,S.; Hansen,A.; Bursch,M.
+     Extension of the D3 and D4 London Dispersion Corrections to the full Actinides Series
+     Phys. Chem. Chem. Phys., 2024 26(32)21379-21394
+     doi.org/https://doi.org/10.1039/D4CP01514B 
+
+List of suggested additional citations. These are papers that are important in the 'surrounding' of 
+of this run, or papers that preceded the highly important papers. If you like your results we are grateful for a citation.
+
+  1. Izsak,R.; Neese,F.
+     An overlap fitted chain of spheres exchange method
+     J. Chem. Phys., 2011 135 144105
+     doi.org/10.1063/1.3646921
+  2. Izsak,R.; Hansen,A.; Neese,F.
+     The resolution of identity and chain of spheres approximations for the LPNO-CCSD singles Fock term
+     Molec. Phys., 2012 110 2413-2417
+     doi.org/10.1080/00268976.2012.687466
+  3. Neese,F.
+     The ORCA program system
+     WIRES Comput. Molec. Sci., 2012 2(1)73-78
+     doi.org/10.1002/wcms.81
+  4. Izsak,R.; Neese,F.; Klopper,W.
+     Robust fitting techniques in the chain of spheres approximation to the Fock exchange: The role of the complementary space
+     J. Chem. Phys., 2013 139 
+     doi.org/10.1063/1.4819264
+  5. Neese,F.
+     Software update: the ORCA program system, version 4.0
+     WIRES Comput. Molec. Sci., 2018 8(1)1-6
+     doi.org/10.1002/wcms.1327
+  6. Neese,F.; Wennmohs,F.; Becker,U.; Riplinger,C.
+     The ORCA quantum chemistry program package
+     J. Chem. Phys., 2020 152 Art. No. L224108
+     doi.org/10.1063/5.0004608
+
+Timings for individual modules:
+
+Sum of individual times          ...        4.098 sec (=   0.068 min)
+Startup calculation              ...        0.534 sec (=   0.009 min)  13.0 %
+SCF iterations                   ...        2.472 sec (=   0.041 min)  60.3 %
+Property integrals               ...        0.173 sec (=   0.003 min)   4.2 %
+SCF Response                     ...        0.747 sec (=   0.012 min)  18.2 %
+Property calculations            ...        0.172 sec (=   0.003 min)   4.2 %
+                             ****ORCA TERMINATED NORMALLY****
+TOTAL RUN TIME: 0 days 0 hours 0 minutes 4 seconds 294 msec

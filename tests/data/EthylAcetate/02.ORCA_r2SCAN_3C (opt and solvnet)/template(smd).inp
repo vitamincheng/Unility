@@ -1,0 +1,9 @@
+#! B97-3c opt freq miniprint
+! r2SCAN-3c opt miniprint PAL8 noautostart 
+%maxcore 6000
+
+%CPCM SMD TRUE
+      SMDSOLVENT "chloroform"
+END
+
+* xyzfile 0 1 [xyzfile]
