@@ -123,7 +123,7 @@ def get_xyzSplitList(neighbor: dict, circleMols: list, residualMols: list, Bond_
     return xyzSplitDict
 
 
-def gen_ClassGeometryXYZs(xyzSplitDict: dict, args: argparse.Namespace) -> None:
+def gen_GeometryXYZs(xyzSplitDict: dict, args: argparse.Namespace) -> None:
 
     print(" xyzSplitDict :", xyzSplitDict)
     if args.manual == True:
@@ -164,7 +164,7 @@ def gen_ClassGeometryXYZs(xyzSplitDict: dict, args: argparse.Namespace) -> None:
         # ic(key, value)
         import censo_ext.xyzSplit as xyzSplit
         args_x: dict = {"file": file_In,
-                        "atom": [key, value], "cut": 3, "print": False, "out": file_Out}
+                        "atoms": [key, value], "cuts": 3, "print": False, "out": file_Out}
         sys.stdout = open(os.devnull, 'w')
         xyzSplit.main(argparse.Namespace(**args_x))
         sys.stdout = sys.__stdout__
@@ -189,7 +189,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     xyzSplitDict: dict = get_xyzSplitList(neighbor, circleMols, residualMols,
                                           Bond_order, atomsCN, flattenCircleMols)
-    gen_ClassGeometryXYZs(xyzSplitDict, args)
+    gen_GeometryXYZs(xyzSplitDict, args)
 
 
 if __name__ == "__main__":

@@ -16,3 +16,12 @@ def test_orca_miss_args():
         orca.main(args)
     assert e.type == SystemExit
     assert e.value.code == 2  # for argparse error
+
+
+def test_orca_opt():
+    x: dict = {"file": "tests/data/crest_conformers2.xyz", "template": "template.inp",
+               "remove": True, "out": "tests/compare/orca_isomers.xyz"}
+
+    args = argparse.Namespace(**x)
+    if platform.system() != "Darwin":
+        orca.main(args)
