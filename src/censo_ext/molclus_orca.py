@@ -85,11 +85,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Ensure input file exists
     from censo_ext.Tools.utility import is_exist
     is_exist(args.file)
-    IsExist_template: bool = is_exist_return_bool(args.template)
+    template_Exist: bool = is_exist_return_bool(args.template)
 
     # Define default template
     template_inp: str = ".template.inp"
-    if IsExist_template == False:
+    if template_Exist == False:
         original_stdout = sys.stdout
         with open(template_inp, "w") as f:
             sys.stdout = f
@@ -99,9 +99,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         sys.stdout = original_stdout
 
     # Read input file
-    infile: GeometryXYZs = GeometryXYZs(args.file)
-    infile.method_read_xyz()
-    singleXYZ: Path = Path("[xyzfile]")
+    in_File: GeometryXYZs = GeometryXYZs(args.file)
+    in_File.method_read_xyz()
+    solo_xyz: Path = Path("[xyzfile]")
 
     # Find orca executable path
     str_list = os.environ['PATH'].split(":")
@@ -113,16 +113,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     orca_path = match[0]+"/orca"
 #    orca_path="~/orca_5_0_4_linux_x86-64_shared_openmpi411/orca"
 #    orca_path="~/orca_6_0_0_linux_x86-64_avx2_shared_openmpi416/orca"
-    if IsExist_template == True:
-        template_name: str = args.template[:-4]
+    if template_Exist == True:
+        template_Name: str = args.template[:-4]
     else:
-        template_name: str = template_inp[:-4]
+        template_Name: str = template_inp[:-4]
 
     print(" Inputted geometry file: " + args.file)
     print(" Loading basic information from the inputted geometry file ...")
-    print(" There are totally       " + str(len(infile)) +
+    print(" There are totally       " + str(len(in_File)) +
           " geometries in the inputted geometry file\n")
-    if IsExist_template == True:
+    if template_Exist == True:
         print(" Setting file : " + args.template)
     else:
         print(" Setting file : use default [r2SCAN-3c / CHCl3] ")
@@ -130,15 +130,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(" Loading setting file ...")
     print(" All conformer in the inputted geometry file will be processed")
     subprocess.call("rm -f isomers.xyz *.tmp", shell=True)
-    delete_all_files(singleXYZ)
+    delete_all_files(solo_xyz)
     print(" Cleaning old input and temporary files ...")
     print(" Running: rm isomers.xyz *.tmp")
     templateFileIsExists: bool = False
 
-    for idx1 in range(1, len(infile)+1, 1):
+    for idx1 in range(1, len(in_File)+1, 1):
         idx1_str = ("{:05d}".format(idx1))
-        infile.set_filename(singleXYZ)
-        infile.method_save_xyz([idx1])
+        in_File.set_filename(solo_xyz
+                             )
+        in_File.method_save_xyz([idx1])
 
         print("                          *** Configuration        "+str(idx1)+" ****")
         print(" Loading geometry	"+str(idx1) +
@@ -146,11 +147,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(" Generating  file...")
 
         # Run orca
-        orca_cmd: str = orca_path + " "+args.template+" > " + template_name + ".out "
+        orca_cmd: str = orca_path + " "+args.template+" > " + template_Name + ".out "
         subprocess.call(orca_cmd, shell=True)
         print(" Running: " + orca_cmd)
 
-        orca_lines: list[str] = open(template_name + ".out", "r").readlines()
+        orca_lines: list[str] = open(template_Name + ".out", "r").readlines()
         import re
         get_energy: int | None = None
         for idy, y in enumerate(orca_lines):
@@ -158,50 +159,49 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 get_energy = idy
 
         from os.path import exists
-        templateFileIsExists = exists(template_name + ".xyz")
+        templateFileIsExists = exists(template_Name + ".xyz")
         if templateFileIsExists:
             templateLines: list = open(
-                template_name + ".xyz", "r").readlines()
+                template_Name + ".xyz", "r").readlines()
             for idy, y in enumerate(templateLines):
-                if re.search(r"Coordinates from ORCA-job "+template_name, y) and get_energy:
+                if re.search(r"Coordinates from ORCA-job "+template_Name, y) and get_energy:
                     # get_comment_template = idy
                     templateLines[idy] = str(
                         orca_lines[get_energy].split()[4] + "\n")
-            open(template_name + ".xyz", "w").writelines(templateLines)
+            open(template_Name + ".xyz", "w").writelines(templateLines)
 
-            subprocess.call("cat " + template_name +
+            subprocess.call("cat " + template_Name +
                             ".xyz >> " + args.out, shell=True)
-            subprocess.call("mv -f " + template_name +
+            subprocess.call("mv -f " + template_Name +
                             ".xyz " + idx1_str + ".xyz", shell=True)
         else:
             if get_energy:
-                infile.Sts[idx1 -
-                           1].comment_energy = float(orca_lines[get_energy].split()[4])
+                in_File.Sts[idx1 - 1].comment_energy = float(orca_lines[get_energy].split()[4])  # nopep8
 
-        subprocess.call("mv -f " + template_name + ".out " +
+        subprocess.call("mv -f " + template_Name + ".out " +
                         idx1_str+".out", shell=True)
-        subprocess.call("mv -f " + template_name + ".gbw " +
+        subprocess.call("mv -f " + template_Name + ".gbw " +
                         idx1_str+".gbw", shell=True)
 
     if templateFileIsExists:
-        outfile: GeometryXYZs = GeometryXYZs(args.out)
-        outfile.method_read_xyz()
-        outfile.method_comment_new()
-        outfile.method_save_xyz([])
+        out_File: GeometryXYZs = GeometryXYZs(args.out)
+        out_File.method_read_xyz()
+        out_File.method_comment_new()
+        out_File.method_save_xyz([])
         print(f" Saved to  {args.out} \n All is done !!!")
     else:
-        infile.method_rewrite_comment()
-        infile.method_comment_new()
-        infile.set_filename(args.out)
-        infile.method_save_xyz([])
+        in_File.method_rewrite_comment()
+        in_File.method_comment_new()
+        in_File.set_filename(args.out)
+        in_File.method_save_xyz([])
         print(f" Saved to  {args.out} \n All is done !!!")
 
     if args.remove == True:
-        subprocess.call("rm -rf "+template_name+".cpcm "+template_name+".densities "+template_name+".engrad "+template_name +
-                        ".out "+template_name+"_property.txt "+template_name+"_trj.xyz "+template_name+".opt ", shell=True)
-        subprocess.call("rm -rf "+template_name+".cpcm_corr "+template_name+".densitiesinfo "+template_name+".property.txt "+template_name +
+        subprocess.call("rm -rf "+template_Name+".cpcm "+template_Name+".densities "+template_Name+".engrad "+template_Name +
+                        ".out "+template_Name+"_property.txt "+template_Name+"_trj.xyz "+template_Name+".opt ", shell=True)
+        subprocess.call("rm -rf "+template_Name+".cpcm_corr "+template_Name+".densitiesinfo "+template_Name+".property.txt "+template_Name +
                         ".bibtex ", shell=True)
-        delete_all_files(singleXYZ, template_inp)
+        delete_all_files(solo_xyz, template_inp)
 
 
 if __name__ == "__main__":

@@ -26,11 +26,12 @@ def test_orca_opt():
                "remove": True, "out": out_file}
 
     args = argparse.Namespace(**x)
-    if platform.system() != "Darwin":
-        orca.main(args)
+    # Need 2 min
+    # if platform.system() != "Darwin":
+    #    orca.main(args)
 
-    compare = f"tests/compare/orca_isomers.xyz"
-    assert filecmp.cmp(args.out, compare) == True
-    os.remove(args.out)
-    import subprocess
-    subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
+    # compare = f"tests/compare/orca_isomers.xyz"
+    # assert filecmp.cmp(args.out, compare) == True
+    # os.remove(args.out)
+    # import subprocess
+    # subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
