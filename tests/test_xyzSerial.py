@@ -6,11 +6,12 @@ import argparse
 import censo_ext.xyzSerial as xyzSerial
 import filecmp
 import os
+out_file = f"tests/compare/output.xyz"
 
 
 def test_xyzSerial_new():
-    x: dict = {"file": "tests/data/crest_conformers.xyz", "new": True,
-               "keep": False, "out": "tests/compare/output.xyz", "print": False}
+    x: dict = {"file": f"tests/data/crest_conformers.xyz", "new": True,
+               "keep": False, "out": out_file, "print": False}
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
@@ -21,7 +22,7 @@ def test_xyzSerial_new():
 
 def test_xyzSerial_keep():
     x: dict = {"file": "tests/data/crest_conformers_xyzSerial.xyz", "new": False,
-               "keep": True, "out": "tests/compare/output.xyz", "print": False}
+               "keep": True, "out": out_file, "print": False}
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
@@ -32,7 +33,8 @@ def test_xyzSerial_keep():
 
 def test_xyzSerial_filename_miss():
     x: dict = {"file": "tests/data/crest_conformers_xyzSerial000.xyz", "new": True,
-               "keep": True, "out": "tests/compare/output.xyz", "print": False}
+               "keep": True, "out": out_file, "print": False}
+
     args = argparse.Namespace(**x)
 
     with pytest.raises(SystemExit) as e:

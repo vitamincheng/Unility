@@ -7,6 +7,7 @@ import argparse
 import censo_ext.FactorAnalysis as FactorAnalysis
 import filecmp
 import platform
+in_file = f"tests/data/crest_conformers.xyz"
 
 
 def test_FactorAnalysis_miss_args():
@@ -19,24 +20,25 @@ def test_FactorAnalysis_miss_args():
 
 
 def test_FactorAnalysis_opt():
-    x: dict = {"file": "tests/data/crest_conformers.xyz", "factor": 0.50, "opt": True,
-               "thr": 2, "ignore_Hydrogen": False, "Analysis": True, "Filter": None}
+    x: dict = {"file": in_file, "factor": 0.50, "opt": True, "thr": 2,
+               "ignore_Hydrogen": False, "Analysis": True, "Filter": None}
     args = argparse.Namespace(**x)
     Result = FactorAnalysis.main(args)
     assert Result == None
 
 
 def test_FactorAnalysis_A_bond_broken():
-    x: dict = {"file": "tests/data/crest_conformers.xyz", "factor": 0.50, "opt": False,
-               "thr": 2, "bond_broken": [40, 44], "ignore_Hydrogen": False, "Analysis": True, "Filter": None}
+    x: dict = {"file": in_file, "factor": 0.50, "opt": False, "thr": 2,
+               "bond_broken": [40, 44], "ignore_Hydrogen": False,
+               "Analysis": True, "Filter": None}
     args = argparse.Namespace(**x)
     Result = FactorAnalysis.main(args)
     assert Result == None
 
 
 def test_FactorAnalysis_F_bond_broken():
-    x: dict = {"file": "tests/data/crest_conformers.xyz", "factor": 0.50, "opt": False,
-               "thr": 2, "bond_broken": [40, 44], "ignore_Hydrogen": True, "Analysis": None,
+    x: dict = {"file": in_file, "factor": 0.50, "opt": False, "thr": 2,
+               "bond_broken": [40, 44], "ignore_Hydrogen": True, "Analysis": None,
                "remove_idx": None, "add_idx": None, "Filter": True}
     args = argparse.Namespace(**x)
     out_print = "result.txt"
@@ -57,8 +59,8 @@ def test_FactorAnalysis_F_bond_broken():
 
 
 def test_FactorAnalysis_F_bond_broken_incl_H():
-    x: dict = {"file": "tests/data/crest_conformers.xyz", "factor": 0.50, "opt": False,
-               "thr": 2, "bond_broken": [40, 44], "ignore_Hydrogen": False, "Analysis": None,
+    x: dict = {"file": in_file, "factor": 0.50, "opt": False, "thr": 2,
+               "bond_broken": [40, 44], "ignore_Hydrogen": False, "Analysis": None,
                "remove_idx": None, "add_idx": None, "Filter": True}
     args = argparse.Namespace(**x)
 

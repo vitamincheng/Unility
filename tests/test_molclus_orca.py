@@ -7,6 +7,8 @@ import argparse
 import censo_ext.molclus_orca as orca
 import filecmp
 import platform
+in_file = f"tests/data/crest_conformers2.xyz"
+out_file = f"tests/compare/orca_isomers.xyz"
 
 
 def test_orca_miss_args():
@@ -19,8 +21,8 @@ def test_orca_miss_args():
 
 
 def test_orca_opt():
-    x: dict = {"file": "tests/data/crest_conformers2.xyz", "template": "template.inp",
-               "remove": True, "out": "tests/compare/orca_isomers.xyz"}
+    x: dict = {"file": in_file, "template": "template.inp",
+               "remove": True, "out": out_file}
 
     args = argparse.Namespace(**x)
     if platform.system() != "Darwin":

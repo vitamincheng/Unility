@@ -8,6 +8,9 @@ import censo_ext.molclus_xtb as xtb
 import filecmp
 import platform
 
+in_file = f"tests/data/EthylAcetate/01.Crest/crest_conformers.xyz"
+out_file = f"tests/compare/isomers.xyz"
+
 
 def test_xtb_miss_args():
     x: dict = {}
@@ -19,8 +22,9 @@ def test_xtb_miss_args():
 
 
 def test_xtb_alpb_opt():
-    x: dict = {"file": "tests/data/crest_conformers2.xyz", "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
-               "method": "gfn2", "out": "tests/compare/isomers.xyz"}
+
+    x: dict = {"file": in_file, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
+               "method": "gfn2", "out": out_file}
     args = argparse.Namespace(**x)
     xtb.main(args)
 
@@ -32,8 +36,8 @@ def test_xtb_alpb_opt():
 
 
 def test_xtb_gbsa_opt():
-    x: dict = {"file": "tests/data/crest_conformers2.xyz", "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
-               "method": "gfn2", "out": "tests/compare/isomers.xyz"}
+    x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
+               "method": "gfn2", "out": out_file}
     args = argparse.Namespace(**x)
     xtb.main(args)
 
@@ -46,8 +50,8 @@ def test_xtb_gbsa_opt():
 
 
 def test_xtb_alpb():
-    x: dict = {"file": "tests/data/crest_conformers2.xyz", "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": False,
-               "method": "gfn2", "out": "tests/compare/isomers.xyz"}
+    x: dict = {"file": in_file, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": False,
+               "method": "gfn2", "out": out_file}
     args = argparse.Namespace(**x)
     xtb.main(args)
 
@@ -59,8 +63,8 @@ def test_xtb_alpb():
 
 
 def test_xtb_gbsa():
-    x: dict = {"file": "tests/data/crest_conformers2.xyz", "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
-               "method": "gfn2", "out": "tests/compare/isomers.xyz"}
+    x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
+               "method": "gfn2", "out": out_file}
     args = argparse.Namespace(**x)
     xtb.main(args)
 
