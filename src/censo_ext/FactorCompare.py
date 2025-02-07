@@ -97,8 +97,8 @@ def Factor_xyzCompare(args) -> None:
     shutil.copyfile(new_cwd+"/weight_P", original_cwd+"/weight_P")
 
     file_weight: Path = Path("weight_P")
-    from censo_ext.Tools.utility import is_exist
-    is_exist(file_weight)
+    from censo_ext.Tools.utility import IsExist
+    IsExist(file_weight)
 
     print(" Reading the ", file_weight, " file ")
 

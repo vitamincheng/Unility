@@ -8,7 +8,7 @@ import sys
 import numpy as np
 from icecream import ic
 from pathlib import Path
-from censo_ext.Tools.utility import is_exist, is_exist_return_bool
+from censo_ext.Tools.utility import IsExist, IsExist_return_bool
 # from dataclasses import dataclass
 
 
@@ -152,7 +152,7 @@ class Anmr():
     def method_read_anmrrc(self, fileName=Path(".anmrrc")) -> None:
         '''Read .anmrrc setting file from censo '''
         DirFileName: Path = self.__Directory / fileName
-        is_exist(DirFileName)
+        IsExist(DirFileName)
         self.__AnmrParams: Anmrrc = Anmrrc(DirFileName)
         # self.__AnmrParams: Anmrrc = Anmrrc(lines)
 
@@ -381,7 +381,7 @@ class Anmr():
         fileName_Av_orcaAtoms: Path = self.__Directory / \
             Path("Average/NMR/orcaA.out")
 
-        if is_exist_return_bool(fileName_Av_orcaS) and is_exist_return_bool(fileName_Av_orcaAtoms) and is_exist_return_bool(fileName_Av_orcaJ):
+        if IsExist_return_bool(fileName_Av_orcaS) and IsExist_return_bool(fileName_Av_orcaAtoms) and IsExist_return_bool(fileName_Av_orcaJ):
             return True
         else:
             return False
@@ -446,7 +446,7 @@ class Anmr():
         Read the file anmr.out from anmr program
         '''
         filename = self.__Directory / Path(filename)
-        is_exist(filename)
+        IsExist(filename)
 
         start_idx, end_idx = 0, 0
         DataJ: list[str] = []
@@ -547,7 +547,7 @@ class Anmr():
 
     def method_read_nucinfo(self, file: Path = Path("anmr_nucinfo")) -> None:
         file = self.__Directory / Path(file)
-        is_exist(file)
+        IsExist(file)
 
         lines: list[str] = open(file, "r").readlines()
         nAtoms: int = int(lines[0].split()[0])
@@ -581,7 +581,7 @@ class Anmr():
         ''' ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi  '''
 
         file = self.__Directory / Path(file)
-        is_exist(file)
+        IsExist(file)
 
         self.enso = np.genfromtxt(file, names=True)
 
@@ -615,7 +615,7 @@ class OrcaSJ():
     def method_read_orcaJ(self, file: Path = Path("orcaJ.out")) -> bool:
         ''' Read the file orcaJ.out in censo program '''
         print(" method_read_orcaJ", file)
-        is_exist(file)
+        IsExist(file)
 
         start_idx, end_idx = 0, 0
         DataJ: list = []
@@ -683,7 +683,7 @@ class OrcaSJ():
     def method_read_orcaS(self, file: Path = Path("orcaS.out")) -> bool:
         ''' Read the file orcaS.out in censo program '''
         print(" method_read_orcaS", file)
-        is_exist(file)
+        IsExist(file)
 
         start_idx, end_idx = 0, 0
         DataS: list = []
@@ -791,7 +791,7 @@ class OrcaSJ():
 class CensoDat():
 
     def __init__(self, file: Path = Path("anmr.dat")) -> None:
-        is_exist(file)
+        IsExist(file)
         self.__fileName: Path = Path(file)
         self.__dat: np.ndarray = np.genfromtxt(file)
 

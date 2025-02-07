@@ -199,10 +199,10 @@ if __name__ == "__main__":
 
         if nCH == 9:
             infile = Path("../tests/crest_conformers.xyz")
-            from censo_ext.Tools.utility import *
-            ic(is_exist(infile))
-            ic(is_exist_return_bool(infile))
-            ic(program_is_exist("xtb"))
+            from censo_ext.Tools.utility import IsExist, IsExist_return_bool, program_IsExist
+            ic(IsExist(infile))
+            ic(IsExist_return_bool(infile))
+            ic(program_IsExist("xtb"))
 
         ###############################################################################
         # xyzfile.py

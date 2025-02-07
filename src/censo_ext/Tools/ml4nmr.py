@@ -7,7 +7,7 @@
 from pathlib import Path
 import numpy as np
 from icecream import ic
-from censo_ext.Tools.utility import is_exist
+from censo_ext.Tools.utility import IsExist
 import os
 from ase.data import covalent_radii
 custom_radii: np.ndarray = covalent_radii.copy()
@@ -125,7 +125,7 @@ def read_mol_neighbors(DirFileName: Path):
     # read the .xyz coordinates from the molecular structures
     import ase.io
     from ase import neighborlist
-    is_exist(DirFileName)
+    IsExist(DirFileName)
     mol = ase.io.read(str(DirFileName), format='xyz')
 
     # use covalent radii as thresholds for neighbor determination (what about vdW radii?)

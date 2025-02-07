@@ -275,8 +275,8 @@ class GeometryXYZs():
 
     def method_read_xyz(self) -> None:
         '''reads xyz file and save the data into self geometry object'''
-        from censo_ext.Tools.utility import is_exist
-        is_exist(self.__filename)
+        from censo_ext.Tools.utility import IsExist
+        IsExist(self.__filename)
 
         with open(self.__filename, "r") as f:
             line: str = f.readline()

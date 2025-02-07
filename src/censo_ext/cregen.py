@@ -104,8 +104,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print("  provided arguments: {}".format(" ".join(sysargv)))
 
-    from censo_ext.Tools.utility import is_exist
-    is_exist(args.file)
+    from censo_ext.Tools.utility import IsExist
+    IsExist(args.file)
 
     if args.file != "isomers.xyz":
         subprocess.call(f"cp {args.file} isomers.xyz", shell=True)
@@ -114,8 +114,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     crest_cmd: str = f"crest isomers.xyz --cregen isomers.xyz --rthr {str(args.rthr)} -- bthr {str(
         args.bthr)} --ethr {str(args.ethr)} --ewin {str(args.ewin)} > isomers.out"
 
-    from censo_ext.Tools.utility import program_is_exist
-    program_is_exist("crest")
+    from censo_ext.Tools.utility import program_IsExist
+    program_IsExist("crest")
 
     subprocess.call(crest_cmd, shell=True)
     print("  " + crest_cmd)

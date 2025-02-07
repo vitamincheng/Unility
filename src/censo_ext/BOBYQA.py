@@ -118,8 +118,8 @@ def group_scan(inGroup: list[int] = []) -> None:
 
 
 def new() -> None:
-    from censo_ext.Tools.utility import is_exist_return_bool
-    if is_exist_return_bool(fileNameB):
+    from censo_ext.Tools.utility import IsExist_return_bool
+    if IsExist_return_bool(fileNameB):
         return
     else:
         orcaS_Table: np.ndarray = np.genfromtxt(fileName)

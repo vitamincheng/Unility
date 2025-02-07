@@ -217,7 +217,7 @@ def FactorFilter(args) -> None:
         nConfs = len(idx1_cal)
 
     Dir_Result: Path = Path("Final_Result")
-    from censo_ext.Tools.utility import is_exist_return_bool
+    from censo_ext.Tools.utility import IsExist_return_bool
     isExist: bool = os.path.exists(Dir_Result)
     if not isExist:
         Dir_Result.mkdir()

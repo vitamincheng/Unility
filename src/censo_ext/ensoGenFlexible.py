@@ -176,7 +176,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     WorkingDir: str = os.getcwd()
 
-    # from Tools.utility import IsExistsDirFileName
+    # from Tools.utility import IsExists_DirFileName
     p = Path(args.file)
     fileName: str = p.name
     Dir: Path = p.parents[0]

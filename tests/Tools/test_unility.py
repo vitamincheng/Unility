@@ -2,9 +2,9 @@ from pathlib import Path
 import pytest
 
 
-def test_Unility_IsExistsDirFileName():
-    from censo_ext.Tools.utility import IsExistsDirFileName
-    a, b = IsExistsDirFileName(Path("tests/data/04.Hydrogen/anmr.dat"))
+def test_Unility_IsExists_DirFileName():
+    from censo_ext.Tools.utility import IsExists_DirFileName
+    a, b = IsExists_DirFileName(Path("tests/data/04.Hydrogen/anmr.dat"))
     assert a == Path("tests/data/04.Hydrogen")
     assert b == "anmr.dat"
 
@@ -39,33 +39,33 @@ def test_unility_int():
 
 
 def test_unility_IsExistReturnBool():
-    from censo_ext.Tools.utility import is_exist_return_bool
+    from censo_ext.Tools.utility import IsExist_return_bool
     from pathlib import PosixPath
-    assert is_exist_return_bool(Path("tests/Tools/test_unility.py")) == True
-    assert is_exist_return_bool(
+    assert IsExist_return_bool(Path("tests/Tools/test_unility.py")) == True
+    assert IsExist_return_bool(
         Path("tests/Tools/test_unility1.py")) == False
 
 
-def test_unility_IsExistsDirFileName():
-    from censo_ext.Tools.utility import IsExistsDirFileName
-    assert IsExistsDirFileName(
+def test_unility_IsExists_DirFileName():
+    from censo_ext.Tools.utility import IsExists_DirFileName
+    assert IsExists_DirFileName(
         Path("tests/data/04.Hydrogen/.anmrrc")) == (Path("tests/data/04.Hydrogen"), ".anmrrc")
 
 
 def test_unility_ProgramIsExist():
-    from censo_ext.Tools.utility import program_is_exist
-    assert program_is_exist("xtb") == True
-    assert program_is_exist("orca") == True
+    from censo_ext.Tools.utility import program_IsExist
+    assert program_IsExist("xtb") == True
+    assert program_IsExist("orca") == True
     with pytest.raises(SystemExit) as e:
-        program_is_exist("kkk")
+        program_IsExist("kkk")
     assert e.type == SystemExit
     assert e.value.code == 1
 
 
 def test_unility_is_exist():
-    from censo_ext.Tools.utility import is_exist
-    assert is_exist(Path("tests/data/crest_conformers.xyz")) == None
+    from censo_ext.Tools.utility import IsExist
+    assert IsExist(Path("tests/data/crest_conformers.xyz")) == None
     with pytest.raises(SystemExit) as e:
-        is_exist(Path("kkk.xyz"))
+        IsExist(Path("kkk.xyz"))
     assert e.type == SystemExit
     assert e.value.code == 1

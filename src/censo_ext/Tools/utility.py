@@ -32,8 +32,8 @@ import shutil
 #    shutil.rmtree(directory, ignore_errors=True)
 
 
-def IsExistsDirFileName(DirFileName: Path):
-    is_exist(DirFileName)
+def IsExists_DirFileName(DirFileName: Path):
+    IsExist(DirFileName)
     Name: str = DirFileName.name
     Dir: Path = DirFileName.parents[0]
     return Dir, Name
@@ -56,12 +56,12 @@ def function_is_int(string: str) -> bool:
 
 
 def move_file(source: Path, destination: Path) -> None:
-    is_exist(source)
+    IsExist(source)
     shutil.move(source, destination)
 
 
 def copy_file(source: Path, destination: Path) -> None:
-    is_exist(source)
+    IsExist(source)
     shutil.copy(source, destination)
 
 
@@ -104,7 +104,7 @@ def save_dict(fileName: Path, Data: dict) -> None:
 #
 #
 # def load_BOBYQA_orcaS(fileName: Path) -> dict:
-#    is_exist(fileName)
+#    IsExist(fileName)
 #    lines = open(fileName, "r").readlines()
 #
 #    Data: dict = {}
@@ -128,7 +128,7 @@ def save_dict_orcaS(fileName: Path, Data: dict) -> None:
 
 
 def load_dict_orcaS(fileName: Path) -> dict:
-    is_exist(fileName)
+    IsExist(fileName)
     lines: list = open(fileName, "r").readlines()
     Data: dict = {}
     for x in lines:
@@ -136,7 +136,7 @@ def load_dict_orcaS(fileName: Path) -> dict:
     return Data
 
 
-def is_exist(fileName: Path) -> None:
+def IsExist(fileName: Path) -> None:
     IsExists: bool = Path(fileName).exists()
     if not IsExists:
         print(f"{fileName} the file is not exist ...")
@@ -145,7 +145,7 @@ def is_exist(fileName: Path) -> None:
         exit(1)
 
 
-def is_exist_return_bool(fileName: Path) -> bool:
+def IsExist_return_bool(fileName: Path) -> bool:
     IsExists: bool = Path(fileName).exists()
     if IsExists:
         return True
@@ -156,7 +156,7 @@ def is_exist_return_bool(fileName: Path) -> bool:
         return False
 
 
-def program_is_exist(ProgramName: str) -> bool:
+def program_IsExist(ProgramName: str) -> bool:
     from shutil import which
     if which(ProgramName):
         return True

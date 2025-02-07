@@ -146,13 +146,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(descr)  # Program description
         print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    from censo_ext.Tools.utility import is_exist_return_bool
+    from censo_ext.Tools.utility import IsExist_return_bool
     from os.path import exists
     from censo_ext.Tools.Parameter import Eh, Rcal
     import sys
-    fileExists: bool = is_exist_return_bool(args.file)
+    fileExists: bool = IsExist_return_bool(args.file)
     backupfile: Path = Path(args.file + ".backup")
-    backupfileExists: bool = is_exist_return_bool(backupfile)
+    backupfileExists: bool = IsExist_return_bool(backupfile)
 
     print("")
     print(" Reading the input file  : ", args.file)
@@ -160,7 +160,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if fileExists:
         if backupfileExists:
-            backup_file_exists = is_exist_return_bool(backupfile)
+            backup_file_exists = IsExist_return_bool(backupfile)
         else:
 
             print(" The backup file is not exist. ", backupfile)

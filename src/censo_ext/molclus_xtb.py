@@ -122,9 +122,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xtb_cmd: str = ""
     infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
-    from censo_ext.Tools.utility import program_is_exist
+    from censo_ext.Tools.utility import program_IsExist
     xtb_name = "xtb"
-    program_is_exist(xtb_name)
+    program_IsExist(xtb_name)
     xtb_cmd += xtb_name
 
     print(" Inputted geometry file: "+args.file)

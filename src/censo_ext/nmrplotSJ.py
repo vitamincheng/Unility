@@ -908,8 +908,8 @@ if __name__ == "__main__":
             if args.findpeaks:
                 height_thr_sp: list[float] = []
                 for idx_file in args.file:
-                    from censo_ext.Tools.utility import is_exist
-                    is_exist(idx_file)
+                    from censo_ext.Tools.utility import IsExist
+                    IsExist(idx_file)
                     orcaS_Ref = np.genfromtxt(idx_file, usecols=(0, 1))
                     from censo_ext.Tools.spectra import numpy_threshold_10
                     thr: float = numpy_threshold_10(orcaS_Ref.T[1])
@@ -925,12 +925,12 @@ if __name__ == "__main__":
                 args.orientation = [1, -1]
                 from pathlib import Path
                 filename: Path = Path("Average/NMR/orcaS-BOBYQA.out")
-                from censo_ext.Tools.utility import is_exist
-                is_exist(filename)
+                from censo_ext.Tools.utility import IsExist
+                IsExist(filename)
 
                 orcaS: np.ndarray = np.genfromtxt(filename, usecols=(0, 1))
                 orcaS.T[1] = orcaS.T[1]*(-1)
-                is_exist(args.file[1])
+                IsExist(args.file[1])
 
                 orcaS_Ref: np.ndarray = np.genfromtxt(
                     args.file[1], usecols=(0, 1))
