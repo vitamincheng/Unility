@@ -9,7 +9,7 @@ import os
 
 
 def test_anmr_bobyqa_false_json_off():
-    x: dict = {"auto": True, "average": True, "dir": "tests/data/05.Hydrogen",
+    x: dict = {"auto": True, "average": True, "dir": "tests/data/04.Hydrogen",
                "bobyqa": False, "mf": 500, "thr": None, "json": None, "thrab": 0.025,
                "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
     peaks = anmr.main(argparse.Namespace(**x))
