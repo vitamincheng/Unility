@@ -28,7 +28,6 @@ def test_xtb_alpb_opt():
     args = argparse.Namespace(**x)
     xtb.main(args)
 
-    args = argparse.Namespace(**x)
     if platform.system() == "Darwin":
         compare = "tests/compare/molclus_xtb_1_Darwin.xyz"
     else:
@@ -44,12 +43,11 @@ def test_xtb_gbsa_opt():
     args = argparse.Namespace(**x)
     xtb.main(args)
 
-    compare = "tests/compare/molclus_xtb_2.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
     if platform.system() == "Darwin":
         compare = "tests/compare/molclus_xtb_2_Darwin.xyz"
     else:
         compare = "tests/compare/molclus_xtb_2.xyz"
+    dcmp = filecmp.cmp(args.out, compare)
     assert dcmp == True
     os.remove(args.out)
 
@@ -60,12 +58,11 @@ def test_xtb_alpb():
     args = argparse.Namespace(**x)
     xtb.main(args)
 
-    compare = "tests/compare/molclus_xtb_3.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
     if platform.system() == "Darwin":
         compare = "tests/compare/molclus_xtb_3_Darwin.xyz"
     else:
         compare = "tests/compare/molclus_xtb_3.xyz"
+    dcmp = filecmp.cmp(args.out, compare)
     assert dcmp == True
     os.remove(args.out)
 
@@ -76,11 +73,10 @@ def test_xtb_gbsa():
     args = argparse.Namespace(**x)
     xtb.main(args)
 
-    compare = "tests/compare/molclus_xtb_4.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
     if platform.system() == "Darwin":
         compare = "tests/compare/molclus_xtb_4_Darwin.xyz"
     else:
         compare = "tests/compare/molclus_xtb_4.xyz"
+    dcmp = filecmp.cmp(args.out, compare)
     assert dcmp == True
     os.remove(args.out)
