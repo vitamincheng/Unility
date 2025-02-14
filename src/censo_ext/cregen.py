@@ -111,8 +111,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         subprocess.call(f"cp {args.file} isomers.xyz", shell=True)
         print(f"  cp {args.file} isomers.xyz")
 
-    crest_cmd: str = f"crest isomers.xyz --cregen isomers.xyz --rthr {str(args.rthr)} -- bthr {str(
-        args.bthr)} --ethr {str(args.ethr)} --ewin {str(args.ewin)} > isomers.out"
+    crest_cmd: str = f"crest isomers.xyz --cregen isomers.xyz --rthr {str(args.rthr)} -- bthr {str(args.bthr)} --ethr {str(args.ethr)} --ewin {str(args.ewin)} > isomers.out"  # nopep8
 
     from censo_ext.Tools.utility import program_IsExist
     program_IsExist("crest")
