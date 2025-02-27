@@ -67,7 +67,7 @@ def qm_full(v: list[float], J: np.ndarray, nIntergals: int, args: argparse.Names
     nspins: int = len(v)
     H, T = qm_parameter(v, J)
 
-    # ic(T)
+    # ic(H)
     E, V = np.linalg.eigh(H)
     ic(E, V)
     V = V.real
@@ -77,14 +77,14 @@ def qm_full(v: list[float], J: np.ndarray, nIntergals: int, args: argparse.Names
     ic(I)
     # print(" E : \n", E[:, np.newaxis]-[0, 0, 0, 0])
     E_matrix = np.abs(E[:, np.newaxis] - E)
-    # print(" E_matrix : \n", E_matrix)
+    # ic(E_matrix)
     E_upper = np.triu(E_matrix)
     combo = np.stack([E_upper, I_upper])
     iv = combo.reshape(2, I.shape[0] ** 2).T
     # an arbitrary cutoff where peaks below this intensity are filtered out of the solution
     peaklist = iv[iv[:, 1] >= args.cutoff]
     # peaklist.T[0] = peaklist.T[0]/args.mf
-    ic(peaklist)
+    # ic(peaklist)
     from nmrsim.math import normalize_peaklist
     normalized_plist = normalize_peaklist(peaklist, nIntergals)
     print_plot(normalized_plist, dpi=1000,
@@ -111,6 +111,7 @@ def qm_partial(v: list[float], J: np.ndarray, idx0_nspins, nIntergals, args: arg
                 if bin((i & idx) ^ (j & idx)).count('1') == 1:
                     F[i][j] = 1
     F += F.T
+    ic(F)
     # print(" F : \n", F)
     E, V = np.linalg.eigh(H)
     V = V.real
@@ -120,9 +121,11 @@ def qm_partial(v: list[float], J: np.ndarray, idx0_nspins, nIntergals, args: arg
     I = np.square(V.T.dot(T.dot(V)))
     # print(" I : \n",I)
     IF = np.square(V.T.dot(F.dot(V)))
-    # print(" IF : \n",IF)
-    # print(" I*IF : \n",I*IF)
+    # ic(IF)
+    # print(" IF : \n", IF)
+    # print(" I*IF : \n", I*IF)
     I_upper = np.triu(I*IF)
+    # ic(I*IF)
     # print(" I : \n", I)
     # print(" F : \n", F)
 
@@ -254,16 +257,30 @@ def qm_multiplet(v: list[float], nIntergals, J: list) -> list:
 if __name__ == "__main__":
 
     x: dict = {"out": "output.dat", "start": -
-               0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False}
+               0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False, "bobyqa": False}
+    # v: positive or negative of the frequency is the same of spectra
+    # J: only one AB quartet, positive or negative of the J Coupling constant the spectra is the same
 
-    v: list = [964, 2775.76, 2768.20, 928]
+    # v: list = [1100, 1200, 1900, 2500]
+    # J: np.ndarray = np.array([[0.0,   -16.0,   0.0,   4.0],
+    #                         [-16.0,   0.0, 2.0,   4.0],
+    #                          [0.0, 2.0,   0.0,   0.0],
+    #                          [4.0,   4.0,   0.0,   0.0]])
 
-    J: np.ndarray = np.array([[0.0,   0.0,   0.0,   0.0],
-                             [0.0,   0.0, 16.97,   0.0],
-                              [0.0, 16.97,   0.0,   7.0],
-                              [0.0,   0.0,   7.0,   0.0]])
+    v: list = [200, 220, 2000]
+    J: np.ndarray = np.array([[0.0,   16.0,   8.0],
+                             [16.0,   0.0, 4.0],
+                             [8.0,   4.0,   0.0]])
 
     R_peak: list = qm_full(v=v, J=J, nIntergals=1,
                            args=argparse.Namespace(**x))
     print_plot(inpeaklist=R_peak, dpi=10000, nIntergals=2,
                Active_range=10, args=argparse.Namespace(**x), hidden=False)
+
+    for idx in range(len(v)):
+
+        ic(v[idx])
+        R_peak: list = qm_partial(v=v, J=J, idx0_nspins=idx, nIntergals=1,
+                                  args=argparse.Namespace(**x))
+        print_plot(inpeaklist=R_peak, dpi=10000, nIntergals=2,
+                   Active_range=10, args=argparse.Namespace(**x), hidden=False)
