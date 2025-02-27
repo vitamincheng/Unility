@@ -2,20 +2,19 @@
 import numpy as np
 import os
 import argparse
-# from scipy.linalg import eigh
-# from scipy.sparse import kron, csc_matrix, csr_matrix, lil_matrix, bmat
 from icecream import ic
 
 
 def qm_parameter(v: list[float], J: np.ndarray):
 
-    sigma_x = np.array([[0, 1 / 2], [1 / 2, 0]])
-    sigma_y = np.array([[0, -1j / 2], [1j / 2, 0]])
-    sigma_z = np.array([[1 / 2, 0], [0, -1 / 2]])
-    unit = np.array([[1, 0], [0, 1]])
+    sigma_x: np.ndarray = np.array([[0, 1 / 2], [1 / 2, 0]])
+    sigma_y: np.ndarray = np.array([[0, -1j / 2], [1j / 2, 0]])
+    sigma_z: np.ndarray = np.array([[1 / 2, 0], [0, -1 / 2]])
+    unit: np.ndarray = np.array([[1, 0], [0, 1]])
 
     nspins: int = len(v)
-    L = np.empty((3, nspins, 2 ** nspins, 2 ** nspins), dtype=np.complex128)
+    L: np.ndarray = np.empty(
+        (3, nspins, 2 ** nspins, 2 ** nspins), dtype=np.complex128)
     for n in range(nspins):
         Lx_current = 1
         Ly_current = 1
@@ -39,22 +38,22 @@ def qm_parameter(v: list[float], J: np.ndarray):
     Lproduct = np.tensordot(L_T, L, axes=((1, 3), (0, 2))).swapaxes(1, 2)
 
     Lz = L[2]  # array of Lz operators
-    H = np.tensordot(v, Lz, axes=1)
-    # print(" H : ", H)
+    H: np.ndarray = np.tensordot(v, Lz, axes=1)
+    # ic(H)
 
     J = np.array(J)  # convert to numpy array first
     scalars = 0.5 * J
     H += np.tensordot(scalars, Lproduct, axes=2)
 
-    # print(" H : ", H)
-    n = 2 ** nspins
-    T = np.zeros((n, n))
-    idx_number = 0
+    # ic(H)
+    n: int = 2 ** nspins
+    T: np.ndarray = np.zeros((n, n))
     for i in range(n - 1):
         for j in range(i + 1, n):
             if bin(i ^ j).count('1') == 1:
                 T[i, j] = 1
     T += T.T
+    # ic(T)
     return H, T
 
 
@@ -63,27 +62,30 @@ def qm_full(v: list[float], J: np.ndarray, nIntergals: int, args: argparse.Names
     v, J : unit Hz 
     nIntergals : the total numbers of Intensities
     '''
-    ic(v, J)
     nspins: int = len(v)
+    if J.shape != (nspins, nspins):
+        raise ValueError("Your JCoupl is Error")
+        os._exit(0)
+
     H, T = qm_parameter(v, J)
 
     # ic(H)
     E, V = np.linalg.eigh(H)
-    ic(E, V)
+    # ic(E, V)
     V = V.real
     I = np.square(V.T.dot(T.dot(V)))
+
     # symmetry makes it possible to use only one half of the matrix for faster calculation
     I_upper = np.triu(I)
-    ic(I)
-    # print(" E : \n", E[:, np.newaxis]-[0, 0, 0, 0])
+    # ic(I)
     E_matrix = np.abs(E[:, np.newaxis] - E)
     # ic(E_matrix)
     E_upper = np.triu(E_matrix)
     combo = np.stack([E_upper, I_upper])
     iv = combo.reshape(2, I.shape[0] ** 2).T
+
     # an arbitrary cutoff where peaks below this intensity are filtered out of the solution
     peaklist = iv[iv[:, 1] >= args.cutoff]
-    # peaklist.T[0] = peaklist.T[0]/args.mf
     # ic(peaklist)
     from nmrsim.math import normalize_peaklist
     normalized_plist = normalize_peaklist(peaklist, nIntergals)
@@ -98,53 +100,56 @@ def qm_partial(v: list[float], J: np.ndarray, idx0_nspins, nIntergals, args: arg
     nIntergals : the total numbers of Intensities 
     idx0_nspins : for each spin serial numbers in nspins from 0 to n-1 
     '''
-    nspins = len(v)
+    nspins: int = len(v)
+    if J.shape != (nspins, nspins):
+        raise ValueError("Your JCoupl is Error")
+        os._exit(0)
+    if idx0_nspins >= nspins:
+        raise ValueError("Your idx0_nspins is Error")
+        os._exit(0)
+
     H, T = qm_parameter(v, J)
 
-    n = 2 ** nspins
-    F = np.zeros((n, n), dtype=int)
-    idx = int(2**(nspins-idx0_nspins-1))
+    n: int = 2 ** nspins
+    F: np.ndarray = np.zeros((n, n), dtype=np.float64)
+    idx: int = int(2**(nspins-idx0_nspins-1))
     # idx = ~int(2**idx0_nspins)+1
     for i in range(n - 1):
         for j in range(i + 1, n):
-            if bin(i ^ j).count('1') == 1:
-                if bin((i & idx) ^ (j & idx)).count('1') == 1:
-                    F[i][j] = 1
+            if bin((i & idx) ^ (j & idx)).count('1') == 1:
+                # if bin(i ^ j).count('1') == 1 and bin((i & idx) ^ (j & idx)).count('1') == 1:
+                F[i][j] = 1
     F += F.T
+    F = F*T
     ic(F)
-    # print(" F : \n", F)
+
     E, V = np.linalg.eigh(H)
     V = V.real
-    # print(" E : \n", E)
-    # print(" I : \n", I)
+    # ic(E,V)
+
     # symmetry makes it possible to use only one half of the matrix for faster calculation
-    I = np.square(V.T.dot(T.dot(V)))
-    # print(" I : \n",I)
-    IF = np.square(V.T.dot(F.dot(V)))
+    I: np.ndarray = np.square(V.T.dot(T.dot(V)))
+    # ic(I)
+    IF: np.ndarray = np.square(V.T.dot(F.dot(V)))
+    I_upper: np.ndarray = np.triu(I*IF)
     # ic(IF)
-    # print(" IF : \n", IF)
-    # print(" I*IF : \n", I*IF)
-    I_upper = np.triu(I*IF)
     # ic(I*IF)
-    # print(" I : \n", I)
-    # print(" F : \n", F)
 
-    E_matrix = np.abs(E[:, np.newaxis] - E)
-    # print(" E_matrix : \n", E_matrix)
+    E_matrix: np.ndarray = np.abs(E[:, np.newaxis] - E)
+    # ic(E_matrix)
 
-    E_upper = np.triu(E_matrix)
+    E_upper: np.ndarray = np.triu(E_matrix)
 
-    combo = np.stack([E_upper, I_upper])
-    iv = combo.reshape(2, I.shape[0] ** 2).T
-    # print(" iv \n", iv)
-
-    peaklist = iv[iv[:, 1] >= args.cutoff]
-    # peaklist.T[0] = peaklist.T[0]/args.mf
-    # print(" peaklist: \n", peaklist)
-    # print(" iv[:,1]: ", iv[:, 1])
+    combo: np.ndarray = np.stack([E_upper, I_upper])
+    iv: np.ndarray = combo.reshape(2, I.shape[0] ** 2).T
+    # ic(iv)
+    thr = np.max(iv[:, 1])*args.cutoff
+    peaklist: np.ndarray = iv[iv[:, 1] >= thr]
+    # ic(peaklist)
+    # ic(iv[:, 1])
     from nmrsim.math import normalize_peaklist
     normalized_plist = normalize_peaklist(peaklist, nIntergals)
-    # print(normalized_plist)
+    # ic(normalized_plist)
     return normalized_plist
 
 
@@ -157,10 +162,10 @@ def print_plot(inpeaklist: list, dpi: int, nIntergals: int, args: argparse.Names
     from nmrsim.math import normalize_peaklist
     peaklist: np.ndarray = np.array(inpeaklist)
     peaklist.T[0] = peaklist.T[0] / args.mf
-    # print(" peaklist : \n", peaklist)
+    # ic(peaklist)
     normalized_plist: list[tuple[float, float]
                            ] = normalize_peaklist(peaklist, nIntergals)
-    # print(" normalized_plist : ", normalized_plist)
+    # ic(normalized_plist)
     if args.start == None:
         args.start = (peaklist.T)[0].min() - Active_range * 0.1
     if args.end == None:
@@ -272,8 +277,11 @@ if __name__ == "__main__":
                              [16.0,   0.0, 4.0],
                              [8.0,   4.0,   0.0]])
 
+    ic(v)
+    ic(J)
     R_peak: list = qm_full(v=v, J=J, nIntergals=1,
                            args=argparse.Namespace(**x))
+    ic(R_peak)
     print_plot(inpeaklist=R_peak, dpi=10000, nIntergals=2,
                Active_range=10, args=argparse.Namespace(**x), hidden=False)
 
@@ -282,5 +290,6 @@ if __name__ == "__main__":
         ic(v[idx])
         R_peak: list = qm_partial(v=v, J=J, idx0_nspins=idx, nIntergals=1,
                                   args=argparse.Namespace(**x))
+        ic(R_peak)
         print_plot(inpeaklist=R_peak, dpi=10000, nIntergals=2,
                    Active_range=10, args=argparse.Namespace(**x), hidden=False)
