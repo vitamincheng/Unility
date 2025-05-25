@@ -121,7 +121,7 @@ def qm_partial(v: list[float], J: np.ndarray, idx0_nspins, nIntergals, args: arg
                 F[i][j] = 1
     F += F.T
     F = F*T
-    ic(F)
+    # ic(F)
 
     E, V = np.linalg.eigh(H)
     V = V.real
