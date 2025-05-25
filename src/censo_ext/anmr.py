@@ -277,7 +277,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                 inHydrogen = [value+1 for value in bond_order.values()]
                 Active_range = 200
                 dpi = 500
-                args.lw = 20
+                if args.lw == None:
+                    args.lw = 20
                 if not args.thr:
                     args.thr = args.lw * 0.3
                 inJCoups = np.zeros_like(inJCoups)
@@ -293,8 +294,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                 inHydrogen = [value for value in inHydrogenDict.values()]
                 Active_range = 10
                 dpi = 10000
-                args.lw = 1
-                if not args.thr:
+                if args.lw == None:
+                    args.lw = 1
+                if args.thr == None:
                     args.thr = args.lw * 0.3
             else:
                 print("Other Active Nuclear element, waiting to build")
@@ -304,7 +306,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
             print("only for ONE Active Nuclear element, waiting to build")
             ic()
             exit(0)
-
     idx0_ab_group_set: list = []
     mat_filter_multi: np.ndarray = np.array([])
 
@@ -429,6 +430,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
     #
     import censo_ext.Tools.qm as qm
     idx0_peaks_range: list = []
+    ic(args.lw)
 
     if args.json == None:
         print("")

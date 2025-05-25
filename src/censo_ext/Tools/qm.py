@@ -272,24 +272,35 @@ if __name__ == "__main__":
     #                          [0.0, 2.0,   0.0,   0.0],
     #                          [4.0,   4.0,   0.0,   0.0]])
 
-    v: list = [200, 220, 2000]
-    J: np.ndarray = np.array([[0.0,   16.0,   8.0],
-                             [16.0,   0.0, 4.0],
-                             [8.0,   4.0,   0.0]])
+    v: list = [480, 645, 645, 645, 645, 480]
+    J: np.ndarray = np.array([[0.00000,      7.12744,      7.12267,     -0.22011,   -0.21844,     -0.02230],
+                              [7.12744,      0.00000,    -13.32467,
+                                  6.11500,    6.85267,     -0.21511],
+                              [7.12267,    -13.32467,      0.00000,
+                                  6.81333,    6.12033,     -0.21878],
+                              [-0.22011,      6.11500,      6.81333,
+                                  0.00000, -13.32433,      7.12589],
+                              [-0.21844,      6.85267,      6.12033,    -
+                                  13.32433,   0.00000,      7.12811],
+                              [-0.02230,     -0.21511,     -0.21878,      7.12589,   7.12811,      0.00000]])
 
     ic(v)
     ic(J)
     R_peak: list = qm_full(v=v, J=J, nIntergals=1,
                            args=argparse.Namespace(**x))
     ic(R_peak)
+    ic(len(R_peak))
     print_plot(inpeaklist=R_peak, dpi=10000, nIntergals=2,
                Active_range=10, args=argparse.Namespace(**x), hidden=False)
 
+    R_peaks: list = []
     for idx in range(len(v)):
 
-        ic(v[idx])
-        R_peak: list = qm_partial(v=v, J=J, idx0_nspins=idx, nIntergals=1,
-                                  args=argparse.Namespace(**x))
-        ic(R_peak)
-        print_plot(inpeaklist=R_peak, dpi=10000, nIntergals=2,
-                   Active_range=10, args=argparse.Namespace(**x), hidden=False)
+        # ic(v[idx])
+        R_peaks += qm_partial(v=v, J=J, idx0_nspins=idx, nIntergals=1,
+                              args=argparse.Namespace(**x))
+
+    ic(R_peaks)
+    ic(len(R_peaks))
+    print_plot(inpeaklist=R_peaks, dpi=10000, nIntergals=2,
+               Active_range=10, args=argparse.Namespace(**x), hidden=False)
