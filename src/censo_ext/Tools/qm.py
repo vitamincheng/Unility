@@ -236,6 +236,7 @@ def qm_base(v: list, J: np.ndarray, nIntergals, idx0_nspins, args: argparse.Name
     peaklist    : list[(peak,intensity)] 
     """
     peaklist: list = []
+    # ic(v, J)
     if len(v) > 1:
         peaklist = qm_partial(v=v, J=J, idx0_nspins=idx0_nspins,
                               nIntergals=nIntergals, args=args)
@@ -262,7 +263,7 @@ def qm_multiplet(v: list[float], nIntergals, J: list) -> list:
 if __name__ == "__main__":
 
     x: dict = {"out": "output.dat", "start": -
-               0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False, "bobyqa": False}
+               0.5, "end": 10.5, "lw": 0.1, "mf": 500.0, "cutoff": 0.001, "debug": False, "bobyqa": False}
     # v: positive or negative of the frequency is the same of spectra
     # J: only one AB quartet, positive or negative of the J Coupling constant the spectra is the same
 

@@ -323,6 +323,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
             mat_filter_ab_quartet: np.ndarray = np.zeros(
                 (inSParams.size, inSParams.size), dtype=int)
 
+            # np.fill_diagonal(mat_filter_ab_quartet, 0)
             import math
             for idx, x in enumerate(inSParams):
                 for idy, y in enumerate(inSParams):
@@ -353,6 +354,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                                     print("something wrong !!!")
                                     ic()
                                     exit(1)
+
+            # ic(mat_filter_ab_quartet)
 
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
 
@@ -422,15 +425,37 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
                     print(" Need to tidy the nspins of AB quartet and use cmd -thrab ")
                     exit(0)
             else:
-                print(" Use this parameter to calculate the Full Spectra")
+                # print(" Use this parameter to calculate the Full Spectra")
                 break
+        #
+        # AB quartet if more than two peaks of AB quartet, added closed peaks (not in AB quartet)
+        print(" ===== Modification AB quartet =====")
+        for idx, idx0_set_origin in enumerate(idx0_ab_group_set):
+            idx0_set: list = list(idx0_set_origin)
+            # print(set(inSParams[list(idx0_set_origin)]))
+            if len(set(list(inSParams[list(idx0_set_origin)]))) == 1:
+                from censo_ext.Tools.spectra import find_nearest
+                # ic(inSParams[list(idx0_set_origin)])
+                _, Move_idx0 = find_nearest(inSParams[list(idx0_set)],
+                                            inSParams[list(idx0_set_origin)[0]])
+                a = np.argwhere(
+                    inSParams[:] == inSParams[Move_idx0])
+                idx0_ab_group_set[idx] = idx0_set_origin.union(
+                    set(idx[0] for idx in a))
+                # print(set(list(inSParams[list(idx0_set_origin)])))
+
+        for idx, idx0_set_origin in enumerate(idx0_ab_group_set):
+            idx0_set: list = list(idx0_set_origin)
+            print(f'{(idx+1):>5d}{len(idx0_set):>5d}', {a+1 for a in idx0_set}, set(
+                a+1 for a in [idx0_set*idx for idx, idx0_set in enumerate(mat_filter_multi[idx]) if idx0_set != 0]).difference({a+1 for a in idx0_set}))
+        print(" Use this parameter to calculate the Full Spectra")
 
     # Low level QM model
     # see https://nmrsim.readthedocs.io/en/latest/index.html
     #
     import censo_ext.Tools.qm as qm
     idx0_peaks_range: list = []
-    ic(args.lw)
+    # ic(args.lw)
 
     if args.json == None:
         print("")
@@ -449,6 +474,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
             Result_qm_base: list[np.ndarray] = qm.qm_base(v=list(
                 v), J=J, nIntergals=inHydrogen[idx0_set.index(idx)], idx0_nspins=idx0_set.index(idx), args=args)
 
+            # ic(Result_qm_base)
             Result_qm_multiplet: list[np.ndarray] = []
             for idz, z in enumerate(Result_qm_base):
                 list_multiplicity: list = list(set([x*idx for idx, x in enumerate(
