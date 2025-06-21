@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 import os
-from re import sub
-import string
 import pytest
 from pathlib import Path
 import argparse

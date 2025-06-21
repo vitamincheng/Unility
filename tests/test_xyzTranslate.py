@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import string
 from _pytest import monkeypatch
 import pytest
 from pathlib import Path
