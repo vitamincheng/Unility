@@ -24,8 +24,7 @@ def test_orca_opt():
                "remove": True, "out": out_file}
 
     args = argparse.Namespace(**x)
-    # Need 2 min
-    # if platform.system() != "Darwin":
+    # if platform.system() == "Linux":     ## Need 2 min
     #    orca.main(args)
 
     # compare = f"tests/compare/orca_isomers.xyz"

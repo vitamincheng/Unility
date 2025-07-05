@@ -31,8 +31,9 @@ def test_gxtb_alpb_opt():
     dcmp: bool = False
     if platform.system() == "Darwin":
         # compare = "tests/compare/molclus_gxtb_1_Darwin.xyz" # gxtb is not work in Darwin system
+        # dcmp = filecmp.cmp(args.out, compare)
         dcmp = True
-    else:
+    elif platform.system() == "Linux":
         compare = "tests/compare/molclus_gxtb_1.xyz"
         dcmp = filecmp.cmp(args.out, compare)
     assert dcmp == True
@@ -48,8 +49,9 @@ def test_gxtb_gbsa_opt():
     dcmp: bool = False
     if platform.system() == "Darwin":
         # compare = "tests/compare/molclus_gxtb_2_Darwin.xyz" # gxtb is not work in Darwin system
+        # dcmp = filecmp.cmp(args.out, compare)
         dcmp = True
-    else:
+    elif platform.system() == "Linux":
         compare = "tests/compare/molclus_gxtb_2.xyz"
         dcmp = filecmp.cmp(args.out, compare)
     assert dcmp == True
@@ -65,8 +67,9 @@ def test_gxtb_alpb():
     dcmp: bool = False
     if platform.system() == "Darwin":
         # compare = "tests/compare/molclus_gxtb_3_Darwin.xyz" # gxtb is not work in Darwin system
+        # dcmp = filecmp.cmp(args.out, compare)
         dcmp = True
-    else:
+    elif platform.system() == "Linux":
         compare = "tests/compare/molclus_gxtb_3.xyz"
         dcmp = filecmp.cmp(args.out, compare)
     assert dcmp == True
@@ -82,8 +85,9 @@ def test_gxtb_gbsa():
     dcmp: bool = False
     if platform.system() == "Darwin":
         # compare = "tests/compare/molclus_gxtb_4_Darwin.xyz" # gxtb is not work in Darwin system
+        # dcmp = filecmp.cmp(args.out, compare)
         dcmp = True
-    else:
+    elif platform.system() == "Linux":
         compare = "tests/compare/molclus_gxtb_4.xyz"
         dcmp = filecmp.cmp(args.out, compare)
     assert dcmp == True

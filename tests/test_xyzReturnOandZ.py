@@ -5,6 +5,7 @@ import argparse
 import censo_ext.xyzReturnOandZ as xyzReturnOandZ
 import os
 import filecmp
+import platform
 
 
 def test_xyzReturnOandZ():
@@ -13,12 +14,12 @@ def test_xyzReturnOandZ():
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
-    import platform
-    print(platform.system())
     if platform.system() == 'Darwin':
         compare = "tests/compare/xyzReturnOandZ_Darwin.xyz"
-    else:
+    elif platform.system() == "Linux":
         compare = "tests/compare/xyzReturnOandZ.xyz"
+    else:
+        compare = ""
     assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
@@ -29,11 +30,12 @@ def test_xyzReturnOandZ_auto():
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
-    import platform
     if platform.system() == 'Darwin':
         compare = "tests/compare/xyzReturnOandZ-auto_Darwin.xyz"
-    else:
+    elif platform.system() == "Linux":
         compare = "tests/compare/xyzReturnOandZ-auto.xyz"
+    else:
+        compare = ""
     assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 

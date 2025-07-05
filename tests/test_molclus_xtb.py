@@ -29,8 +29,10 @@ def test_xtb_alpb_opt():
 
     if platform.system() == "Darwin":
         compare = "tests/compare/molclus_xtb_1_Darwin.xyz"
-    else:
+    elif platform.system() == "Linux":
         compare = "tests/compare/molclus_xtb_1.xyz"
+    else:
+        compare = ""
     dcmp = filecmp.cmp(args.out, compare)
     assert dcmp == True
     os.remove(args.out)
@@ -44,8 +46,10 @@ def test_xtb_gbsa_opt():
 
     if platform.system() == "Darwin":
         compare = "tests/compare/molclus_xtb_2_Darwin.xyz"
-    else:
+    elif platform.system() == "Linux":
         compare = "tests/compare/molclus_xtb_2.xyz"
+    else:
+        compare = ""
     dcmp = filecmp.cmp(args.out, compare)
     assert dcmp == True
     os.remove(args.out)
@@ -59,8 +63,10 @@ def test_xtb_alpb():
 
     if platform.system() == "Darwin":
         compare = "tests/compare/molclus_xtb_3_Darwin.xyz"
-    else:
+    elif platform.system() == "Linux":
         compare = "tests/compare/molclus_xtb_3.xyz"
+    else:
+        compare = ""
     dcmp = filecmp.cmp(args.out, compare)
     assert dcmp == True
     os.remove(args.out)
@@ -74,8 +80,10 @@ def test_xtb_gbsa():
 
     if platform.system() == "Darwin":
         compare = "tests/compare/molclus_xtb_4_Darwin.xyz"
-    else:
+    elif platform.system() == "Linux":
         compare = "tests/compare/molclus_xtb_4.xyz"
+    else:
+        compare = ""
     dcmp = filecmp.cmp(args.out, compare)
     assert dcmp == True
     os.remove(args.out)

@@ -22,9 +22,13 @@ def test_cregen_crest():
                "ethr": 0.15, "ewin": 4, "out": "cluster.xyz"}
     args = argparse.Namespace(**x)
 
-    if platform.system() != "Darwin":
+    if platform.system() == "Linux":
         cregen.main(args)
         compare = f"tests/compare/cregen_cluster.xyz"
         assert filecmp.cmp(args.out, compare) == True
         os.remove(args.out)
         os.remove("isomers.out")
+    elif platform.system() == "Darwin":  # No crest under Darwin system
+        pass
+    else:
+        pass
