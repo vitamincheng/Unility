@@ -1,3 +1,4 @@
+from censo_ext.Tools.utility import function_is_int
 from pathlib import Path
 import pytest
 
@@ -23,27 +24,29 @@ def test_unility_file():
     assert True == delete_file_bool(Path("tests/data/temp.xyz"))
 
 
-def test_unility_float():
+@pytest.mark.parametrize(argnames="input_bool,input_str",
+                         argvalues=[(True, "123.5678"), (True, " 123.5678"),
+                                    (True, "123.5678 "), (True, " 123.5678 "),
+                                    (False, " test "), (False, " 123.56EA ")])
+def test_unility_float(input_bool: bool, input_str: str):
     from censo_ext.Tools.utility import function_is_float
-    assert function_is_float("123.5678") == True
-    assert function_is_float(" 123.5678") == True
-    assert function_is_float("123.5678 ") == True
-    assert function_is_float(" test ") == False
+    assert function_is_float(input_str) == input_bool
 
 
-def test_unility_int():
+@pytest.mark.parametrize(argnames="input_bool,input_str",
+                         argvalues=[(True, "456"), (True, " 123 "),
+                                    (False, "456.1234"), (False, " test ")])
+def test_unility_int(input_bool: bool, input_str: str):
     from censo_ext.Tools.utility import function_is_int
-    assert function_is_int("123.5678") == False
-    assert function_is_int(" 123 ") == True
-    assert function_is_int(" test ") == False
+    assert function_is_int(input_str) == input_bool
 
 
-def test_unility_IsExistReturnBool():
+@pytest.mark.parametrize(argnames="input_bool,input_Path",
+                         argvalues=[(True, Path("tests/Tools/test_unility.py")),
+                                    (False, Path("tests/Tools/test_unility1.py"))])
+def test_unility_IsExistReturnBool(input_bool: bool, input_Path: Path):
     from censo_ext.Tools.utility import IsExist_return_bool
-    from pathlib import PosixPath
-    assert IsExist_return_bool(Path("tests/Tools/test_unility.py")) == True
-    assert IsExist_return_bool(
-        Path("tests/Tools/test_unility1.py")) == False
+    assert IsExist_return_bool(input_Path) == input_bool
 
 
 def test_unility_IsExists_DirFileName():
