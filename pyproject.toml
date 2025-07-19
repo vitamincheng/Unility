@@ -23,4 +23,6 @@ dependencies = [
     "graph-theory",
     "nmrglue",
     "nmrsim",
+    "pyberny",
+    "tblite",
 ]
