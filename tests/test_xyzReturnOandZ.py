@@ -31,9 +31,9 @@ def test_xyzReturnOandZ_auto():
     xyzReturnOandZ.main(args)
 
     if platform.system() == 'Darwin':
-        compare = "tests/compare/xyzReturnOandZ-auto_Darwin.xyz"
+        compare = "tests/compare/xyzReturnOandZ_auto_Darwin.xyz"
     elif platform.system() == "Linux":
-        compare = "tests/compare/xyzReturnOandZ-auto.xyz"
+        compare = "tests/compare/xyzReturnOandZ_auto.xyz"
     else:
         compare = ""
     assert filecmp.cmp(args.out, compare) == True

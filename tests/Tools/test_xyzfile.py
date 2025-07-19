@@ -30,14 +30,14 @@ def test_method_rewrite_comment():
     file = GeometryXYZs(Path("tests/data/crest_conformers.xyz"))
     file.method_read_xyz()
     file.method_rewrite_comment()
-    assert file.Sts[0].comment == " Energy =        -1168.36168282 Eh        #Cluster:     0"
-    assert file.Sts[-1].comment == " Energy =        -1168.35637181 Eh        #Cluster:     0"
+    assert file.Sts[0].comment == " Energy =        -1168.3616828200 Eh        #Cluster:     0"
+    assert file.Sts[-1].comment == " Energy =        -1168.3563718100 Eh        #Cluster:     0"
     # for isomers.xyz
     file = GeometryXYZs(Path("tests/data/isomers.xyz"))
     file.method_read_xyz()
     file.method_rewrite_comment()
-    assert file.Sts[0].comment == " Energy =        -309.820981116391 Eh        #Cluster:     1"
-    assert file.Sts[-1].comment == " Energy =        -309.815154391997 Eh        #Cluster:     3"
+    assert file.Sts[0].comment == " Energy =        -309.8209811164 Eh        #Cluster:     1"
+    assert file.Sts[-1].comment == " Energy =        -309.8151543920 Eh        #Cluster:     3"
 
 
 def test_method_comment_new():
@@ -45,14 +45,14 @@ def test_method_comment_new():
     file = GeometryXYZs(Path("tests/data/crest_conformers.xyz"))
     file.method_read_xyz()
     file.method_comment_new()
-    assert file.Sts[0].comment == " Energy =        -1168.36168282 Eh        #Cluster:     1"
-    assert file.Sts[-1].comment == " Energy =        -1168.35637181 Eh        #Cluster:     54"
+    assert file.Sts[0].comment == " Energy =        -1168.3616828200 Eh        #Cluster:     1"
+    assert file.Sts[-1].comment == " Energy =        -1168.3563718100 Eh        #Cluster:     54"
     # for isomers.xyz
     file = GeometryXYZs(Path("tests/data/isomers.xyz"))
     file.method_read_xyz()
     file.method_comment_new()
-    assert file.Sts[0].comment == " Energy =        -309.820981116391 Eh        #Cluster:     1"
-    assert file.Sts[-1].comment == " Energy =        -309.815154391997 Eh        #Cluster:     3"
+    assert file.Sts[0].comment == " Energy =        -309.8209811164 Eh        #Cluster:     1"
+    assert file.Sts[-1].comment == " Energy =        -309.8151543920 Eh        #Cluster:     3"
 
 
 def test_method_comment_keep():
@@ -60,14 +60,14 @@ def test_method_comment_keep():
     file = GeometryXYZs(Path("tests/data/crest_conformers.xyz"))
     file.method_read_xyz()
     file.method_comment_keep()
-    assert file.Sts[0].comment == " Energy =        -1168.36168282 Eh        #Cluster:     0"
-    assert file.Sts[-1].comment == " Energy =        -1168.35637181 Eh        #Cluster:     0"
+    assert file.Sts[0].comment == " Energy =        -1168.3616828200 Eh        #Cluster:     0"
+    assert file.Sts[-1].comment == " Energy =        -1168.3563718100 Eh        #Cluster:     0"
     # for isomers.xyz
     file = GeometryXYZs(Path("tests/data/isomers.xyz"))
     file.method_read_xyz()
     file.method_comment_keep()
-    assert file.Sts[0].comment == " Energy =        -309.820981116391 Eh        #Cluster:     1"
-    assert file.Sts[-1].comment == " Energy =        -309.815154391997 Eh        #Cluster:     3"
+    assert file.Sts[0].comment == " Energy =        -309.8209811164 Eh        #Cluster:     1"
+    assert file.Sts[-1].comment == " Energy =        -309.8151543920 Eh        #Cluster:     3"
 
 
 def test_method_save_xyz():

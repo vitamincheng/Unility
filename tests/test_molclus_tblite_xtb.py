@@ -89,6 +89,7 @@ def test_tblite_xtb_gbsa():
 
     if platform.system() == "Darwin":
         compare = "tests/compare/molclus_xtb_4_Darwin.xyz"
+        dcmp = True
     elif platform.system() == "Linux":
         compare = "tests/compare/molclus_xtb_4.xyz"
         dcmp = True
