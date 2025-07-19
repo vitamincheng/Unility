@@ -192,18 +192,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         else:
             infile.Sts[idx-1].comment_energy = results["energy"]
 
-    if args.opt:
-        pass
-    #    # print("opt")
-        infile.method_comment_new()
-        infile.set_filename(args.out)
-        infile.method_save_xyz([])
-    else:
-        # print("singe point")
-        infile.method_rewrite_comment()
-        infile.method_comment_new()
-        infile.set_filename(args.out)
-        infile.method_save_xyz([])
+    infile.method_rewrite_comment()
+    infile.method_comment_new()
+    infile.set_filename(args.out)
+    infile.method_save_xyz([])
 
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(single_traj_Name)

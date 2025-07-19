@@ -136,7 +136,7 @@ class Geometry():
 
     def method_rewrite_comment(self) -> None:
         self.comment = " Energy = "+" "*7 + \
-            str(self.comment_energy)+" Eh"+" "*8 + \
+            f"{self.comment_energy:.10f}"+" Eh"+" "*8 + \
             "#Cluster:     "+str(self.comment_ncluster)
 
     def method_update_comment(self) -> None:
