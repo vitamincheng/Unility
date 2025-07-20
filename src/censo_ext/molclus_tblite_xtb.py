@@ -1,14 +1,10 @@
 #!/usr/bin/env python3.12
-import cmd
-from re import I
 from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
-import subprocess
 from pathlib import Path
 import tblite.interface as tb
 from berny import Berny, geomlib, angstrom
 import numpy as np
-from icecream import ic
 descr = """
 ________________________________________________________________________________
 |                                          [07.19.2023] vitamin.cheng@gmail.com

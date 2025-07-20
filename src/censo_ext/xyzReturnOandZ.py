@@ -106,7 +106,8 @@ def idx_3atom_opt(args) -> list[int]:
                     "factor": 0.5, "debug": False, "opt": False}
     minor_list, TableSTD = method_factor_analysis(
         args=argparse.Namespace(**args_x))
-    idx1_Low_Factor: np.ndarray = np.array(minor_list)
+    # idx1_Low_Factor: np.ndarray = np.array(minor_list)
+    idx1_Low_Factor: list[int] = list(minor_list)
     idx1_Atom_list: list[int] = list(TableSTD.keys())
     AtomSTD: list[float] = list(TableSTD.values())
 
@@ -123,7 +124,7 @@ def idx_3atom_opt(args) -> list[int]:
     for idx, x in enumerate(idx1_Low_Factor):
         # total numbers >=3 or >2 (one of total numbers is )
         if len(idx1_Bonding[idx]) > 1:
-            tmp: list = []
+            tmp: list[int] = []
             tmp.append(x)
             for y in idx1_Bonding[idx]:
                 tmp.append(y)

@@ -45,10 +45,10 @@ def method_factor_analysis(args) -> tuple[list[int], dict]:
     for idx, x in dict_idx_STD.items():
         if (x >= avg_STD):   # type: ignore
             print(f"{int(idx):>5d} {x:>10.5f}     Major factor")
-            idx1_major_factor.append(idx)
+            idx1_major_factor.append(int(idx))
         elif (x <= avg_STD*args.factor):
             print(f"{int(idx):>5d} {x:>10.5f}", " "*23, "Low factor")
-            idx1_minor_factor.append(idx)
+            idx1_minor_factor.append(int(idx))
         else:
             print(f"{idx:>5d} {x:>10.5f}")
 
