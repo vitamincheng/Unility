@@ -9,7 +9,7 @@ import platform
 
 in_file = f"tests/data/EthylAcetate/01.Crest/crest_conformers.xyz"
 out_file = f"tests/compare/isomers.xyz"
-Current_platform = platform.system()
+_system = platform.system()
 
 
 def test_tblite_xtb_miss_args():
@@ -21,7 +21,7 @@ def test_tblite_xtb_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
-@pytest.mark.skipif(Current_platform == "Darwin" or "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
+@pytest.mark.skipif(_system == "Darwin" or "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_alpb_opt():
 
     x: dict = {"file": in_file, "alpb": "chloroform", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
@@ -31,9 +31,9 @@ def test_tblite_xtb_alpb_opt():
 
     dcmp: bool = False
     compare = ""
-    if Current_platform == "Darwin":
+    if _system == "Darwin":
         compare = "tests/compare/molclus_xtb_1_Darwin.xyz"
-    elif Current_platform == "Linux":
+    elif _system == "Linux":
         compare = "tests/compare/molclus_tblite_xtb_1.xyz"
     else:
         pytest.raises(
@@ -43,7 +43,7 @@ def test_tblite_xtb_alpb_opt():
     assert dcmp == True
 
 
-@pytest.mark.skipif(Current_platform == "Darwin" or "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
+@pytest.mark.skipif(_system == "Darwin" or "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_gbsa_opt():
     x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
                "method": "gfn2", "out": out_file}
@@ -52,9 +52,9 @@ def test_tblite_xtb_gbsa_opt():
 
     dcmp: bool = False
     compare = ""
-    if Current_platform == "Darwin":
+    if _system == "Darwin":
         compare = "tests/compare/molclus_xtb_2_Darwin.xyz"
-    elif Current_platform == "Linux":
+    elif _system == "Linux":
         compare = "tests/compare/molclus_xtb_2.xyz"
     else:
         pytest.raises(
@@ -72,9 +72,9 @@ def test_tblite_xtb_alpb():
 
     dcmp = False
     compare = ""
-    if Current_platform == "Darwin":
+    if _system == "Darwin":
         compare = "tests/compare/molclus_tblite_xtb_3_Darwin.xyz"
-    elif Current_platform == "Linux":
+    elif _system == "Linux":
         compare = "tests/compare/molclus_tblite_xtb_3.xyz"
     else:
         pytest.raises(
@@ -84,7 +84,7 @@ def test_tblite_xtb_alpb():
     assert dcmp == True
 
 
-@pytest.mark.skipif(Current_platform == "Darwin" or "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
+@pytest.mark.skipif(_system == "Darwin" or "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_gbsa():
     x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
                "method": "gfn2", "out": out_file}
@@ -93,9 +93,9 @@ def test_tblite_xtb_gbsa():
 
     dcmp = False
     compare = ""
-    if Current_platform == "Darwin":
+    if _system == "Darwin":
         compare = "tests/compare/molclus_xtb_4_Darwin.xyz"
-    elif Current_platform == "Linux":
+    elif _system == "Linux":
         compare = "tests/compare/molclus_xtb_4.xyz"
     else:
         pytest.raises(

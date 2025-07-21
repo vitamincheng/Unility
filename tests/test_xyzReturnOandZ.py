@@ -6,7 +6,7 @@ import censo_ext.xyzReturnOandZ as xyzReturnOandZ
 import os
 import filecmp
 import platform
-Current_platform = platform.system()
+_system = platform.system()
 
 
 def test_xyzReturnOandZ_miss_args():
@@ -25,9 +25,9 @@ def test_xyzReturnOandZ():
     xyzReturnOandZ.main(args)
 
     compare = ""
-    if Current_platform == 'Darwin':
+    if _system == 'Darwin':
         compare = "tests/compare/xyzReturnOandZ_Darwin.xyz"
-    elif Current_platform == "Linux":
+    elif _system == "Linux":
         compare = "tests/compare/xyzReturnOandZ.xyz"
     else:
         pytest.raises(
@@ -43,9 +43,9 @@ def test_xyzReturnOandZ_auto():
     xyzReturnOandZ.main(args)
 
     compare = ""
-    if Current_platform == 'Darwin':
+    if _system == 'Darwin':
         compare = "tests/compare/xyzReturnOandZ_auto_Darwin.xyz"
-    elif Current_platform == "Linux":
+    elif _system == "Linux":
         compare = "tests/compare/xyzReturnOandZ_auto.xyz"
     else:
         pytest.raises(

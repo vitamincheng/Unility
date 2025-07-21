@@ -9,7 +9,7 @@ import platform
 
 in_file = f"tests/data/EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz"
 out_file = f"isomers.xyz"
-Current_platform = platform.system()
+_system = platform.system()
 
 
 def test_orca_miss_args():
@@ -21,7 +21,7 @@ def test_orca_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
-@pytest.mark.skipif(Current_platform == "Darwin", reason="")
+@pytest.mark.skipif(_system == "Darwin", reason="")
 def test_orca_opt():
     x: dict = {"file": in_file, "template": "template.inp",
                "remove": True, "out": out_file}
@@ -30,10 +30,10 @@ def test_orca_opt():
     orca.main(args)
 
     compare = ""
-    if Current_platform == "Linux":  # Need 2 min
+    if _system == "Linux":  # Need 2 min
         compare = f"tests/compare/orca_isomers.xyz"
 
-    elif Current_platform == "Darwin":
+    elif _system == "Darwin":
         compare = f"tests/compare/orca_isomers_Darwin.xyz"
 
     assert filecmp.cmp(args.out, compare) == True
