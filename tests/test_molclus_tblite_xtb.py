@@ -21,7 +21,7 @@ def test_tblite_xtb_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
-@pytest.mark.skipif(_system == "Darwin" or "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
+@pytest.mark.skipif(_system == "Darwin" or _system == "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_alpb_opt():
 
     x: dict = {"file": in_file, "alpb": "chloroform", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
@@ -43,7 +43,7 @@ def test_tblite_xtb_alpb_opt():
     assert dcmp == True
 
 
-@pytest.mark.skipif(_system == "Darwin" or "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
+@pytest.mark.skipif(_system == "Darwin" or _system == "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_gbsa_opt():
     x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
                "method": "gfn2", "out": out_file}
@@ -84,7 +84,7 @@ def test_tblite_xtb_alpb():
     assert dcmp == True
 
 
-@pytest.mark.skipif(_system == "Darwin" or "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
+@pytest.mark.skipif(_system == "Darwin" or _system == "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_gbsa():
     x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
                "method": "gfn2", "out": out_file}
