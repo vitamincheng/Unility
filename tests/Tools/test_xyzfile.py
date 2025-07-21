@@ -11,7 +11,6 @@ import filecmp
                                     (Path("tests/data/isomers.xyz"), 3,
                                      -309.820981116391, -309.815154391997)])
 def test_method_read_xyz(input_Path: Path, len_Sts_file: int, energy1: float, energy2: float):
-    # For crest_conformers.xyz
     file = GeometryXYZs(input_Path)
     assert len(file) == 0
     file.method_read_xyz()
@@ -31,7 +30,6 @@ def test_method_read_xyz(input_Path: Path, len_Sts_file: int, energy1: float, en
                                      " Energy =        -309.8209811164 Eh        #Cluster:     1",
                                      " Energy =        -309.8151543920 Eh        #Cluster:     3")])
 def test_method_rewrite_comment(input_Path: Path, compare_str1: str, compare_str2: str):
-    # for Crest_conformers.xyz
     file = GeometryXYZs(input_Path)
     file.method_read_xyz()
     file.method_rewrite_comment()
@@ -47,7 +45,6 @@ def test_method_rewrite_comment(input_Path: Path, compare_str1: str, compare_str
                                      " Energy =        -309.8209811164 Eh        #Cluster:     1",
                                      " Energy =        -309.8151543920 Eh        #Cluster:     3")])
 def test_method_comment_new(input_Path: Path, compare_str1: str, compare_str2: str):
-    # for crest_conformers.xyz
     file = GeometryXYZs(input_Path)
     file.method_read_xyz()
     file.method_comment_new()
@@ -63,7 +60,6 @@ def test_method_comment_new(input_Path: Path, compare_str1: str, compare_str2: s
                                      " Energy =        -309.8209811164 Eh        #Cluster:     1",
                                      " Energy =        -309.8151543920 Eh        #Cluster:     3")])
 def test_method_comment_keep(input_Path: Path, compare_str1: str, compare_str2: str):
-
     file = GeometryXYZs(input_Path)
     file.method_read_xyz()
     file.method_comment_keep()

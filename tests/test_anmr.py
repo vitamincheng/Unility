@@ -31,6 +31,7 @@ def test_anmr_bobyqa_true_json():
     peaks = anmr.main(argparse.Namespace(**x))
     assert peaks.shape == (2, 77868)
     os.remove("tests/data/04.Hydrogen/peaks.json")
+    os.remove("tests/data/04.Hydrogen/output.dat")
 
 
 def test_anmr_miss_args():
