@@ -7,6 +7,8 @@ import censo_ext.cregen as cregen
 import filecmp
 import platform
 
+Current_platform = platform.system()
+
 
 def test_cregen_miss_args():
     x: dict = {}
@@ -17,18 +19,21 @@ def test_cregen_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
+@pytest.mark.skipif(Current_platform == "Darwin", reason="crest only work under linux")
 def test_cregen_crest():
     x: dict = {"file": "tests/data/crest_conformers2.xyz", "rthr": 0.175, "bthr": 0.03,
                "ethr": 0.15, "ewin": 4, "out": "cluster.xyz"}
     args = argparse.Namespace(**x)
+    cregen.main(args)
 
-    if platform.system() == "Linux":
-        cregen.main(args)
+    compare = ""
+    if Current_platform == "Linux":
         compare = f"tests/compare/cregen_cluster.xyz"
-        assert filecmp.cmp(args.out, compare) == True
-        os.remove(args.out)
-        os.remove("isomers.out")
-    elif platform.system() == "Darwin":  # No crest under Darwin system
-        pass
+    elif Current_platform == "Darwin":  # No crest under Darwin system
+        compare = f"tests/compare/cregen_cluster_Darwin.xyz"
     else:
-        pass
+        pytest.raises(
+            ValueError, match="OS system only can run under Darwin or Linux")
+    assert filecmp.cmp(args.out, compare) == True
+    os.remove(args.out)
+    os.remove("isomers.out")

@@ -6,6 +6,16 @@ import censo_ext.xyzReturnOandZ as xyzReturnOandZ
 import os
 import filecmp
 import platform
+Current_platform = platform.system()
+
+
+def test_xyzReturnOandZ_miss_args():
+    x: dict = {}
+    args = argparse.Namespace(**x)
+    with pytest.raises(SystemExit) as e:
+        xyzReturnOandZ.main(args)
+    assert e.type == SystemExit
+    assert e.value.code == 2  # for argparse error
 
 
 def test_xyzReturnOandZ():
@@ -14,12 +24,14 @@ def test_xyzReturnOandZ():
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
-    if platform.system() == 'Darwin':
+    compare = ""
+    if Current_platform == 'Darwin':
         compare = "tests/compare/xyzReturnOandZ_Darwin.xyz"
-    elif platform.system() == "Linux":
+    elif Current_platform == "Linux":
         compare = "tests/compare/xyzReturnOandZ.xyz"
     else:
-        compare = ""
+        pytest.raises(
+            ValueError, match="OS system only can run under Darwin or Linux")
     assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
@@ -30,20 +42,13 @@ def test_xyzReturnOandZ_auto():
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
-    if platform.system() == 'Darwin':
+    compare = ""
+    if Current_platform == 'Darwin':
         compare = "tests/compare/xyzReturnOandZ_auto_Darwin.xyz"
-    elif platform.system() == "Linux":
+    elif Current_platform == "Linux":
         compare = "tests/compare/xyzReturnOandZ_auto.xyz"
     else:
-        compare = ""
+        pytest.raises(
+            ValueError, match="OS system only can run under Darwin or Linux")
     assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
-
-
-def test_xyzReturnOandZ_miss_args():
-    x: dict = {}
-    args = argparse.Namespace(**x)
-    with pytest.raises(SystemExit) as e:
-        xyzReturnOandZ.main(args)
-    assert e.type == SystemExit
-    assert e.value.code == 2  # for argparse error

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from _pytest import monkeypatch
 import pytest
 from pathlib import Path
 import argparse

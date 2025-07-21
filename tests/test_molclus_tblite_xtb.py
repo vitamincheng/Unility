@@ -9,6 +9,7 @@ import platform
 
 in_file = f"tests/data/EthylAcetate/01.Crest/crest_conformers.xyz"
 out_file = f"tests/compare/isomers.xyz"
+Current_platform = platform.system()
 
 
 def test_tblite_xtb_miss_args():
@@ -20,46 +21,46 @@ def test_tblite_xtb_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
+@pytest.mark.skipif(Current_platform == "Darwin", reason="tblite xtb have some bugs under Darwin")
 def test_tblite_xtb_alpb_opt():
 
     x: dict = {"file": in_file, "alpb": "chloroform", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
                "method": "GFN2-xTB", "out": out_file}
     args = argparse.Namespace(**x)
+    tblite_xtb.main(args)
 
     dcmp: bool = False
-    if platform.system() == "Darwin":
-        # xtb.main(args) # Under Darwin system fortrans of xtb have some bugs, only for opt
-        # compare = "tests/compare/molclus_xtb_1_Darwin.xyz"
-        dcmp = True
-    elif platform.system() == "Linux":
-        tblite_xtb.main(args)
+    compare = ""
+    if Current_platform == "Darwin":
+        compare = "tests/compare/molclus_xtb_1_Darwin.xyz"
+    elif Current_platform == "Linux":
         compare = "tests/compare/molclus_tblite_xtb_1.xyz"
-        dcmp = filecmp.cmp(args.out, compare)
-        os.remove(args.out)
     else:
-        pass
+        pytest.raises(
+            ValueError, match="OS system only can run under Darwin or Linux")
+    dcmp = filecmp.cmp(args.out, compare)
+    os.remove(args.out)
     assert dcmp == True
 
 
+@pytest.mark.skipif(Current_platform == "Darwin" or "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_gbsa_opt():
     x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
                "method": "gfn2", "out": out_file}
     args = argparse.Namespace(**x)
+    tblite_xtb.main(args)
 
     dcmp: bool = False
-    if platform.system() == "Darwin":
-        # xtb.main(args) # Under Darwin system fortrans of xtb have some bugs, only for opt
-        # compare = "tests/compare/molclus_xtb_2_Darwin.xyz"
-        dcmp = True
-    elif platform.system() == "Linux":
-        # gbsa is not work under tblite python module
-        # tblite_xtb.main(args)
-        # compare = "tests/compare/molclus_xtb_2.xyz"
-        # dcmp = filecmp.cmp(args.out, compare)
-        dcmp = True
-        # os.remove(args.out)
+    compare = ""
+    if Current_platform == "Darwin":
+        compare = "tests/compare/molclus_xtb_2_Darwin.xyz"
+    elif Current_platform == "Linux":
+        compare = "tests/compare/molclus_xtb_2.xyz"
     else:
-        pass
+        pytest.raises(
+            ValueError, match="OS system only can run under Darwin or Linux")
+    dcmp = filecmp.cmp(args.out, compare)
+    os.remove(args.out)
     assert dcmp == True
 
 
@@ -69,32 +70,36 @@ def test_tblite_xtb_alpb():
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
-    if platform.system() == "Darwin":
+    dcmp = False
+    compare = ""
+    if Current_platform == "Darwin":
         compare = "tests/compare/molclus_tblite_xtb_3_Darwin.xyz"
-    elif platform.system() == "Linux":
+    elif Current_platform == "Linux":
         compare = "tests/compare/molclus_tblite_xtb_3.xyz"
     else:
-        compare = ""
+        pytest.raises(
+            ValueError, match="OS system only can run under Darwin or Linux")
     dcmp = filecmp.cmp(args.out, compare)
-    assert dcmp == True
     os.remove(args.out)
+    assert dcmp == True
 
 
+@pytest.mark.skipif(Current_platform == "Darwin" or "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_gbsa():
     x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
                "method": "gfn2", "out": out_file}
     args = argparse.Namespace(**x)
-    # gbsa is not work under tblite python module
-    # tblite_xtb.main(args)
+    tblite_xtb.main(args)
 
-    if platform.system() == "Darwin":
+    dcmp = False
+    compare = ""
+    if Current_platform == "Darwin":
         compare = "tests/compare/molclus_xtb_4_Darwin.xyz"
-        dcmp = True
-    elif platform.system() == "Linux":
+    elif Current_platform == "Linux":
         compare = "tests/compare/molclus_xtb_4.xyz"
-        dcmp = True
     else:
-        compare = ""
-    # dcmp = filecmp.cmp(args.out, compare)
+        pytest.raises(
+            ValueError, match="OS system only can run under Darwin or Linux")
+    dcmp = filecmp.cmp(args.out, compare)
+    os.remove(args.out)
     assert dcmp == True
-    # os.remove(args.out)

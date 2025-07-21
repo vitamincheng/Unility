@@ -6,8 +6,10 @@ import argparse
 import censo_ext.molclus_orca as orca
 import filecmp
 import platform
+
 in_file = f"tests/data/EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz"
 out_file = f"isomers.xyz"
+Current_platform = platform.system()
 
 
 def test_orca_miss_args():
@@ -19,16 +21,22 @@ def test_orca_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
+@pytest.mark.skipif(Current_platform == "Darwin", reason="")
 def test_orca_opt():
     x: dict = {"file": in_file, "template": "template.inp",
                "remove": True, "out": out_file}
 
     args = argparse.Namespace(**x)
-    # if platform.system() == "Linux":     ## Need 2 min
-    #    orca.main(args)
+    orca.main(args)
 
-    # compare = f"tests/compare/orca_isomers.xyz"
-    # assert filecmp.cmp(args.out, compare) == True
-    # os.remove(args.out)
-    # import subprocess
-    # subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
+    compare = ""
+    if Current_platform == "Linux":  # Need 2 min
+        compare = f"tests/compare/orca_isomers.xyz"
+
+    elif Current_platform == "Darwin":
+        compare = f"tests/compare/orca_isomers_Darwin.xyz"
+
+    assert filecmp.cmp(args.out, compare) == True
+    os.remove(args.out)
+    import subprocess
+    subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
