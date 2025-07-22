@@ -93,12 +93,12 @@ def Factor_xyzCompare(args) -> None:
     shutil.copyfile(original_cwd+"/"+args.file[0], new_cwd+"/"+FileName)
 
     os.chdir(new_cwd)
-    subprocess.call("crest "+args.file[0]+" --cregen "+args.file[0] +
+    subprocess.call("crest "+FileName+" --cregen "+FileName +
                     " --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > weight_P", shell=True)
     os.chdir(original_cwd)
     shutil.copyfile(new_cwd+"/weight_P", original_cwd+"/weight_P")
 
-    file_weight: Path = Path("weight_P")
+    file_weight: Path = Path(new_cwd+"/weight_P")
     from censo_ext.Tools.utility import IsExist
     IsExist(file_weight)
 
