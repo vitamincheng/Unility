@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import argparse
 import os
 import numpy as np
@@ -86,10 +86,12 @@ def Factor_xyzCompare(args) -> None:
     original_cwd: str = os.getcwd()
     new_cwd: str = os.getcwd()+"/"+Dir_str
     from os.path import exists
-    if not exists(Dir_str):
-        os.makedirs(Dir_str)
+    if not exists(new_cwd):
+        os.makedirs(new_cwd)
+    from censo_ext.Tools.utility import IsExists_DirFileName
+    _, FileName = IsExists_DirFileName(Path(args.file[0]))
+    shutil.copyfile(original_cwd+"/"+args.file[0], new_cwd+"/"+FileName)
 
-    shutil.copyfile(original_cwd+"/"+args.file[0], new_cwd+"/"+args.file[0])
     os.chdir(new_cwd)
     subprocess.call("crest "+args.file[0]+" --cregen "+args.file[0] +
                     " --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > weight_P", shell=True)
@@ -168,6 +170,7 @@ def Factor_xyzCompare(args) -> None:
     print(" ========== Finished ==========")
     print("")
     subprocess.call("rm -rf tmp_save.xyz CREST_P weight_P ", shell=True)
+    # subprocess.call("rm -rf tmp_save.xyz weight_P ", shell=True)
     print(" Removed the temp file ")
 
 
@@ -190,6 +193,6 @@ if __name__ == "__main__":
 
 #
 #   test
-#   python3 FactorCompare.py -i tests/data/crest_conformers.xyz tests/data/crest_conformers.xyz
+#   python FactorCompare.py -i tests/data/crest_conformers.xyz tests/data/crest_conformers.xyz
 #
 #

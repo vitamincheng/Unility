@@ -1,21 +1,21 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 from icecream import ic
 import argparse
 import os
 import numpy as np
 from pathlib import Path
 
-fileName: Path = Path("Average/NMR/orcaS.out")
-fileNameB: Path = Path("Average/NMR/orcaS-BOBYQA.out")
+FileName_OrcaS: Path = Path("Average/NMR/orcaS.out")
+FileName_BOBYQA: Path = Path("Average/NMR/orcaS-BOBYQA.out")
 
 
 def rosenbrock(x0) -> float:
-    orcaS_Table: np.ndarray = np.genfromtxt(fileNameB)
+    orcaS_Table: np.ndarray = np.genfromtxt(FileName_BOBYQA)
 
     for idx, idx_k in enumerate(idx_key):
         orcaS_Table[idx_k][1] = x0[idx]
 
-    np.savetxt(fileNameB, orcaS_Table, fmt="%10d %10.5f %10d")
+    np.savetxt(FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
 
     import censo_ext.anmr as anmr
     x: dict = {'out': 'output.dat', 'mf': 500.0, 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
@@ -40,7 +40,7 @@ def rosenbrock(x0) -> float:
 
 def single_scan() -> None:
     import pybobyqa
-    orcaS_Table: np.ndarray = np.genfromtxt(fileNameB)
+    orcaS_Table: np.ndarray = np.genfromtxt(FileName_BOBYQA)
 
     for idx, SParam in enumerate(orcaS_Table):
 
@@ -62,7 +62,7 @@ def single_scan() -> None:
 
 def group_scan(inGroup: list[int] = []) -> None:
     import pybobyqa
-    orcaS_Table: np.ndarray = np.genfromtxt(fileNameB)
+    orcaS_Table: np.ndarray = np.genfromtxt(FileName_BOBYQA)
 
     group: set = set()
     for idx, SParam in enumerate(orcaS_Table):
@@ -109,34 +109,37 @@ def group_scan(inGroup: list[int] = []) -> None:
         argsmin: int = min(range(len(solution_f)), key=solution_f.__getitem__)
         list_x0: list[int] = solution_x0[argsmin]
 
-        orcaS_Table = np.genfromtxt(fileNameB)
+        orcaS_Table = np.genfromtxt(FileName_BOBYQA)
 
         for idx, idx_k in enumerate(idx_key):
             orcaS_Table[idx_k][1] = list_x0[idx]
 
-        np.savetxt(fileNameB, orcaS_Table, fmt="%10d %10.5f %10d")
+        np.savetxt(FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
 
 
 def new() -> None:
     from censo_ext.Tools.utility import IsExist_return_bool
-    if IsExist_return_bool(fileNameB):
-        return
+    if IsExist_return_bool(FileName_orcaS):
+        if IsExist_return_bool(FileName_BOBYQA):
+            return
+        else:
+            orcaS_Table: np.ndarray = np.genfromtxt(FileName_orcaS)
+            orcaS_Table = np.insert(orcaS_Table, 2, 0, axis=1)
+            ic(orcaS_Table)
+            np.savetxt(FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
+            print(" Create the orcaS-BOBYQA.out file ")
+            print(" three column :        0 - Do nothing ")
+            print("                       1 - Use BOBYQA single point to find the peak ")
+            print("               Above 100 - Use BOBYQA groups to find the peaks ")
+            print(" Run this program again")
+            ic()
+            exit(0)
     else:
-        orcaS_Table: np.ndarray = np.genfromtxt(fileName)
-        orcaS_Table = np.insert(orcaS_Table, 2, 0, axis=1)
-        ic(orcaS_Table)
-        np.savetxt(fileNameB, orcaS_Table, fmt="%10d %10.5f %10d")
-        print(" Create the orcaS-BOBYQA.out file ")
-        print(" three column :        0 - Do nothing ")
-        print("                       1 - Use BOBYQA single point to find the peak ")
-        print("               Above 100 - Use BOBYQA groups to find the peaks ")
-        print(" Run this program again")
         ic()
         exit(0)
 
 
 def main() -> None:
-    print("="*80)
     new()
     single_scan()
     group_scan()
