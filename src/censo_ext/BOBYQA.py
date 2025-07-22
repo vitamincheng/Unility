@@ -5,17 +5,76 @@ import os
 import numpy as np
 from pathlib import Path
 
+
+descr = """
+________________________________________________________________________________
+|                                          [07.22.2025] vitamin.cheng@gmail.com
+| BOBYQA.py
+| Usages  : BOBYQA.py [options]
+| [options]
+| Dir      : -d the directory of input files(CONF) [default .]
+| Package  : Tools / nmrsim Library
+| Module   : anmrfile.py / ml4nmr.py / qm.py
+|______________________________________________________________________________
+"""
+
+
+def cml(descr) -> argparse.Namespace:
+    """ Get args object from commandline interface.
+        Needs argparse module."""
+    parser = argparse.ArgumentParser(
+        description="",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        # formatter_class=argparse.RawDescriptionHelpFormatter,
+        usage=argparse.SUPPRESS,
+    )
+
+    parser.add_argument(
+        "-d",
+        "--dir",
+        dest="dir",
+        action="store",
+        required=False,
+        default=".",
+        help="Provide output_file name [default .]",
+    )
+
+    parser.add_argument(
+        "-r",
+        "--ref",
+        dest="ref",
+        action="store",
+        required=False,
+        default="1r.dat",
+        help="Provide ref file(dat) name [1r.dat]",
+    )
+
+    parser.add_argument(
+        "-l",
+        "--limit",
+        dest="limit",
+        action="store",
+        type=float,
+        required=False,
+        default=0.20,
+        help="Provide limit border (ppm) [0.20]",
+    )
+
+    args: argparse.Namespace = parser.parse_args()
+    return args
+
+
 FileName_OrcaS: Path = Path("Average/NMR/orcaS.out")
 FileName_BOBYQA: Path = Path("Average/NMR/orcaS-BOBYQA.out")
 
 
 def rosenbrock(x0) -> float:
-    orcaS_Table: np.ndarray = np.genfromtxt(FileName_BOBYQA)
+    orcaS_Table: np.ndarray = np.genfromtxt(Directory / FileName_BOBYQA)
 
-    for idx, idx_k in enumerate(idx_key):
+    for idx, idx_k in enumerate(idx_keys):
         orcaS_Table[idx_k][1] = x0[idx]
 
-    np.savetxt(FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
+    np.savetxt(Directory/FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
 
     import censo_ext.anmr as anmr
     x: dict = {'out': 'output.dat', 'mf': 500.0, 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
@@ -27,7 +86,7 @@ def rosenbrock(x0) -> float:
 
     from censo_ext.Tools.anmrfile import CensoDat
     Dat_Cal: CensoDat = CensoDat(file=x["out"])
-    Dat_Ref: CensoDat = CensoDat(file=Path("1r.dat"))
+    Dat_Ref: CensoDat = CensoDat(file=Path(Directory/Dat_fileName))
     Dat_Cal.method_normalize_dat()
     Dat_Ref.method_normalize_dat()
     Diff: CensoDat = Dat_Cal.method_subtract_dat(Dat_Ref)
@@ -38,31 +97,31 @@ def rosenbrock(x0) -> float:
     return rsquare
 
 
-def single_scan() -> None:
+def Scan_single_Peak() -> None:
     import pybobyqa
-    orcaS_Table: np.ndarray = np.genfromtxt(FileName_BOBYQA)
+    OrcaS_Table: np.ndarray = np.genfromtxt(Directory / FileName_BOBYQA)
 
-    for idx, SParam in enumerate(orcaS_Table):
+    for idx, SParam in enumerate(OrcaS_Table):
 
-        if SParam[2] == 1:
+        if SParam[2] == 1:  # on/off
 
-            data: list = []
-            data.append(SParam[1])
-            global idx_key
-            idx_key = []
-            idx_key.append(idx)
-            x0 = np.array(data)
-            lower = x0 - 0.2
-            upper = x0 + 0.2
+            Data_Chemical_Shift: list = []
+            Data_Chemical_Shift.append(SParam[1])
+            global idx_keys
+            # idx_keys: list = []
+            idx_keys.append(idx)
+            x0: np.ndarray = np.array(Data_Chemical_Shift)
+            lower: np.ndarray = x0 - limit_border
+            upper: np.ndarray = x0 + limit_border
             ic(int(SParam[0]), x0.tolist())
             soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
                 lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
             print(soln)
 
 
-def group_scan(inGroup: list[int] = []) -> None:
+def Scan_group_Peaks(inGroup: list[int] = []) -> None:
     import pybobyqa
-    orcaS_Table: np.ndarray = np.genfromtxt(FileName_BOBYQA)
+    orcaS_Table: np.ndarray = np.genfromtxt(Directory / FileName_BOBYQA)
 
     group: set = set()
     for idx, SParam in enumerate(orcaS_Table):
@@ -74,18 +133,18 @@ def group_scan(inGroup: list[int] = []) -> None:
 
     for idg in list_group:
 
-        global idx_key
-        idx_key = list()
-        data: list[float] = list()
+        global idx_keys
+        idx_keys = list()
+        Data_Chemical_Shift: list[float] = list()
         idx_atoms: list[int] = list()
 
         for idx, SParam in enumerate(orcaS_Table):
             if SParam[2] == idg:
-                idx_key.append(idx)
+                idx_keys.append(idx)
                 idx_atoms.append(int(SParam[0]))
-                data.append(SParam[1])
+                Data_Chemical_Shift.append(SParam[1])
 
-        nNumbers: int = len(idx_key)
+        nNumbers: int = len(idx_keys)
         from itertools import permutations
         Permutations: list = list(permutations(
             [*range(0, nNumbers)], nNumbers))
@@ -93,11 +152,11 @@ def group_scan(inGroup: list[int] = []) -> None:
         solution_x0: list = []
 
         for Permutation in Permutations:
-            x0 = np.array(data)[list(Permutation)]
+            x0 = np.array(Data_Chemical_Shift)[list(Permutation)]
             # idx_atoms =[ int(x) for x in np.array(idx_atoms)[list(Permutation)]]
 
-            lower = x0 - 0.2
-            upper = x0 + 0.2
+            lower = x0 - limit_border
+            upper = x0 + limit_border
             ic(idx_atoms, x0.tolist())
             soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
                 lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
@@ -109,24 +168,26 @@ def group_scan(inGroup: list[int] = []) -> None:
         argsmin: int = min(range(len(solution_f)), key=solution_f.__getitem__)
         list_x0: list[int] = solution_x0[argsmin]
 
-        orcaS_Table = np.genfromtxt(FileName_BOBYQA)
+        OrcaS_Table = np.genfromtxt(Directory/FileName_BOBYQA)
 
-        for idx, idx_k in enumerate(idx_key):
-            orcaS_Table[idx_k][1] = list_x0[idx]
+        for idx, idx_k in enumerate(idx_keys):
+            OrcaS_Table[idx_k][1] = list_x0[idx]
 
-        np.savetxt(FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
+        np.savetxt(Directory/FileName_BOBYQA,
+                   OrcaS_Table, fmt="%10d %10.5f %10d")
 
 
-def new() -> None:
+def Create_BOBYQA() -> None:
     from censo_ext.Tools.utility import IsExist_return_bool
-    if IsExist_return_bool(FileName_orcaS):
-        if IsExist_return_bool(FileName_BOBYQA):
+    if IsExist_return_bool(Directory / FileName_OrcaS):
+        if IsExist_return_bool(Directory / FileName_BOBYQA):
             return
         else:
-            orcaS_Table: np.ndarray = np.genfromtxt(FileName_orcaS)
+            orcaS_Table: np.ndarray = np.genfromtxt(Directory / FileName_OrcaS)
             orcaS_Table = np.insert(orcaS_Table, 2, 0, axis=1)
             ic(orcaS_Table)
-            np.savetxt(FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
+            np.savetxt(Directory / FileName_BOBYQA,
+                       orcaS_Table, fmt="%10d %10.5f %10d")
             print(" Create the orcaS-BOBYQA.out file ")
             print(" three column :        0 - Do nothing ")
             print("                       1 - Use BOBYQA single point to find the peak ")
@@ -139,11 +200,34 @@ def new() -> None:
         exit(0)
 
 
-def main() -> None:
-    new()
-    single_scan()
-    group_scan()
+def main(args: argparse.Namespace = argparse.Namespace()):
+
+    global Directory
+    global Dat_fileName
+    global limit_border
+    if args == argparse.Namespace():
+        args = cml("")
+    if args.dir:
+        Directory = Path(args.dir)
+        ic(Directory)
+    # if args.dir == None:
+    #    Directory = Path(".")
+    # else:
+    #    Directory = Path(args.dir)
+    if args.ref:
+        Dat_fileName = args.ref        # default 1r.dat
+        ic(Dat_fileName)
+    if args.limit:
+        limit_border = args.limit    # defalut 0.20 ppm
+        ic(limit_border)
+    Create_BOBYQA()
+    Scan_single_Peak()
+    Scan_group_Peaks()
 
 
 if __name__ == "__main__":
     main()
+
+# test
+# BOBYQA.py -d tests/data/EthylAcetate/03.Censo -r 1r.dat
+#

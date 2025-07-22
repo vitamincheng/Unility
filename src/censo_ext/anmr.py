@@ -63,6 +63,7 @@ def cml(descr) -> argparse.Namespace:
         dest="dir",
         action="store",
         required=False,
+        default=".",
         help="Provide output_file name [default .]",
     )
 
@@ -236,10 +237,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
 
     if args == argparse.Namespace():
         args = cml("")
-    if args.dir == None:
-        Directory: Path = Path(".")
-    else:
-        Directory: Path = Path(args.dir)
+
+    Directory: Path = Path("")
+    if args.dir:
+        Directory = Path(args.dir)
 
     from censo_ext.Tools.anmrfile import Anmr
     inAnmr: Anmr = Anmr(Directory)
