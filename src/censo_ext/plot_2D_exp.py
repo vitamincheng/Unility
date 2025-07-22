@@ -2,7 +2,7 @@
 from icecream import ic
 import matplotlib.pyplot as plt
 from nmrglue.fileio.fileiobase import unit_conversion
-from censo_ext.Tools.spectra import numpy_threshold_3, numpy_threshold_10
+from censo_ext.Tools.spectra import numpy_threshold
 from sys import argv as sysargv
 import nmrglue as ng
 import argparse
@@ -149,7 +149,7 @@ def plot_2D_Basic(udic, data, uc_1h, uc_13c):
     ax_histx.plot(uc_1h.ppm_scale(), x_axis_data, color='k', linewidth=1)
     ax_histy.plot(-y_axis_data, uc_13c.ppm_scale(), color='k', linewidth=1)
 
-    contour_thr = numpy_threshold_10(data)
+    contour_thr = numpy_threshold(data, 10.0)
     maximum = np.max(data)
 
     import matplotlib
@@ -182,8 +182,8 @@ def plot_2D_Basic(udic, data, uc_1h, uc_13c):
 def cal_contour_peak(data, contour_thr_factor: float = 2):
 
     from skimage.morphology import extrema
-    contour_maxima_thr = numpy_threshold_3(
-        data) * contour_thr_factor + np.max(data)*0.01
+    contour_maxima_thr = numpy_threshold(
+        data, 3.0) * contour_thr_factor + np.max(data)*0.01
     h_maxima = extrema.h_maxima(data, contour_maxima_thr)
     max_peaks: list = []
     for idy, y in enumerate(h_maxima):
@@ -212,9 +212,9 @@ def main(args=argparse.Namespace()) -> None:
     x_axis_data = np.sum(data, axis=0)
     y_axis_data = np.sum(data, axis=1)
     # ic(y_axis_data)
-    from censo_ext.Tools.spectra import numpy_threshold_3
-    y_thr: float = numpy_threshold_3(y_axis_data)
-    x_thr: float = numpy_threshold_3(x_axis_data)
+    from censo_ext.Tools.spectra import numpy_threshold
+    y_thr: float = numpy_threshold(y_axis_data, 3)
+    x_thr: float = numpy_threshold(x_axis_data, 3)
     # ic(y_thr)
     import matplotlib.axes as axes
     ax: axes.Axes | None = None

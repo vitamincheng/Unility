@@ -11,19 +11,11 @@ def numpy_threshold_mean_3(x: np.ndarray) -> float:
     return thr
 
 
-def numpy_threshold_3(x: np.ndarray) -> float:
+def numpy_threshold(x: np.ndarray, multi: float) -> float:
     x = np.sort(x.flatten())
     start_mean: float = float(np.mean(x[0:int(len(x)*0.05)]))
     median: float = x[int(len(x)*0.50)]
-    thr: float = (median - start_mean*20/19+median)*3
-    return thr
-
-
-def numpy_threshold_10(x: np.ndarray) -> float:
-    x = np.sort(x.flatten())
-    start_mean: float = float(np.mean(x[0:int(len(x)*0.05)]))
-    median: float = x[int(len(x)*0.50)]
-    thr: float = (median - start_mean*20/19+median)*10
+    thr: float = (median - start_mean*20/19+median)*multi
     return thr
 
 
