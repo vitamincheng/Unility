@@ -44,35 +44,36 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def cal_rmsd(xyzfile, idx_p, idx_q) -> float:
+def cal_RMSD(xyzfile, idx_p, idx_q) -> float:
     from censo_ext.Tools.calculate_rmsd import cal_rmsd_xyz
     x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
                "ignore_Hydrogen": True, "quiet": True, "debug": False}
-    coord_square, result_rmsd = cal_rmsd_xyz(
+    _, RMSD = cal_rmsd_xyz(
         xyzfile, idx_p, idx_q, args=argparse.Namespace(**x))
-    return result_rmsd
+    return RMSD
 
 
 def Factor_xyzCompare(args) -> None:
     import subprocess
     import re
-    import sys
+    merge_FileName: Path = Path("temp_save.xyz")
     subprocess.call(
-        "cat "+str(args.file[0])+" "+str(args.file[1])+"> tmp_save.xyz", shell=True)
+        "cat "+str(args.file[0])+" "+str(args.file[1]) + "> " + str(merge_FileName), shell=True)
     xyzfile_P: GeometryXYZs = GeometryXYZs(args.file[0])
     xyzfile_P.method_read_xyz()
     xyzfile_Q: GeometryXYZs = GeometryXYZs(args.file[1])
     xyzfile_Q.method_read_xyz()
 
-    xyzfile_One: GeometryXYZs = GeometryXYZs(Path("tmp_save.xyz"))
-    xyzfile_One.method_read_xyz()
+    xyzfile_Merge: GeometryXYZs = GeometryXYZs(merge_FileName)
+    xyzfile_Merge.method_read_xyz()
     nSts_P: int = len(xyzfile_P)
     nSts_Q: int = len(xyzfile_Q)
 
     result: list | np.ndarray = []
     for idx_P in range(nSts_P):
         for idx_Q in range(nSts_Q):
-            result.append(cal_rmsd(xyzfile_One, idx_P+1, idx_Q+nSts_P+1))
+            result.append(cal_RMSD(xyzfile_Merge, idx_P+1, idx_Q+nSts_P+1))
+
     result = np.array(result)
     result = (result.reshape(nSts_P, nSts_Q).T)
 
@@ -82,37 +83,38 @@ def Factor_xyzCompare(args) -> None:
         print(" Exit the program ")
         exit(1)
 
-    Dir_str = "CREST_P"
-    original_cwd: str = os.getcwd()
-    new_cwd: str = os.getcwd()+"/"+Dir_str
+    Dir_str: Path = Path("CREST_P")
+    Original_cwd: Path = Path(os.getcwd())
+    Compare_Result: Path = Path("weight_P")
+    New_cwd: Path = Original_cwd / Dir_str
     from os.path import exists
-    if not exists(new_cwd):
-        os.makedirs(new_cwd)
+    if not exists(New_cwd):
+        os.makedirs(New_cwd)
     from censo_ext.Tools.utility import IsExists_DirFileName
-    _, FileName = IsExists_DirFileName(Path(args.file[0]))
-    shutil.copyfile(original_cwd+"/"+args.file[0], new_cwd+"/"+FileName)
+    _, FileName_str = IsExists_DirFileName(Path(args.file[0]))
+    FileName: Path = Path(FileName_str)
+    shutil.copyfile(Original_cwd / FileName, New_cwd / FileName)
 
-    os.chdir(new_cwd)
-    subprocess.call("crest "+FileName+" --cregen "+FileName +
-                    " --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > weight_P", shell=True)
-    os.chdir(original_cwd)
-    shutil.copyfile(new_cwd+"/weight_P", original_cwd+"/weight_P")
+    os.chdir(New_cwd)
+    subprocess.call("crest " + str(FileName) + " --cregen " + str(FileName) +
+                    " --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > " + str(Compare_Result), shell=True)
+    os.chdir(Original_cwd)
+    shutil.copyfile(New_cwd / Compare_Result, Original_cwd / Compare_Result)
 
-    file_weight: Path = Path(new_cwd+"/weight_P")
+    Path_weight_P: Path = New_cwd / Compare_Result
     from censo_ext.Tools.utility import IsExist
-    IsExist(file_weight)
+    IsExist(Path_weight_P)
 
-    print(" Reading the ", file_weight, " file ")
+    print(" Reading the ", Path_weight_P, " file ")
 
-    lines: list[str] = open(file_weight, "r").readlines()
-
+    lines: list[str] = open(Path_weight_P, "r").readlines()
     start_idx0: int = 0
     end_idx0: int = 0
     for idx0, line in enumerate(lines):
         if re.search(r"Erel/kcal", line):
-            start_idx0 = idx0+1
+            start_idx0 = idx0 + 1
         if re.search(r"ensemble average energy", line):
-            end_idx0 = idx0-3
+            end_idx0 = idx0 - 3
     St_crest: np.ndarray = np.array([])
     for idx0, line in enumerate(lines):
         if idx0 >= start_idx0 and idx0 <= end_idx0:
@@ -138,11 +140,11 @@ def Factor_xyzCompare(args) -> None:
     sort_Result.sort()
 
     diff2_Result: np.ndarray = np.diff(np.diff(sort_Result))
-    STD_diff2_R: float = diff2_Result.std()
+    STD_diff2_Result: float = diff2_Result.std()
 
     idx_max_diff2_R: np.ndarray = np.array([], dtype=int)
     for idx, num in enumerate(diff2_Result):
-        if num > STD_diff2_R:
+        if num > STD_diff2_Result:
             idx_max_diff2_R: np.ndarray = np.append(idx_max_diff2_R, idx)
 
     thr = sort_Result[idx_max_diff2_R[0]+2]
@@ -169,7 +171,8 @@ def Factor_xyzCompare(args) -> None:
     print("")
     print(" ========== Finished ==========")
     print("")
-    subprocess.call("rm -rf tmp_save.xyz CREST_P weight_P ", shell=True)
+    subprocess.call("rm -rf "+str(Dir_str)+" " + str(Compare_Result) +
+                    " " + str(merge_FileName), shell=True)
     # subprocess.call("rm -rf tmp_save.xyz weight_P ", shell=True)
     print(" Removed the temp file ")
 
