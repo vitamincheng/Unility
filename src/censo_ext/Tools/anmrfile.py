@@ -162,8 +162,7 @@ class Anmr():
     def method_avg_orcaSJ(self) -> None:
         '''Average of orcaJ.out and orcaS.out in /NMR/CONFXX folder'''
         print(" ===== Average of all folder orcaS.out and orcaJ.out =====")
-
-        if len(self.nucinfo) == 0 or len(self.enso) == 0:
+        if len(self.nucinfo) == 0 or self.enso.size == 0:
             print(" Need to read the anmr_nucinfo and anmr_enso enso")
             print(" Exit the program !!! ")
             ic()
@@ -172,7 +171,7 @@ class Anmr():
             # for Normal of weight of anmr_enso
             weight = self.enso['BW']
             switch = self.enso['ONOFF']
-            idx_CONF = self.enso['CONF'].astype(int)
+            idx_CONF: np.ndarray = self.enso['CONF'].astype(int)
 
             if (np.sum(switch) == 0):
                 print("anmr_enso: Table - ONOFF is Zero ")
@@ -180,8 +179,9 @@ class Anmr():
                 exit(0)
 
             weight = weight*switch
-            weight = weight / sum(weight)
-            normal_weight = dict(zip(idx_CONF, weight))
+            weight = weight / np.sum(weight)
+            normal_weight = dict(
+                zip(np.atleast_1d(idx_CONF), np.atleast_1d(weight)))
 
             import copy
             Active_orcaSJ: list = []
@@ -226,7 +226,7 @@ class Anmr():
         '''
         print(" Replace the equivalent of Sparams and JCoups")
 
-        if len(self.nucinfo) == 0 or len(self.enso) == 0:
+        if len(self.nucinfo) == 0 or self.enso.size == 0:
             print(" Need to read the anmr_nucinfo and anmr_enso enso")
             print(" Exit the program !!! ")
             ic()
@@ -571,7 +571,7 @@ class Anmr():
 
     def method_create_enso(self, in_np: np.ndarray) -> None:
         self.enso = in_np
-        if len(self.enso[0]) != 8:
+        if len(self.enso.dtype) != 8:
             print("something wrong in your anmr_enso file")
             ic()
             exit(1)
@@ -584,8 +584,7 @@ class Anmr():
         IsExist(file)
 
         self.enso = np.genfromtxt(file, names=True)
-
-        if len(self.enso[0]) != 8:
+        if len(self.enso.dtype) != 8:
             print("something wrong in your anmr_enso file")
             ic()
             exit(1)

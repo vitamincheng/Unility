@@ -1,0 +1,4 @@
+CONF#       E [Eh] ΔE [kcal/mol]       E [Eh]   Gsolv [Eh]         gtot    ΔE(DFT)     ΔGsolv      Δgtot
+          GFN2-xTB      GFN2-xTB    r2scan-3c         alpb         [Eh] [kcal/mol] [kcal/mol] [kcal/mol]
+            [alpb]        [alpb]                    [gfn2]                                              
+CONF1  -22.0315496          0.00 -309.8138129   -0.0135548 -309.8273678       0.00       0.00       0.00     <------

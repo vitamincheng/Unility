@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from icecream import ic
 import argparse
 import os
@@ -12,9 +12,11 @@ ________________________________________________________________________________
 | BOBYQA.py
 | Usages  : BOBYQA.py [options]
 | [options]
-| Dir      : -d the directory of input files(CONF) [default .]
-| Package  : Tools / nmrsim Library
-| Module   : anmrfile.py / ml4nmr.py / qm.py
+| Dir      : -d the directory [default .]
+| Ref      : -r the actual reference file [default 1r.dat] 
+| Limit    : -l limit border(ppm) [defalut 0.20]
+| Package  : Tools 
+| Module   : ??.py
 |______________________________________________________________________________
 """
 
@@ -230,4 +232,4 @@ if __name__ == "__main__":
 
 # test
 # BOBYQA.py -d tests/data/EthylAcetate/03.Censo -r 1r.dat
-#
+# BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) -r 1r_h.dat

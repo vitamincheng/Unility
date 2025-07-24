@@ -1,0 +1,4 @@
+CONF#       E [Eh]   Gsolv [Eh]  GmRRHO [Eh]         Gtot      ΔGtot Boltzmannweight
+         r2scan-3c   incl. in E         GFN2         [Eh] [kcal/mol]   % at 298.15 K
+             [SMD]              [alpb]-bhess                                        
+CONF1 -309.8251581    0.0000000    0.1178303 -309.7073278       0.00          100.00     <------

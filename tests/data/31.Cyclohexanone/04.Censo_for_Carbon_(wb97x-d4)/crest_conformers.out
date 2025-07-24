@@ -1,0 +1,420 @@
+
+         ______________________________________________________________
+        |                                                              |
+        |                                                              |
+        |                   CENSO - Commandline ENSO                   |
+        |                           v 1.2.0                            |
+        |    energetic sorting of CREST Conformer Rotamer Ensembles    |
+        |                    University of Bonn, MCTC                  |
+        |                           Feb 2021                           |
+        |                 based on ENSO version 2.0.1                  |
+        |                     F. Bohle and S. Grimme                   |
+        |                                                              |
+        |______________________________________________________________|
+
+        Please cite: 
+        S. Grimme, F. Bohle, A. Hansen, P. Pracht, S. Spicher, and M. Stahn 
+        J. Phys. Chem. A 2021, 125, 19, 4039-4054.
+        DOI: https://doi.org/10.1021/acs.jpca.1c00971
+        
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+----------------------------------------------------------------------------------------------------
+                                             PARAMETERS                                             
+----------------------------------------------------------------------------------------------------
+
+program call: /home/vitamin/.local/bin/censo -inp crest_conformers.xyz
+The configuration file .censorc is read from /home/vitamin/Simulation/00.Solvent/31.Cycloexanone(6.0.0)/04.Censo for Carbon (copy)/.censorc.
+Reading conformer rotamer ensemble from: /home/vitamin/Simulation/00.Solvent/31.Cycloexanone(6.0.0)/04.Censo for Carbon (copy)/crest_conformers.xyz.
+Reading file: censo_solvents.json
+
+Reading file: censo_orca_editable.dat
+
+
+--------------------------------------------------
+               CRE SORTING SETTINGS               
+--------------------------------------------------
+
+number of atoms in system:                                     17
+number of considered conformers:                               1
+number of all conformers from input:                           1
+charge:                                                        0
+unpaired:                                                      0
+solvent:                                                       chcl3
+temperature:                                                   298.15
+calculate mRRHO contribution:                                  on
+consider symmetry for mRRHO contribution:                      on
+cautious checking for error and failed calculations:           on
+checking the DFT-ensemble using CREST:                         on
+maxthreads:                                                    2
+omp:                                                           4
+automatically balance maxthreads and omp:                      on
+
+--------------------------------------------------
+          CRE CHEAP-PRESCREENING - PART0          
+--------------------------------------------------
+part0:                                                         on
+starting number of considered conformers:                      1
+program for part0:                                             orca
+functional for fast single-point:                              r2scan-3c
+basis set for fast single-point:                               def2-mTZVPP
+threshold g_thr(0) for sorting in part0:                       4.0
+Solvent model used with xTB:                                   alpb
+
+short-notation:
+r2scan-3c // GFNn-xTB (Input geometry)
+
+--------------------------------------------------
+             CRE PRESCREENING - PART1             
+--------------------------------------------------
+part1:                                                         on
+program for part1:                                             orca
+functional for initial evaluation:                             r2scan-3c
+basis set for initial evaluation:                              def2-mTZVPP
+calculate mRRHO contribution:                                  on
+program for mRRHO contribution:                                xtb
+GFN version for mRRHO and/or GBSA_Gsolv:                       gfn2
+Apply constraint to input geometry during mRRHO calculation:   on
+solvent model applied with xTB:                                alpb
+evaluate at different temperatures:                            off
+threshold g_thr(1) and G_thr(1) for sorting in part1:          6.0
+solvent model for Gsolv contribution of part1:                 smd
+
+short-notation:
+r2scan-3c + SMD[chcl3] + GmRRHO(GFN2[alpb]-bhess) // GFNn-xTB (Input geometry)
+
+--------------------------------------------------
+                 NMR MODE SETTINGS                
+--------------------------------------------------
+part4:                                                         on
+calculate couplings (J):                                       on
+program for coupling calculations:                             orca
+solvation model for coupling calculations:                     cpcm
+functional for coupling calculation:                           pbe0-d4
+basis set for coupling calculation:                            pcJ-0
+
+calculate shieldings (S):                                      on
+program for shielding calculations:                            orca
+solvation model for shielding calculations:                    cpcm
+functional for shielding calculation:                          wb97x-d4
+basis set for shielding calculation:                           def2-svp
+
+Calculating carbon spectrum:                                   on
+reference for 13C:                                             TMS
+resonance frequency:                                           500.0
+END of parameters
+
+
+------------------------------------------------------------
+               PATHS of external QM programs                
+------------------------------------------------------------
+
+The following program paths are used:
+    ORCA:         /home/vitamin/orca_6_0_0_linux_x86-64_avx2_shared_openmpi416
+    ORCA Version: 6.00
+    xTB:          /home/vitamin/xtb/bin/xtb
+
+
+****************************************************************************************************
+WARNING:     The basis set basisS: def2-svp could not be checked, but is used anyway!
+****************************************************************************************************
+
+----------------------------------------------------------------------------------------------------
+                            Processing data from previous run (enso.json)                           
+----------------------------------------------------------------------------------------------------
+
+Reading file: enso.json
+
+WARNING:     The inputfile containing all conformers was changed, compared to the previous run!
+Backing up enso.json to enso.json.1.
+
+----------------------------------------------------------------------------------------------------
+                                   CRE CHEAP-PRESCREENING - PART0                                   
+----------------------------------------------------------------------------------------------------
+
+program:                                                       orca
+functional for part0:                                          r2scan-3c
+basis set for part0:                                           def2-mTZVPP
+threshold g_thr(0):                                            4.0
+starting number of considered conformers:                      1
+temperature:                                                   298.15
+
+Calculating efficient gas-phase single-point energies:
+The efficient gas-phase single-point is calculated for:
+CONF1
+
+Constructed folders!
+Adjusting the number of threads (P) = 1 and number of cores per thread (O) = 8
+
+Starting 1 ALPB-Gsolv calculations
+Running single-point in CONF1/part0_sp
+Running ALPB_GSOLV calculation in 04.Censo for Carbon (copy)/CONF1/part0_sp
+Tasks completed!
+
+The efficient gas-phase single-point was successful for CONF1/part0_sp: E(DFT) = -309.81298193 Gsolv = -0.01300051
+
+----------------------------------------------------------------------------------------------------
+                   Removing high lying conformers by improved energy description                    
+----------------------------------------------------------------------------------------------------
+
+CONF#       E [Eh] ΔE [kcal/mol]       E [Eh]   Gsolv [Eh]         gtot    ΔE(DFT)     ΔGsolv      Δgtot
+          GFN2-xTB      GFN2-xTB    r2scan-3c         alpb         [Eh] [kcal/mol] [kcal/mol] [kcal/mol]
+            [alpb]        [alpb]                    [gfn2]                                              
+CONF1  -22.0320537          0.00 -309.8129819   -0.0130005 -309.8259824       0.00       0.00       0.00     <------
+----------------------------------------------------------------------------------------------------
+
+Number of conformers observed within the following Δg windows:
+Δg [kcal/mol]  #CONF   sum(Boltzmann_weights)
+---------------------------------------------
+   0 - 0.5        1          1.00
+---------------------------------------------
+
+All relative (free) energies are below the initial g_thr(0) threshold of 4.0 kcal/mol.
+All conformers are considered further.
+
+Calculating Boltzmann averaged (free) energy of ensemble on input geometries (not DFT optimized)!
+
+temperature /K:   avE(T) /a.u.   avG(T) /a.u. 
+----------------------------------------------------------------------------------------------------
+    298.15        -309.8129819    -309.8259824     <<==part0==
+----------------------------------------------------------------------------------------------------
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>END of Part0<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Ran part0 in 2.9913 seconds
+
+----------------------------------------------------------------------------------------------------
+                                      CRE PRESCREENING - PART1                                      
+----------------------------------------------------------------------------------------------------
+
+program:                                                       orca
+functional for part1 and 2:                                    r2scan-3c
+basis set for part1 and 2:                                     def2-mTZVPP
+Solvent:                                                       chcl3
+solvent model for Gsolv contribution:                          smd
+threshold g_thr(1) and G_thr(1):                               6.0
+starting number of considered conformers:                      1
+calculate mRRHO contribution:                                  on
+program for mRRHO contribution:                                xtb
+GFN version for mRRHO and/or GBSA_Gsolv:                       gfn2
+Apply constraint to input geometry during mRRHO calculation:   on
+temperature:                                                   298.15
+
+Calculating single-point energies and solvation contribution (G_solv):
+The prescreening_single-point is calculated for:
+CONF1
+
+Constructed folders!
+Adjusting the number of threads (P) = 1 and number of cores per thread (O) = 8
+Running single-point in CONF1/r2scan-3c
+Tasks completed!
+
+prescreening_single-point calculation was successful for CONF1/r2scan-3c: -309.82515811
+
+--------------------------------------------------
+          Removing high lying conformers          
+--------------------------------------------------
+
+CONF#  E(GFNn-xTB) ΔE(GFNn-xTB)       E [Eh]   Gsolv [Eh]         gtot      Δgtot
+            [a.u.]   [kcal/mol]    r2scan-3c   incl. in E         [Eh] [kcal/mol]
+                                       [SMD]                                     
+CONF1  -22.0190532         0.00 -309.8251581    0.0000000 -309.8251581       0.00     <------
+
+All relative (free) energies are below the g_thr(1) threshold of 6.0 kcal/mol.
+All conformers are considered further.
+--------------------------------------------------
+
+Calculating prescreening G_mRRHO with implicit solvation!
+The prescreening G_mRRHO calculation is now performed for:
+CONF1
+
+Constructed folders!
+Adjusting the number of threads (P) = 1 and number of cores per thread (O) = 8
+
+Starting 1 G_RRHO calculations.
+Running GFN2-xTB mRRHO in CONF1/rrho_part1
+Tasks completed!
+
+The prescreening G_mRRHO run @ cs was successful for CONF1/rrho_part1: 0.11783035 S_rot(sym)= 0.0000000 using= 0.1178303
+
+--------------------------------------------------
+         * Gibbs free energies of part1 *         
+--------------------------------------------------
+
+CONF#  G(GFNn-xTB) ΔG(GFNn-xTB)       E [Eh]   Gsolv [Eh]  GmRRHO [Eh]         Gtot      ΔGtot
+            [a.u.]   [kcal/mol]    r2scan-3c   incl. in E         GFN2         [Eh] [kcal/mol]
+                                       [SMD]              [alpb]-bhess                        
+CONF1  -21.9012229         0.00 -309.8251581    0.0000000    0.1178303 -309.7073278       0.00     <------
+
+Number of conformers observed within the following ΔG windows:
+ΔG [kcal/mol]  #CONF   sum(Boltzmann_weights)
+---------------------------------------------
+   0 - 0.5        1          1.00
+---------------------------------------------
+
+Additional global 'fuzzy-threshold' based on the standard deviation of (G_mRRHO):
+Std_dev(G_mRRHO) = 0.000 kcal/mol
+Fuzzythreshold   = 0.000 kcal/mol
+Final sorting threshold G_thr(1) = 6.000 + 0.000 = 6.000 kcal/mol
+
+All relative (free) energies are below the initial G_thr(1) threshold of 6.0 kcal/mol.
+All conformers are considered further.
+
+Calculating Boltzmann averaged free energy of ensemble on input geometries (not DFT optimized)!
+
+temperature /K:   avE(T) /a.u. avGmRRHO(T) /a.u. avGsolv(T) /a.u.   avG(T) /a.u.
+----------------------------------------------------------------------------------------------------
+    298.15        -309.8251581        0.1178303        0.0000000   -309.7073278      <<==part1==
+----------------------------------------------------------------------------------------------------
+
+
+Calculating unbiased GFNn-xTB energy
+Constructed folders!
+Adjusting the number of threads (P) = 1 and number of cores per thread (O) = 8
+
+Starting 1 xTB - single-point calculations.
+gfn2-xTB energy for CONF1/GFN_unbiased = -22.0320537
+Tasks completed!
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>END of Part1<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Ran part1 in 4.1950 seconds
+
+----------------------------------------------------------------------------------------------------
+                                          NMR MODE - PART4                                          
+----------------------------------------------------------------------------------------------------
+
+calculate coupling constants:                                  on
+prog4J - program for coupling constant calculation:            orca
+funcJ  - functional for coupling constant calculation:         pbe0-d4
+basisJ - basis for coupling constant calculation:              pcJ-0
+sm4J - solvent model for the coupling calculation:             cpcm
+
+calculate shielding constants σ:                               on
+prog4S - program for shielding constant calculation:           orca
+funcS - functional for shielding constant calculation:         wb97x-d4
+basisS - basis for shielding constant calculation:             def2-svp
+sm4S - solvent model for the shielding calculation:            cpcm
+
+Calculating carbon spectrum:                                   on
+reference for 13C:                                             TMS
+spectrometer frequency:                                        500.0
+
+INFORMATION: Conformers have not been optimized at DFT level!!!
+             Use results with care!
+
+Considering the following 1 conformers:
+CONF1
+
+
+--------------------------------------------------
+      * Gibbs free energies used in part4 *       
+--------------------------------------------------
+
+CONF#       E [Eh]   Gsolv [Eh]  GmRRHO [Eh]         Gtot      ΔGtot Boltzmannweight
+         r2scan-3c   incl. in E         GFN2         [Eh] [kcal/mol]   % at 298.15 K
+             [SMD]              [alpb]-bhess                                        
+CONF1 -309.8251581    0.0000000    0.1178303 -309.7073278       0.00          100.00     <------
+
+Conformers that are below the Boltzmann-thr of 95.0:
+CONF1
+
+Constructed folders!
+
+Performing coupling constant calculations:
+Adjusting the number of threads (P) = 1 and number of cores per thread (O) = 8
+
+Starting 1 coupling constants calculations
+Running coupling calculation in CONF1/NMR
+Tasks completed!
+
+Coupling constant calculation was successful for CONF1/NMR
+
+Performing shielding constant calculations:
+Adjusting the number of threads (P) = 1 and number of cores per thread (O) = 8
+
+Starting 1 shielding constants calculations
+Running shielding calculation in CONF1/NMR         
+Tasks completed!
+
+Shielding constant calculation was successful for CONF1/NMR
+
+Generating file anmr_enso for processing with the ANMR program.
+
+Writing .anmrrc!
+INFORMATION: The reference molecule shielding constant has been calucated with different settings.
+             You can always adjust the reference in the file .anmrrc manually!
+WARNING:     The geometry optimization of the reference molecule was calculated with SMD (sm2)!
+WARNING:     The reference shielding constant was calculated with SMD (sm4_s)!
+WARNING:     The reference shielding constant was calculated with the basis def2-TZVP (basisS) instead of def2-svp!
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+<censo_qm.cfg.NmrRef object at 0xe610a5332e0>
+wb97x-d4
+r2scan-3c
+def2-svp
+chcl3
+h {'atomic_number': 1, 'sigma': 0.0, 'tm': 'h_tm_shieldings', 'orca': 'h_orca_shieldings', 'adf': 'h_adf_shieldings', 'ref_mol': 'TMS', 'active': False}
+c {'atomic_number': 6, 'sigma': 0.0, 'tm': 'c_tm_shieldings', 'orca': 'c_orca_shieldings', 'adf': 'c_adf_shieldings', 'ref_mol': 'TMS', 'active': True}
+f {'atomic_number': 9, 'sigma': 0.0, 'tm': 'f_tm_shieldings', 'orca': 'f_orca_shieldings', 'adf': 'f_adf_shieldings', 'ref_mol': 'CFCl3', 'active': False}
+si {'atomic_number': 14, 'sigma': 0.0, 'tm': 'si_tm_shieldings', 'orca': 'si_orca_shieldings', 'adf': 'si_adf_shieldings', 'ref_mol': 'TMS', 'active': False}
+p {'atomic_number': 15, 'sigma': 0.0, 'tm': 'p_tm_shieldings', 'orca': 'p_orca_shieldings', 'adf': 'p_adf_shieldings', 'ref_mol': 'TMP', 'active': False}
+h {'atomic_number': 1, 'sigma': 0.0, 'tm': 'h_tm_shieldings', 'orca': 'h_orca_shieldings', 'adf': 'h_adf_shieldings', 'ref_mol': 'TMS', 'active': False}
+c {'atomic_number': 6, 'sigma': '197.950', 'tm': 'c_tm_shieldings', 'orca': 'c_orca_shieldings', 'adf': 'c_adf_shieldings', 'ref_mol': 'TMS', 'active': True}
+f {'atomic_number': 9, 'sigma': 0.0, 'tm': 'f_tm_shieldings', 'orca': 'f_orca_shieldings', 'adf': 'f_adf_shieldings', 'ref_mol': 'CFCl3', 'active': False}
+si {'atomic_number': 14, 'sigma': 0.0, 'tm': 'si_tm_shieldings', 'orca': 'si_orca_shieldings', 'adf': 'si_adf_shieldings', 'ref_mol': 'TMS', 'active': False}
+p {'atomic_number': 15, 'sigma': 0.0, 'tm': 'p_tm_shieldings', 'orca': 'p_orca_shieldings', 'adf': 'p_adf_shieldings', 'ref_mol': 'TMP', 'active': False}
+
+Generating plain nmrprop.dat files for each populated conformer.
+These files contain all calculated shielding and coupling constants.
+The files can be read by ANMR using the keyword '-plain'.
+
+Tasks completed!
+
+
+Averaged shielding constants:
+# in coord  element  σ(sigma)  SD(σ based on SD Gsolv)  SD(σ by 0.4 kcal/mol)       shift        σ_ref
+---------------------------------------------------------------------------------------------------------
+ 1             c       173.55          0.000000                 0.000000            24.40       197.950
+ 2             c       171.59          0.000000                 0.000000            26.36       197.950
+ 3             c       158.04          0.000000                 0.000000            39.91       197.950
+ 6             c       -12.44          0.000000                 0.000000           210.39       197.950
+ 9             c       158.04          0.000000                 0.000000            39.91       197.950
+ 10            c       171.59          0.000000                 0.000000            26.36       197.950
+---------------------------------------------------------------------------------------------------------
+
+# in coord  element   σ(sigma)   min(σ)* CONFX    max(σ)* CONFX  Δ(max-min)
+---------------------------------------------------------------------------------------------------------
+ 1             c       173.55    173.55 CONF1     173.55 CONF1       0.00
+ 2             c       171.59    171.59 CONF1     171.59 CONF1       0.00
+ 3             c       158.04    158.04 CONF1     158.04 CONF1       0.00
+ 6             c       -12.44    -12.44 CONF1     -12.44 CONF1       0.00
+ 9             c       158.04    158.04 CONF1     158.04 CONF1       0.00
+ 10            c       171.59    171.59 CONF1     171.59 CONF1       0.00
+---------------------------------------------------------------------------------------------------------
+* min(σ) and max(σ) are averaged over the chemical equivalent atoms, but not Boltzmann weighted.
+
+***---------------------------------------------------------***
+Printing most relevant errors again, just for user convenience:
+INFORMATION: Conformers have not been optimized at DFT level!!!
+             Use results with care!
+
+***---------------------------------------------------------***
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>END of Part4<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+Ran part4 in 15.0920 seconds
+
+
+Part                : #conf       time      time (including restarts)
+-----------------------------------------------------------------------
+Input               :     1        -            -    
+Part0_all           :     1       2.99 s     2.99 s
+Part1_initial_sort  :     1       3.72 s     3.72 s
+Part1_all           :     1       4.20 s     4.20 s
+Part4               :     1      15.09 s    15.09 s
+-----------------------------------------------------------------------
+All parts           :     -      22.28 s    22.28 s
+
+CENSO all done!

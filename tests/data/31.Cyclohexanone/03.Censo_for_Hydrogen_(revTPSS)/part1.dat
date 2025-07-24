@@ -1,0 +1,4 @@
+CONF#  G(GFNn-xTB) ΔG(GFNn-xTB)       E [Eh]   Gsolv [Eh]  GmRRHO [Eh]         Gtot      ΔGtot
+            [a.u.]   [kcal/mol]    r2scan-3c   incl. in E         GFN2         [Eh] [kcal/mol]
+                                       [SMD]              [alpb]-bhess                        
+CONF1 -309.7031733         0.00 -309.8262678    0.0000000    0.1178078 -309.7084600       0.00     <------
