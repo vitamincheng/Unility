@@ -362,7 +362,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
 
             idx0_ab_connect: list = []
             for idx, x in enumerate(mat_filter_ab_quartet):
-                group = set((x*(idx+1)).nonzero()[0])
+                np_nonzero = (x*(idx+1)).nonzero()[0]
+                group = set(np_nonzero.tolist())
+                # group = set(((x*(idx+1)).nonzero()[0]))
                 group.add(idx)
                 idx0_ab_connect.append([idx, group])
 
@@ -415,7 +417,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
             max_len_AB: int = 0
             for idx, x in enumerate(idx0_ab_group_set):
                 print(f'{(idx+1):>5d}{len(x):>5d}', {a+1 for a in x}, set(
-                    a+1 for a in [y*idy for idy, y in enumerate(mat_filter_multi[idx]) if y != 0]).difference({a+1 for a in x}))
+                    a+1 for a in [y*idy for idy, y in enumerate(mat_filter_multi[idx].tolist()) if y != 0]).difference({a+1 for a in x}))
                 if len(x) > max_len_AB:
                     max_len_AB = len(x)
             if (max_len_AB > args.mss):
@@ -448,7 +450,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
         for idx, idx0_set_origin in enumerate(idx0_ab_group_set):
             idx0_set: list = list(idx0_set_origin)
             print(f'{(idx+1):>5d}{len(idx0_set):>5d}', {a+1 for a in idx0_set}, set(
-                a+1 for a in [idx0_set*idx for idx, idx0_set in enumerate(mat_filter_multi[idx]) if idx0_set != 0]).difference({a+1 for a in idx0_set}))
+                a+1 for a in [idx0_set*idx for idx, idx0_set in enumerate(mat_filter_multi[idx].tolist()) if idx0_set != 0]).difference({a+1 for a in idx0_set}))
         print(" Use this parameter to calculate the Full Spectra")
 
     # Low level QM model
@@ -467,7 +469,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
         for idx, idx0_set_origin in enumerate(idx0_ab_group_set):
             idx0_set: list = list(idx0_set_origin)
             print(f'{(idx+1):>5d}{len(idx0_set):>5d}', {a+1 for a in idx0_set}, set(
-                a+1 for a in [idx0_set*idx for idx, idx0_set in enumerate(mat_filter_multi[idx]) if idx0_set != 0]).difference({a+1 for a in idx0_set}))
+                a+1 for a in [idx0_set*idx for idx, idx0_set in enumerate(mat_filter_multi[idx].tolist()) if idx0_set != 0]).difference({a+1 for a in idx0_set}))
 
             v: np.ndarray = inSParams[idx0_set]
             J: np.ndarray = inJCoups[idx0_set].T[idx0_set]
