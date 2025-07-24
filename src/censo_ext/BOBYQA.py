@@ -79,7 +79,7 @@ def rosenbrock(x0) -> float:
     np.savetxt(Directory/FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
 
     import censo_ext.anmr as anmr
-    x: dict = {'out': 'output.dat', 'mf': 500.0, 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
+    x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0, 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
                'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': False}
     import sys
     sys.stdout = open(os.devnull, 'w')
@@ -87,7 +87,7 @@ def rosenbrock(x0) -> float:
     sys.stdout = sys.__stdout__
 
     from censo_ext.Tools.anmrfile import CensoDat
-    Dat_Cal: CensoDat = CensoDat(file=x["out"])
+    Dat_Cal: CensoDat = CensoDat(file=Directory/Path(x["out"]))
     Dat_Ref: CensoDat = CensoDat(file=Path(Directory/Dat_fileName))
     Dat_Cal.method_normalize_dat()
     Dat_Ref.method_normalize_dat()
@@ -110,7 +110,7 @@ def Scan_single_Peak() -> None:
             Data_Chemical_Shift: list = []
             Data_Chemical_Shift.append(SParam[1])
             global idx_keys
-            # idx_keys: list = []
+            idx_keys = []
             idx_keys.append(idx)
             x0: np.ndarray = np.array(Data_Chemical_Shift)
             lower: np.ndarray = x0 - limit_border
