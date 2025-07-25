@@ -19,7 +19,7 @@ def test_FactorCompare_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
-@pytest.mark.skipif(_system == "Darwin", reason="crest only work under Linux")
+@pytest.mark.skipif(_system == "Darwin", reason="Crest only work under Linux")
 def test_FactorCompare():
     x: dict = {"file": [in_file, in_file]}
     args = argparse.Namespace(**x)

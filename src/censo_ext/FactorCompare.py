@@ -91,9 +91,9 @@ def Factor_xyzCompare(args) -> None:
     if not exists(New_cwd):
         os.makedirs(New_cwd)
     from censo_ext.Tools.utility import IsExists_DirFileName
-    _, FileName_str = IsExists_DirFileName(Path(args.file[0]))
+    FileName_Dir, FileName_str = IsExists_DirFileName(Path(args.file[0]))
     FileName: Path = Path(FileName_str)
-    shutil.copyfile(Original_cwd / FileName, New_cwd / FileName)
+    shutil.copyfile(Original_cwd / FileName_Dir / FileName, New_cwd / FileName)
 
     os.chdir(New_cwd)
     subprocess.call("crest " + str(FileName) + " --cregen " + str(FileName) +
