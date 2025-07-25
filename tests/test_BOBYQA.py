@@ -22,7 +22,7 @@ def test_cregen_miss_args():
 
 
 # @pytest.mark.skipif(_system == "Darwin", reason="crest only work under linux")
-def test_BOBYQA():
+def test_BOBYQA_init():
     x: dict = {"auto": True, "average": False, "dir": "tests/data/31.Cyclohexanone/03.Censo_for_Hydrogen_(revTPSS)",
                "bobyqa": False, "mf": 500, "lw": None, "thr": None, "json": None, "thrab": 0.025,
                "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
@@ -32,10 +32,25 @@ def test_BOBYQA():
     x2: dict = {
         "dir": "tests/data/31.Cyclohexanone/03.Censo_for_Hydrogen_(revTPSS)", "ref": "1r_h.dat", "limit": 0.20}
     args2 = argparse.Namespace(**x2)
-    BOBYQA.main(args2)
     # Create orcaS_BOBYQA file
     BOBYQA.main(args2)
+
+
+def test_BOBYQA_block_file():
+    x2: dict = {
+        "dir": "tests/data/31.Cyclohexanone/03.Censo_for_Hydrogen_(revTPSS)", "ref": "1r_h.dat", "limit": 0.20}
+    args2 = argparse.Namespace(**x2)
+    # run block orcaS_BOBYQA file
+    BOBYQA.main(args2)
+
+
+def test_BOBYQA_single():
+    x2: dict = {
+        "dir": "tests/data/31.Cyclohexanone/03.Censo_for_Hydrogen_(revTPSS)", "ref": "1r_h.dat", "limit": 0.20}
+    args2 = argparse.Namespace(**x2)
     # run single peaks or multipeaks
+    # Pending
+    BOBYQA.main(args2)
 
     # compare = ""
     # if _system == "Linux":
@@ -49,4 +64,6 @@ def test_BOBYQA():
     # os.remove(args.out)
     # os.remove("isomers.out")
 
+
+# test condition
 # BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) -r 1r_h.dat
