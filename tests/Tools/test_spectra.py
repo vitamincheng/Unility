@@ -20,4 +20,4 @@ def test_numpy_threshold_mean_3():
 
 def test_find_nearest():
 
-    assert (find_nearest(in_np, 24)) == (22, 19)
+    assert (find_nearest(list(in_np), 24)) == (22, 19)

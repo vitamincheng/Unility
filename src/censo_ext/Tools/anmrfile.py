@@ -2,10 +2,12 @@
 #  Module anmr/ censo           [08.27.2024] vitamin.cheng@gmail.com
 from __future__ import annotations
 # from numpy import exceptions
+from scipy.interpolate import interp1d
 from typing_extensions import Self
 import os
 import sys
 import numpy as np
+import numpy.typing as npt
 from icecream import ic
 from pathlib import Path
 from censo_ext.Tools.utility import IsExist, IsExist_return_bool
@@ -93,7 +95,7 @@ class Anmrrc():
             for y in acid_atoms_NoShow:
                 if x.symbol == y:  # type: ignore
                     acid_atoms_NoShowRemove.append(idx+1)
-        NoShow_Remove_Group: np.ndarray = np.array([], dtype=int)
+        NoShow_Remove_Group: npt.NDArray[np.int64] = np.array([], dtype=int)
         for idx, x in enumerate(acid_atoms_NoShowRemove):
             NoShow_Remove_Group = np.concatenate(
                 (NoShow_Remove_Group, neighbors[x]), axis=None)
@@ -133,12 +135,12 @@ class Anmr():
 
     def __init__(self, Directory_str: Path = Path(".")) -> None:
         self.__Directory: Path = Directory_str
-        self.enso: np.ndarray                   # anmr_enso
-        self.anmrJ: np.ndarray                  # JCoup     of anmr.out generated from anmr
-        self.anmrS: list = []                   # Shielding of anmr.out generated from anmr
-        self.orcaSJ: list[OrcaSJ] = []          # directory of orcaSJ
-        self.avg_orcaSJ = OrcaSJ()          #
-        self.nucinfo: list = []                 # anmr_nucinfo
+        self.enso: npt.NDArray                      # anmr_enso
+        self.anmrJ: npt.NDArray                     # JCoup of anmr.out generated from anmr # nopep8
+        self.anmrS: list[float] = []                # Shielding of anmr.out generated from anmr # nopep8
+        self.orcaSJ: list[OrcaSJ] = []              # directory of orcaSJ
+        self.avg_orcaSJ = OrcaSJ()                  #
+        self.nucinfo: list = []                     # anmr_nucinfo
 
     def get_Directory(self) -> Path:
         return self.__Directory
@@ -169,9 +171,9 @@ class Anmr():
             exit(0)
         else:
             # for Normal of weight of anmr_enso
-            weight = self.enso['BW']
-            switch = self.enso['ONOFF']
-            idx_CONF: np.ndarray = self.enso['CONF'].astype(int)
+            weight: npt.NDArray[np.float64] = self.enso['BW']
+            switch: npt.NDArray[np.int64] = self.enso['ONOFF']
+            idx_CONF: npt.NDArray[np.int64] = self.enso['CONF'].astype(int)
 
             if (np.sum(switch) == 0):
                 print("anmr_enso: Table - ONOFF is Zero ")
@@ -180,11 +182,11 @@ class Anmr():
 
             weight = weight*switch
             weight = weight / np.sum(weight)
-            normal_weight = dict(
+            normal_weight: dict[np.int64, np.float64] = dict(
                 zip(np.atleast_1d(idx_CONF), np.atleast_1d(weight)))
 
             import copy
-            Active_orcaSJ: list = []
+            Active_orcaSJ: list[int] = []
             for idx, x in enumerate(self.orcaSJ):
                 if x.CONFSerialNums in idx_CONF:
                     Active_orcaSJ.append(idx)
@@ -202,8 +204,8 @@ class Anmr():
                 # y = list(x.SParams.values())
                 # list[np.float64] to list[float64] use map()
                 # np.float64 to float64 use item()
-                y_idx = list(map(int, x.SParams.keys()))
-                y = list(map(float, x.SParams.values()))
+                y_idx: list[int] = list(map(int, x.SParams.keys()))
+                y: list[float] = list(map(float, x.SParams.values()))
                 for idz, z in zip(y_idx, np.array(y) * normal_weight[x.CONFSerialNums]):
                     self.avg_orcaSJ.SParams[idz] += z.item()
 
@@ -216,7 +218,7 @@ class Anmr():
 
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
                 y = x.JCoups
-                self.avg_orcaSJ.JCoups += y * \
+                self.avg_orcaSJ.JCoups += np.array(y) * \
                     normal_weight[x.CONFSerialNums]
 
             ic(self.avg_orcaSJ.SParams)
@@ -241,8 +243,8 @@ class Anmr():
             List_tmp: list[int] = []
             for idx, x in self.orcaSJ[0].idxAtoms.items():
                 List_tmp.append(idx)
-            AtomsKeep: np.ndarray = np.array(List_tmp)
-            AtomsEqvKeep: np.ndarray = AtomsKeep.copy()
+            AtomsKeep: npt.NDArray[np.int64] = np.array(List_tmp)
+            AtomsEqvKeep: npt.NDArray[np.int64] = AtomsKeep.copy()
 
             ic(AtomsEqvKeep)
             ic(self.nucinfo)
@@ -574,8 +576,7 @@ class Anmr():
                 page = []
 
     def method_create_enso(self, in_np: np.ndarray) -> None:
-        self.enso = in_np
-        if len(self.enso.dtype) != 8:
+        if len(in_np.dtype) != 8:
             print("something wrong in your anmr_enso file")
             ic()
             exit(1)
@@ -796,7 +797,7 @@ class CensoDat():
     def __init__(self, file: Path = Path("anmr.dat")) -> None:
         IsExist(file)
         self.__fileName: Path = Path(file)
-        self.__dat: np.ndarray = np.genfromtxt(file)
+        self.__dat: npt.NDArray = np.genfromtxt(file)
 
     def __len__(self) -> int:
         return len(self.__dat)
@@ -832,12 +833,12 @@ class CensoDat():
             res = np.vstack((res, [end, 0.0]))
 
             from scipy import interpolate
-            f = interpolate.interp1d(res[:, 0], res[:, 1])
+            f: interp1d = interpolate.interp1d(res[:, 0], res[:, 1])
 
-            xnew: np.ndarray = np.linspace(start, end, int(end-start)*dpi+1)
-            ynew: np.ndarray = f(xnew)
+            xnew: npt.NDArray[np.float64] = np.linspace(start, end, int(end-start)*dpi+1)  # nopep8
+            ynew: npt.NDArray[np.float64] = f(xnew)
 
-            res_new: np.ndarray = np.vstack((xnew, ynew))
+            res_new: npt.NDArray = np.vstack((xnew, ynew))
             res_new[1] = res_new[1] / np.max(res_new[1]) * highest
             self.__dat = res_new.T
 
