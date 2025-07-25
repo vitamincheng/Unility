@@ -22,7 +22,7 @@ def test_anmr_from_raw_data():
                "bobyqa": False, "mf": 500, "lw": None, "thr": None, "json": None, "thrab": 0.025,
                "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
     peaks = anmr.main(argparse.Namespace(**x))
-    assert peaks.shape == (2, 80289)
+    assert peaks.shape == (2, 77868)
 
 
 def test_anmr_bobyqa_false_json_off():
@@ -30,7 +30,7 @@ def test_anmr_bobyqa_false_json_off():
                "bobyqa": False, "mf": 500, "lw": None, "thr": None, "json": None, "thrab": 0.025,
                "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
     peaks = anmr.main(argparse.Namespace(**x))
-    assert peaks.shape == (2, 80289)
+    assert peaks.shape == (2, 77868)
     # os.remove("tests/data/04.Hydrogen/peaks.json")   # Normal is necessary to remove the peaks.json but next method need this file
 
 
@@ -39,7 +39,7 @@ def test_anmr_bobyqa_true_json():
                "bobyqa": True, "mf": 500, "lw": None, "thr": None, "json": [-1], "thrab": 0.025,
                "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
     peaks = anmr.main(argparse.Namespace(**x))
-    assert peaks.shape == (2, 80289)
+    assert peaks.shape == (2, 77868)
     os.remove("tests/data/04.Hydrogen/peaks.json")
     os.remove("tests/data/04.Hydrogen/output.dat")
 

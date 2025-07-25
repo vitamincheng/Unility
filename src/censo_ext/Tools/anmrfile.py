@@ -198,11 +198,14 @@ class Anmr():
                 self.avg_orcaSJ.SParams[idx] = 0.0
 
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
-                y_idx = list(x.SParams.keys())
+                # y_idx = list(x.SParams.keys())
                 # y = list(x.SParams.values())
-                y = list(map(int, x.SParams.values()))
+                # list[np.float64] to list[float64] use map()
+                # np.float64 to float64 use item()
+                y_idx = list(map(int, x.SParams.keys()))
+                y = list(map(float, x.SParams.values()))
                 for idz, z in zip(y_idx, np.array(y) * normal_weight[x.CONFSerialNums]):
-                    self.avg_orcaSJ.SParams[idz] += z
+                    self.avg_orcaSJ.SParams[idz] += z.item()
 
             for key, value in self.avg_orcaSJ.SParams.items():
                 self.avg_orcaSJ.SParams[key] = value - \
