@@ -180,26 +180,16 @@ def Scan_group_Peaks(inGroup: list[int] = []) -> None:
 
 
 def Create_BOBYQA() -> None:
-    from censo_ext.Tools.utility import IsExist_return_bool
-    if IsExist_return_bool(Directory / FileName_OrcaS):
-        if IsExist_return_bool(Directory / FileName_BOBYQA):
-            return
-        else:
-            orcaS_Table: np.ndarray = np.genfromtxt(Directory / FileName_OrcaS)
-            orcaS_Table = np.insert(orcaS_Table, 2, 0, axis=1)
-            ic(orcaS_Table)
-            np.savetxt(Directory / FileName_BOBYQA,
-                       orcaS_Table, fmt="%10d %10.5f %10d")
-            print(" Create the orcaS-BOBYQA.out file ")
-            print(" three column :        0 - Do nothing ")
-            print("                       1 - Use BOBYQA single point to find the peak ")
-            print("               Above 100 - Use BOBYQA groups to find the peaks ")
-            print(" Run this program again")
-            ic()
-            exit(0)
-    else:
-        ic()
-        exit(0)
+    orcaS_Table: np.ndarray = np.genfromtxt(Directory / FileName_OrcaS)
+    orcaS_Table = np.insert(orcaS_Table, 2, 0, axis=1)
+    ic(orcaS_Table)
+    np.savetxt(Directory / FileName_BOBYQA,
+               orcaS_Table, fmt="%10d %10.5f %10d")
+    print(" Create the orcaS-BOBYQA.out file ")
+    print(" three column :        0 - Do nothing ")
+    print("                       1 - Use BOBYQA single point to find the peak ")
+    print("               Above 100 - Use BOBYQA groups to find the peaks ")
+    print(" Run this program again")
 
 
 def main(args: argparse.Namespace = argparse.Namespace()):
@@ -209,22 +199,23 @@ def main(args: argparse.Namespace = argparse.Namespace()):
     global limit_border
     if args == argparse.Namespace():
         args = cml("")
-    if args.dir:
+    if args.dir:                            # default .
         Directory = Path(args.dir)
         ic(Directory)
-    # if args.dir == None:
-    #    Directory = Path(".")
-    # else:
-    #    Directory = Path(args.dir)
-    if args.ref:
-        Dat_fileName = args.ref        # default 1r.dat
+    if args.ref:                            # default 1r.dat
+        Dat_fileName = args.ref
         ic(Dat_fileName)
-    if args.limit:
-        limit_border = args.limit    # defalut 0.20 ppm
-        ic(limit_border)
-    Create_BOBYQA()
-    Scan_single_Peak()
-    Scan_group_Peaks()
+    if args.limit:                          # default 0.20 ppm
+        limit_border = args.limit
+
+    from censo_ext.Tools.utility import IsExist_return_bool
+    if IsExist_return_bool(Directory / FileName_OrcaS):
+        if IsExist_return_bool(Directory / FileName_BOBYQA):
+            ic("BOBYQA is exist")
+            Scan_single_Peak()
+            Scan_group_Peaks()
+        else:
+            Create_BOBYQA()
 
 
 if __name__ == "__main__":
