@@ -12,13 +12,10 @@ https://github.com/charnley/rmsd
 
 from icecream import ic
 import copy
-import os
-from typing import Any, List, Optional, Protocol, Set, Tuple, Union
 import numpy as np
-from numpy import ndarray
+import numpy.typing as npt
 from pathlib import Path
 import censo_ext.Tools.Parameter as Parameter
-import censo_ext.Tools.topo as topo
 from censo_ext.Tools.xyzfile import GeometryXYZs
 
 # METHOD_KABSCH = "kabsch"
@@ -52,7 +49,7 @@ def int_atom(atom: str) -> int:
     return NAMES_ELEMENT[atom]
 
 
-def rmsd(P: ndarray, Q: ndarray, idx_atom: list, **kwargs) -> Tuple[dict, float]:
+def rmsd(P: npt.NDArray, Q: npt.NDArray, idx_atom: list, **kwargs) -> tuple[dict, float]:
     """
     Calculate Root-mean-square deviation from two sets of vectors V and W.
 
@@ -83,8 +80,8 @@ def rmsd(P: ndarray, Q: ndarray, idx_atom: list, **kwargs) -> Tuple[dict, float]
     return atom_square, np.sqrt(coord_square_total / P.shape[0])
 
 
-def kabsch_rmsd(P: ndarray, Q: ndarray, idx_atom1: list, W: Optional[ndarray] = None,
-                translate: bool = False, **kwargs: Any) -> Tuple[dict, float]:
+def kabsch_rmsd(P: npt.NDArray, Q: npt.NDArray, idx_atom1: list,
+                translate: bool = False) -> tuple[dict, float]:
     """
     Rotate matrix P unto Q using Kabsch algorithm and calculate the RMSD.
     An optional vector of weights W may be provided.
@@ -95,8 +92,6 @@ def kabsch_rmsd(P: ndarray, Q: ndarray, idx_atom1: list, W: Optional[ndarray] = 
         (N,D) matrix, where N is points and D is dimension.
     Q : array
         (N,D) matrix, where N is points and D is dimension.
-    W : array or None
-        (N) vector, where N is points.
     translate : bool
         Use centroids to translate vector P and Q unto each other.
 
@@ -110,18 +105,12 @@ def kabsch_rmsd(P: ndarray, Q: ndarray, idx_atom1: list, W: Optional[ndarray] = 
         Q = Q - centroid(Q)
         P = P - centroid(P)
 
-    if W is not None:
-        print("show me the W")
-        ic()
-        exit(1)
-        return kabsch_weighted_rmsd(P, Q, W)
-
     P = kabsch_rotate(P, Q)
     A, B = rmsd(P, Q, idx_atom1)
     return A, B
 
 
-def kabsch_rotate(P: ndarray, Q: ndarray) -> ndarray:
+def kabsch_rotate(P: npt.NDArray, Q: npt.NDArray) -> npt.NDArray:
     """
     Rotate matrix P unto matrix Q using Kabsch algorithm.
 
@@ -146,7 +135,7 @@ def kabsch_rotate(P: ndarray, Q: ndarray) -> ndarray:
     return P
 
 
-def kabsch(P: ndarray, Q: ndarray) -> ndarray:
+def kabsch(P: npt.NDArray, Q: npt.NDArray) -> npt.NDArray:
     """
     Using the Kabsch algorithm with two sets of paired point P and Q, centered
     around the centroid. Each vector set is represented as an NxD
@@ -187,7 +176,7 @@ def kabsch(P: ndarray, Q: ndarray) -> ndarray:
         V[:, -1] = -V[:, -1]
 
     # Create Rotation matrix U
-    U: ndarray = np.dot(V, W)
+    U: npt.NDArray = np.dot(V, W)
 
     return U
 
@@ -297,7 +286,7 @@ def kabsch(P: ndarray, Q: ndarray) -> ndarray:
 #    return w_rmsd
 
 
-def centroid(X: ndarray) -> ndarray:
+def centroid(X: npt.NDArray) -> npt.NDArray:
     """
     Centroid is the mean position of all the points in all of the coordinate
     directions, from a vectorset X.
@@ -316,11 +305,11 @@ def centroid(X: ndarray) -> ndarray:
     C : ndarray
         centroid
     """
-    C: ndarray = X.mean(axis=0)
-    return C
+    return X.mean(axis=0)
 
 
-def get_Coordinates(xyzfile, idx):
+# -> tuple[NDArray[Any], NDArray[Any]]:
+def get_Coordinates(xyzfile, idx) -> tuple[npt.NDArray, npt.NDArray]:
     '''
     Read xyz file to data 
     idx is Serial No. (from 0) in xyz file
@@ -332,7 +321,7 @@ def get_Coordinates(xyzfile, idx):
     return np.array(atoms), np.array(V)
 
 
-def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> Tuple[dict[int, float], float]:
+def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> tuple[dict[int, float], float]:
     '''
     Read xyz file and calculate rmsd
     xyzfile is class ClassGeometryXYZs
@@ -345,18 +334,19 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     p_all_atoms, p_all = get_Coordinates(xyzfile, idx_p)
     q_all_atoms, q_all = get_Coordinates(xyzfile, idx_q)
 
-    idx_atom1: np.ndarray = np.array([], dtype=int)
+    idx_atom1: npt.NDArray = np.array([], dtype=int)
 
     if p_all.shape[0] != q_all.shape[0]:
         print("error: Structures not same size")
         exit(0)
 
     # Typing
-    index: Union[Set[int], List[int], ndarray]
+    from typing import Union
+    index: Union[set[int], list[int], npt.NDArray]
 
     # Set local view
-    p_view: Optional[ndarray] = None
-    q_view: Optional[ndarray] = None
+    p_view: None | npt.NDArray = None
+    q_view: None | npt.NDArray = None
 
     if args.ignore_Hydrogen:
         assert type(p_all_atoms[0]) != str
@@ -416,8 +406,8 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     # Set local view
     if p_view is None:
-        p_coord = copy.deepcopy(p_all)
-        q_coord = copy.deepcopy(q_all)
+        p_coord: npt.NDArray = copy.deepcopy(p_all)
+        q_coord: npt.NDArray = copy.deepcopy(q_all)
 
     else:
         assert p_view is not None
@@ -426,14 +416,14 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
         q_coord = copy.deepcopy(q_all[q_view])
 
     # Recenter to centroid
-    p_cent = centroid(p_coord)
-    q_cent = centroid(q_coord)
+    p_cent: npt.NDArray = centroid(p_coord)
+    q_cent: npt.NDArray = centroid(q_coord)
     p_coord -= p_cent
     q_coord -= q_cent
 
     # rmsd_method: RmsdCallable
     if (args.add_idx is None) and (args.remove_idx is None) and (args.ignore_Hydrogen is False):
-        idx_atom1: np.ndarray = np.arange(len(p_all_atoms), dtype=int)
+        idx_atom1: npt.NDArray = np.arange(len(p_all_atoms), dtype=int)
         idx_atom1 = idx_atom1+1
 
     coord_square, result_rmsd = kabsch_rmsd(

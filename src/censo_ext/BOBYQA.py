@@ -209,8 +209,8 @@ def main(args: argparse.Namespace = argparse.Namespace()):
         limit_border = args.limit
 
     from censo_ext.Tools.utility import IsExist_return_bool
-    if IsExist_return_bool(Directory / FileName_OrcaS):
-        if IsExist_return_bool(Directory / FileName_BOBYQA):
+    if IsExist_return_bool(Directory / FileName_OrcaS):                 # type: ignore # nopep8
+        if IsExist_return_bool(Directory / FileName_BOBYQA):            # type: ignore # nopep8
             ic("BOBYQA is exist")
             Scan_single_Peak()
             Scan_group_Peaks()

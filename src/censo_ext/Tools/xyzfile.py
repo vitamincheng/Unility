@@ -9,6 +9,7 @@ from typing_extensions import Self
 import os
 import sys
 import numpy as np
+import numpy.typing as npt
 import argparse
 from icecream import ic
 import copy
@@ -17,18 +18,18 @@ import copy
 class Geometry():
     '''Stores all of the data in an xyz file (single confromer) '''
 
-    def __init__(self, names: dict[int, str], coord: list[np.ndarray], extras: list[str], comment: str = "", energy: float = 0, ncluster: int = 0) -> None:
+    def __init__(self, names: dict[int, str], coord: list[npt.NDArray], extras: list[list[str]], comment: str = "", energy: float = 0, ncluster: int = 0) -> None:
 
         self.names: dict[int, str] = names          # atom's name   H Li Na K B C O S F Cl # nopep8
-        self.coord: list[np.ndarray] = coord        # coordinates of every atom
+        self.coord: list[npt.NDArray] = coord       # coordinates of every atom
         self.nAtoms: int = len(names)               # numbers of atom
         self.comment: str = comment                 # Energy =   Eh   #Cluster  :i         # nopep8
         self.comment_energy: float = energy         # Energy (Eh)
         self.comment_ncluster: int = ncluster       # index of Clusters
-        self.mass: np.ndarray = np.array([])
-        self.extras: list[str] = extras
-        self.com: np.ndarray = np.array([])
-        self.inertia: np.ndarray = np.array([])
+        self.mass: npt.NDArray
+        self.extras: list[list[str]] = extras
+        self.com: npt.NDArray
+        self.inertia: npt.NDArray
 
     def __add__(self, other: Self) -> Geometry:
         import copy
@@ -55,7 +56,7 @@ class Geometry():
     def get_comment_energy(self) -> float:
         return self.comment_energy
 
-    def method_translate_xyz(self, delta: np.ndarray) -> Geometry:
+    def method_translate_xyz(self, delta: npt.NDArray) -> Geometry:
         result: Geometry = copy.deepcopy(self)
         for x in result.coord:
             x += delta
@@ -73,8 +74,7 @@ class Geometry():
         self.names = new_names
         self.nAtoms = len(self.names)
         idx0_St: list = [x-1 for x in list_idx]
-        self.coord: list[np.ndarray] = (
-            np.array(self.coord)[idx0_St]).tolist()
+        self.coord = (np.array(self.coord)[idx0_St]).tolist()
         return True
 
     def method_idx_molecules_xyz(self, fileName: Path) -> list[int]:
@@ -82,11 +82,11 @@ class Geometry():
         import censo_ext.Tools.ml4nmr as ml4nmr
         mol, neighbors = ml4nmr.read_mol_neighbors(fileName)
         # ic(neighbors)
-        idx_molecule = set([*range(1, len(neighbors)+1, 1)])
-        molecules = []
+        idx_molecule: set[int] = set([*range(1, len(neighbors)+1, 1)])
+        molecules: list = []
         while (len(idx_molecule) != 0):
             idx_atoms = 0
-            Hydrogen: list = []
+            Hydrogen: list[int] = []
             for x in idx_molecule:
                 if len(neighbors[x]) == 1 or len(neighbors[x]) == 0:
                     idx_atoms = x
@@ -95,7 +95,7 @@ class Geometry():
                 x = {"file": fileName, "bonding": int(
                     idx_atoms), "print": False, "debug": False}
                 Sts_topo: Topo = Topo(x["file"])  # type: ignore
-                neighbors_bonding = Sts_topo.method_bonding(
+                neighbors_bonding: list[int] = Sts_topo.method_bonding(
                     argparse.Namespace(**x))
                 x = {"file": fileName, "bond_broken": [
                     neighbors_bonding[0], idx_atoms], "print": False, "debug": False}
@@ -107,7 +107,7 @@ class Geometry():
             idx_molecule = idx_molecule.difference(set(Hydrogen))
         return molecules
 
-    def method_computeCOM(self) -> np.ndarray:
+    def method_computeCOM(self) -> npt.NDArray:
         '''
         Returns the center of mass of the geometry.
         '''
@@ -118,7 +118,7 @@ class Geometry():
             self.com = np.dot(self.mass, self.coord) / np.sum(self.mass)
             return self.com
 
-    def method_computeInertia(self) -> np.ndarray:
+    def method_computeInertia(self) -> npt.NDArray:
         '''
         Returns the moment of inertia tensor
         '''
@@ -195,7 +195,7 @@ class GeometryXYZs():
     def set_filename(self, fileName: Path) -> None:
         self.__filename = Path(fileName)
 
-    def method_translate_cut_xyzs(self, delta: np.ndarray, cut: int) -> GeometryXYZs:
+    def method_translate_cut_xyzs(self, delta: npt.NDArray, cut: int) -> GeometryXYZs:
         result: GeometryXYZs = GeometryXYZs()
         if len(self) == 1:
             for x in np.linspace(0, 1, num=cut, endpoint=True):
@@ -211,7 +211,7 @@ class GeometryXYZs():
                     result.Sts.append(copy.deepcopy(dSt))
             return result
 
-    def method_translate_xyzs(self, delta: np.ndarray) -> GeometryXYZs:
+    def method_translate_xyzs(self, delta: npt.NDArray) -> GeometryXYZs:
         result: GeometryXYZs = GeometryXYZs()
         for x in self.Sts:
             x: Geometry = x.method_translate_xyz(delta=delta)
@@ -284,8 +284,8 @@ class GeometryXYZs():
                 nAtoms = int(line)
                 comment: str = f.readline().rstrip()
                 names: dict[int, str] = dict()
-                coords: list[np.ndarray] = list()
-                extras: list = list()
+                coords: list[npt.NDArray] = list()
+                extras: list[list[str]] = list()
 
                 for i in range(nAtoms):
                     line = f.readline()
@@ -359,8 +359,8 @@ class GeometryXYZs():
         # Column 8 is Total Gibbs Free Energy (Eh) = Energy + mRRHO
         # ic(thermo_list)
         TEMP = args.temp
-        np_enso: np.ndarray = np.zeros((len(self.Sts),), dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
-                                                                ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')])
+        np_enso: npt.NDArray = np.zeros((len(self.Sts),), dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
+                                                                 ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')])
         np_enso['ONOFF'] = 1
         np_enso['gi'] = 1.000
         np_enso['Gsolv'] = 0.00000000
@@ -369,28 +369,28 @@ class GeometryXYZs():
         np_enso['mRRHO'] = np.array(thermo_list)
         np_enso['Energy'] = np.array(
             [a.comment_energy for a in self.Sts], dtype=[('Energy', 'f8')])
-        Total: np.ndarray = np.array(
+        Total: npt.NDArray = np.array(
             np_enso['Energy']+np_enso['mRRHO'], dtype=[('Total', 'f8')])
         np_enso = rfn.merge_arrays((np_enso, Total), flatten=True)
 
         # Gibbs_min is lowest energy of Gibbs Free Energy
-        Gibbs_min = np_enso['Total'].min()
+        Gibbs_min: np.float64 = np_enso['Total'].min()
 
         # Column 9 is delta Gibbs Free Energy (kcal/mol)
-        Gibbs: np.ndarray = np.array(
+        Gibbs: npt.NDArray = np.array(
             (np_enso['Total']-Gibbs_min)*Eh, dtype=[('Gibbs', 'f8')])
         np_enso = rfn.merge_arrays((np_enso, Gibbs), flatten=True)
 
         # Column 1o is Qi (each CONFS)
-        Qi: np.ndarray = np.array(
+        Qi: npt.NDArray = np.array(
             np.exp(-np_enso['Gibbs']/(TEMP*FACTOR)), dtype=[('Qi', 'f8')])
         np_enso = rfn.merge_arrays((np_enso, Qi), flatten=True)
 
         # Qall is sum of Qi
-        Qall = np.sum(np_enso['Qi'])
+        Qall: np.float64 = np.sum(np_enso['Qi'])
 
         # Column 11 is percentage of each CONFS
-        NEW_BW: np.ndarray = np.array(
+        NEW_BW: npt.NDArray = np.array(
             np_enso['Qi']/Qall, dtype=[('NEW_BW', 'f8')])
         np_enso = rfn.merge_arrays((np_enso, NEW_BW), flatten=True)
         # copy BW and delete residual parameter

@@ -99,8 +99,8 @@ class Anmrrc():
         for idx, x in enumerate(acid_atoms_NoShowRemove):
             NoShow_Remove_Group = np.concatenate(
                 (NoShow_Remove_Group, neighbors[x]), axis=None)
-        idx_H_atom = [idx+1 for idx,
-                      i in enumerate(mol) if i.symbol == "H"]  # type: ignore
+        idx_H_atom: list[int] = [idx+1 for idx,
+                                 i in enumerate(mol) if i.symbol == "H"]
         return [i for i in NoShow_Remove_Group if i in idx_H_atom]
 
     def get_Reference_anmrrc(self) -> float:
@@ -137,7 +137,7 @@ class Anmr():
         self.__Directory: Path = Directory_str
         self.enso: npt.NDArray                      # anmr_enso
         self.anmrJ: npt.NDArray                     # JCoup of anmr.out generated from anmr # nopep8
-        self.anmrS: list[float] = []                # Shielding of anmr.out generated from anmr # nopep8
+        self.anmrS: list[list[float]] = []                # Shielding of anmr.out generated from anmr # nopep8
         self.orcaSJ: list[OrcaSJ] = []              # directory of orcaSJ
         self.avg_orcaSJ = OrcaSJ()                  #
         self.nucinfo: list = []                     # anmr_nucinfo
@@ -265,7 +265,6 @@ class Anmr():
                         average: float = sum(ppm)/len(ppm)
                         for y in self.nucinfo[0][x-1][2]:
                             orcaSJ.SParams[y] = average
-
             # for Equivalent Atom  of orcaJCoups
             # Calculation the average JCoups of Equivalent JCoups and Replace the old JCoups
             for orcaSJ in self.orcaSJ:
@@ -296,7 +295,7 @@ class Anmr():
                     orcaSJ.JCoups[idx][idx] = 0
 
             AtomsDelete: list[int] = list(
-                set(AtomsKeep).difference(set(AtomsEqvKeep)))
+                map(int, set(AtomsKeep).difference(set(list(AtomsEqvKeep)))))
             AtomsDelete.sort()
 
             # Delete Equivalent Atoms of idxAtoms
@@ -313,7 +312,7 @@ class Anmr():
             AtomsDelete2idx0: dict[int, int] = {}
             for idx, x in enumerate(AtomsKeep):
                 if x in AtomsDelete:
-                    AtomsDelete2idx0[x] = idx
+                    AtomsDelete2idx0[int(x)] = idx
             ic(AtomsDelete2idx0)
             list_AtomsDelete: list[int] = [
                 x for x in AtomsDelete2idx0.values()]
@@ -575,8 +574,8 @@ class Anmr():
                 self.nucinfo.append(page)
                 page = []
 
-    def method_create_enso(self, in_np: np.ndarray) -> None:
-        if len(in_np.dtype) != 8:
+    def method_create_enso(self, in_np: npt.NDArray) -> None:
+        if len(in_np.dtype) != 8:                                           # type:ignore
             print("something wrong in your anmr_enso file")
             ic()
             exit(1)
@@ -589,7 +588,7 @@ class Anmr():
         IsExist(file)
 
         self.enso = np.genfromtxt(file, names=True)
-        if len(self.enso.dtype) != 8:
+        if len(self.enso.dtype) != 8:                                       # type:ignore
             print("something wrong in your anmr_enso file")
             ic()
             exit(1)
@@ -610,10 +609,10 @@ class Anmr():
 
 class OrcaSJ():
     def __init__(self) -> None:
-        self.JCoups: np.ndarray = np.array([])
+        self.JCoups: npt.NDArray
         self.SParams: dict[int, float] = {}
         self.Anisotropy: dict[int, float] = {}
-        self.CONFSerialNums: int = 0
+        self.CONFSerialNums: int
         self.idxAtoms: dict[int, str] = {}
 
     def method_read_orcaJ(self, file: Path = Path("orcaJ.out")) -> bool:
@@ -621,8 +620,10 @@ class OrcaSJ():
         print(" method_read_orcaJ", file)
         IsExist(file)
 
+        start_idx: int
+        end_idx: int
         start_idx, end_idx = 0, 0
-        DataJ: list = []
+        DataJ: list[str] = []
         lines: list[str] = open(file, "r").readlines()
         import re
         nVersion: str = ""
@@ -668,12 +669,13 @@ class OrcaSJ():
 
         for idx, x in enumerate(DataJ):
             DataJ[idx] = x.split()[2:]
+
         nums = 1
         while (nums >= 1):
             if ((int((nums-1)/6)+1)*(nums+1) == len(DataJ)):
                 break
-            nums = nums+1
-        nAtomDataJ = nums
+            nums: int = nums+1
+        nAtomDataJ: int = nums
 
         for idx, x in enumerate(DataJ):
             if (idx > nAtomDataJ):
@@ -690,7 +692,7 @@ class OrcaSJ():
         IsExist(file)
 
         start_idx, end_idx = 0, 0
-        DataS: list = []
+        DataS: list[str] = []
         lines: list[str] = open(file, "r").readlines()
         import re
         nVersion: str = ""
@@ -835,7 +837,7 @@ class CensoDat():
             from scipy import interpolate
             f: interp1d = interpolate.interp1d(res[:, 0], res[:, 1])
 
-            xnew: npt.NDArray[np.float64] = np.linspace(start, end, int(end-start)*dpi+1)  # nopep8
+            xnew: npt.NDArray[np.floating] = np.linspace(start, end, int(end-start)*dpi+1)  # nopep8
             ynew: npt.NDArray[np.float64] = f(xnew)
 
             res_new: npt.NDArray = np.vstack((xnew, ynew))

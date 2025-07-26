@@ -242,7 +242,7 @@ def qm_base(v: list, J: np.ndarray, nIntergals, idx0_nspins, args: argparse.Name
                               nIntergals=nIntergals, args=args)
     elif len(v) == 1:
         import math
-        peaklist = [(math.fabs(v[0]), 1.00000)]
+        peaklist = [(np.fabs(v[0]), np.float64(1.00000))]
     else:
         print("something wrong in your qm_Base cal.")
     return peaklist

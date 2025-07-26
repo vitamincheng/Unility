@@ -6,6 +6,7 @@
 from sys import argv as sysargv
 import argparse
 import numpy as np
+import numpy.typing as npt
 import censo_ext.Tools.ml4nmr as ml4nmr
 from icecream import ic
 from graph import Graph
@@ -18,7 +19,7 @@ class Topo():
         self.__fileName: Path = Path(file)
         self.__mol, self.__neighbors = ml4nmr.read_mol_neighbors(
             self.__fileName)
-        self.idx_Hydrogen_atom: list = [idx+1 for idx,
+        self.idx_Hydrogen_atom: list[int] = [idx+1 for idx,
                            i in enumerate(self.__mol) if i.symbol == "H"]  # type: ignore # nopep8
 
     def get_cn(self) -> dict[int, int]:
@@ -43,11 +44,11 @@ class Topo():
         """
         Result: list[int] = self.method_broken_bond(args)
         mol, neighbors = self.__mol, self.__neighbors
-        idx_H_atom = self.idx_Hydrogen_atom
+        idx_H_atom: list[int] = self.idx_Hydrogen_atom
         NeighborsAtoms_H_atom: dict[int, int] = {}  # {H:C}
         for idx in idx_H_atom:
             NeighborsAtoms_H_atom[idx] = neighbors[idx][0]
-        addition: list = []
+        addition: list[int] = []
         for idx in Result:
             for key, value in NeighborsAtoms_H_atom.items():
                 if idx == value:
@@ -73,7 +74,7 @@ class Topo():
         mol, neighbors = self.__mol, self.__neighbors
         idx_Hydrogen_atom: list[int] = self.idx_Hydrogen_atom
         idx_Hydrogen_atom.append(idx_q)
-        NeighborsAtoms_not_H: dict = {}
+        NeighborsAtoms_not_H: dict[int, npt.NDArray] = {}
         for idx in neighbors.keys():
             import numpy as np
             NeighborsAtoms_not_H[idx] = np.array(
@@ -111,7 +112,7 @@ class Topo():
         idx_p: int = args.bonding
         # ic(args.file)
         mol, neighbors = self.__mol, self.__neighbors
-        idx_H_atom: list = self.idx_Hydrogen_atom
+        idx_H_atom: list[int] = self.idx_Hydrogen_atom
         Neighbors_Atoms: list[int] = neighbors[idx_p].tolist()
         Neighbors_Atoms = [i for i in Neighbors_Atoms if i not in idx_H_atom]
         Neighbors_Atoms.sort()
@@ -169,12 +170,12 @@ class Topo():
                 circle_Mols.remove(x)
 
         # 2D list to flatten to 1D list
-        flat_circle_Mols: list = []
+        flat_circle_Mols: list[int | list[int]] = []
         for row in circle_Mols:
             flat_circle_Mols += row
 
         # Get residual atoms of circule molecules by use difference set
-        residual_atoms = list(
+        residual_atoms: list[int] = list(
             set(neighbors.keys()).difference(set(flat_circle_Mols)))
         residual_atoms.sort()
 

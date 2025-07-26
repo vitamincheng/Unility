@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import numpy as np
+import numpy.typing as npt
 import math
 import os
 from icecream import ic
@@ -112,28 +113,29 @@ def Boltzmann_enso(np_enso: np.ndarray, TEMP) -> np.ndarray:
     #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
 
     # Column 8 is Total Gibbs Free Energy (Eh) = Energy + mRRHO
-    Total: np.ndarray = np.array(
+    Total: npt.NDArray = np.array(
         (np_enso['Energy']+np_enso['mRRHO']), dtype=[('Total', 'f8')])
     np_enso = rfn.merge_arrays((np_enso, Total), flatten=True)
 
     # Gibbs_min is lowest energy of Gibbs Free Energy
-    Gibbs_min = np_enso['Total'].min()
+    Gibbs_min: np.float64 = np_enso['Total'].min()
 
     # Column 9 is delta Gibbs Free Energy (kcal/mol)
-    Gibbs: np.ndarray = np.array(
+    Gibbs: npt.NDArray = np.array(
         (np_enso['Total']-Gibbs_min)*Eh, dtype=[('Gibbs', 'f8')])
     np_enso = rfn.merge_arrays((np_enso, Gibbs), flatten=True)
 
     # Column 1o is Qi (each CONFS)
-    Qi: np.ndarray = np.array(
+    Qi: npt.NDArray = np.array(
         np.exp(-np_enso['Gibbs']/(TEMP*FACTOR)), dtype=[('Qi', 'f8')])
     np_enso = rfn.merge_arrays((np_enso, Qi), flatten=True)
 
     # Qall is sum of Qi
-    Qall = np.sum(np_enso['Qi'])
+    Qall: np.float64 = np.sum(np_enso['Qi'])
 
     # Column 11 is percentage of each CONFS
-    NEW_BW: np.ndarray = np.array(np_enso['Qi']/Qall, dtype=[('NEW_BW', 'f8')])
+    NEW_BW: npt.NDArray = np.array(
+        np_enso['Qi']/Qall, dtype=[('NEW_BW', 'f8')])
     np_enso = rfn.merge_arrays((np_enso, NEW_BW), flatten=True)
 
     return np_enso
@@ -196,9 +198,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # backup_eneo  as reference
     # a = np.rec.array(np.genfromtxt("limit.out", names=True,
     #                 dtype=['i8', 'i8', 'f8', 'f8']))
-    anmr_enso: np.ndarray = np.genfromtxt(args.file, names=True, dtype=[
+    anmr_enso: npt.NDArray = np.genfromtxt(args.file, names=True, dtype=[
         ('i8'), ('i8'), ('i8'), ('f8'), ('f8'), ('f8'), ('f8'), ('f8')])
-    backup_enso: np.ndarray = np.genfromtxt(backupfile, names=True, dtype=[
+    backup_enso: npt.NDArray = np.genfromtxt(backupfile, names=True, dtype=[
         ('i8'), ('i8'), ('i8'), ('f8'), ('f8'), ('f8'), ('f8'), ('f8')])
 
     # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
@@ -230,8 +232,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         TEMP = 298.15
 
     # For calculation the percentage of every CONFS
-    anmr_enso: np.ndarray = Boltzmann_enso(anmr_enso, TEMP)
-    backup_enso: np.ndarray = Boltzmann_enso(backup_enso, TEMP)
+    anmr_enso = Boltzmann_enso(anmr_enso, TEMP)
+    backup_enso = Boltzmann_enso(backup_enso, TEMP)
 
     names_anmr: list = list()
     if args.weights == True:
@@ -310,7 +312,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         if (anmr_enso['ONOFF'][i]) == 1 and (anmr_enso['Gibbs'][i]) == 0:
             insert_zero = True
 
-    avg_Gibbs: np.ndarray = anmr_enso['Gibbs'] * \
+    avg_Gibbs: npt.NDArray = anmr_enso['Gibbs'] * \
         anmr_enso['ONOFF']*(1/avg_nums)
 
     if args.complete:
@@ -325,7 +327,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Boltzmann of CONFS
     if args.complete:
         print(" (3) Gibbs Free Energy of ensemble of Boltzmann of CONFS ")
-    boltzmann_enso: np.ndarray = backup_enso['NEW_BW']*anmr_enso['ONOFF']
+    boltzmann_enso: npt.NDArray = backup_enso['NEW_BW']*anmr_enso['ONOFF']
     sum_weight: float = np.sum(boltzmann_enso)
     boltzmann_enso = boltzmann_enso/sum_weight
 
@@ -378,7 +380,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         Reduced_energy_Eh = Reduced_energy / Eh
         # Gibbs_min is lowest energy of Gibbs Free Energy
         Gibbs_min = anmr_enso['Total'].min()
-        Gibbs_Eh: np.ndarray = np.copy(
+        Gibbs_Eh: npt.NDArray = np.copy(
             (anmr_enso['Total']-Gibbs_min)*anmr_enso['ONOFF'])
         insert_zero = False
         for i in range(anmr_enso['Total'].size):
@@ -389,7 +391,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             Gibbs_Eh = np.insert(Gibbs_Eh, 0, 0)
         avg_Gibbs_Eh = np.average(Gibbs_Eh)
 
-        result_enso: np.ndarray = np.copy(anmr_enso)
+        result_enso: npt.NDArray = np.copy(anmr_enso)
 
         # Conservation of Gibbs Free Energy, before ensemble after ensemble is the same Energy (not including the Reduced_Energy from Entropy)
         # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'), ('Energy', '<f8'),

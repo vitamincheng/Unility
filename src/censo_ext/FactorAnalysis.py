@@ -186,7 +186,7 @@ def FactorFilter(args) -> None:
         print(" ========== Processing ", idx1_separate, " ==========")
         np_S: np.ndarray = cal_rmsd_coord(args, xyzfile, idx1_cal).T
         S_STD: np.ndarray = np.std(np_S, axis=0)
-        S_avg_STD: np.float64 = np.average(S_STD)
+        S_avg_STD: np.float64 = np.float64(np.average(S_STD))
         print(" Average of STD       : ", f"{S_avg_STD:10.5f}")
         print(" Factor of STD ranges : ", f"{args.factor:10.5f}")
         print(" Limits of STD        : ", f"{S_avg_STD*args.factor: 10.5f}", "\n")  # nopep8

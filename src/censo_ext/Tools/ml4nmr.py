@@ -5,19 +5,21 @@
 
 # use slightly modified covalent radii from ase for neighbor recognition
 from pathlib import Path
+from ase.atoms import Atoms
 import numpy as np
+import numpy.typing as npt
 from icecream import ic
 from censo_ext.Tools.utility import IsExist
 import os
 from ase.data import covalent_radii
-custom_radii: np.ndarray = covalent_radii.copy()
+custom_radii: npt.NDArray = covalent_radii.copy()
 custom_radii[3] -= 0.15   # reduce radius of Li
 custom_radii[6] -= 0.05   # reduce radius of C
 
 # Covalent radii (taken from Pyykko and Atsumi, Chem. Eur. J. 15, 2009, 188-197).
 # Values for metals decreased by 10 %.
 # This was copied from gituhb project dftd3/tad-dftd3/src/tad_dftd3/data.py
-covalent_rad_2009: np.ndarray = np.array([
+covalent_rad_2009: npt.NDArray = np.array([
     0.00,                                                # None
     0.32, 0.46,                                           # H,He
     1.20, 0.94, 0.77, 0.75, 0.71, 0.63, 0.64, 0.67,             # Li-Ne
@@ -126,7 +128,7 @@ def read_mol_neighbors(DirFileName: Path):
     import ase.io
     from ase import neighborlist
     IsExist(DirFileName)
-    mol = ase.io.read(str(DirFileName), format='xyz')
+    mol: Atoms | list[Atoms] = ase.io.read(str(DirFileName), format='xyz')
 
     # use covalent radii as thresholds for neighbor determination (what about vdW radii?)
     cutoffs = [custom_radii[atom.number] for atom in mol]  # type: ignore

@@ -2,6 +2,7 @@
 from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import numpy as np
+import numpy.typing as npt
 import os
 from icecream import ic
 from censo_ext.Tools.calculate_rmsd import cal_rmsd_xyz
@@ -13,25 +14,27 @@ def method_factor_analysis(args) -> tuple[list[int], dict]:
     xyzfile.method_read_xyz()
     x: dict = {"remove_idx": None, "add_idx": None,
                "bond_broken": None, "ignore_Hydrogen": True, "debug": False, }
-    coord: list = []
-    idx_element: list = []
+    coord: list[list[float]] = []
+    idx_element: list[int] = []
     for idx in range(len(xyzfile)):
         coord_square, result_rmsd = cal_rmsd_xyz(
             xyzfile, 1, idx+1, args=argparse.Namespace(**x))
-        var = list(coord_square.values())
+        var: list[float] = list(coord_square.values())
         if idx == 0:
             idx_element = list(coord_square.keys())
         coord.append(var)
 
     if len(idx_element) != 0:
-        idx_STD: list = idx_element
+        idx_STD: list[int] = idx_element
     else:
         print("idx_coord is not exist and so quit this program !!!")
         ic()
         exit(1)
 
-    dict_idx_STD: dict = dict(zip(idx_STD, np.std(np.array(coord).T, axis=1)))
-    avg_STD: np.float64 = np.average(np.array(list(dict_idx_STD.values())))
+    dict_idx_STD: dict = dict(
+        zip(idx_STD, np.std(np.array(coord).T, axis=1)))
+    avg_STD: np.float64 = np.float64(
+        np.average(np.array(list(dict_idx_STD.values()))))
 
     print(" ========== Factor Analysis Processing ========== ")
     print("\n Average of STD      : ", end="")
@@ -66,7 +69,7 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
     print(" ")
     print(" ========== Optimized Broken-Bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
-    bonding_low_factor: list = []
+    bonding_low_factor: list[npt.NDArray] = []
     for idx in (np_low_factor):
         args_x: dict = {"file": args.file, "bonding": idx,
                         "print": False, "debug": False}
@@ -74,7 +77,7 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
         bonding_low_factor.append(
             np.array(Sts_topo.method_bonding(argparse.Namespace(**args_x))))
 
-    Pair_low_factor: list = []
+    Pair_low_factor: list[list[int]] = []
 
     for idx, x in enumerate(np_low_factor):
         for idy, y in enumerate(bonding_low_factor[idx]):
@@ -84,14 +87,14 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
         if x[0] > x[1]:
             x[0], x[1] = x[1], x[0]
 
-    unique_pair_low_factor: list[list] = [
+    unique_pair_low_factor: list[list[int]] = [
         list(t) for t in set(tuple(x) for x in Pair_low_factor)]
 
     nCONFS: int = len(list(Table_S.keys()))
     idx_STD: dict = Table_S
 
-    idx_ratio: list = []
-    list_ratio: list = []
+    idx_ratio: list[list[int]] = []
+    list_ratio: list[float] = []
     for idx, x in enumerate(unique_pair_low_factor):
 
         args_x = {"file": args.file, "bond_broken": [

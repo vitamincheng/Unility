@@ -2,6 +2,7 @@
 import argparse
 import os
 import numpy as np
+import numpy.typing as npt
 from sys import argv as sysargv
 from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
@@ -69,7 +70,7 @@ def Factor_xyzCompare(args) -> None:
     nSts_P: int = len(xyzfile_P)
     nSts_Q: int = len(xyzfile_Q)
 
-    result: list | np.ndarray = []
+    result: list | npt.NDArray = []
     for idx_P in range(nSts_P):
         for idx_Q in range(nSts_Q):
             result.append(cal_RMSD(xyzfile_Merge, idx_P+1, idx_Q+nSts_P+1))
@@ -128,26 +129,31 @@ def Factor_xyzCompare(args) -> None:
     print("")
     print(" ========== Structure_Integrity_Compare ========== ")
 
-    np_Result: np.ndarray = result
-    min_Result = np_Result.min(0)
-    idx_Result: np.ndarray = np.array([], dtype=int)
+    np_Result: npt.NDArray = result
+    min_Result: npt.NDArray[np.float64] = np_Result.min(0)
+    idx_Result: npt.NDArray = np.array([], dtype=int)
 
     for idx in range(len(np_Result[0])):
         idx_Result = np.append(idx_Result, np.where(
             np_Result.T[idx] == np_Result.min(0)[idx])[0][0]+1)
 
-    sort_Result: np.ndarray = np.copy(min_Result)
+    sort_Result: npt.NDArray[np.float64] = np.copy(min_Result)
     sort_Result.sort()
+    if sort_Result[-1] <= 1e-14:
+        print("")
+        print("In your input two files are the same")
+        print("Exit the program !!")
+        exit(0)
 
-    diff2_Result: np.ndarray = np.diff(np.diff(sort_Result))
-    STD_diff2_Result: float = diff2_Result.std()
+    diff2_Result: npt.NDArray = np.diff(np.diff(sort_Result))
+    STD_diff2_Result: float = float(diff2_Result.std())
 
-    idx_max_diff2_R: np.ndarray = np.array([], dtype=int)
+    idx_max_diff2_R: npt.NDArray = np.array([], dtype=int)
     for idx, num in enumerate(diff2_Result):
         if num > STD_diff2_Result:
-            idx_max_diff2_R: np.ndarray = np.append(idx_max_diff2_R, idx)
+            idx_max_diff2_R = np.append(idx_max_diff2_R, idx)
 
-    thr = sort_Result[idx_max_diff2_R[0]+2]
+    thr: float = float(sort_Result[idx_max_diff2_R[0]+2])
 
     print(f" threhsold(thr) is : {thr}")
     print("")

@@ -2,11 +2,19 @@ import pathlib
 import argparse
 from pathlib import Path
 import pytest
-from censo_ext.Tools.anmrfile import Anmrrc
 from censo_ext.Tools.anmrfile import Anmr
+from censo_ext.Tools.anmrfile import OrcaSJ
 import sys
 import os
 import filecmp
+
+
+def test_method_read_OrcaSJ():
+    Hydrogen: OrcaSJ = OrcaSJ()
+    assert Hydrogen.method_read_orcaJ(
+        Path("tests/data/EthylAcetate/03.Censo/CONF1/NMR/orcaJ.out"))
+    assert Hydrogen.method_read_orcaS(
+        Path("tests/data/EthylAcetate/03.Censo/CONF1/NMR/orcaS.out"))
 
 
 def test_method_anmrrc():
