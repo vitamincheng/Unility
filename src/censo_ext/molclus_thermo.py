@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-from re import I
-import censo_ext.Tools
 from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import subprocess

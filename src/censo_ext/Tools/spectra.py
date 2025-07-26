@@ -4,7 +4,7 @@ import numpy.typing as npt
 
 
 def numpy_threshold_mean_3(x_in: npt.NDArray[np.float64]) -> float:
-    x = np.sort(x_in.flatten())
+    x: npt.NDArray[np.float64] = np.sort(x_in.flatten())
     median_025: float = x[int(len(x)*0.25)]
     median_075: float = x[int(len(x)*0.75)]
     median: float = x[int(len(x)*0.50)]

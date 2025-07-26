@@ -6,7 +6,6 @@ from pathlib import Path
 import numpy as np
 from icecream import ic
 from censo_ext.Tools.utility import delete_all_files
-from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 
 descr = """
