@@ -44,6 +44,6 @@ def test_anmr_bobyqa_true_json():
     os.remove("tests/data/04.Hydrogen/output.dat")
 
 
-# if __name__ == "__main__":
-#    import cProfile
-#    cProfile.run("test_anmr_bobyqa_false_json_off()", sort="cumtime")
+if __name__ == "__main__":
+    import cProfile
+    cProfile.run("test_anmr_from_raw_data()", sort="cumtime")

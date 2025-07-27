@@ -71,3 +71,9 @@ def test_BOBYQA_single_external_prog():
     # assert filecmp.cmp(args.out, compare) == True
     # os.remove(args.out)
     # os.remove("isomers.out")
+
+
+if __name__ == "__main__":
+    import cProfile
+    cProfile.run("test_BOBYQA_init()", sort="cumtime")
+    cProfile.run("test_BOBYQA_single()", sort="cumtime")

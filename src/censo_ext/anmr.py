@@ -196,8 +196,7 @@ def cml(descr) -> argparse.Namespace:
         "--bobyqa",
         dest="bobyqa",
         action="store_true",
-        default=False,
-        help="BOBYQA mode (only use numpy) [default False]",
+        help="BOBYQA mode (only use numpy)",
     )
 
     parser.add_argument(
