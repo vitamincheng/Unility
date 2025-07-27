@@ -1,9 +1,10 @@
 import pytest
 import numpy as np
+import numpy.typing as npt
 from censo_ext.Tools.spectra import numpy_threshold, find_nearest, numpy_threshold_mean_3
 
 
-in_np: np.ndarray = np.array(
+in_np: npt.NDArray[np.float64] = np.array(
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 22, 39, 78, 12, 4, 4, 9, -10, -12])
 
 

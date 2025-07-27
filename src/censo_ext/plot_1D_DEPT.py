@@ -5,6 +5,7 @@ from icecream import ic
 import nmrglue as ng
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 from sys import argv as sysargv
 import argparse
 import os
@@ -232,8 +233,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     #
     #
     channel = ch1
+    dic: dict
+    data: npt.NDArray
     dic, data = ng.bruker.read_pdata(str(path[channel]))
-    udic = ng.bruker.guess_udic(dic, data)
+
+    udic: dict = ng.bruker.guess_udic(dic, data)
 
     C = ng.convert.converter()
     C.from_bruker(dic, data, udic)
@@ -247,11 +251,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # ppm_1h_0                ppm_1h_1
 
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
-    ppm: np.ndarray = np.linspace(ppm_1h_0, ppm_1h_1, data.shape[0])
+    ppm: npt.NDArray = np.linspace(ppm_1h_0, ppm_1h_1, data.shape[0])
     if args.start == None or args.end == None:
         args.end, args.start = uc_1h.ppm_limits()
 
-    output: np.ndarray = np.vstack((ppm, np.real(data))).T[::-1]
+    output: npt.NDArray = np.vstack((ppm, np.real(data))).T[::-1]
     np.savetxt("output.dat", output, fmt=" %12.5f  %12.5e")
     from censo_ext.Tools.spectra import numpy_threshold_mean_3
     threshold: float = numpy_threshold_mean_3(data)*thr[channel]

@@ -129,7 +129,7 @@ class Geometry():
         return self.inertia
 
     def method_update_masses(self) -> None:
-        self.mass = np.array([])
+        self.mass: npt.NDArray = np.array([])
         for idx, x in self.names.items():
             from censo_ext.Tools.Parameter import masses
             self.mass = np.append(self.mass, masses[x.lower()], axis=None)
@@ -352,13 +352,13 @@ class GeometryXYZs():
 
     def method_ensoGenFlexible(self, args, thermo_list):
         import numpy.lib.recfunctions as rfn
-        from censo_ext.Tools.Parameter import PI, Eh, FACTOR
+        from censo_ext.Tools.Parameter import Eh, FACTOR
         # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
         #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
 
         # Column 8 is Total Gibbs Free Energy (Eh) = Energy + mRRHO
         # ic(thermo_list)
-        TEMP = args.temp
+        TEMP: float = args.temp
         np_enso: npt.NDArray = np.zeros((len(self.Sts),), dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
                                                                  ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')])
         np_enso['ONOFF'] = 1

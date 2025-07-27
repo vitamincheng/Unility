@@ -106,7 +106,7 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def Boltzmann_enso(np_enso: np.ndarray, TEMP) -> np.ndarray:
+def Boltzmann_enso(np_enso: npt.NDArray, TEMP) -> npt.NDArray:
     import numpy.lib.recfunctions as rfn
     from censo_ext.Tools.Parameter import PI, Eh, FACTOR
     # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
@@ -341,7 +341,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("     Weighting of each CONFS         : " +
               str(anmr_enso['NEW_BW']))
 
-    Boltzmann_lift_energy: np.ndarray = boltzmann_enso*backup_enso['Gibbs']
+    Boltzmann_lift_energy: npt.NDArray = boltzmann_enso*backup_enso['Gibbs']
 
     if args.complete:
         print("     Eref*weight of every CONFS      : " +

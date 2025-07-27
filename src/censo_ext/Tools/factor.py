@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
+from typing import Literal
 from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import numpy as np
 import numpy.typing as npt
-import os
 from icecream import ic
 from censo_ext.Tools.calculate_rmsd import cal_rmsd_xyz
 
 
-def method_factor_analysis(args) -> tuple[list[int], dict]:
+def method_factor_analysis(args) -> tuple[list[int], dict[int, npt.NDArray]]:
 
     xyzfile: GeometryXYZs = GeometryXYZs(args.file)
     xyzfile.method_read_xyz()
@@ -31,7 +31,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict]:
         ic()
         exit(1)
 
-    dict_idx_STD: dict = dict(
+    dict_idx_STD: dict[int, npt.NDArray] = dict(
         zip(idx_STD, np.std(np.array(coord).T, axis=1)))
     avg_STD: np.float64 = np.float64(
         np.average(np.array(list(dict_idx_STD.values()))))
@@ -60,7 +60,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict]:
     return idx1_minor_factor, dict_idx_STD
 
 
-def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
+def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, npt.NDArray]) -> tuple[Literal[True], list[int], float] | Literal[False]:
     """
     Optimize the broken-bond location based on calculated STD values.
     return: A tuple indicating whether the optimization is successful, the optimized broken-bond location, and the ratio.
@@ -70,7 +70,7 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
     print(" ========== Optimized Broken-Bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
     bonding_low_factor: list[npt.NDArray] = []
-    for idx in (np_low_factor):
+    for idx in (low_factor):
         args_x: dict = {"file": args.file, "bonding": idx,
                         "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
@@ -79,7 +79,7 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
 
     Pair_low_factor: list[list[int]] = []
 
-    for idx, x in enumerate(np_low_factor):
+    for idx, x in enumerate(low_factor):
         for idy, y in enumerate(bonding_low_factor[idx]):
             Pair_low_factor.append([x, int(bonding_low_factor[idx][idy])])
 
@@ -91,7 +91,7 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
         list(t) for t in set(tuple(x) for x in Pair_low_factor)]
 
     nCONFS: int = len(list(Table_S.keys()))
-    idx_STD: dict = Table_S
+    idx_STD: dict[int, npt.NDArray] = Table_S
 
     idx_ratio: list[list[int]] = []
     list_ratio: list[float] = []
@@ -107,7 +107,8 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
         idx_STD_R: list[int] = Sts_topo.method_broken_bond(
             argparse.Namespace(**args_x))
 
-        total_STD_L, total_STD_R = 0, 0
+        total_STD_L: float = float(0)
+        total_STD_R: float = float(0)
 
         if len(idx_STD_L) < 1 or len(idx_STD_R) < 1:
             print("something wrong in your List_STD ")
@@ -120,11 +121,11 @@ def method_factor_opt(args, np_low_factor: list[int], Table_S: dict):
             print(f" Sizes of deviation :  {int(len(idx_STD_L)): 4d}   vs {int(len(idx_STD_R)): 4d}")  # nopep8
 
             for y in idx_STD_L:
-                total_STD_L += idx_STD[y]
+                total_STD_L += float(idx_STD[y])
             for y in idx_STD_R:
-                total_STD_R += idx_STD[y]
+                total_STD_R += float(idx_STD[y])
 
-            print(f" STD :           {float(total_STD_L):10.5f}   vs {float(total_STD_R): 10.5f}")  # nopep8
+            print(f" STD :           {total_STD_L:10.5f}   vs {total_STD_R: 10.5f}")  # nopep8
             print(f" STD/STD =    {(total_STD_L/total_STD_R):10.7f}")
             if total_STD_L/total_STD_R < 1:
                 print(f" RATIO   =    {(total_STD_L/total_STD_R):10.7f}")

@@ -121,7 +121,7 @@ covalent_rad_d3 = 4.0 / 3.0 * covalent_rad_2009
 #    return list_h, list_c
 
 
-def read_mol_neighbors(DirFileName: Path):
+def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray]]:
     """Read the molecule and return mol (ase.Atoms object) and dict neighbors."""
 
     # read the .xyz coordinates from the molecular structures
@@ -136,7 +136,7 @@ def read_mol_neighbors(DirFileName: Path):
     # build neighbor list and write list of neighboring atoms to the dict neighbors
     nl = neighborlist.build_neighbor_list(
         mol, cutoffs, self_interaction=False, bothways=True)
-    neighbors: dict[int, np.ndarray] = {}
+    neighbors: dict[int, npt.NDArray] = {}
 
     for idx in range(len(mol)):
         # nl.get_neighbors(i) returns [0]: indices and [1]: offsets
@@ -158,15 +158,15 @@ def read_mol_neighbors_bond_order(DirfileName: Path = Path("crest_conformers.xyz
     # read the .xyz coordinates from the molecular structures
     mol, neighbors = read_mol_neighbors(DirfileName)
 
-    idx_H_atom: list[int] = [idx+1 for idx, i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
-    idx_C_atom: list[int] = [idx+1 for idx, i in enumerate(mol) if i.symbol == "C"]  # type: ignore # nopep8
+    idx_H_atoms: list[int] = [idx+1 for idx, i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
+    idx_C_atoms: list[int] = [idx+1 for idx, i in enumerate(mol) if i.symbol == "C"]  # type: ignore # nopep8
     bond_order: dict[int, int] = {}
     for idx in neighbors.keys():
-        count = 0
+        count: int = 0
         for idy in neighbors[idx]:
-            if idy in idx_H_atom:
+            if idy in idx_H_atoms:
                 count = count + 1
-        if idx in idx_C_atom:
+        if idx in idx_C_atoms:
             bond_order[idx] = count
 
     return mol, neighbors, bond_order

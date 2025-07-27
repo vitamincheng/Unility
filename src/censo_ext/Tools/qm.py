@@ -279,7 +279,7 @@ if __name__ == "__main__":
     # J: only one AB quartet, positive or negative of the J Coupling constant the spectra is the same
 
     # v: list = [1100, 1200, 1900, 2500]
-    # J: np.ndarray = np.array([[0.0,   -16.0,   0.0,   4.0],
+    # J: npt.NDArray = np.array([[0.0,   -16.0,   0.0,   4.0],
     #                         [-16.0,   0.0, 2.0,   4.0],
     #                          [0.0, 2.0,   0.0,   0.0],
     #                          [4.0,   4.0,   0.0,   0.0]])

@@ -2,6 +2,7 @@
 import os
 import argparse
 import numpy as np
+import numpy.typing as npt
 # import matplotlib.pyplot as plt
 from sys import argv as sysargv
 from icecream import ic
@@ -57,7 +58,7 @@ def Atom_Equivalent(file: Path = Path("anmrh.out")) -> list:
     return AtomEqv
 
 
-def function_read_orcaJ(file: Path = Path("orcaJ.out")) -> np.ndarray:
+def function_read_orcaJ(file: Path = Path("orcaJ.out")) -> npt.NDArray:
     from censo_ext.Tools.anmrfile import OrcaSJ
     single_orcaSJ = OrcaSJ()
     if single_orcaSJ.method_read_orcaJ(file):
@@ -135,7 +136,7 @@ if __name__ == "__main__":
         for idx, line in enumerate(lines):
             if re.search(r"h", line):
                 idx_h_lines.append(idx)
-        np_idx_h_lines: np.ndarray = np.array(idx_h_lines) - 1
+        np_idx_h_lines: npt.NDArray = np.array(idx_h_lines) - 1
         np.set_printoptions(formatter={'float': '{:12.5f}'.format})
 
         idx_Atom_Eqv: list = Atom_Equivalent(Path("anmrh.out"))
@@ -149,9 +150,9 @@ if __name__ == "__main__":
             orcaJfile: Path = Path(dirName + "/NMR/orcaJ.out")
 
             if (os.path.exists(fileBackup) == True):
-                JCoup: np.ndarray = function_read_orcaJ(fileBackup)
+                JCoup: npt.NDArray = function_read_orcaJ(fileBackup)
             else:
-                JCoup: np.ndarray = function_read_orcaJ(orcaJfile)
+                JCoup: npt.NDArray = function_read_orcaJ(orcaJfile)
                 import shutil
                 shutil.copyfile(orcaJfile, fileBackup)
 

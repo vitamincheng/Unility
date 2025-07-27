@@ -2,8 +2,10 @@
 import argparse
 import os
 from sys import argv as sysargv
+from typing import Any
 from scipy.spatial.transform import Rotation as R
 import numpy as np
+import numpy.typing as npt
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from icecream import ic
 from pathlib import Path
@@ -100,18 +102,20 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def idx_3atom_opt(args) -> list[int]:
+def idx_3atom_opt(args) -> tuple[int, int, int]:
     from censo_ext.Tools.factor import method_factor_analysis
     args_x: dict = {"file": args.file,
                     "factor": 0.5, "debug": False, "opt": False}
+    minor_list: list[int]
+    TableSTD: dict[int, npt.NDArray]
     minor_list, TableSTD = method_factor_analysis(
         args=argparse.Namespace(**args_x))
-    # idx1_Low_Factor: np.ndarray = np.array(minor_list)
+    # idx1_Low_Factor: npt.NDArray = np.array(minor_list)
     idx1_Low_Factor: list[int] = list(minor_list)
     idx1_Atom_list: list[int] = list(TableSTD.keys())
-    AtomSTD: list[float] = list(TableSTD.values())
+    AtomSTD: list[float] = list(map(float, TableSTD.values()))
 
-    idx1_Bonding: list = []
+    idx1_Bonding: list[list[int]] = []
     for idx, x in enumerate(idx1_Low_Factor):
         from censo_ext.Tools.topo import Topo
         args_x: dict = {"file": args.file, "bonding": x,
@@ -131,7 +135,7 @@ def idx_3atom_opt(args) -> list[int]:
             idx1_3atom.append(tmp)
 
     from itertools import combinations
-    idx1_Combine_3atom: list = []
+    idx1_Combine_3atom: list[tuple[int, int, int]] = []
     for idx, x in enumerate(idx1_3atom):
         return_list = list(combinations(x, 3))
         for y in (return_list):
@@ -168,11 +172,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         ic()
         exit(0)
 
+    p_idx: int
+    q_idx: int
+    r_idx: int
     if args.atom == None and args.auto:
         print("\n Automated to set the 3 atoms to return origin and lay on XZ plane")
         print(" First FactorAnalysis.py will executive and second continue the RetrunOandZ.py ")
-        idx_atom: list[int] = idx_3atom_opt(args)
-        p_idx, q_idx, r_idx = idx_atom
+        p_idx, q_idx, r_idx = idx_3atom_opt(args)
     else:
         p_idx, q_idx, r_idx = args.atom
 
@@ -182,7 +188,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Process xyz file
     for idx_st in range(len(infile)):
 
-        dxyz: np.ndarray = infile.Sts[idx_st].coord[p_idx-1].copy()
+        dxyz: npt.NDArray = infile.Sts[idx_st].coord[p_idx-1].copy()
         infile.Sts[idx_st].coord -= dxyz
         import math
         z_axis = (0, 0, math.sqrt(
@@ -190,7 +196,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         rotation_axis = infile.Sts[idx_st].coord[q_idx-1]+z_axis
         if np.linalg.norm(rotation_axis) == 0:
-            Normalized_rotation_axis: np.ndarray = np.array([0, 1, 0])
+            Normalized_rotation_axis: npt.NDArray = np.array([0, 1, 0])
         else:
             Normalized_rotation_axis = rotation_axis / \
                 np.linalg.norm(rotation_axis)

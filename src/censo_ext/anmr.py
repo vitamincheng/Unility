@@ -234,7 +234,7 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
+def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray:
 
     if args == argparse.Namespace():
         args = cml("")
@@ -257,10 +257,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
         inAnmr.method_avg_orcaSJ()
         inAnmr.method_save_avg_orcaSJ()
 
-    inSParams: np.ndarray = np.array(
+    inSParams: npt.NDArray = np.array(
         list(inAnmr.avg_orcaSJ.SParams.values()))*args.mf
 
-    # idxinSParams:np.ndarray = np.array(list(inAnmr.Average_orcaSJ.orcaSParams.keys()))
+    # idxinSParams:npt.NDArray = np.array(list(inAnmr.Average_orcaSJ.orcaSParams.keys()))
     # np.savetxt("inSParams.out",np.array(np.stack([idxinSParams,inSParams]).T), fmt=' %4.0f   %10.6f')
 
     inJCoups: npt.NDArray = np.array(inAnmr.avg_orcaSJ.JCoups)
@@ -535,7 +535,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> np.ndarray:
     args.out = str(inAnmr.get_Directory()/Path(args.out))
 
     if dpi != None and Active_range != None:
-        np_dat: np.ndarray = qm.print_plot(
+        np_dat: npt.NDArray = qm.print_plot(
             Final_Result_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range, hidden=not args.show)
     else:
         print("dpi and Active_range is wrong")

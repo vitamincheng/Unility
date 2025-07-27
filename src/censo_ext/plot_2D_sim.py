@@ -4,18 +4,19 @@ from icecream import ic
 import nmrglue as ng
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import os
 import sys
 
 
-def Load_dat(fileName_H, FileName_C) -> tuple[np.ndarray, np.ndarray]:
+def Load_dat(fileName_H, FileName_C) -> tuple[npt.NDArray, npt.NDArray]:
 
-    data_x: np.ndarray = np.genfromtxt(fileName_H)
-    data_y: np.ndarray = np.genfromtxt(FileName_C)
+    data_x: npt.NDArray = np.genfromtxt(fileName_H)
+    data_y: npt.NDArray = np.genfromtxt(FileName_C)
     return data_x, data_y
 
 
-def Load_Directory(directory_H, directory_C) -> tuple[np.ndarray, np.ndarray]:
+def Load_Directory(directory_H, directory_C) -> tuple[npt.NDArray, npt.NDArray]:
 
     import censo_ext.anmr as anmr
     x: dict = {"auto": True, "average": True,
@@ -58,7 +59,7 @@ def plot_2D_basic(data_x, data_y):
     return ax
 
 
-def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, np.ndarray], dict, dict]:
+def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, npt.NDArray], dict, dict]:
 
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     from pathlib import Path
@@ -148,7 +149,7 @@ def print_report(bond_order, neighbor, idxAtoms_H, idxAtoms_C) -> None:
 
 
 def plot_target(ax) -> None:
-    data: np.ndarray = np.genfromtxt("out")
+    data: npt.NDArray = np.genfromtxt("out")
     ic(data)
     for i in data:
         ax.scatter(i[1], i[0], marker="o", color="r",

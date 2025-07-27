@@ -80,7 +80,7 @@ FileName_BOBYQA: Path = Path("Average/NMR/orcaS-BOBYQA.out")
 
 
 def rosenbrock(x0) -> float:
-    orcaS_Table: np.ndarray = np.genfromtxt(Directory / FileName_BOBYQA)
+    orcaS_Table: npt.NDArray = np.genfromtxt(Directory / FileName_BOBYQA)
 
     for idx, idx_k in enumerate(idx_keys):
         orcaS_Table[idx_k][1] = x0[idx]
@@ -127,7 +127,7 @@ def rosenbrock(x0) -> float:
 
 def Scan_single_Peak() -> None:
     import pybobyqa
-    OrcaS_Table: np.ndarray = np.genfromtxt(Directory / FileName_BOBYQA)
+    OrcaS_Table: npt.NDArray = np.genfromtxt(Directory / FileName_BOBYQA)
 
     for idx, SParam in enumerate(OrcaS_Table):
 
@@ -138,9 +138,9 @@ def Scan_single_Peak() -> None:
             global idx_keys
             idx_keys = []
             idx_keys.append(idx)
-            x0: np.ndarray = np.array(Data_Chemical_Shift)
-            lower: np.ndarray = x0 - limit_border
-            upper: np.ndarray = x0 + limit_border
+            x0: npt.NDArray = np.array(Data_Chemical_Shift)
+            lower: npt.NDArray = x0 - limit_border
+            upper: npt.NDArray = x0 + limit_border
             ic(int(SParam[0]), x0.tolist())
             soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
                 lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
@@ -150,7 +150,7 @@ def Scan_single_Peak() -> None:
 
 def Scan_group_Peaks(inGroup: list[int] = []) -> None:
     import pybobyqa
-    orcaS_Table: np.ndarray = np.genfromtxt(Directory / FileName_BOBYQA)
+    orcaS_Table: npt.NDArray = np.genfromtxt(Directory / FileName_BOBYQA)
 
     group: set = set()
     for idx, SParam in enumerate(orcaS_Table):

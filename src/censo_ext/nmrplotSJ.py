@@ -25,6 +25,7 @@ last updated on 02-June-2020
 """
 
 import numpy as np
+import numpy.typing as npt
 descr = """
      __________________________________________________
     |                                                  |
@@ -366,7 +367,7 @@ def save_figure():
 # Added @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
-def plot_show_findpeaks(height_thr: list[float], ppms: list[list[float]], intensit: list[np.ndarray]) -> None:
+def plot_show_findpeaks(height_thr: list[float], ppms: list[list[float]], intensit: list[npt.NDArray]) -> None:
     for idx, x in enumerate(ppms):
         # ic(type(x))
         # ic(type(intensit[idx]))
@@ -380,7 +381,7 @@ def plot_show_findpeaks(height_thr: list[float], ppms: list[list[float]], intens
                 f"{x[peak]:12.3f}"), ha='center', va='top', rotation=90, fontsize=11)
 
 
-def plot_nmr_assign(orcaS: np.ndarray, height_thr: float, ppm: list, intensit: list) -> None:
+def plot_nmr_assign(orcaS: npt.NDArray, height_thr: float, ppm: list, intensit: list) -> None:
     from scipy.signal import find_peaks
     if max(ppm[1]) > 50:
         # for Carbon
@@ -928,11 +929,11 @@ if __name__ == "__main__":
                 from censo_ext.Tools.utility import IsExist
                 IsExist(filename)
 
-                orcaS: np.ndarray = np.genfromtxt(filename, usecols=(0, 1))
+                orcaS: npt.NDArray = np.genfromtxt(filename, usecols=(0, 1))
                 orcaS.T[1] = orcaS.T[1]*(-1)
                 IsExist(args.file[1])
 
-                orcaS_Ref: np.ndarray = np.genfromtxt(
+                orcaS_Ref: npt.NDArray = np.genfromtxt(
                     args.file[1], usecols=(0, 1))
                 from censo_ext.Tools.spectra import numpy_threshold
                 height_thr: float = numpy_threshold(orcaS_Ref.T[1], 3.0)

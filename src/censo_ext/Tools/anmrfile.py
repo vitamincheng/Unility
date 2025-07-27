@@ -830,7 +830,7 @@ class CensoDat():
 
         if len(self) != 0:
 
-            res: np.ndarray = self.__dat
+            res: npt.NDArray = self.__dat
             res = np.insert(res, 0, [start, 0.0], axis=0)
             res = np.vstack((res, [end, 0.0]))
 
@@ -859,5 +859,5 @@ class CensoDat():
     def get_fileName(self) -> Path:
         return self.__fileName
 
-    def get_Dat(self) -> np.ndarray:
+    def get_Dat(self) -> npt.NDArray:
         return self.__dat

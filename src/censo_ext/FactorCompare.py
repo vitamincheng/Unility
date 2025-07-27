@@ -116,10 +116,10 @@ def Factor_xyzCompare(args) -> None:
             start_idx0 = idx0 + 1
         if re.search(r"ensemble average energy", line):
             end_idx0 = idx0 - 3
-    St_crest: np.ndarray = np.array([])
+    St_crest: npt.NDArray = np.array([])
     for idx0, line in enumerate(lines):
         if idx0 >= start_idx0 and idx0 <= end_idx0:
-            St_crest: np.ndarray = np.append(
+            St_crest = np.append(
                 St_crest, [float(line.split()[1]), float(line.split()[3])])
     St_crest = np.reshape(St_crest, (int(len(St_crest)/2), 2))
 

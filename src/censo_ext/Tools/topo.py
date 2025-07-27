@@ -26,7 +26,7 @@ class Topo():
         """
         Get the coordination number (CN) as number of neighbors (input is neighbors from read_mol)
         """
-        cn: dict = {}
+        cn: dict[int, int] = {}
         for key, value in self.__neighbors.items():
             cn[key] = len(value)
         return cn
@@ -43,7 +43,7 @@ class Topo():
             [list,int] : the list of atom's index in your assigned bond (include H atom)
         """
         Result: list[int] = self.method_broken_bond(args)
-        mol, neighbors = self.__mol, self.__neighbors
+        neighbors: dict[int, npt.NDArray] = self.__neighbors
         idx_H_atom: list[int] = self.idx_Hydrogen_atom
         NeighborsAtoms_H_atom: dict[int, int] = {}  # {H:C}
         for idx in idx_H_atom:
@@ -70,8 +70,9 @@ class Topo():
         Returns:
             [list,int] : the list of atom's index in your assigned bond (not include H atom)
         """
-        idx_p, idx_q = args.bond_broken[0], args.bond_broken[1]
-        mol, neighbors = self.__mol, self.__neighbors
+        idx_p: int = args.bond_broken[0]
+        idx_q: int = args.bond_broken[1]
+        neighbors: dict[int, npt.NDArray] = self.__neighbors
         idx_Hydrogen_atom: list[int] = self.idx_Hydrogen_atom
         idx_Hydrogen_atom.append(idx_q)
         NeighborsAtoms_not_H: dict[int, npt.NDArray] = {}
@@ -111,7 +112,7 @@ class Topo():
         """
         idx_p: int = args.bonding
         # ic(args.file)
-        mol, neighbors = self.__mol, self.__neighbors
+        neighbors: dict[int, npt.NDArray] = self.__neighbors
         idx_H_atom: list[int] = self.idx_Hydrogen_atom
         Neighbors_Atoms: list[int] = neighbors[idx_p].tolist()
         Neighbors_Atoms = [i for i in Neighbors_Atoms if i not in idx_H_atom]
@@ -120,10 +121,11 @@ class Topo():
             print(" Bonding : ", idx_p, " @ ", Neighbors_Atoms)
         return Neighbors_Atoms
 
-    def topology(self):
+    def topology(self) -> tuple[list[ml4nmr.Atoms], dict[int, npt.NDArray], list[list[int]], list[list[Graph]]]:
         '''
         '''
-        mol, neighbors = self.__mol, self.__neighbors.copy()
+        mol: ml4nmr.Atoms | list[ml4nmr.Atoms] = self.__mol
+        neighbors: dict[int, npt.NDArray] = self.__neighbors.copy()
         # neighbors is removed all H-atoms
         idx_Hydorgen_atoms: list[int] = self.idx_Hydrogen_atom
         for key, value in neighbors.copy().items():
@@ -134,7 +136,7 @@ class Topo():
                 [a for a in value if a not in idx_Hydorgen_atoms])
 
         # Tranfer neighbors to Graph
-        graph_in: list = list()
+        graph_in: list[tuple[int, npt.NDArray]] = list()
         for key, value in neighbors.items():
             for x in value:
                 graph_in.append((key, x))
@@ -190,9 +192,9 @@ class Topo():
         g_straight: Graph = g.copy()
 
         # residual_Mols is use graph : is_connected to find the connect node and append
-        residual_Mols: list = []
+        residual_Mols: list[list[Graph]] = []
         for atom in residual_atoms:
-            Molecules: list = []
+            Molecules: list[Graph] = []
             for node in list(g_straight.nodes()):  # type: ignore
                 if g_straight.is_connected(atom, node) == True:
                     Molecules.append(node)

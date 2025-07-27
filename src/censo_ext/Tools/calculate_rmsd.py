@@ -49,7 +49,7 @@ def int_atom(atom: str) -> int:
     return NAMES_ELEMENT[atom]
 
 
-def rmsd(P: npt.NDArray, Q: npt.NDArray, idx_atom: list, **kwargs) -> tuple[dict, float]:
+def rmsd(P: npt.NDArray, Q: npt.NDArray, idx_atom: list[int], **kwargs) -> tuple[dict[int, float], float]:
     """
     Calculate Root-mean-square deviation from two sets of vectors V and W.
 
@@ -66,10 +66,10 @@ def rmsd(P: npt.NDArray, Q: npt.NDArray, idx_atom: list, **kwargs) -> tuple[dict
         Root-mean-square deviation between the two vectors
     """
     diff = P - Q
-    atom_square: dict = {}
+    atom_square: dict[int, float] = {}
     coord_square_total: float = 0
     for idx, x in enumerate(idx_atom):
-        coord_square = (diff[idx]*diff[idx]).sum()
+        coord_square: float = float((diff[idx]*diff[idx]).sum())
         # ic(coord_square)
         if __name__ == "__main__":
             print(f"{x:>5}", end=" ")
@@ -77,11 +77,11 @@ def rmsd(P: npt.NDArray, Q: npt.NDArray, idx_atom: list, **kwargs) -> tuple[dict
         atom_square[x] = coord_square
         coord_square_total += coord_square
     # return atom_square, np.sqrt(coord_square / P.shape[0])
-    return atom_square, np.sqrt(coord_square_total / P.shape[0])
+    return atom_square, float(np.sqrt(coord_square_total / P.shape[0]))
 
 
 def kabsch_rmsd(P: npt.NDArray, Q: npt.NDArray, idx_atom1: list,
-                translate: bool = False) -> tuple[dict, float]:
+                translate: bool = False) -> tuple[dict[int, float], float]:
     """
     Rotate matrix P unto Q using Kabsch algorithm and calculate the RMSD.
     An optional vector of weights W may be provided.
@@ -128,7 +128,7 @@ def kabsch_rotate(P: npt.NDArray, Q: npt.NDArray) -> npt.NDArray:
         rotated
 
     """
-    U = kabsch(P, Q)
+    U: npt.NDArray = kabsch(P, Q)
 
     # Rotate P
     P = np.dot(P, U)
@@ -308,17 +308,16 @@ def centroid(X: npt.NDArray) -> npt.NDArray:
     return X.mean(axis=0)
 
 
-# -> tuple[NDArray[Any], NDArray[Any]]:
-def get_Coordinates(xyzfile, idx) -> tuple[npt.NDArray, npt.NDArray]:
+def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray, npt.NDArray]:
     '''
     Read xyz file to data 
     idx is Serial No. (from 0) in xyz file
     '''
-    # xyzfile.method_print([idx])
-    atoms = xyzfile.Sts[idx].names
-    atoms = [int_atom(atom) for atom in atoms.values()]
-    V = xyzfile.Sts[idx].coord
-    return np.array(atoms), np.array(V)
+    atoms: dict[int, str] = xyzfile.Sts[idx0].names
+    atoms_np: npt.NDArray = np.array(
+        [int_atom(atom) for atom in atoms.values()])
+    V: npt.NDArray = np.array(xyzfile.Sts[idx0].coord)
+    return atoms_np, V
 
 
 def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> tuple[dict[int, float], float]:
@@ -331,6 +330,10 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     xyz_tmp: Path = Path(".tmp.xyz")
     idx_p -= 1
     idx_q -= 1
+    p_all_atoms: npt.NDArray
+    q_all_atoms: npt.NDArray
+    p_all: npt.NDArray
+    q_all: npt.NDArray
     p_all_atoms, p_all = get_Coordinates(xyzfile, idx_p)
     q_all_atoms, q_all = get_Coordinates(xyzfile, idx_q)
 
@@ -360,7 +363,6 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     if args.bond_broken:
         if args.ignore_Hydrogen:
-            import argparse
             xyzfile.set_filename(xyz_tmp)
             xyzfile.method_save_xyz([idx_p])
             x: dict = {"file": xyz_tmp, "bond_broken": [
@@ -393,7 +395,7 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
         args.remove_idx = np.array(args.remove_idx)-1
         index = idx_atom1-1
 
-        p_view, q_vew = index, index
+        p_view, q_view = index, index
 
     elif args.add_idx:
         if args.ignore_Hydrogen:
@@ -433,8 +435,10 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
         print(f"{" RMSD":>5s}", end=" ")
         print(f"{result_rmsd:>10.5f}")
 
-    import subprocess
-    subprocess.call("rm -rf " + str(xyz_tmp), shell=True)
+    from censo_ext.Tools.utility import delete_all_files
+    delete_all_files(xyz_tmp)
+    # import subprocess
+    # subprocess.call("rm -rf " + str(xyz_tmp), shell=True)
 
     if len(idx_atom1) == 0:
         print("Someting wrong in your xyzfile (idx_atom)")

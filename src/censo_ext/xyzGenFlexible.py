@@ -2,7 +2,9 @@
 import argparse
 import os
 import sys
+from graph import Graph
 import numpy as np
+import numpy.typing as npt
 from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
@@ -67,11 +69,11 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def read_data(args):
+def read_data(args) -> tuple[dict[int, npt.NDArray], list[list[int]], list[list[Graph]], dict[int, int], dict[int, int]]:
     from censo_ext.Tools.topo import Topo
     Sts_topo: Topo = Topo(args.file)
     _, neighbor, circleMols, residualMols = Sts_topo.topology()
-    atomsCN: dict = Sts_topo.get_cn()
+    atomsCN: dict[int, int] = Sts_topo.get_cn()
     # ic(neighbor, circleMols, residualMols)
     # ic(atomsCN)
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order

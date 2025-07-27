@@ -4,6 +4,7 @@ import argparse
 import os
 from pathlib import Path
 import numpy as np
+import numpy.typing as npt
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 descr = """
@@ -117,10 +118,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     idx1_p, idx1_q = args.atoms
     nCutters: int = args.cuts
 
-    x: dict = {"file": args.file,
-               "bond_broken": [idx1_q, idx1_p],
-               "print": False,
-               "debug": False}
+    x: dict = {"file": args.file, "bond_broken": [idx1_q, idx1_p],
+               "print": False, "debug": False}
 
     from censo_ext.Tools.topo import Topo
     Sts_topo: Topo = Topo(x["file"])
@@ -132,16 +131,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     for idx0_St, St in enumerate(infile.Sts):
 
-        dxyz: np.ndarray = St.coord[idx1_p-1].copy()
-        inital: list[np.ndarray] = St.coord.copy()
+        dxyz: npt.NDArray = St.coord[idx1_p-1].copy()
+        inital: list[npt.NDArray] = St.coord.copy()
 
         for nCutter in range(nCutters):
 
             St.coord = inital.copy()
             St.coord -= dxyz
 
-            rotation_axis = St.coord[idx1_q-1]
-            rotation_vector = rotation_axis/np.linalg.norm(rotation_axis)
+            rotation_axis: npt.NDArray = St.coord[idx1_q-1]
+            rotation_vector: npt.NDArray = rotation_axis / \
+                np.linalg.norm(rotation_axis)
 
             r_pq = R.from_rotvec(2*np.pi*(nCutter/nCutters)*rotation_vector)
 
