@@ -16,7 +16,7 @@ def test_calculate_rmsd():
                "ignore_Hydrogen": False, "debug": False}
     idx_atom1 = cal_rmsd_xyz(xyzfile, 1, 2, args=argparse.Namespace(**x))
     assert len(idx_atom1[0]) == 73
-    assert idx_atom1[1] == np.float64(1.7608313888081009)
+    assert idx_atom1[1] == pytest.approx(np.float64(1.7608313888081009))
 
     x = {"remove_idx": None, "add_idx": None, "bond_broken": [
         52, 55], "ignore_Hydrogen": True, "debug": False}
