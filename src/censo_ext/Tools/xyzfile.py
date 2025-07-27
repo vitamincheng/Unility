@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 from pathlib import Path
-from typing_extensions import Self
+from typing import Self
 import os
 import sys
 import numpy as np
@@ -267,11 +267,11 @@ class GeometryXYZs():
 
     def method_Sts_extend(self, Sts_: list[Geometry]) -> None:
         raise NotImplementedError
-        self.Sts.extend(Sts_)
+        # self.Sts.extend(Sts_)
 
     def method_Sts_append(self, St: Geometry) -> None:
         raise NotImplementedError
-        self.Sts.append(St)
+        # self.Sts.append(St)
 
     def method_read_xyz(self) -> None:
         '''reads xyz file and save the data into self geometry object'''

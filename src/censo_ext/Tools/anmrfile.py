@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 #  Module anmr/ censo           [08.27.2024] vitamin.cheng@gmail.com
 from __future__ import annotations
-# from numpy import exceptions
 from scipy.interpolate import interp1d
-from typing_extensions import Self
+from typing import Self
 import os
 import sys
 import numpy as np
@@ -30,7 +29,7 @@ class Anmrrc():
         self.element: dict[int, str] = {
             1: 'H', 6: 'C', 9: 'F', 14: 'Si', 15: 'P'}
         # List of Acid Atom (like NH OH) No show in spectra
-        self.acid_atoms_NoShow: list = []
+        self.acid_atoms_NoShow: list[int] = []
         # [atomic number] [calculated shielding valule of the reference molecule] [experimental shift] [active or not]
         self.anmrrc: list[list[float]] = []
         self.Active: list[str] = []
@@ -86,11 +85,11 @@ class Anmrrc():
         """
 
         from censo_ext.Tools.Parameter import ELEMENT_NAMES
-        acid_atoms_NoShow: list = [ELEMENT_NAMES[i]
-                                   for i in self.acid_atoms_NoShow]
+        acid_atoms_NoShow: list[str] = [ELEMENT_NAMES[i]
+                                        for i in self.acid_atoms_NoShow]
         from censo_ext.Tools.ml4nmr import read_mol_neighbors
         mol, neighbors = read_mol_neighbors(DirFileName)
-        acid_atoms_NoShowRemove: list = []
+        acid_atoms_NoShowRemove: list[int] = []
         for idx, x in enumerate(mol):
             for y in acid_atoms_NoShow:
                 if x.symbol == y:  # type: ignore
@@ -100,7 +99,7 @@ class Anmrrc():
             NoShow_Remove_Group = np.concatenate(
                 (NoShow_Remove_Group, neighbors[x]), axis=None)
         idx_H_atom: list[int] = [idx+1 for idx,
-                                 i in enumerate(mol) if i.symbol == "H"]
+                                 i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
         return [i for i in NoShow_Remove_Group if i in idx_H_atom]
 
     def get_Reference_anmrrc(self) -> float:
@@ -113,13 +112,14 @@ class Anmrrc():
             Raises:
                 ValueError: If no active species is found in the .anmrrc file.
         """
-        reference = None
+        reference: float | None = None
         for x in self.anmrrc:
             if x[3] == 1:
                 reference = x[1]
 
         if reference is None:
             raise ValueError("No reference in your .anmrrc file")
+            ic()
             exit(0)
         return reference
 
@@ -133,8 +133,8 @@ class Anmr():
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, Directory_str: Path = Path(".")) -> None:
-        self.__Directory: Path = Directory_str
+    def __init__(self, Directory: Path = Path(".")) -> None:
+        self.__Directory: Path = Directory
         self.enso: npt.NDArray                      # anmr_enso
         self.anmrJ: npt.NDArray                     # JCoup of anmr.out generated from anmr # nopep8
         self.anmrS: list[list[float]] = []                # Shielding of anmr.out generated from anmr # nopep8
@@ -185,7 +185,6 @@ class Anmr():
             normal_weight: dict[np.int64, np.float64] = dict(
                 zip(np.atleast_1d(idx_CONF), np.atleast_1d(weight)))
 
-            import copy
             Active_orcaSJ: list[int] = []
             for idx, x in enumerate(self.orcaSJ):
                 if x.CONFSerialNums in idx_CONF:
@@ -446,16 +445,16 @@ class Anmr():
     def method_save_folder_orcaSJ(self) -> None:
         raise NotImplementedError("Under Construct")
 
-    def method_read_anmrSJ(self, filename: Path = Path("anmr.out")) -> None:
+    def method_read_anmrSJ(self, fileName: Path = Path("anmr.out")) -> None:
         '''
         Read the file anmr.out from anmr program
         '''
-        filename = self.__Directory / Path(filename)
-        IsExist(filename)
+        fileName = self.__Directory / Path(fileName)
+        IsExist(fileName)
 
         start_idx, end_idx = 0, 0
         DataJ: list[str] = []
-        lines: list[str] = open(filename, "r").readlines()
+        lines: list[str] = open(fileName, "r").readlines()
 
         import re
         bool_first_line = False
