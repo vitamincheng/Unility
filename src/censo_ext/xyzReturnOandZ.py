@@ -188,7 +188,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     for idx_st in range(len(infile)):
 
         dxyz: npt.NDArray[np.float64] = infile.Sts[idx_st].coord[p_idx-1].copy()
-        infile.Sts[idx_st].coord -= dxyz
+        infile.Sts[idx_st].coord -= dxyz  # type: ignore
         import math
         z_axis = (0, 0, math.sqrt(
             np.sum(np.square(infile.Sts[idx_st].coord[q_idx-1]))))

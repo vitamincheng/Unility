@@ -49,7 +49,7 @@ def int_atom(atom: str) -> int:
     return NAMES_ELEMENT[atom]
 
 
-def rmsd(P: npt.NDArray, Q: npt.NDArray, idx_atom: list[int], **kwargs) -> tuple[dict[int, float], float]:
+def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[int], **kwargs) -> tuple[dict[int, float], float]:
     """
     Calculate Root-mean-square deviation from two sets of vectors V and W.
 
@@ -65,7 +65,7 @@ def rmsd(P: npt.NDArray, Q: npt.NDArray, idx_atom: list[int], **kwargs) -> tuple
     rmsd : float
         Root-mean-square deviation between the two vectors
     """
-    diff = P - Q
+    diff: npt.NDArray[np.float64] = P - Q
     atom_square: dict[int, float] = {}
     coord_square_total: float = 0
     for idx, x in enumerate(idx_atom):
@@ -131,11 +131,11 @@ def kabsch_rotate(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64]) -> npt
     U: npt.NDArray[np.float64] = kabsch(P, Q)
 
     # Rotate P
-    P = np.dot(P, U)
-    return P
+    Result: npt.NDArray[np.float64] = np.dot(P, U)
+    return Result
 
 
-def kabsch(P: npt.NDArray, Q: npt.NDArray) -> npt.NDArray:
+def kabsch(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     """
     Using the Kabsch algorithm with two sets of paired point P and Q, centered
     around the centroid. Each vector set is represented as an NxD
@@ -286,7 +286,7 @@ def kabsch(P: npt.NDArray, Q: npt.NDArray) -> npt.NDArray:
 #    return w_rmsd
 
 
-def centroid(X: npt.NDArray) -> npt.NDArray:
+def centroid(X: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     """
     Centroid is the mean position of all the points in all of the coordinate
     directions, from a vectorset X.
@@ -308,7 +308,7 @@ def centroid(X: npt.NDArray) -> npt.NDArray:
     return X.mean(axis=0)
 
 
-def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray, npt.NDArray]:
+def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.float64]]:
     '''
     Read xyz file to data 
     idx is Serial No. (from 0) in xyz file
@@ -316,7 +316,8 @@ def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray, npt.NDArray]:
     atoms: dict[int, str] = xyzfile.Sts[idx0].names
     atoms_np: npt.NDArray[np.int64] = np.array(
         [int_atom(atom) for atom in atoms.values()])
-    V: npt.NDArray[np.float64] = np.array(xyzfile.Sts[idx0].coord)
+    V: npt.NDArray[np.float64] = np.array(
+        xyzfile.Sts[idx0].coord, dtype=np.float64)
     return atoms_np, V
 
 
@@ -330,14 +331,14 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     xyz_tmp: Path = Path(".tmp.xyz")
     idx_p -= 1
     idx_q -= 1
-    p_all_atoms: npt.NDArray
-    q_all_atoms: npt.NDArray
-    p_all: npt.NDArray
-    q_all: npt.NDArray
+    p_all_atoms: npt.NDArray[np.int64]
+    q_all_atoms: npt.NDArray[np.int64]
+    p_all: npt.NDArray[np.float64]
+    q_all: npt.NDArray[np.float64]
     p_all_atoms, p_all = get_Coordinates(xyzfile, idx_p)
     q_all_atoms, q_all = get_Coordinates(xyzfile, idx_q)
 
-    idx_atom1 = np.array([], dtype=int)
+    idx_atom1: npt.NDArray[np.int64] = np.array([], dtype=np.int64)
 
     if p_all.shape[0] != q_all.shape[0]:
         print("error: Structures not same size")
@@ -365,15 +366,15 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
         if args.ignore_Hydrogen:
             xyzfile.set_filename(xyz_tmp)
             xyzfile.method_save_xyz([idx_p])
-            x: dict = {"file": xyz_tmp, "bond_broken": [
+            args_x: dict = {"file": xyz_tmp, "bond_broken": [
                 args.bond_broken[0], args.bond_broken[1]], "print": False, "debug": False}
             from censo_ext.Tools.topo import Topo
-            Sts_topo: Topo = Topo(x["file"])
+            Sts_topo: Topo = Topo(args_x["file"])
             idx1_Res_Atoms: list[int] = Sts_topo.method_broken_bond(
-                argparse.Namespace(**x))
+                argparse.Namespace(**args_x))
             # idx1_Res_Atoms: list[int] = topo.Broken_bond(
             #    argparse.Namespace(**x))
-            idx_atom1 = np.array(idx1_Res_Atoms)
+            idx_atom1 = np.array(idx1_Res_Atoms, dtype=np.int64)
             index = idx_atom1-1
             p_view, q_view = index, index
 
@@ -388,7 +389,7 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
         if args.ignore_Hydrogen:
             pass
         else:
-            idx_atom1 = np.arange(len(p_all_atoms), dtype=int)+1
+            idx_atom1 = np.arange(len(p_all_atoms), dtype=np.int64)+1
 
         idx_atom1 = np.setdiff1d(idx_atom1, args.remove_idx)
 
@@ -425,10 +426,12 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     # rmsd_method: RmsdCallable
     if (args.add_idx is None) and (args.remove_idx is None) and (args.ignore_Hydrogen is False):
-        idx_atom1: npt.NDArray[np.int64] = np.arange(
-            len(p_all_atoms), dtype=int)
+        idx_atom1 = np.arange(
+            len(p_all_atoms), dtype=np.int64)
         idx_atom1 = idx_atom1+1
 
+    coord_square: dict[int, float]
+    result_rmsd: float
     coord_square, result_rmsd = kabsch_rmsd(
         p_coord, q_coord, list(idx_atom1))
 
@@ -438,12 +441,10 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(xyz_tmp)
-    # import subprocess
-    # subprocess.call("rm -rf " + str(xyz_tmp), shell=True)
 
     if len(idx_atom1) == 0:
         print("Someting wrong in your xyzfile (idx_atom)")
         ic()
         exit(1)
     else:
-        return coord_square, result_rmsd  # type: ignore
+        return coord_square, result_rmsd

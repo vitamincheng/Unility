@@ -137,7 +137,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         for nCutter in range(nCutters):
 
             St.coord = inital.copy()
-            St.coord -= dxyz
+            St.coord -= dxyz  # type: ignore
 
             rotation_axis: npt.NDArray[np.float64] = St.coord[idx1_q-1]
             rotation_vector: npt.NDArray[np.float64] = rotation_axis / \

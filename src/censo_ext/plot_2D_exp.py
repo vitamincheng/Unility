@@ -98,7 +98,7 @@ def read_from_bruker(fileName, DeltaF1, DeltaF2):
     pipe_fid_filename = ".2d_pipe.fid"
     ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
     udic, data = ng.pipe.read(pipe_fid_filename)
-    data = data.real
+    data = data.real  # type: ignore
 
     # Important
     # This Bruker is Quadruple Detector, added below two parameter (udic)

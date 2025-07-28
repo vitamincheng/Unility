@@ -206,7 +206,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     pipe_fid_filename = ".1d_pipe.fid"
     ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
     dic, data = ng.pipe.read(pipe_fid_filename)
-    data = data.real*args.phase
+    data = data.real*args.phase  # type: ignore
     uc = ng.pipe.make_uc(dic, data)
 
     # end ---------+--------- start
@@ -244,7 +244,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
                         top=0.90, wspace=0.05, hspace=0.05)
 
-    np_peaks: npt.NDArray[np.float64 | np.int64] = np.array([])
+    np_peaks: npt.NDArray = np.array(
+        [], dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
     if args.manual == True:
         np_peaks = np.genfromtxt(peaks_fileName, names=True,
                                  dtype=['i8', 'f8', 'f8', 'f8'])

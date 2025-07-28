@@ -109,7 +109,7 @@ def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> 
     pipe_fid_filename = ".1d_pipe.fid"
     ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
     dic, data = ng.pipe.read(pipe_fid_filename)
-    data = data.real*phase
+    data = data.real*phase  # type: ignore
     uc_1h = ng.pipe.make_uc(dic, data)
 
     # end ---------+--------- start
@@ -126,7 +126,7 @@ def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> 
     from censo_ext.Tools.spectra import numpy_threshold_mean_3
     threshold: float = 0
     if isinstance(thr, float):
-        threshold: float = numpy_threshold_mean_3(data)*thr
+        threshold: float = numpy_threshold_mean_3(data.astype(np.float64))*thr
         # ic(threshold, thr)
     # detect all peaks with a threshold
     from scipy.signal import find_peaks
@@ -243,7 +243,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     C.from_bruker(dic, data, udic)
     ng.pipe.write(".1d_pipe.fid", *C.to_pipe(), overwrite=True)
     dic, data = ng.pipe.read(".1d_pipe.fid")
-    data = data.real
+    data = data.real  # type: ignore
     uc_1h = ng.pipe.make_uc(dic, data)
 
     # end ---------+--------- start
@@ -259,7 +259,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     output: npt.NDArray[np.float64] = np.vstack((ppm, np.real(data))).T[::-1]
     np.savetxt("output.dat", output, fmt=" %12.5f  %12.5e")
     from censo_ext.Tools.spectra import numpy_threshold_mean_3
-    threshold: float = numpy_threshold_mean_3(data)*thr[channel]
+    threshold: float = numpy_threshold_mean_3(
+        data.astype(np.float64))*thr[channel]
 
     # detect all peaks with a threshold
     from scipy.signal import find_peaks

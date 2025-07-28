@@ -16,17 +16,17 @@ def Load_dat(fileName_H, FileName_C) -> tuple[npt.NDArray, npt.NDArray]:
     return data_x, data_y
 
 
-def Load_Directory(directory_H, directory_C) -> tuple[npt.NDArray, npt.NDArray]:
+def Load_Directory(directory_H, directory_C) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
 
     import censo_ext.anmr as anmr
-    x: dict = {"auto": True, "average": True,
-               "bobyqa": True, "mf": 500, "dir": directory_H, "thr": None, "json": [-1], "thrab": 0.025,
-               "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
-    data_x = anmr.main(argparse.Namespace(**x)).T
-    x: dict = {"auto": True, "average": True,
-               "bobyqa": True, "mf": 500, "dir": directory_C, "thr": None, "json": [-1], "thrab": 0.025,
-               "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
-    data_y = anmr.main(argparse.Namespace(**x)).T
+    args_x: dict = {"auto": True, "average": True,
+                    "bobyqa": True, "mf": 500, "dir": directory_H, "thr": None, "json": [-1], "thrab": 0.025,
+                    "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
+    data_x = anmr.main(argparse.Namespace(**args_x)).T
+    args_y: dict = {"auto": True, "average": True,
+                    "bobyqa": True, "mf": 500, "dir": directory_C, "thr": None, "json": [-1], "thrab": 0.025,
+                    "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
+    data_y = anmr.main(argparse.Namespace(**args_y)).T
 
     return data_x, data_y
 
@@ -63,6 +63,10 @@ def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, npt.NDA
 
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     from pathlib import Path
+    from ase.atoms import Atoms
+    mol: Atoms | list[Atoms]
+    neighbor: dict[int, npt.NDArray[np.int64]]
+    bond_order: dict[int, int]
     mol, neighbor, bond_order = read_mol_neighbors_bond_order(
         Path("Test/04.Hydrogen/crest_conformers.xyz"))
     idx_H_atom: list[int] = [idx+1 for idx,

@@ -15,8 +15,8 @@ RefDat: Path = Path("1r_h.dat")
 
 
 def test_cregen_miss_args():
-    x: dict = {}
-    args = argparse.Namespace(**x)
+    args_x: dict = {}
+    args = argparse.Namespace(**args_x)
     with pytest.raises(SystemExit) as e:
         BOBYQA.main(args)
     assert e.type == SystemExit
@@ -24,21 +24,21 @@ def test_cregen_miss_args():
 
 
 def test_BOBYQA_init():
-    x: dict = {"auto": True, "average": False, "dir": DirName,
-               "bobyqa": False, "mf": 500, "lw": None, "thr": None, "json": None, "thrab": 0.025,
-               "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
-    args = argparse.Namespace(**x)
+    args_x: dict = {"auto": True, "average": False, "dir": DirName,
+                    "bobyqa": False, "mf": 500, "lw": None, "thr": None, "json": None, "thrab": 0.025,
+                    "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
+    args = argparse.Namespace(**args_x)
     anmr.main(args)
 
-    x2: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
-    args2 = argparse.Namespace(**x2)
+    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
+    args2 = argparse.Namespace(**args_y)
     # Create orcaS_BOBYQA file
     BOBYQA.main(args2)
 
 
 def test_BOBYQA_block_file():
-    x2: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
-    args2 = argparse.Namespace(**x2)
+    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
+    args2 = argparse.Namespace(**args_y)
     # run block orcaS_BOBYQA file
     BOBYQA.main(args2)
 
@@ -48,15 +48,15 @@ def test_BOBYQA_single():
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
 
-    x2: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
-    args2 = argparse.Namespace(**x2)
+    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
+    args2 = argparse.Namespace(**args_y)
     BOBYQA.main(args2)
 
 
 @pytest.mark.skipif(_system == "Darwin", reason="crest only work under linux")
 def test_BOBYQA_single_external_prog():
-    x2: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
-    args2 = argparse.Namespace(**x2)
+    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
+    args2 = argparse.Namespace(**args_y)
     BOBYQA.main(args2)
 
     # compare = ""
