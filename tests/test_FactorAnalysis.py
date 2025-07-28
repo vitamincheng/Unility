@@ -6,7 +6,7 @@ import argparse
 import censo_ext.FactorAnalysis as FactorAnalysis
 import filecmp
 import platform
-in_file = f"tests/data/crest_conformers.xyz"
+in_file: Path = Path("tests/data/crest_conformers.xyz")
 
 
 def test_FactorAnalysis_miss_args():
@@ -26,7 +26,7 @@ def test_FactorAnalysis_opt():
     assert Result == None
 
 
-def test_FactorAnalysis_A_bond_broken():
+def test_FactorAnalysis_A_bond_broken() -> None:
     x: dict = {"file": in_file, "factor": 0.50, "opt": False, "thr": 2,
                "bond_broken": [40, 44], "ignore_Hydrogen": False,
                "Analysis": True, "Filter": None}
@@ -35,7 +35,7 @@ def test_FactorAnalysis_A_bond_broken():
     assert Result == None
 
 
-def test_FactorAnalysis_F_bond_broken():
+def test_FactorAnalysis_F_bond_broken() -> None:
     x: dict = {"file": in_file, "factor": 0.50, "opt": False, "thr": 2,
                "bond_broken": [40, 44], "ignore_Hydrogen": True, "Analysis": None,
                "remove_idx": None, "add_idx": None, "Filter": True}
@@ -45,10 +45,10 @@ def test_FactorAnalysis_F_bond_broken():
     original_stdout = sys.stdout
     with open(out_print, "w") as f:
         sys.stdout = f
-        Result = FactorAnalysis.main(args)
+        FactorAnalysis.main(args)
     sys.stdout = original_stdout
     with open(out_print, "r") as f:
-        lines = f.readlines()
+        lines: list[str] = f.readlines()
 
     assert float(lines[-1].split()[-1]) == pytest.approx(1.0651832633943255)
 
@@ -57,7 +57,7 @@ def test_FactorAnalysis_F_bond_broken():
     subprocess.call(f"rm -rf {out_print}", shell=True)
 
 
-def test_FactorAnalysis_F_bond_broken_incl_H():
+def test_FactorAnalysis_F_bond_broken_incl_H() -> None:
     x: dict = {"file": in_file, "factor": 0.50, "opt": False, "thr": 2,
                "bond_broken": [40, 44], "ignore_Hydrogen": False, "Analysis": None,
                "remove_idx": None, "add_idx": None, "Filter": True}

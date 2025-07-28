@@ -110,7 +110,7 @@ def kabsch_rmsd(P: npt.NDArray, Q: npt.NDArray, idx_atom1: list,
     return A, B
 
 
-def kabsch_rotate(P: npt.NDArray, Q: npt.NDArray) -> npt.NDArray:
+def kabsch_rotate(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     """
     Rotate matrix P unto matrix Q using Kabsch algorithm.
 
@@ -128,7 +128,7 @@ def kabsch_rotate(P: npt.NDArray, Q: npt.NDArray) -> npt.NDArray:
         rotated
 
     """
-    U: npt.NDArray = kabsch(P, Q)
+    U: npt.NDArray[np.float64] = kabsch(P, Q)
 
     # Rotate P
     P = np.dot(P, U)
@@ -176,7 +176,7 @@ def kabsch(P: npt.NDArray, Q: npt.NDArray) -> npt.NDArray:
         V[:, -1] = -V[:, -1]
 
     # Create Rotation matrix U
-    U: npt.NDArray = np.dot(V, W)
+    U: npt.NDArray[np.float64] = np.dot(V, W)
 
     return U
 
@@ -314,9 +314,9 @@ def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray, npt.NDArray]:
     idx is Serial No. (from 0) in xyz file
     '''
     atoms: dict[int, str] = xyzfile.Sts[idx0].names
-    atoms_np: npt.NDArray = np.array(
+    atoms_np: npt.NDArray[np.int64] = np.array(
         [int_atom(atom) for atom in atoms.values()])
-    V: npt.NDArray = np.array(xyzfile.Sts[idx0].coord)
+    V: npt.NDArray[np.float64] = np.array(xyzfile.Sts[idx0].coord)
     return atoms_np, V
 
 
@@ -337,7 +337,7 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     p_all_atoms, p_all = get_Coordinates(xyzfile, idx_p)
     q_all_atoms, q_all = get_Coordinates(xyzfile, idx_q)
 
-    idx_atom1: npt.NDArray = np.array([], dtype=int)
+    idx_atom1 = np.array([], dtype=int)
 
     if p_all.shape[0] != q_all.shape[0]:
         print("error: Structures not same size")
@@ -345,11 +345,11 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     # Typing
     from typing import Union
-    index: Union[set[int], list[int], npt.NDArray]
+    index: Union[set[int], list[int], npt.NDArray[np.int64]]
 
     # Set local view
-    p_view: None | npt.NDArray = None
-    q_view: None | npt.NDArray = None
+    p_view: None | npt.NDArray[np.int64] = None
+    q_view: None | npt.NDArray[np.int64] = None
 
     if args.ignore_Hydrogen:
         assert type(p_all_atoms[0]) != str
@@ -408,8 +408,8 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     # Set local view
     if p_view is None:
-        p_coord: npt.NDArray = copy.deepcopy(p_all)
-        q_coord: npt.NDArray = copy.deepcopy(q_all)
+        p_coord: npt.NDArray[np.float64] = copy.deepcopy(p_all)
+        q_coord: npt.NDArray[np.float64] = copy.deepcopy(q_all)
 
     else:
         assert p_view is not None
@@ -418,14 +418,15 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
         q_coord = copy.deepcopy(q_all[q_view])
 
     # Recenter to centroid
-    p_cent: npt.NDArray = centroid(p_coord)
-    q_cent: npt.NDArray = centroid(q_coord)
+    p_cent: npt.NDArray[np.float64] = centroid(p_coord)
+    q_cent: npt.NDArray[np.float64] = centroid(q_coord)
     p_coord -= p_cent
     q_coord -= q_cent
 
     # rmsd_method: RmsdCallable
     if (args.add_idx is None) and (args.remove_idx is None) and (args.ignore_Hydrogen is False):
-        idx_atom1: npt.NDArray = np.arange(len(p_all_atoms), dtype=int)
+        idx_atom1: npt.NDArray[np.int64] = np.arange(
+            len(p_all_atoms), dtype=int)
         idx_atom1 = idx_atom1+1
 
     coord_square, result_rmsd = kabsch_rmsd(

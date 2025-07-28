@@ -6,53 +6,54 @@ import argparse
 from icecream import ic
 
 
-def qm_parameter(v: list[float], J: npt.NDArray) -> tuple[npt.NDArray, npt.NDArray]:
+def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]:
     '''
     v (Hz)      : list[float]          
-    J (Hz)      : npt.NDArray         
+    J (Hz)      : npt.NDArray[np.float64]         
     '''
-    sigma_x: npt.NDArray = np.array([[0, 1 / 2], [1 / 2, 0]])
-    sigma_y: npt.NDArray = np.array([[0, -1j / 2], [1j / 2, 0]])
-    sigma_z: npt.NDArray = np.array([[1 / 2, 0], [0, -1 / 2]])
-    unit: npt.NDArray = np.array([[1, 0], [0, 1]])
+    sigma_x: npt.NDArray[np.complex128] = np.array([[0, 1 / 2], [1 / 2, 0]])
+    sigma_y: npt.NDArray[np.complex128] = np.array([[0, -1j / 2], [1j / 2, 0]])
+    sigma_z: npt.NDArray[np.complex128] = np.array([[1 / 2, 0], [0, -1 / 2]])
+    unit: npt.NDArray[np.complex128] = np.array([[1, 0], [0, 1]])
 
     nspins: int = len(v)
-    L: npt.NDArray = np.empty(
+    L: npt.NDArray[np.complex128] = np.empty(
         (3, nspins, 2 ** nspins, 2 ** nspins), dtype=np.complex128)
     for n in range(nspins):
-        Lx_current: npt.NDArray = np.array([1])
-        Ly_current: npt.NDArray = np.array([1])
-        Lz_current: npt.NDArray = np.array([1])
+        Lx_current: npt.NDArray[np.complex128] = np.array([1])
+        Ly_current: npt.NDArray[np.complex128] = np.array([1])
+        Lz_current: npt.NDArray[np.complex128] = np.array([1])
 
         for k in range(nspins):
             if k == n:
-                Lx_current = np.kron(Lx_current, sigma_x)
-                Ly_current = np.kron(Ly_current, sigma_y)
-                Lz_current = np.kron(Lz_current, sigma_z)
+                Lx_current = np.kron(Lx_current, sigma_x).astype(np.complex128)
+                Ly_current = np.kron(Ly_current, sigma_y).astype(np.complex128)
+                Lz_current = np.kron(Lz_current, sigma_z).astype(np.complex128)
             else:
-                Lx_current = np.kron(Lx_current, unit)
-                Ly_current = np.kron(Ly_current, unit)
-                Lz_current = np.kron(Lz_current, unit)
+                Lx_current = np.kron(Lx_current, unit).astype(np.complex128)
+                Ly_current = np.kron(Ly_current, unit).astype(np.complex128)
+                Lz_current = np.kron(Lz_current, unit).astype(np.complex128)
 
         L[0][n] = Lx_current
         L[1][n] = Ly_current
         L[2][n] = Lz_current
 
-    L_T: npt.NDArray = L.transpose(1, 0, 2, 3)
-    Lproduct: npt.NDArray = np.tensordot(
-        L_T, L, axes=((1, 3), (0, 2))).swapaxes(1, 2)
+    L_T: npt.NDArray[np.complex128] = L.transpose(1, 0, 2, 3)
+    Lproduct: npt.NDArray[np.complex128] = np.tensordot(
+        L_T, L, axes=((1, 3), (0, 2))).swapaxes(1, 2).astype(np.complex128)
 
     Lz = L[2]  # array of Lz operators
-    H: npt.NDArray = np.tensordot(v, Lz, axes=1)
+    H: npt.NDArray[np.complex128] = np.tensordot(
+        v, Lz, axes=1).astype(np.complex128)
     # ic(H)
 
     # J = np.array(J)  # convert to numpy array first
-    scalars: npt.NDArray = 0.5 * J
+    scalars: npt.NDArray[np.float64] = 0.5 * J
     H += np.tensordot(scalars, Lproduct, axes=2)
 
     # ic(H)
     n: int = 2 ** nspins
-    T: npt.NDArray = np.zeros((n, n))
+    T: npt.NDArray[np.float64] = np.zeros((n, n))
     for i in range(n - 1):
         for j in range(i + 1, n):
             if bin(i ^ j).count('1') == 1:
@@ -62,10 +63,10 @@ def qm_parameter(v: list[float], J: npt.NDArray) -> tuple[npt.NDArray, npt.NDArr
     return H, T
 
 
-def qm_full(v: list[float], J: npt.NDArray, nIntergals: int, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: argparse.Namespace) -> list[tuple[float, float]]:
     '''
     v (Hz)      : list[float]          
-    J (Hz)      : npt.NDArray         
+    J (Hz)      : npt.NDArray[np.float64]         
     nIntergals  : int               -   the total numbers of Intensities
     '''
     nspins: int = len(v)
@@ -73,25 +74,30 @@ def qm_full(v: list[float], J: npt.NDArray, nIntergals: int, args: argparse.Name
         raise ValueError("Your JCoupl is Error")
         os._exit(0)
 
+    H: npt.NDArray[np.complex128]
+    T: npt.NDArray[np.float64]
     H, T = qm_parameter(v, J)
 
     # ic(H)
+    E: npt.NDArray[np.float64]
+    V: npt.NDArray[np.complex128 | np.float64]
+
     E, V = np.linalg.eigh(H)
     # ic(E, V)
     V = V.real
-    I = np.square(V.T.dot(T.dot(V)))
+    I: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
-    I_upper: npt.NDArray = np.triu(I)
+    I_upper: npt.NDArray[np.float64] = np.triu(I)
     # ic(I)
-    E_matrix: npt.NDArray = np.abs(E[:, np.newaxis] - E)
+    E_matrix: npt.NDArray[np.float64] = np.abs(E[:, np.newaxis] - E)
     # ic(E_matrix)
-    E_upper: npt.NDArray = np.triu(E_matrix)
-    combo: npt.NDArray = np.stack([E_upper, I_upper])
-    iv: npt.NDArray = combo.reshape(2, I.shape[0] ** 2).T
+    E_upper: npt.NDArray[np.float64] = np.triu(E_matrix)
+    combo: npt.NDArray[np.float64] = np.stack([E_upper, I_upper])
+    iv: npt.NDArray[np.float64] = combo.reshape(2, I.shape[0] ** 2).T
 
     # an arbitrary cutoff where peaks below this intensity are filtered out of the solution
-    peaklist: npt.NDArray = iv[iv[:, 1] >= args.cutoff]
+    peaklist: npt.NDArray[np.float64] = iv[iv[:, 1] >= args.cutoff]
     # ic(peaklist)
     from nmrsim.math import normalize_peaklist
     normalized_plist: list[tuple[float, float]
@@ -101,10 +107,10 @@ def qm_full(v: list[float], J: npt.NDArray, nIntergals: int, args: argparse.Name
     return normalized_plist
 
 
-def qm_partial(v: list[float], J: npt.NDArray, idx0_nspins, nIntergals, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nIntergals, args: argparse.Namespace) -> list[tuple[float, float]]:
     '''
     v (Hz)      : list[float]          
-    J (Hz)      : npt.NDArray         
+    J (Hz)      : npt.NDArray[np.float64]         
     nIntergals  : the total numbers of Intensities 
     idx0_nspins : for each spin serial numbers in nspins from 0 to n-1 
     '''
@@ -116,10 +122,12 @@ def qm_partial(v: list[float], J: npt.NDArray, idx0_nspins, nIntergals, args: ar
         raise ValueError("Your idx0_nspins is Error")
         os._exit(0)
 
+    H: npt.NDArray[np.complex128]
+    T: npt.NDArray[np.float64]
     H, T = qm_parameter(v, J)
 
     n: int = 2 ** nspins
-    F: npt.NDArray = np.zeros((n, n), dtype=np.float64)
+    F: npt.NDArray[np.float64] = np.zeros((n, n), dtype=np.float64)
     idx: int = int(2**(nspins-idx0_nspins-1))
     # idx = ~int(2**idx0_nspins)+1
     for i in range(n - 1):
@@ -130,30 +138,30 @@ def qm_partial(v: list[float], J: npt.NDArray, idx0_nspins, nIntergals, args: ar
     F += F.T
     F = F*T
     # ic(F)
-    E: npt.NDArray
-    V: npt.NDArray
+    E: npt.NDArray[np.float64]
+    V: npt.NDArray[np.complex128 | np.float64]
     E, V = np.linalg.eigh(H)
-    V: npt.NDArray = V.real
+    V = V.real
     # ic(E,V)
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
-    I: npt.NDArray = np.square(V.T.dot(T.dot(V)))
+    I: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
     # ic(I)
-    IF: npt.NDArray = np.square(V.T.dot(F.dot(V)))
-    I_upper: npt.NDArray = np.triu(I*IF)
+    IF: npt.NDArray[np.float64] = np.square(V.T.dot(F.dot(V)))
+    I_upper: npt.NDArray[np.float64] = np.triu(I*IF)
     # ic(IF)
     # ic(I*IF)
 
-    E_matrix: npt.NDArray = np.abs(E[:, np.newaxis] - E)
+    E_matrix: npt.NDArray[np.float64] = np.abs(E[:, np.newaxis] - E)
     # ic(E_matrix)
 
-    E_upper: npt.NDArray = np.triu(E_matrix)
+    E_upper: npt.NDArray[np.float64] = np.triu(E_matrix)
 
-    combo: npt.NDArray = np.stack([E_upper, I_upper])
-    iv: npt.NDArray = combo.reshape(2, I.shape[0] ** 2).T
+    combo: npt.NDArray[np.float64] = np.stack([E_upper, I_upper])
+    iv: npt.NDArray[np.float64] = combo.reshape(2, I.shape[0] ** 2).T
     # ic(iv)
     thr: np.float64 = np.max(iv[:, 1])*args.cutoff
-    peaklist: npt.NDArray = iv[iv[:, 1] >= thr]
+    peaklist: npt.NDArray[np.float64] = iv[iv[:, 1] >= thr]
     # ic(peaklist)
     # ic(iv[:, 1])
     from nmrsim.math import normalize_peaklist
@@ -170,7 +178,7 @@ def print_plot(inpeaklist: list, dpi: int, nIntergals: int, args: argparse.Names
     nIntergals : total numbers of Intensities
     '''
     from nmrsim.math import normalize_peaklist
-    peaklist: npt.NDArray = np.array(inpeaklist)
+    peaklist: npt.NDArray[np.float64] = np.array(inpeaklist)
     peaklist.T[0] = peaklist.T[0] / args.mf
     # ic(peaklist)
     normalized_plist: list[tuple[float, float]
@@ -181,17 +189,17 @@ def print_plot(inpeaklist: list, dpi: int, nIntergals: int, args: argparse.Names
     if args.end == None:
         args.end = (peaklist.T)[0].max() + Active_range * 0.1
 
-    y_max_normalized = (np.array(normalized_plist).max()*2)
+    y_max_normalized: float = np.array(normalized_plist).max()*2
 
     args.start = round(args.start, 4)
     args.end = round(args.end, 4)
 
-    lw = args.lw * 2 / 1000
+    lw: float = args.lw * 2 / 1000
     lw_points: int = int((args.end - args.start) * dpi)+1
 
     from nmrsim.plt import mplplot
-    x: npt.NDArray
-    y: npt.NDArray
+    x: npt.NDArray[np.float64]
+    y: npt.NDArray[np.float64]
     if hidden == False:
         if input("    Do you want to show matplotlib results?    ") in ("y", "yes"):
             x, y = mplplot(normalized_plist, w=lw, y_max=y_max_normalized, y_min=-
@@ -215,7 +223,7 @@ def print_plot(inpeaklist: list, dpi: int, nIntergals: int, args: argparse.Names
         exit(1)
 
 
-def mpl_plot(peaklist, w=1, y_min=-0.01, y_max=1, points=800, limits=None, hidden=False):
+def mpl_plot(peaklist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, hidden=False) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """
     Modification by Vitamin Cheng
     Only for no show picture  for hidden == True 
@@ -229,8 +237,9 @@ def mpl_plot(peaklist, w=1, y_min=-0.01, y_max=1, points=800, limits=None, hidde
         else:
             l_limit = peaklist[0][0] - 50
             r_limit = peaklist[-1][0] + 50
-        x: npt.NDArray = np.linspace(float(l_limit), float(r_limit), points)
-        y = add_lorentzians(x, peaklist, w)
+        x: npt.NDArray[np.float64] = np.linspace(
+            float(l_limit), float(r_limit), points).astype(np.float64)
+        y: npt.NDArray[np.float64] = add_lorentzians(x, peaklist, w)
         return x, y
     else:
         print("Please use the nmrsim mplplot ")
@@ -238,10 +247,10 @@ def mpl_plot(peaklist, w=1, y_min=-0.01, y_max=1, points=800, limits=None, hidde
         exit(0)
 
 
-def qm_base(v: list[float], J: npt.NDArray, nIntergals, idx0_nspins, args: argparse.Namespace) -> list:
+def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
     """ QM_Base 
     v (Hz)      : list[float]          
-    J (Hz)      : npt.NDArray         
+    J (Hz)      : npt.NDArray[np.float64]         
      nIntergals : the total numbers of Intensities 
     idx0_npsins : idx numbers in AB quartet
     Returns     
@@ -259,7 +268,7 @@ def qm_base(v: list[float], J: npt.NDArray, nIntergals, idx0_nspins, args: argpa
     return peaklist
 
 
-def qm_multiplet(v: list[float], nIntergals, J: list[float]) -> list:
+def qm_multiplet(v: float | int, nIntergals, J: list[float]) -> list[tuple[float, float]]:
     '''
     v : Hz 
     J : Hz
@@ -279,22 +288,22 @@ if __name__ == "__main__":
     # J: only one AB quartet, positive or negative of the J Coupling constant the spectra is the same
 
     # v: list = [1100, 1200, 1900, 2500]
-    # J: npt.NDArray = np.array([[0.0,   -16.0,   0.0,   4.0],
+    # J: npt.NDArray[np.float64] = np.array([[0.0,   -16.0,   0.0,   4.0],
     #                         [-16.0,   0.0, 2.0,   4.0],
     #                          [0.0, 2.0,   0.0,   0.0],
     #                          [4.0,   4.0,   0.0,   0.0]])
 
     v: list[float] = [480, 645, 645, 645, 645, 480]
-    J: npt.NDArray = np.array([[0.00000,      7.12744,      7.12267,     -0.22011,   -0.21844,     -0.02230],
-                              [7.12744,      0.00000,    -13.32467,
-                                  6.11500,    6.85267,     -0.21511],
-                              [7.12267,    -13.32467,      0.00000,
-                                  6.81333,    6.12033,     -0.21878],
-                              [-0.22011,      6.11500,      6.81333,
-                                  0.00000, -13.32433,      7.12589],
-                              [-0.21844,      6.85267,      6.12033,    -
-                                  13.32433,   0.00000,      7.12811],
-                              [-0.02230,     -0.21511,     -0.21878,      7.12589,   7.12811,      0.00000]])
+    J: npt.NDArray[np.float64] = np.array([[0.00000,      7.12744,      7.12267,     -0.22011,   -0.21844,     -0.02230],
+                                           [7.12744,      0.00000,    -13.32467,
+                                            6.11500,    6.85267,     -0.21511],
+                                           [7.12267,    -13.32467,      0.00000,
+                                            6.81333,    6.12033,     -0.21878],
+                                           [-0.22011,      6.11500,      6.81333,
+                                            0.00000, -13.32433,      7.12589],
+                                           [-0.21844,      6.85267,      6.12033,    -
+                                            13.32433,   0.00000,      7.12811],
+                                           [-0.02230,     -0.21511,     -0.21878,      7.12589,   7.12811,      0.00000]])
 
     ic(v)
     ic(J)

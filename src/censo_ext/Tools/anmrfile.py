@@ -136,8 +136,8 @@ class Anmr():
     def __init__(self, Directory: Path = Path(".")) -> None:
         self.__Directory: Path = Directory
         self.enso: npt.NDArray                      # anmr_enso
-        self.anmrJ: npt.NDArray                     # JCoup of anmr.out generated from anmr # nopep8
-        self.anmrS: list[list[float]] = []                # Shielding of anmr.out generated from anmr # nopep8
+        self.anmrJ: npt.NDArray[np.float64]         # JCoup of anmr.out generated from anmr # nopep8
+        self.anmrS: list[list[float]] = []          # Shielding of anmr.out generated from anmr # nopep8
         self.orcaSJ: list[OrcaSJ] = []              # directory of orcaSJ
         self.avg_orcaSJ = OrcaSJ()                  #
         self.nucinfo: list = []                     # anmr_nucinfo
@@ -471,6 +471,7 @@ class Anmr():
             print("Something wrong")
             ic()
             exit(1)
+        del bool_first_line, start_shielding_idx
 
         nLines = 0
         for idx in range(int(nNuclei/6)):
@@ -608,7 +609,7 @@ class Anmr():
 
 class OrcaSJ():
     def __init__(self) -> None:
-        self.JCoups: npt.NDArray
+        self.JCoups: npt.NDArray[np.float64]
         self.SParams: dict[int, float] = {}
         self.Anisotropy: dict[int, float] = {}
         self.CONFSerialNums: int
@@ -622,7 +623,8 @@ class OrcaSJ():
         start_idx: int
         end_idx: int
         start_idx, end_idx = 0, 0
-        DataJ: list[str] = []
+        Data_str: list[str] = []
+        DataJ: list[list[str]] = []
         lines: list[str] = open(file, "r").readlines()
         import re
         nVersion: str = ""
@@ -664,10 +666,10 @@ class OrcaSJ():
 
         for idx, line in enumerate(lines):
             if idx >= start_idx and idx <= end_idx:
-                DataJ.append(line.rstrip())
+                Data_str.append(line.rstrip())
 
-        for idx, x in enumerate(DataJ):
-            DataJ[idx] = x.split()[2:]
+        for idx, x in enumerate(Data_str):
+            DataJ.append(x.split()[2:])
 
         nums = 1
         while (nums >= 1):
@@ -695,7 +697,7 @@ class OrcaSJ():
         lines: list[str] = open(file, "r").readlines()
         import re
         nVersion: str = ""
-        nNuclei = 0
+        nNuclei: int = 0
 
         for idx, line in enumerate(lines):
             if re.search(r"Program Version", line):
@@ -752,27 +754,27 @@ class OrcaSJ():
 
     def method_save_orcaJ(self) -> list:
         raise NotImplementedError
-        if len(self.idxAtoms) == len(self.JCoups[0]):
-            lines: list = []
-            list_idxAtoms: list = list(self.idxAtoms.keys())
-
-            for idx in range(len(self.idxAtoms)):
-                for idy in range(idx+1, len(self.idxAtoms), 1):
-                    # print(idx, idy)
-                    str1: str = f" NUCLEUS A = {(self.idxAtoms[list_idxAtoms[idx]]): > s}\
-                        {(list_idxAtoms[idx]-1): > 5d} NUCLEUS B = {self.idxAtoms[list_idxAtoms[idy]]: > s}{list_idxAtoms[idy]-1: > 5d}"
-                    # " NUCLEUS A = H    4 NUCLEUS B = H    5"
-                    str2: str = f" Total            0.000            0.000            0.000  iso = \
-                        {self.JCoups[idx][idy]: > 13.5f}"
-                    # " Total            4.506            4.506            4.506  iso=       4.506"
-                    lines.append(str1)
-                    lines.append(str2)
-            return lines
-        else:
-            print("your orcaJ and orcaS is not fit each other")
-            print("    exit and close the program !!! ")
-            ic()
-            exit(0)
+        # if len(self.idxAtoms) == len(self.JCoups[0]):
+        #    lines: list = []
+        #    list_idxAtoms: list = list(self.idxAtoms.keys())
+        #
+        #    for idx in range(len(self.idxAtoms)):
+        #        for idy in range(idx+1, len(self.idxAtoms), 1):
+        #            # print(idx, idy)
+        #            str1: str = f" NUCLEUS A = {(self.idxAtoms[list_idxAtoms[idx]]): > s}\
+        #                {(list_idxAtoms[idx]-1): > 5d} NUCLEUS B = {self.idxAtoms[list_idxAtoms[idy]]: > s}{list_idxAtoms[idy]-1: > 5d}"
+        #            # " NUCLEUS A = H    4 NUCLEUS B = H    5"
+        #            str2: str = f" Total            0.000            0.000            0.000  iso = \
+        #                {self.JCoups[idx][idy]: > 13.5f}"
+        #            # " Total            4.506            4.506            4.506  iso=       4.506"
+        #            lines.append(str1)
+        #            lines.append(str2)
+        #    return lines
+        # else:
+        #    print("your orcaJ and orcaS is not fit each other")
+        #    print("    exit and close the program !!! ")
+        #    ic()
+        #    exit(0)
 
     def method_print_orcaS(self) -> None:
         if len(self.idxAtoms) == len(self.SParams):
@@ -798,7 +800,7 @@ class CensoDat():
     def __init__(self, file: Path = Path("anmr.dat")) -> None:
         IsExist(file)
         self.__fileName: Path = Path(file)
-        self.__dat: npt.NDArray = np.genfromtxt(file)
+        self.__dat: npt.NDArray[np.float64] = np.genfromtxt(file)
 
     def __len__(self) -> int:
         return len(self.__dat)
@@ -829,17 +831,17 @@ class CensoDat():
 
         if len(self) != 0:
 
-            res: npt.NDArray = self.__dat
+            res: npt.NDArray[np.float64] = self.__dat
             res = np.insert(res, 0, [start, 0.0], axis=0)
             res = np.vstack((res, [end, 0.0]))
 
             from scipy import interpolate
             f: interp1d = interpolate.interp1d(res[:, 0], res[:, 1])
 
-            xnew: npt.NDArray[np.floating] = np.linspace(start, end, int(end-start)*dpi+1)  # nopep8
+            xnew: npt.NDArray[np.float64] = np.linspace(start, end, int(end-start)*dpi+1).astype(np.float64)  # nopep8
             ynew: npt.NDArray[np.float64] = f(xnew)
 
-            res_new: npt.NDArray = np.vstack((xnew, ynew))
+            res_new: npt.NDArray[np.float64] = np.vstack((xnew, ynew))
             res_new[1] = res_new[1] / np.max(res_new[1]) * highest
             self.__dat = res_new.T
 

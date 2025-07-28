@@ -70,7 +70,7 @@ def Factor_xyzCompare(args) -> None:
     nSts_P: int = len(xyzfile_P)
     nSts_Q: int = len(xyzfile_Q)
 
-    result: list | npt.NDArray = []
+    result: list | npt.NDArray[np.float64] = []
     for idx_P in range(nSts_P):
         for idx_Q in range(nSts_Q):
             result.append(cal_RMSD(xyzfile_Merge, idx_P+1, idx_Q+nSts_P+1))
@@ -116,7 +116,7 @@ def Factor_xyzCompare(args) -> None:
             start_idx0 = idx0 + 1
         if re.search(r"ensemble average energy", line):
             end_idx0 = idx0 - 3
-    St_crest: npt.NDArray = np.array([])
+    St_crest: npt.NDArray[np.float64] = np.array([])
     for idx0, line in enumerate(lines):
         if idx0 >= start_idx0 and idx0 <= end_idx0:
             St_crest = np.append(
@@ -129,9 +129,9 @@ def Factor_xyzCompare(args) -> None:
     print("")
     print(" ========== Structure_Integrity_Compare ========== ")
 
-    np_Result: npt.NDArray = result
+    np_Result: npt.NDArray[np.float64] = result
     min_Result: npt.NDArray[np.float64] = np_Result.min(0)
-    idx_Result: npt.NDArray = np.array([], dtype=int)
+    idx_Result: npt.NDArray[np.float64] = np.array([], dtype=int)
 
     for idx in range(len(np_Result[0])):
         idx_Result = np.append(idx_Result, np.where(
@@ -145,10 +145,10 @@ def Factor_xyzCompare(args) -> None:
         print("Exit the program !!")
         exit(0)
 
-    diff2_Result: npt.NDArray = np.diff(np.diff(sort_Result))
+    diff2_Result: npt.NDArray[np.float64] = np.diff(np.diff(sort_Result))
     STD_diff2_Result: float = float(diff2_Result.std())
 
-    idx_max_diff2_R: npt.NDArray = np.array([], dtype=int)
+    idx_max_diff2_R: npt.NDArray[np.float64] = np.array([], dtype=int)
     for idx, num in enumerate(diff2_Result):
         if num > STD_diff2_Result:
             idx_max_diff2_R = np.append(idx_max_diff2_R, idx)

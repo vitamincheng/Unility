@@ -929,11 +929,12 @@ if __name__ == "__main__":
                 from censo_ext.Tools.utility import IsExist
                 IsExist(filename)
 
-                orcaS: npt.NDArray = np.genfromtxt(filename, usecols=(0, 1))
+                orcaS: npt.NDArray[np.float64] = np.genfromtxt(
+                    filename, usecols=(0, 1))
                 orcaS.T[1] = orcaS.T[1]*(-1)
                 IsExist(args.file[1])
 
-                orcaS_Ref: npt.NDArray = np.genfromtxt(
+                orcaS_Ref: npt.NDArray[np.float64] = np.genfromtxt(
                     args.file[1], usecols=(0, 1))
                 from censo_ext.Tools.spectra import numpy_threshold
                 height_thr: float = numpy_threshold(orcaS_Ref.T[1], 3.0)

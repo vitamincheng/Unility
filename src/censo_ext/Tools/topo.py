@@ -10,6 +10,7 @@ import numpy.typing as npt
 import censo_ext.Tools.ml4nmr as ml4nmr
 from icecream import ic
 from graph import Graph
+from ase.atoms import Atoms
 from pathlib import Path
 
 
@@ -17,6 +18,8 @@ class Topo():
 
     def __init__(self, file: Path) -> None:
         self.__fileName: Path = Path(file)
+        self.__mol: Atoms | list[Atoms]
+        self.__neighbors: dict[int, npt.NDArray[np.int64]]
         self.__mol, self.__neighbors = ml4nmr.read_mol_neighbors(
             self.__fileName)
         self.idx_Hydrogen_atom: list[int] = [idx+1 for idx,
@@ -121,7 +124,7 @@ class Topo():
             print(" Bonding : ", idx_p, " @ ", Neighbors_Atoms)
         return Neighbors_Atoms
 
-    def topology(self) -> tuple[list[ml4nmr.Atoms], dict[int, npt.NDArray], list[list[int]], list[list[Graph]]]:
+    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray], list[list[int]], list[list[Graph]]]:
         '''
         '''
         mol: ml4nmr.Atoms | list[ml4nmr.Atoms] = self.__mol

@@ -23,5 +23,4 @@ def method_get_point_group(Sts: list, idx: int, Hydrogen: bool) -> str:
         pos = np.array([a.tolist() for a in Sts[idx].coord])
         sym = np.array([a for a in Sts[idx].names.values()])
 
-    pg1 = PointGroup(pos, sym)
-    return pg1.get_point_group()
+    return PointGroup(pos, sym).get_point_group()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os
+from censo_ext.Tools.utility import delete_all_files
 import pytest
 from pathlib import Path
 import argparse
@@ -35,5 +35,4 @@ def test_cregen_crest():
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
     assert filecmp.cmp(args.out, compare) == True
-    os.remove(args.out)
-    os.remove("isomers.out")
+    delete_all_files(args.out, "isomers.out")

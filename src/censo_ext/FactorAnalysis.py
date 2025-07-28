@@ -187,8 +187,9 @@ def FactorFilter(args) -> None:
 
     while (nConfs > args.thr):
         print(" ========== Processing ", idx1_separate, " ==========")
-        np_S: npt.NDArray = cal_rmsd_coord(args, xyzfile, idx1_cal).T
-        S_STD: npt.NDArray = np.std(np_S, axis=0)
+        np_S: npt.NDArray[np.float64] = cal_rmsd_coord(
+            args, xyzfile, idx1_cal).T
+        S_STD: npt.NDArray[np.float64] = np.std(np_S, axis=0)
         S_avg_STD: np.float64 = np.float64(np.average(S_STD))
         print(" Average of STD       : ", f"{S_avg_STD:10.5f}")
         print(" Factor of STD ranges : ", f"{args.factor:10.5f}")
@@ -238,7 +239,7 @@ def FactorFilter(args) -> None:
     xyzfile.method_save_xyz(major_idx)
     print(f" {residue_file} : {major_idx}")
 
-    np_nMinor: npt.NDArray = np.array(nMinor)
+    np_nMinor: npt.NDArray[np.float64] = np.array(nMinor)
     print(" Coefficient of variation : ", np_nMinor.std()/np_nMinor.mean())
 
     import subprocess
@@ -257,7 +258,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         if args.factor == None:
             args.factor = 0.50
         minor_list: list[int]
-        Table_S: dict[int, npt.NDArray]
+        Table_S: dict[int, float]
         from censo_ext.Tools.factor import method_factor_analysis, method_factor_opt
         minor_list, Table_S = method_factor_analysis(args)
         if args.opt:

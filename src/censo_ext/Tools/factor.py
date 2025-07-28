@@ -8,17 +8,17 @@ from icecream import ic
 from censo_ext.Tools.calculate_rmsd import cal_rmsd_xyz
 
 
-def method_factor_analysis(args) -> tuple[list[int], dict[int, npt.NDArray]]:
+def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
 
     xyzfile: GeometryXYZs = GeometryXYZs(args.file)
     xyzfile.method_read_xyz()
-    x: dict = {"remove_idx": None, "add_idx": None,
-               "bond_broken": None, "ignore_Hydrogen": True, "debug": False, }
+    args_x: dict = {"remove_idx": None, "add_idx": None,
+                    "bond_broken": None, "ignore_Hydrogen": True, "debug": False, }
     coord: list[list[float]] = []
     idx_element: list[int] = []
     for idx in range(len(xyzfile)):
-        coord_square, result_rmsd = cal_rmsd_xyz(
-            xyzfile, 1, idx+1, args=argparse.Namespace(**x))
+        coord_square, _ = cal_rmsd_xyz(
+            xyzfile, 1, idx+1, args=argparse.Namespace(**args_x))
         var: list[float] = list(coord_square.values())
         if idx == 0:
             idx_element = list(coord_square.keys())
@@ -31,8 +31,8 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, npt.NDArray]]:
         ic()
         exit(1)
 
-    dict_idx_STD: dict[int, npt.NDArray] = dict(
-        zip(idx_STD, np.std(np.array(coord).T, axis=1)))
+    dict_idx_STD: dict[int, float] = dict(
+        zip(idx_STD, np.std(np.array(coord).T, axis=1).astype(float)))
     avg_STD: np.float64 = np.float64(
         np.average(np.array(list(dict_idx_STD.values()))))
 
@@ -46,7 +46,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, npt.NDArray]]:
     idx1_minor_factor: list[int] = []
 
     for idx, x in dict_idx_STD.items():
-        if (x >= avg_STD):   # type: ignore
+        if (x >= avg_STD):
             print(f"{int(idx):>5d} {x:>10.5f}     Major factor")
             idx1_major_factor.append(int(idx))
         elif (x <= avg_STD*args.factor):
@@ -60,7 +60,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, npt.NDArray]]:
     return idx1_minor_factor, dict_idx_STD
 
 
-def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, npt.NDArray]) -> tuple[Literal[True], list[int], float] | Literal[False]:
+def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
     """
     Optimize the broken-bond location based on calculated STD values.
     return: A tuple indicating whether the optimization is successful, the optimized broken-bond location, and the ratio.
@@ -91,7 +91,7 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, npt.NDArra
         list(t) for t in set(tuple(x) for x in Pair_low_factor)]
 
     nCONFS: int = len(list(Table_S.keys()))
-    idx_STD: dict[int, npt.NDArray] = Table_S
+    idx_STD: dict[int, float] = Table_S
 
     idx_ratio: list[list[int]] = []
     list_ratio: list[float] = []

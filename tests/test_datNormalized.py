@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-import os
 import pytest
 from pathlib import Path
 import argparse
 import censo_ext.datNormalized as datNormalized
 import filecmp
+from censo_ext.Tools.utility import delete_all_files
 import platform
 
 
@@ -25,4 +25,4 @@ def test_datNormalized():
     args = argparse.Namespace(**x)
     datNormalized.main(args)
     assert filecmp.cmp(out_file, "tests/compare/anmr_normal.dat") == True
-    os.remove(out_file)
+    delete_all_files(out_file)

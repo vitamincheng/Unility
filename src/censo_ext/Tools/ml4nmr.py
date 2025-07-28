@@ -5,21 +5,22 @@
 
 # use slightly modified covalent radii from ase for neighbor recognition
 from pathlib import Path
+from typing import Literal
 from ase.atoms import Atoms
 import numpy as np
+from numpy._typing._array_like import NDArray
 import numpy.typing as npt
 from icecream import ic
 from censo_ext.Tools.utility import IsExist
-import os
 from ase.data import covalent_radii
-custom_radii: npt.NDArray = covalent_radii.copy()
+custom_radii: npt.NDArray[np.float64] = covalent_radii.copy()
 custom_radii[3] -= 0.15   # reduce radius of Li
 custom_radii[6] -= 0.05   # reduce radius of C
 
 # Covalent radii (taken from Pyykko and Atsumi, Chem. Eur. J. 15, 2009, 188-197).
 # Values for metals decreased by 10 %.
 # This was copied from gituhb project dftd3/tad-dftd3/src/tad_dftd3/data.py
-covalent_rad_2009: npt.NDArray = np.array([
+covalent_rad_2009: npt.NDArray[np.float64] = np.array([
     0.00,                                                # None
     0.32, 0.46,                                           # H,He
     1.20, 0.94, 0.77, 0.75, 0.71, 0.63, 0.64, 0.67,             # Li-Ne
@@ -121,7 +122,7 @@ covalent_rad_d3 = 4.0 / 3.0 * covalent_rad_2009
 #    return list_h, list_c
 
 
-def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray]]:
+def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]]]:
     """Read the molecule and return mol (ase.Atoms object) and dict neighbors."""
 
     # read the .xyz coordinates from the molecular structures
@@ -136,11 +137,11 @@ def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int
     # build neighbor list and write list of neighboring atoms to the dict neighbors
     nl = neighborlist.build_neighbor_list(
         mol, cutoffs, self_interaction=False, bothways=True)
-    neighbors: dict[int, npt.NDArray] = {}
+    neighbors: dict[int, npt.NDArray[np.int64]] = {}
 
     for idx in range(len(mol)):
         # nl.get_neighbors(i) returns [0]: indices and [1]: offsets
-        indices = nl.get_neighbors(idx)[0]
+        indices: npt.NDArray[np.int64] = nl.get_neighbors(idx)[0]
         # add 1 to key and to value to start counting of atoms at 1
         neighbors[idx+1] = indices+1
 
@@ -152,10 +153,12 @@ def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int
     return mol, neighbors
 
 
-def read_mol_neighbors_bond_order(DirfileName: Path = Path("crest_conformers.xyz")):
+def read_mol_neighbors_bond_order(DirfileName: Path = Path("crest_conformers.xyz")) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]], dict[int, int]]:
     """Read the molecule and return mol (ase.Atoms object) and dict neighbors."""
 
     # read the .xyz coordinates from the molecular structures
+    mol: Atoms | list[Atoms]
+    neighbors: dict[int, npt.NDArray[np.int64]]
     mol, neighbors = read_mol_neighbors(DirfileName)
 
     idx_H_atoms: list[int] = [idx+1 for idx, i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8

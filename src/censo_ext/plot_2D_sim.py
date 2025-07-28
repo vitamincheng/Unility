@@ -11,8 +11,8 @@ import sys
 
 def Load_dat(fileName_H, FileName_C) -> tuple[npt.NDArray, npt.NDArray]:
 
-    data_x: npt.NDArray = np.genfromtxt(fileName_H)
-    data_y: npt.NDArray = np.genfromtxt(FileName_C)
+    data_x: npt.NDArray[np.float64] = np.genfromtxt(fileName_H)
+    data_y: npt.NDArray[np.float64] = np.genfromtxt(FileName_C)
     return data_x, data_y
 
 
@@ -149,7 +149,7 @@ def print_report(bond_order, neighbor, idxAtoms_H, idxAtoms_C) -> None:
 
 
 def plot_target(ax) -> None:
-    data: npt.NDArray = np.genfromtxt("out")
+    data: npt.NDArray[np.float64] = np.genfromtxt("out")
     ic(data)
     for i in data:
         ax.scatter(i[1], i[0], marker="o", color="r",

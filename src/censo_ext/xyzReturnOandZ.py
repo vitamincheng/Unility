@@ -107,10 +107,9 @@ def idx_3atom_opt(args) -> tuple[int, int, int]:
     args_x: dict = {"file": args.file,
                     "factor": 0.5, "debug": False, "opt": False}
     minor_list: list[int]
-    TableSTD: dict[int, npt.NDArray]
+    TableSTD: dict[int, float]
     minor_list, TableSTD = method_factor_analysis(
         args=argparse.Namespace(**args_x))
-    # idx1_Low_Factor: npt.NDArray = np.array(minor_list)
     idx1_Low_Factor: list[int] = list(minor_list)
     idx1_Atom_list: list[int] = list(TableSTD.keys())
     AtomSTD: list[float] = list(map(float, TableSTD.values()))
@@ -188,7 +187,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Process xyz file
     for idx_st in range(len(infile)):
 
-        dxyz: npt.NDArray = infile.Sts[idx_st].coord[p_idx-1].copy()
+        dxyz: npt.NDArray[np.float64] = infile.Sts[idx_st].coord[p_idx-1].copy()
         infile.Sts[idx_st].coord -= dxyz
         import math
         z_axis = (0, 0, math.sqrt(
@@ -196,7 +195,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         rotation_axis = infile.Sts[idx_st].coord[q_idx-1]+z_axis
         if np.linalg.norm(rotation_axis) == 0:
-            Normalized_rotation_axis: npt.NDArray = np.array([0, 1, 0])
+            Normalized_rotation_axis: npt.NDArray[np.float64] = np.array([
+                                                                         0, 1, 0])
         else:
             Normalized_rotation_axis = rotation_axis / \
                 np.linalg.norm(rotation_axis)

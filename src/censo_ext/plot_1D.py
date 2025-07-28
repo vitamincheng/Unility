@@ -219,7 +219,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args.end, args.start = uc.ppm_limits()
 
     if args.out != None:
-        output: npt.NDArray = np.vstack((ppm, np.real(data))).T[::-1]
+        output: npt.NDArray[np.float64] = np.vstack(
+            (ppm, np.real(data))).T[::-1]
         np.savetxt(args.out, output, fmt=" %12.5f  %12.5e")
 
     from censo_ext.Tools.spectra import numpy_threshold_mean_3
@@ -243,7 +244,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
                         top=0.90, wspace=0.05, hspace=0.05)
 
-    np_peaks: npt.NDArray = np.array([])
+    np_peaks: npt.NDArray[np.float64 | np.int64] = np.array([])
     if args.manual == True:
         np_peaks = np.genfromtxt(peaks_fileName, names=True,
                                  dtype=['i8', 'f8', 'f8', 'f8'])

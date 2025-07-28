@@ -233,7 +233,7 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray:
+def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.float64]:
 
     if args == argparse.Namespace():
         args = cml("")
@@ -256,13 +256,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray:
         inAnmr.method_avg_orcaSJ()
         inAnmr.method_save_avg_orcaSJ()
 
-    inSParams: npt.NDArray = np.array(
+    inSParams: npt.NDArray[np.float64] = np.array(
         list(inAnmr.avg_orcaSJ.SParams.values()))*args.mf
 
-    # idxinSParams:npt.NDArray = np.array(list(inAnmr.Average_orcaSJ.orcaSParams.keys()))
+    # idxinSParams:npt.NDArray[np.float64]  = np.array(list(inAnmr.Average_orcaSJ.orcaSParams.keys()))
     # np.savetxt("inSParams.out",np.array(np.stack([idxinSParams,inSParams]).T), fmt=' %4.0f   %10.6f')
 
-    inJCoups: npt.NDArray = np.array(inAnmr.avg_orcaSJ.JCoups)
+    inJCoups: npt.NDArray[np.float64] = np.array(inAnmr.avg_orcaSJ.JCoups)
     in_idxAtoms: dict[int, str] = inAnmr.avg_orcaSJ.idxAtoms
     dpi: int | None = None
     Active_range: int | None = None
@@ -308,16 +308,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray:
             ic()
             exit(0)
     idx0_ab_group_set: list[set] = []
-    mat_filter_multi: npt.NDArray = np.array([])
+    mat_filter_multi: npt.NDArray[np.int64] = np.array([])
 
     if args.json == None:
-        inJCoups_origin: npt.NDArray = copy.deepcopy(inJCoups)
+        inJCoups_origin: npt.NDArray[np.float64] = copy.deepcopy(inJCoups)
 
         while (1):
             # Delete Too Small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
             # 1: keep and 0: neglect
-            mat_filter_low_factor: npt.NDArray = np.zeros(
-                (inSParams.size, inSParams.size), dtype=int)
+            mat_filter_low_factor: npt.NDArray[np.int64] = np.zeros(
+                (inSParams.size, inSParams.size), dtype=np.int64)
             mat_filter_low_factor = (np.abs(inJCoups_origin) > args.thr) * 1
             inJCoups = copy.deepcopy(inJCoups_origin)
             inJCoups *= mat_filter_low_factor
@@ -362,7 +362,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray:
 
             idx0_ab_connect: list = []
             for idx, x in enumerate(mat_filter_ab_quartet):
-                np_nonzero: npt.NDArray = (x*(idx+1)).nonzero()[0]
+                np_nonzero: npt.NDArray[np.int64] = (x*(idx+1)).nonzero()[0]
                 group: set[int] = set(np_nonzero.tolist())
                 # group = set(((x*(idx+1)).nonzero()[0]))
                 group.add(idx)
@@ -473,10 +473,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray:
             v: npt.NDArray[np.float64] = inSParams[idx0_list]
             J: npt.NDArray[np.float64] = inJCoups[idx0_list].T[idx0_list]
 
-            Result_qm_base: list[npt.NDArray[np.float64]] = qm.qm_base(v=list(
+            Result_qm_base: list[tuple[float, float]] = qm.qm_base(v=list(
                 v), J=J, nIntergals=inHydrogen[idx0_list.index(idx)], idx0_nspins=idx0_list.index(idx), args=args)
 
-            Result_qm_multiplet: list[npt.NDArray] = []
+            Result_qm_multiplet: list[tuple[float, float]] = []
             for idz, z in enumerate(Result_qm_base):
                 list_multiplicity: list[npt.NDArray[np.int64]] = list(set([x*idx for idx, x in enumerate(
                     mat_filter_multi[idx]) if x != 0]).difference({a for a in idx0_list}))
@@ -486,7 +486,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray:
                         inJ.append((inJCoups[idx][a], inHydrogen[a]))
 
                 if len(inJ) >= 1:
-                    tmp: npt.NDArray = np.array(
+                    tmp: npt.NDArray[np.float64] = np.array(
                         qm.qm_multiplet(z[0], nIntergals=1, J=inJ))
                     tmp.T[1] *= z[1]
                     Result_qm_multiplet += tmp.tolist()
@@ -497,7 +497,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray:
                     ic()
                     exit(1)
             from nmrsim.math import normalize_peaklist
-            Result_qm_multiplet: list[npt.NDArray] = np.array(
+            Result_qm_multiplet: list[tuple[float, float]] = np.array(
                 normalize_peaklist(Result_qm_multiplet, inHydrogen[idx])).tolist()
 
             if len(Result_peaks) == 0 and len(Result_qm_multiplet) == 0:
@@ -534,7 +534,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray:
     args.out = str(inAnmr.get_Directory()/Path(args.out))
 
     if dpi != None and Active_range != None:
-        np_dat: npt.NDArray = qm.print_plot(
+        np_dat: npt.NDArray[np.float64] = qm.print_plot(
             Final_Result_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range, hidden=not args.show)
     else:
         print("dpi and Active_range is wrong")

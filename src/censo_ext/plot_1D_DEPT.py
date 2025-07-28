@@ -251,11 +251,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # ppm_1h_0                ppm_1h_1
 
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
-    ppm: npt.NDArray = np.linspace(ppm_1h_0, ppm_1h_1, data.shape[0])
+    ppm: npt.NDArray[np.float64] = np.linspace(
+        ppm_1h_0, ppm_1h_1, data.shape[0])
     if args.start == None or args.end == None:
         args.end, args.start = uc_1h.ppm_limits()
 
-    output: npt.NDArray = np.vstack((ppm, np.real(data))).T[::-1]
+    output: npt.NDArray[np.float64] = np.vstack((ppm, np.real(data))).T[::-1]
     np.savetxt("output.dat", output, fmt=" %12.5f  %12.5e")
     from censo_ext.Tools.spectra import numpy_threshold_mean_3
     threshold: float = numpy_threshold_mean_3(data)*thr[channel]

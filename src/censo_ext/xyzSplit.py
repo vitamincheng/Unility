@@ -131,16 +131,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     for idx0_St, St in enumerate(infile.Sts):
 
-        dxyz: npt.NDArray = St.coord[idx1_p-1].copy()
-        inital: list[npt.NDArray] = St.coord.copy()
+        dxyz: npt.NDArray[np.float64] = St.coord[idx1_p-1].copy()
+        inital: list[npt.NDArray[np.float64]] = St.coord.copy()
 
         for nCutter in range(nCutters):
 
             St.coord = inital.copy()
             St.coord -= dxyz
 
-            rotation_axis: npt.NDArray = St.coord[idx1_q-1]
-            rotation_vector: npt.NDArray = rotation_axis / \
+            rotation_axis: npt.NDArray[np.float64] = St.coord[idx1_q-1]
+            rotation_vector: npt.NDArray[np.float64] = rotation_axis / \
                 np.linalg.norm(rotation_axis)
 
             r_pq = R.from_rotvec(2*np.pi*(nCutter/nCutters)*rotation_vector)

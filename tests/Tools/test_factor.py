@@ -17,9 +17,9 @@ def test_factor_analysis():
     assert idx1_minor_factor == [np.int64(1), np.int64(
         2), np.int64(7), np.int64(8), np.int64(15), np.int64(19), np.int64(21), np.int64(23), np.int64(24), np.int64(27), np.int64(30), np.int64(33), np.int64(35), np.int64(37), np.int64(40), np.int64(44), np.int64(45), np.int64(50), np.int64(52), np.int64(55)]
     assert len(Table_S) == 29
-    assert Table_S[np.int64(1)] == pytest.approx(
+    assert Table_S[1] == pytest.approx(
         np.float64(0.41868188431231546))
-    assert Table_S[np.int64(61)] == pytest.approx(
+    assert Table_S[61] == pytest.approx(
         np.float64(3.8871420948650774))
 
     x: dict = {"file": "tests/data/crest_conformers1.xyz",
@@ -28,8 +28,8 @@ def test_factor_analysis():
     idx1_minor_factor, Table_S = method_factor_analysis(args)
     assert idx1_minor_factor == []
     assert len(Table_S) == 29
-    assert Table_S[np.int64(1)] == np.float64(0.0)
-    assert Table_S[np.int64(61)] == np.float64(0.0)
+    assert Table_S[1] == np.float64(0.0)
+    assert Table_S[61] == np.float64(0.0)
 
 
 def test_method_factor_opt():

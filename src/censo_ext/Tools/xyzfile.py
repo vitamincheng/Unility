@@ -129,7 +129,7 @@ class Geometry():
         return self.inertia
 
     def method_update_masses(self) -> None:
-        self.mass: npt.NDArray = np.array([])
+        self.mass = np.array([])
         for idx, x in self.names.items():
             from censo_ext.Tools.Parameter import masses
             self.mass = np.append(self.mass, masses[x.lower()], axis=None)
