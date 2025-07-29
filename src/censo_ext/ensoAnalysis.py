@@ -152,7 +152,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     from os.path import exists
     from censo_ext.Tools.Parameter import Eh, Rcal
     fileExists: bool = IsExist_return_bool(args.file)
-    backupfile: Path = Path(args.file + ".backup")
+    backupfile: Path = Path(str(args.file) + ".backup")
     backupfileExists: bool = IsExist_return_bool(backupfile)
 
     print("")

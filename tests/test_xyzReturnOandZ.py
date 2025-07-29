@@ -7,6 +7,7 @@ import os
 import filecmp
 import platform
 _system = platform.system()
+in_file = f"tests/data/crest_conformers.xyz"
 
 
 def test_xyzReturnOandZ_miss_args():
@@ -19,8 +20,8 @@ def test_xyzReturnOandZ_miss_args():
 
 
 def test_xyzReturnOandZ():
-    x: dict = {"file": "tests/data/crest_conformers.xyz",
-                       "atom": [30, 45, 47], "print": False, "replace": False, "out": "tests/compare/output_xyzReturnOandZ.xyz"}
+    x: dict = {"file": in_file,
+               "atom": [30, 45, 47], "print": False, "replace": False, "out": "tests/compare/output_xyzReturnOandZ.xyz"}
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
@@ -37,8 +38,8 @@ def test_xyzReturnOandZ():
 
 
 def test_xyzReturnOandZ_auto():
-    x: dict = {"file": "tests/data/crest_conformers.xyz", "auto": True,
-                       "atom": None, "print": False, "replace": False, "out": "tests/compare/output_xyzReturnOandZ_auto.xyz"}
+    x: dict = {"file": in_file, "auto": True,
+               "atom": None, "print": False, "replace": False, "out": "tests/compare/output_xyzReturnOandZ_auto.xyz"}
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 

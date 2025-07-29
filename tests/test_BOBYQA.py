@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 import pytest
 from pathlib import Path
@@ -23,7 +22,8 @@ def test_BOBYQA_cregen_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
-def test_BOBYQA_init():
+def BOBYQA_init():
+    # Create orcaS_BOBYQA file
     args_x: dict = {"auto": True, "average": False, "dir": DirName,
                     "bobyqa": False, "mf": 500, "lw": None, "thr": None, "json": None, "thrab": 0.025,
                     "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
@@ -32,18 +32,32 @@ def test_BOBYQA_init():
 
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-    # Create orcaS_BOBYQA file
-    BOBYQA.main(args2)
+
+    Result = BOBYQA.main(args2)
+    assert Result == (False, True)
 
 
 def test_BOBYQA_block_file():
+    # run block orcaS_BOBYQA file
+    BOBYQA_init()
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-    # run block orcaS_BOBYQA file
-    BOBYQA.main(args2)
+    Result = BOBYQA.main(args2)
+    assert Result == (True, False)
+    BOBYQA_final_remove_files()
 
 
 def test_BOBYQA_single():
+    BOBYQA_init()
+    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
+    args2 = argparse.Namespace(**args_y)
+    BOBYQA.main(args2)
+    BOBYQA_final_remove_files()
+
+
+@pytest.mark.skipif(_system == "Darwin", reason="crest only work under linux")
+def test_BOBYQA_single_external_prog():
+    BOBYQA_init()
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
@@ -51,16 +65,10 @@ def test_BOBYQA_single():
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
     BOBYQA.main(args2)
+    BOBYQA_final_remove_files()
 
 
-@pytest.mark.skipif(_system == "Darwin", reason="crest only work under linux")
-def test_BOBYQA_single_external_prog():
-    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
-    args2 = argparse.Namespace(**args_y)
-    BOBYQA.main(args2)
-
-
-def test_BOBYQA_final_remove_files():
+def BOBYQA_final_remove_files():
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(DirName / "output.dat",
                      DirName / "peaks.json",

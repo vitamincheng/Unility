@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-import os
 import pytest
 from pathlib import Path
 import argparse
 import censo_ext.FactorCompare as FactorCompare
 import filecmp
 import platform
-in_file = f"tests/data/crest_conformers.xyz"
+in_file: Path = Path("tests/data/crest_conformers.xyz")
 _system = platform.system()
 
 

@@ -5,22 +5,24 @@ import argparse
 import censo_ext.xyzSplit as xyzSplit
 import filecmp
 import os
+in_file = f"tests/data/crest_conformers1.xyz"
+out_file = f"tests/compare/output.xyz"
 
 
 def test_xyzSplit():
-    x: dict = {"file": "tests/data/crest_conformers1.xyz", "cuts": 12,
-               "atoms": [52, 55], "out": "tests/compare/output.xyz", "print": False}
+    x: dict = {"file": in_file, "cuts": 12,
+               "atoms": [52, 55], "out": out_file, "print": False}
     args = argparse.Namespace(**x)
     xyzSplit.main(args)
 
-    compare = "tests/compare/xyzSplit.xyz"
+    compare = f"tests/compare/xyzSplit.xyz"
     assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
 def test_xyzSplit_miss_cuts():
-    x: dict = {"file": "tests/data/crest_conformers1.xyz", "cuts": None,
-               "atoms": [52, 55], "out": "tests/compare/output.xyz", "print": False}
+    x: dict = {"file": in_file, "cuts": None,
+               "atoms": [52, 55], "out": out_file, "print": False}
     args = argparse.Namespace(**x)
 
     with pytest.raises(ValueError) as e:
@@ -29,8 +31,8 @@ def test_xyzSplit_miss_cuts():
 
 
 def test_xyzSplit_miss_atoms():
-    x: dict = {"file": "tests/data/crest_conformers1.xyz", "cuts": 12,
-               "atoms": None, "out": "tests/compare/output.xyz", "print": False}
+    x: dict = {"file": in_file, "cuts": 12,
+               "atoms": None, "out": out_file, "print": False}
     args = argparse.Namespace(**x)
 
     with pytest.raises(ValueError) as e:
@@ -39,8 +41,8 @@ def test_xyzSplit_miss_atoms():
 
 
 def test_xyzSplit_miss_cuts_atoms():
-    x: dict = {"file": "tests/data/crest_conformers1.xyz", "cuts": None,
-               "atoms": None, "out": "tests/compare/output.xyz", "print": False}
+    x: dict = {"file": in_file, "cuts": None,
+               "atoms": None, "out": out_file, "print": False}
     args = argparse.Namespace(**x)
 
     with pytest.raises(ValueError) as e:

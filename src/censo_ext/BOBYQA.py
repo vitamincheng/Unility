@@ -216,11 +216,10 @@ def Scan_group_Peaks(inGroup: list[int] = []) -> None:
     print(" ==== Finished group_peaks ====")
 
 
-def Create_BOBYQA() -> None:
+def Create_BOBYQA() -> tuple[bool, bool]:
     orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileName_OrcaS)
     orcaS_Table = np.insert(orcaS_Table, 2, 0, axis=1)
-    ic(orcaS_Table)
     np.savetxt(Directory / FileName_BOBYQA,
                orcaS_Table, fmt="%10d %10.5f %10d")
     print(" Create the orcaS-BOBYQA.out file ")
@@ -228,10 +227,16 @@ def Create_BOBYQA() -> None:
     print("                       1 - Use BOBYQA single point to find the peak ")
     print("               Above 100 - Use BOBYQA groups to find the peaks ")
     print(" Run this program again")
+    return (False, True)
 
 
-def main(args: argparse.Namespace = argparse.Namespace()):
+def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
+    '''
 
+    return (bool,bool)
+           FileName_BOBYQA is Exist ??
+           Create_BOBYQA() is Work ??
+    '''
     global Directory
     global Dat_fileName
     global limit_border
@@ -255,8 +260,11 @@ def main(args: argparse.Namespace = argparse.Namespace()):
             ic("BOBYQA is exist")
             Scan_single_Peak()
             Scan_group_Peaks()
+            return (True, False)
         else:
-            Create_BOBYQA()
+            return Create_BOBYQA()
+    else:
+        return (False, False)
 
 
 if __name__ == "__main__":

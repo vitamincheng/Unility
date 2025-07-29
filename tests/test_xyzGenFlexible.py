@@ -7,6 +7,9 @@ import censo_ext.xyzGenFlexible as xyzGenFlexible
 import filecmp
 import platform
 
+in_file = f"tests/data/crest_conformers.xyz"
+out_file = f"tests/compare/xyzGen_isomers.xyz"
+
 
 def test_xyzGenflexible_miss_args():
     x: dict = {}
@@ -18,8 +21,8 @@ def test_xyzGenflexible_miss_args():
 
 
 def test_xyzGenFlexible_args():
-    x: dict = {"file": "tests/data/crest_conformers.xyz", "manual": False,
-               "out": "tests/compare/xyzGen_isomers.xyz"}
+    x: dict = {"file": in_file, "manual": False,
+               "out": out_file}
     args = argparse.Namespace(**x)
     xyzGenFlexible.main(args)
 
@@ -30,8 +33,8 @@ def test_xyzGenFlexible_args():
 
 
 def test_xyzGenFlexible_args_manual(monkeypatch):
-    x: dict = {"file": "tests/data/crest_conformers.xyz", "manual": True,
-               "out": "tests/compare/xyzGen_isomers.xyz"}
+    x: dict = {"file": in_file, "manual": True,
+               "out": out_file}
     args = argparse.Namespace(**x)
     import io
     monkeypatch.setattr('sys.stdin', io.StringIO("55"))
