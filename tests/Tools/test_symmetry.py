@@ -8,11 +8,12 @@ from censo_ext.Tools.symmetry import method_get_point_group
 def test_symmetry_crest_conformers_miss_args():
 
     from censo_ext.Tools.xyzfile import GeometryXYZs
+    FileName = Path("tests/data/crest_conformers000.xyz")
     xyz = GeometryXYZs(Path("tests/data/crest_conformers000.xyz"))
 
     with pytest.raises(FileNotFoundError) as e:
         xyz.method_read_xyz()
-    assert str(e.value) == " The file is not Exist ..."
+    assert str(e.value) == f"{FileName} The file is not Exist ..."
 
 
 def test_symmetry_crest_conformers():

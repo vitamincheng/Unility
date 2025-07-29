@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 import numpy.typing as npt
 from icecream import ic
-from censo_ext.Tools.calculate_rmsd import cal_rmsd_xyz
+from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 
 
 def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
@@ -16,11 +16,11 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
                     "bond_broken": None, "ignore_Hydrogen": True, "debug": False, }
     coord: list[list[float]] = []
     idx_element: list[int] = []
-    for idx in range(len(xyzfile)):
-        coord_square, _ = cal_rmsd_xyz(
-            xyzfile, 1, idx+1, args=argparse.Namespace(**args_x))
+    for idx0 in range(len(xyzfile)):
+        coord_square, _ = cal_RMSD_xyz(
+            xyzfile, 1, idx0+1, args=argparse.Namespace(**args_x))
         var: list[float] = list(coord_square.values())
-        if idx == 0:
+        if idx0 == 0:
             idx_element = list(coord_square.keys())
         coord.append(var)
 
@@ -65,7 +65,7 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
     print(" ========== Optimized Broken-Bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
     bonding_low_factor: list[npt.NDArray] = []
-    for idx in (low_factor):
+    for idx in low_factor:
         args_x: dict = {"file": args.file, "bonding": idx,
                         "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
@@ -74,22 +74,22 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
 
     Pair_low_factor: list[list[int]] = []
 
-    for idx, x in enumerate(low_factor):
-        for idy, y in enumerate(bonding_low_factor[idx]):
-            Pair_low_factor.append([x, int(bonding_low_factor[idx][idy])])
+    for idx0, x in enumerate(low_factor):
+        for idy0, y in enumerate(bonding_low_factor[idx0]):
+            Pair_low_factor.append([x, int(bonding_low_factor[idx0][idy0])])
 
-    for idx, x in enumerate(Pair_low_factor):
+    for x in Pair_low_factor:
         if x[0] > x[1]:
             x[0], x[1] = x[1], x[0]
 
     unique_pair_low_factor: list[list[int]] = [
         list(t) for t in set(tuple(x) for x in Pair_low_factor)]
 
-    nCONFS: int = len(list(Table_S.keys()))
+    nConfs: int = len(list(Table_S.keys()))
     idx_STD: dict[int, float] = Table_S
 
     idx_ratio: list[list[int]] = []
-    list_ratio: list[float] = []
+    Ratio: list[float] = []
     for idx, x in enumerate(unique_pair_low_factor):
 
         args_x = {"file": args.file, "bond_broken": [
@@ -110,7 +110,7 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
             ic()
             raise ValueError("something wrong in your List_STD ")
 
-        elif len(idx_STD_L) < (nCONFS-2) and len(idx_STD_R) < (nCONFS-2):
+        elif len(idx_STD_L) < (nConfs-2) and len(idx_STD_R) < (nConfs-2):
 
             print(f" Index of atoms :      {x[0]:4d}   vs {x[1]:4d}")
             print(f" Sizes of deviation :  {int(len(idx_STD_L)): 4d}   vs {int(len(idx_STD_R)): 4d}")  # nopep8
@@ -125,21 +125,21 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
             if total_STD_L/total_STD_R < 1:
                 print(f" RATIO   =    {(total_STD_L/total_STD_R):10.7f}")
                 idx_ratio.append([x[1], x[0]])
-                list_ratio.append(total_STD_L/total_STD_R)
+                Ratio.append(total_STD_L/total_STD_R)
             else:
                 print(f" RATIO   =    {(total_STD_R/total_STD_L):10.7f}")
                 idx_ratio.append([x[0], x[1]])
-                list_ratio.append(total_STD_R/total_STD_L)
+                Ratio.append(total_STD_R/total_STD_L)
             print("")
 
     print("")
 
-    print(f" The Optimized Broken-bond location :  {idx_ratio[list_ratio.index(max(list_ratio))]}")  # nopep8
-    print(f" The max ratio location :  {max(list_ratio)}")
-    if max(list_ratio) <= 0.60:
+    print(f" The Optimized Broken-bond location :  {idx_ratio[Ratio.index(max(Ratio))]}")  # nopep8
+    print(f" The max ratio location :  {max(Ratio)}")
+    if max(Ratio) <= 0.60:
         print(" Ratio is below 0.60")
         print(" It is not a good choice as broken-bond location.")
         print(" Not recommended to use it.")
         return False
     print(" ========== Finished ========== ")
-    return True, idx_ratio[list_ratio.index(max(list_ratio))], max(list_ratio)
+    return True, idx_ratio[Ratio.index(max(Ratio))], max(Ratio)

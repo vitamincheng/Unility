@@ -147,19 +147,19 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def cal_rmsd_coord(args, xyzfile: GeometryXYZs, idx_cal: list[int]) -> npt.NDArray:
+def cal_RMSD_coord(args, xyzfile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDArray[np.float64]:
     # start from 0 to num-1
-    idx0_cal: list[int] = [x-1 for x in idx_cal]
-    from censo_ext.Tools.calculate_rmsd import cal_rmsd_xyz
+    idx0_cal: list[int] = [x-1 for x in idx1_cal]
+    from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
     x = {"remove_idx": args.remove_idx, "add_idx": args.add_idx,
          "bond_broken": args.bond_broken, "ignore_Hydrogen": args.ignore_Hydrogen, "debug": False}
     coord: list[list[float]] = []
     for idx0 in (idx0_cal):
-        coord_square, result_rmsd = cal_rmsd_xyz(
+        coord_square, _ = cal_RMSD_xyz(
             xyzfile, idx0_cal[0]+1, idx0+1, args=argparse.Namespace(**x))
         A: list[float] = list(coord_square.values())
         coord.append(A)
-    return np.array(coord)
+    return np.array(coord, dtype=np.float64)
 
 
 def FactorFilter(args) -> None:
@@ -187,7 +187,7 @@ def FactorFilter(args) -> None:
 
     while (nConfs > args.thr):
         print(" ========== Processing ", idx1_separate, " ==========")
-        np_S: npt.NDArray[np.float64] = cal_rmsd_coord(
+        np_S: npt.NDArray[np.float64] = cal_RMSD_coord(
             args, xyzfile, idx1_cal).T
         S_STD: npt.NDArray[np.float64] = np.std(np_S, axis=0)
         S_avg_STD: np.float64 = np.float64(np.average(S_STD))

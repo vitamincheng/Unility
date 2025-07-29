@@ -59,6 +59,16 @@ def test_BOBYQA_single_external_prog():
     args2 = argparse.Namespace(**args_y)
     BOBYQA.main(args2)
 
+
+def test_BOBYQA_final_remove_files():
+    from censo_ext.Tools.utility import delete_all_files
+    delete_all_files(DirName / "output.dat",
+                     DirName / "peaks.json",
+                     DirName / "Average/NMR/orcaA.out",
+                     DirName / "Average/NMR/orcaJ.out",
+                     DirName / "Average/NMR/orcaS.out",
+                     DirName / "Average/NMR/orcaS-BOBYQA.out",)
+
     # compare = ""
     # if _system == "Linux":
     #    compare = f"tests/compare/cregen_cluster.xyz"

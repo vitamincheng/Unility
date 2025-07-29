@@ -223,8 +223,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             (ppm, np.real(data))).T[::-1]
         np.savetxt(args.out, output, fmt=" %12.5f  %12.5e")
 
-    from censo_ext.Tools.spectra import numpy_threshold_mean_3
-    threshold = numpy_threshold_mean_3(data)*args.thr
+    from censo_ext.Tools.spectra import numpy_thr_mean_3
+    threshold = numpy_thr_mean_3(data)*args.thr
 
     # detect all peaks with a threshold
     from scipy.signal import find_peaks

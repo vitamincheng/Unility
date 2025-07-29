@@ -60,7 +60,7 @@ def test_xyzTranslate_without_move():
     with pytest.raises(SystemExit) as e:
         xyzTranslate.main(args)
     assert e.type == SystemExit
-    assert e.value.code == 1
+    assert e.value.code == 1    # try and exception
 
 
 def test_xyzTranslate_miss_file():
@@ -70,7 +70,7 @@ def test_xyzTranslate_miss_file():
     with pytest.raises(SystemExit) as e:
         xyzTranslate.main(args)
     assert e.type == SystemExit
-    assert e.value.code == 1
+    assert e.value.code == 1    # try and exception
 
 
 if __name__ == "__main__":

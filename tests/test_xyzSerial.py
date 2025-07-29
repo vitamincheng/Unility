@@ -38,7 +38,7 @@ def test_xyzSerial_filename_miss():
 
     with pytest.raises(FileNotFoundError) as e:
         xyzSerial.main(args)
-    assert str(e.value) == f" The file is not Exist ..."
+    assert str(e.value) == f"{x['file']} The file is not Exist ..."
 
 
 def test_xyzSerial_miss():

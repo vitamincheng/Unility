@@ -15,11 +15,11 @@ def test_anmrfile_miss_args():
 
     with pytest.raises(FileNotFoundError) as e:
         Missing.method_read_orcaJ()
-    assert str(e.value) == " The file is not Exist ..."
+    assert str(e.value) == "orcaJ.out The file is not Exist ..."
 
     with pytest.raises(FileNotFoundError) as e:
         Missing.method_read_orcaS()
-    assert str(e.value) == " The file is not Exist ..."
+    assert str(e.value) == "orcaS.out The file is not Exist ..."
 
 
 def test_anmrfile_read_OrcaSJ():
@@ -83,10 +83,12 @@ def test_anmrfile_get_avg_orcaSJ_Exist():
 
 def test_anmrfile_read_enso_miss_args():
     # For Hydrogen
-    file = Anmr(Path("tests/data/04.Hydrogen"))
+    Dir = Path("tests/data/04.Hydrogen")
+    File = Path("anmr_enso_error")
+    anmr = Anmr(Dir)
     with pytest.raises(FileNotFoundError) as e:
-        file.method_read_enso(Path("anmr_enso_error"))
-    assert str(e.value) == " The file is not Exist ..."
+        anmr.method_read_enso(File)
+    assert str(e.value) == f"{Dir/File} The file is not Exist ..."
 
 
 def test_anmrfile_read_enso():

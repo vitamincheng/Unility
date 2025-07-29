@@ -14,7 +14,8 @@ def test_factor_analysis_miss_args():
 
     with pytest.raises(FileNotFoundError) as e:
         idx1_minor_factor, Table_S = method_factor_analysis(args)
-    assert str(e.value) == " The file is not Exist ..."  # for argparse error
+    # for argparse error
+    assert str(e.value) == f"{x["file"]} The file is not Exist ..."
 
 
 def test_factor_analysis():

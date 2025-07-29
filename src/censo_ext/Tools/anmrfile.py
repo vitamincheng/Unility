@@ -141,7 +141,8 @@ class Anmr():
         self.anmrS: list[list[float]] = []          # Shielding of anmr.out generated from anmr # nopep8
         self.orcaSJ: list[OrcaSJ] = []              # directory of orcaSJ
         self.avg_orcaSJ = OrcaSJ()                  #
-        self.nucinfo: list = []                     # anmr_nucinfo
+        self.nucinfo: list[list[list[int | list[int]]]] = [
+        ]                                           # anmr_nucinfo
 
     def get_Directory(self) -> Path:
         return self.__Directory
@@ -175,7 +176,7 @@ class Anmr():
             # for Normal of weight of anmr_enso
             weight: npt.NDArray[np.float64] = self.enso['BW']
             switch: npt.NDArray[np.int64] = self.enso['ONOFF']
-            idx_CONF: npt.NDArray[np.int64] = self.enso['CONF'].astype(int)
+            idx1_CONF: npt.NDArray[np.int64] = self.enso['CONF'].astype(int)
 
             if (np.sum(switch) == 0):
                 print(" anmr_enso: Table - ONOFF is Zero ")
@@ -185,11 +186,11 @@ class Anmr():
             weight = weight*switch
             weight = weight / np.sum(weight)
             normal_weight: dict[np.int64, np.float64] = dict(
-                zip(np.atleast_1d(idx_CONF), np.atleast_1d(weight)))
+                zip(np.atleast_1d(idx1_CONF), np.atleast_1d(weight)))
 
             Active_orcaSJ: list[int] = []
             for idx, x in enumerate(self.orcaSJ):
-                if x.CONFSerialNums in idx_CONF:
+                if x.CONFSerialNums in idx1_CONF:
                     Active_orcaSJ.append(idx)
 
             # orcaSParams and orcaJCoups using weighting to calculate and
@@ -205,17 +206,17 @@ class Anmr():
                 # y = list(x.SParams.values())
                 # list[np.float64] to list[float64] use map()
                 # np.float64 to float64 use item()
-                y_idx: list[int] = list(map(int, x.SParams.keys()))
+                idy0: list[int] = list(map(int, x.SParams.keys()))
                 y: list[float] = list(map(float, x.SParams.values()))
-                for idz, z in zip(y_idx, np.array(y) * normal_weight[x.CONFSerialNums]):
+                for idz, z in zip(idy0, np.array(y) * normal_weight[x.CONFSerialNums]):
                     self.avg_orcaSJ.SParams[idz] += z.item()
 
             for key, value in self.avg_orcaSJ.SParams.items():
                 self.avg_orcaSJ.SParams[key] = value - \
                     self.__AnmrParams.get_Reference_anmrrc()
 
-            nNumbers: int = np.shape(self.orcaSJ[0].JCoups[0])[0]
-            self.avg_orcaSJ.JCoups = np.zeros((nNumbers, nNumbers))
+            nShapes: int = np.shape(self.orcaSJ[0].JCoups[0])[0]
+            self.avg_orcaSJ.JCoups = np.zeros((nShapes, nShapes))
 
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
                 y = x.JCoups
@@ -242,10 +243,10 @@ class Anmr():
         else:
             print("===== Update the equivalent of SParams and JCoups =====")
 
-            List_tmp: list[int] = []
+            element: list[int] = []
             for idx, x in self.orcaSJ[0].idxAtoms.items():
-                List_tmp.append(idx)
-            AtomsKeep: npt.NDArray[np.int64] = np.array(List_tmp)
+                element.append(idx)
+            AtomsKeep: npt.NDArray[np.int64] = np.array(element)
             AtomsEqvKeep: npt.NDArray[np.int64] = AtomsKeep.copy()
 
             ic(AtomsEqvKeep)
@@ -262,7 +263,7 @@ class Anmr():
                 for idx, x in enumerate(AtomsEqvKeep):
                     if (self.nucinfo[0][x-1][1] != 1):
                         ppm: list[float] = []
-                        for idy, y in enumerate(self.nucinfo[0][x-1][2]):
+                        for y in self.nucinfo[0][x-1][2]:
                             ppm.append(orcaSJ.SParams[y])
                         average: float = sum(ppm)/len(ppm)
                         for y in self.nucinfo[0][x-1][2]:
@@ -272,7 +273,7 @@ class Anmr():
             for orcaSJ in self.orcaSJ:
                 for idx, x in enumerate(AtomsEqvKeep):
                     if (self.nucinfo[1][x-1][1] != 1):
-                        for idy, y in enumerate(AtomsKeep):
+                        for y in AtomsKeep:
                             JCoups: list[float] = []
                             average: float = 0
                             for z in (self.nucinfo[1][x-1][2]):
@@ -312,9 +313,9 @@ class Anmr():
 
             # Delete Equivalent Atom of orcaJCoups
             AtomsDelete2idx0: dict[int, int] = {}
-            for idx, x in enumerate(AtomsKeep):
+            for idx0, x in enumerate(AtomsKeep):
                 if x in AtomsDelete:
-                    AtomsDelete2idx0[int(x)] = idx
+                    AtomsDelete2idx0[int(x)] = idx0
             ic(AtomsDelete2idx0)
             list_AtomsDelete: list[int] = [
                 x for x in AtomsDelete2idx0.values()]
@@ -363,16 +364,17 @@ class Anmr():
             else:
                 idx += 1
         print("Directories = ", dirNames)
+        del idx
 
-        for idx in range(len(dirNames)):
-            file_orcaS: Path = Dir / Path(dirNames[idx] + "/NMR/orcaS.out")  # nopep8
-            file_orcaJ: Path = Dir / Path(dirNames[idx] + "/NMR/orcaJ.out")  # nopep8
+        for idx0 in range(len(dirNames)):
+            file_orcaS: Path = Dir / Path(dirNames[idx0] + "/NMR/orcaS.out")  # nopep8
+            file_orcaJ: Path = Dir / Path(dirNames[idx0] + "/NMR/orcaJ.out")  # nopep8
             if (os.path.exists(file_orcaS) == True and os.path.exists(file_orcaJ) == True):
-                print(str(idx)+"  :  "+str(file_orcaS))
-                print(str(idx)+"  :  "+str(file_orcaJ))
+                print(str(idx0)+"  :  "+str(file_orcaS))
+                print(str(idx0)+"  :  "+str(file_orcaJ))
 
                 iter: OrcaSJ = OrcaSJ()
-                iter.CONFSerialNums = int(dirNames[idx].replace('CONF', ''))
+                iter.CONFSerialNums = int(dirNames[idx0].replace('CONF', ''))
                 if (iter.method_read_orcaS(file=file_orcaS) == False):
                     print("Something wrong in your orcaS.out")
                 if (iter.method_read_orcaJ(file=file_orcaJ) == False):
@@ -455,49 +457,50 @@ class Anmr():
         fileName = self.__Directory / Path(fileName)
         IsExist(fileName)
 
-        start_idx, end_idx = 0, 0
+        start_idx1: int = 0
+        end_idx1: int = 0
         DataJ: list[str] = []
         lines: list[str] = open(fileName, "r").readlines()
 
         import re
-        bool_first_line = False
-        start_shielding_idx: int = 0
-        for idx, line in enumerate(lines):
+        firstLine: bool = False
+        start_shielding_idx1: int = 0
+        for idx0, line in enumerate(lines):
             if re.search(r"MATRIX PRINTED:", line):
-                start_idx = idx+1
-            if re.search(r"\+\/\-", line) and bool_first_line == False:
-                start_shielding_idx = idx
-                bool_first_line = True
-        if start_shielding_idx != 0:
-            nNuclei: int = start_idx - start_shielding_idx - 2
+                start_idx1 = idx0 + 1
+            if re.search(r"\+\/\-", line) and firstLine == False:
+                start_shielding_idx1 = idx0
+                firstLine = True
+        if start_shielding_idx1 != 0:
+            nNuclei: int = start_idx1 - start_shielding_idx1 - 2
         else:
             print(" Something wrong ")
             ic()
-            raise ValueError(" Something wrong ")
-        del bool_first_line, start_shielding_idx
+            raise ValueError(" Something wrong in your anmr.out file")
+        del firstLine, start_shielding_idx1
 
         nLines = 0
-        for idx in range(int(nNuclei/6)):
-            nLines += nNuclei - idx * 6 + 3
-        end_idx = start_idx + nLines + nNuclei % 6 + 3 - 1
+        for idx0 in range(int(nNuclei/6)):
+            nLines += nNuclei - idx0 * 6 + 3
+        end_idx1 = start_idx1 + nLines + nNuclei % 6 + 3 - 1
 
-        for idx, line in enumerate(lines):
-            if idx >= start_idx and idx <= end_idx:
+        for idx0, line in enumerate(lines):
+            if idx0 >= start_idx1 and idx0 <= end_idx1:
                 DataJ.append(line.rstrip())
 
-        for idx, line in enumerate(lines):
+        for line in lines:
             if re.search(r"\+\/\-", line):
                 tmp: list[float] = [int(i) for i in line.split()[0:3]]
                 tmp.append(float(line.split()[3]))
                 self.anmrS.append(tmp)
 
-        for idx, line in enumerate(lines):
+        for line in lines:
             if re.search(r"1H resonance frequency", line):
                 self.frq = float(line.split()[6])
 
         ListDataJ: list[str] = DataJ
         nLinesDataJ: int = len(self.anmrS)
-        ListDataJDeleteBlank: list = []
+        DataJDeleteBlank: list[str] = []
 
         k: int = nLinesDataJ
         i: int = len(ListDataJ)
@@ -505,31 +508,32 @@ class Anmr():
         # Delete the top serial numbers of JCoup
         while i >= 1:
             del ListDataJ[0:3]
-            ListDataJDeleteBlank += ListDataJ[0:k]
+            DataJDeleteBlank += ListDataJ[0:k]
             ListDataJ = ListDataJ[k:]
             i, k = i-6, k-6
+        del k, i
 
         # Delete the right serial numbers of JCoup
-        ListDataDelete_nAtoms: list[str] = []
-        for line in ListDataJDeleteBlank:
-            if (len(ListDataDelete_nAtoms) % nLinesDataJ == 0):
-                for j in range(6*((int)(len(ListDataDelete_nAtoms)/nLinesDataJ))):
-                    ListDataDelete_nAtoms.append("\n")
-            ListDataDelete_nAtoms.append(line[6:])
+        DataDelete_nAtoms: list[str] = []
+        for line in DataJDeleteBlank:
+            if (len(DataDelete_nAtoms) % nLinesDataJ == 0):
+                for j in range(6*((int)(len(DataDelete_nAtoms)/nLinesDataJ))):
+                    DataDelete_nAtoms.append("\n")
+            DataDelete_nAtoms.append(line[6:])
 
-        DataJ_triangle = [""]*(nLinesDataJ)
+        DataJ_triangle: list[str] = [""]*(nLinesDataJ)
 
         # Restruct to one all JCoup table
-        for idx, line in enumerate(ListDataDelete_nAtoms):
-            DataJ_triangle[idx % nLinesDataJ] = DataJ_triangle[idx %
-                                                               nLinesDataJ].rstrip("\n") + " " + line.rstrip("\n")
+        for idx0, line in enumerate(DataDelete_nAtoms):
+            DataJ_triangle[idx0 % nLinesDataJ] = DataJ_triangle[idx0 %
+                                                                nLinesDataJ].rstrip("\n") + " " + line.rstrip("\n")
         self.anmrJ = np.zeros((nLinesDataJ, nLinesDataJ))
 
         # copy half to other half data on JCoup
-        for idx in range(nLinesDataJ):
-            for idy in range(idx):
-                self.anmrJ[idy][idx] = self.anmrJ[idx][idy] = float(
-                    DataJ_triangle[idx].split()[idy])
+        for idx0 in range(nLinesDataJ):
+            for idy0 in range(idx0):
+                self.anmrJ[idy0][idx0] = self.anmrJ[idx0][idy0] = float(
+                    DataJ_triangle[idx0].split()[idy0])
 
     def method_print_anmrS(self) -> None:
         print("    #  in coord file  # nucs   delta(ppm)")
@@ -537,9 +541,9 @@ class Anmr():
             print(f"{x[0]:>5d} {x[1]:>9d} {x[2]:>9d} {x[3]:>13.3f}")
 
     def method_print_anmrJ(self) -> None:
-        for idx in range(self.anmrJ[0].size):
-            for idy in range(self.anmrJ[0].size):
-                print(f'{self.anmrJ[idx][idy]:>10.5f}', end="")
+        for idx0 in range(self.anmrJ[0].size):
+            for idy0 in range(self.anmrJ[0].size):
+                print(f'{self.anmrJ[idx0][idy0]:>10.5f}', end="")
             print("")
 
     def method_print_nucinfo(self) -> None:
@@ -562,14 +566,15 @@ class Anmr():
         del lines[0]
         page: list = []
         for idx, x in enumerate(lines):
-            x = x.rstrip()
+            x: str = x.rstrip()
             if (idx % 2) == 0:
-                tmp = []
+                from typing import Union
+                tmp: list[int | list[int]] = []
                 tmp.append(int(x.split()[0]))
                 tmp.append(int(x.split()[1]))
             else:
-                int_tmp = []
-                for idy, y in enumerate(x.split()):
+                int_tmp: list[int] = []
+                for y in x.split():
                     int_tmp.append(int(y))
                 tmp.append(int_tmp)         # type: ignore
                 page.append(tmp)            # type: ignore
@@ -632,7 +637,7 @@ class OrcaSJ():
         import re
         nVersion: str = ""
 
-        for idx, line in enumerate(lines):
+        for line in lines:
             if re.search(r"Program Version", line):
                 nVersion: str = line
 
@@ -671,7 +676,7 @@ class OrcaSJ():
             if idx >= start_idx and idx <= end_idx:
                 Data_str.append(line.rstrip())
 
-        for idx, x in enumerate(Data_str):
+        for x in Data_str:
             DataJ.append(x.split()[2:])
 
         nums = 1
@@ -687,7 +692,7 @@ class OrcaSJ():
 
         del DataJ[0]
         del DataJ[nAtomDataJ:]
-        self.JCoups = np.array(DataJ, dtype=float)
+        self.JCoups = np.array(DataJ, dtype=np.float64)
         return True
 
     def method_read_orcaS(self, file: Path = Path("orcaS.out")) -> bool:
@@ -695,6 +700,8 @@ class OrcaSJ():
         print(" method_read_orcaS", file)
         IsExist(file)
 
+        start_idx: int
+        end_idx: int
         start_idx, end_idx = 0, 0
         DataS: list[str] = []
         lines: list[str] = open(file, "r").readlines()
@@ -702,35 +709,35 @@ class OrcaSJ():
         nVersion: str = ""
         nNuclei: int = 0
 
-        for idx, line in enumerate(lines):
+        for line in lines:
             if re.search(r"Program Version", line):
                 nVersion: str = line
 
         if int(nVersion.split()[2][0]) == 5:
-            for idx, line in enumerate(lines):
+            for idx0, line in enumerate(lines):
                 if re.search(r"Number of nuclei for epr/nmr", line):
                     nNuclei = int(line.split()[-1])
                 if re.search(r"CHEMICAL SHIELDING SUMMARY", line):
-                    start_idx = idx + 6
+                    start_idx = idx0 + 6
             end_idx = start_idx + nNuclei - 1
             if end_idx == 0 or start_idx == 0 or nNuclei == 0:
                 return False
         elif int(nVersion.split()[2][0]) == 6:
-            for idx, line in enumerate(lines):
+            for idx0, line in enumerate(lines):
                 if re.search(r"Maximum memory used throughout the entire PROP", line):
-                    end_idx = idx - 5
+                    end_idx = idx0 - 5
                 if re.search(r"CHEMICAL SHIELDING SUMMARY", line):
-                    start_idx = idx + 6
+                    start_idx = idx0 + 6
         else:
             print(" This program is not work with before orca 5.0 ")
             ic()
             raise ValueError(" This program is not work with before orca 5.0 ")
 
-        for idx, line in enumerate(lines):
-            if idx >= start_idx and idx <= end_idx:
+        for idx0, line in enumerate(lines):
+            if idx0 >= start_idx and idx0 <= end_idx:
                 DataS.append(line.rstrip())
         self.idxAtoms, self.Anisotropy, self.SParams = {}, {}, {}
-        for idx, x in enumerate(DataS):
+        for x in DataS:
             self.idxAtoms[int(x.split()[0])+1] = str(x.split()[1])
             self.SParams[int(x.split()[0])+1] = float(x.split()[2])
             self.Anisotropy[int(x.split()[0])+1] = float(x.split()[3])
@@ -792,9 +799,9 @@ class OrcaSJ():
             raise ValueError("your orcaJ and orcaS is not fit each other")
 
     def method_print_orcaJ(self) -> None:
-        for idx in range(self.JCoups[0].size):
-            for idy in range(self.JCoups[0].size):
-                print(f'{(self.JCoups[idx][idy]):>8.3f}', end="")
+        for idx0 in range(self.JCoups[0].size):
+            for idy0 in range(self.JCoups[0].size):
+                print(f'{(self.JCoups[idx0][idy0]):>8.3f}', end="")
             print("")
 
 

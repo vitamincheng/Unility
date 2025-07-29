@@ -912,8 +912,8 @@ if __name__ == "__main__":
                     from censo_ext.Tools.utility import IsExist
                     IsExist(idx_file)
                     orcaS_Ref = np.genfromtxt(idx_file, usecols=(0, 1))
-                    from censo_ext.Tools.spectra import numpy_threshold
-                    thr: float = numpy_threshold(orcaS_Ref.T[1], 10.0)
+                    from censo_ext.Tools.spectra import numpy_thr
+                    thr: float = numpy_thr(orcaS_Ref.T[1], 10.0)
                     y_heighest = max(orcaS_Ref.T[1])
                     height_thr_sp.append(thr + y_heighest*0.01)
 
@@ -936,8 +936,8 @@ if __name__ == "__main__":
 
                 orcaS_Ref: npt.NDArray[np.float64] = np.genfromtxt(
                     args.file[1], usecols=(0, 1))
-                from censo_ext.Tools.spectra import numpy_threshold
-                height_thr: float = numpy_threshold(orcaS_Ref.T[1], 3.0)
+                from censo_ext.Tools.spectra import numpy_thr
+                height_thr: float = numpy_thr(orcaS_Ref.T[1], 3.0)
 
                 plot_nmr_assign(orcaS, height_thr, ppm, intensit)
 

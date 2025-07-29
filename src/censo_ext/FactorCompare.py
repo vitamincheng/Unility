@@ -46,10 +46,10 @@ def cml(descr) -> argparse.Namespace:
 
 
 def cal_RMSD(xyzfile, idx_p, idx_q) -> float:
-    from censo_ext.Tools.calculate_rmsd import cal_rmsd_xyz
+    from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
     x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
                "ignore_Hydrogen": True, "quiet": True, "debug": False}
-    _, RMSD = cal_rmsd_xyz(
+    _, RMSD = cal_RMSD_xyz(
         xyzfile, idx_p, idx_q, args=argparse.Namespace(**x))
     return RMSD
 

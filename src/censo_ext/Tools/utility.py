@@ -149,7 +149,7 @@ def IsExist(fileName: Path) -> None:
         print(f"{fileName} the file is not exist ...")
         print("    Exit and close the program !!! ")
         ic()
-        raise FileNotFoundError(" The file is not Exist ...")
+        raise FileNotFoundError(f"{fileName} The file is not Exist ...")
 
 
 def IsExist_return_bool(fileName: Path) -> bool:

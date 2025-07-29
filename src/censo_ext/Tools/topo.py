@@ -22,7 +22,7 @@ class Topo():
         self.__neighbors: dict[int, npt.NDArray[np.int64]]
         self.__mol, self.__neighbors = ml4nmr.read_mol_neighbors(
             self.__fileName)
-        self.idx_Hydrogen_atom: list[int] = [idx+1 for idx,
+        self.idx1_Hydrogen_atom: list[int] = [idx+1 for idx,
                            i in enumerate(self.__mol) if i.symbol == "H"]  # type: ignore # nopep8
 
     def get_cn(self) -> dict[int, int]:
@@ -47,13 +47,13 @@ class Topo():
         """
         Result: list[int] = self.method_broken_bond(args)
         neighbors: dict[int, npt.NDArray] = self.__neighbors
-        idx_H_atom: list[int] = self.idx_Hydrogen_atom
-        NeighborsAtoms_H_atom: dict[int, int] = {}  # {H:C}
-        for idx in idx_H_atom:
-            NeighborsAtoms_H_atom[idx] = neighbors[idx][0]
+        idx1_H_atoms: list[int] = self.idx1_Hydrogen_atom
+        NeighborsAtoms_H_atoms: dict[int, int] = {}  # {H:C}
+        for idx in idx1_H_atoms:
+            NeighborsAtoms_H_atoms[idx] = neighbors[idx][0]
         addition: list[int] = []
         for idx in Result:
-            for key, value in NeighborsAtoms_H_atom.items():
+            for key, value in NeighborsAtoms_H_atoms.items():
                 if idx == value:
                     addition.append(key)
         Result = Result + addition
@@ -76,13 +76,13 @@ class Topo():
         idx_p: int = args.bond_broken[0]
         idx_q: int = args.bond_broken[1]
         neighbors: dict[int, npt.NDArray] = self.__neighbors
-        idx_Hydrogen_atom: list[int] = self.idx_Hydrogen_atom
-        idx_Hydrogen_atom.append(idx_q)
+        idx1_Hydrogen_atoms: list[int] = self.idx1_Hydrogen_atom
+        idx1_Hydrogen_atoms.append(idx_q)
         NeighborsAtoms_not_H: dict[int, npt.NDArray] = {}
         for idx in neighbors.keys():
             import numpy as np
             NeighborsAtoms_not_H[idx] = np.array(
-                [i for i in neighbors[idx] if int(i) not in idx_Hydrogen_atom])
+                [i for i in neighbors[idx] if int(i) not in idx1_Hydrogen_atoms])
         del NeighborsAtoms_not_H[idx_q]
         Terminal_Atoms: list[int] = [idx_p]
         Complete_Atoms: bool = False
@@ -116,9 +116,10 @@ class Topo():
         idx_p: int = args.bonding
         # ic(args.file)
         neighbors: dict[int, npt.NDArray] = self.__neighbors
-        idx_H_atom: list[int] = self.idx_Hydrogen_atom
+        idx1_Hydrogen_atoms: list[int] = self.idx1_Hydrogen_atom
         Neighbors_Atoms: list[int] = neighbors[idx_p].tolist()
-        Neighbors_Atoms = [i for i in Neighbors_Atoms if i not in idx_H_atom]
+        Neighbors_Atoms = [
+            i for i in Neighbors_Atoms if i not in idx1_Hydrogen_atoms]
         Neighbors_Atoms.sort()
         if args.print:
             print(" Bonding : ", idx_p, " @ ", Neighbors_Atoms)
@@ -130,13 +131,13 @@ class Topo():
         mol: ml4nmr.Atoms | list[ml4nmr.Atoms] = self.__mol
         neighbors: dict[int, npt.NDArray] = self.__neighbors.copy()
         # neighbors is removed all H-atoms
-        idx_Hydorgen_atoms: list[int] = self.idx_Hydrogen_atom
+        idx1_Hydorgen_atoms: list[int] = self.idx1_Hydrogen_atom
         for key, value in neighbors.copy().items():
-            if key in idx_Hydorgen_atoms:
+            if key in idx1_Hydorgen_atoms:
                 del neighbors[key]
         for key, value in neighbors.copy().items():
             neighbors[key] = np.array(
-                [a for a in value if a not in idx_Hydorgen_atoms])
+                [a for a in value if a not in idx1_Hydorgen_atoms])
 
         # Tranfer neighbors to Graph
         graph_in: list[tuple[int, npt.NDArray]] = list()

@@ -125,7 +125,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     from censo_ext.Tools.topo import Topo
     Sts_topo: Topo = Topo(x["file"])
-    idx0_list: list[int] = [
+    idx0_broken_bond_H: list[int] = [
         x-1 for x in Sts_topo.method_broken_bond_H(argparse.Namespace(**x))]
 
     infile: GeometryXYZs = GeometryXYZs(args.file)
@@ -147,8 +147,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
             r_pq = R.from_rotvec(2*np.pi*(nCutter/nCutters)*rotation_vector)
 
-            for idx in idx0_list:
-                St.coord[idx] = r_pq.apply(St.coord[idx])
+            for idx0 in idx0_broken_bond_H:
+                St.coord[idx0] = r_pq.apply(St.coord[idx0])
 
             St.coord += dxyz
 

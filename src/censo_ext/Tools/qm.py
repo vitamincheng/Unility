@@ -170,25 +170,25 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     return normalized_plist
 
 
-def print_plot(inpeaklist: list, dpi: int, nIntergals: int, args: argparse.Namespace, Active_range: int, hidden=True) -> npt.NDArray:
+def print_plot(in_plist: list, dpi: int, nIntergals: int, args: argparse.Namespace, Active_range: int, hidden=True) -> npt.NDArray:
     '''
     peaklist :  Chemical Shift(Hz), Intensities
     dpi: 10000 for Hydrogen, 500 for Carbon
     nIntergals : total numbers of Intensities
     '''
     from nmrsim.math import normalize_peaklist
-    peaklist: npt.NDArray[np.float64] = np.array(inpeaklist)
-    peaklist.T[0] = peaklist.T[0] / args.mf
+    plist: npt.NDArray[np.float64] = np.array(in_plist)
+    plist.T[0] = plist.T[0] / args.mf
     # ic(peaklist)
-    normalized_plist: list[tuple[float, float]
-                           ] = normalize_peaklist(peaklist, nIntergals)
+    Normal_plist: list[tuple[float, float]
+                       ] = normalize_peaklist(plist, nIntergals)
     # ic(normalized_plist)
     if args.start == None:
-        args.start = (peaklist.T)[0].min() - Active_range * 0.1
+        args.start = (plist.T)[0].min() - Active_range * 0.1
     if args.end == None:
-        args.end = (peaklist.T)[0].max() + Active_range * 0.1
+        args.end = (plist.T)[0].max() + Active_range * 0.1
 
-    y_max_normalized: float = np.array(normalized_plist).max()*2
+    Normal_y_max: float = np.array(Normal_plist).max()*2
 
     args.start = round(args.start, 4)
     args.end = round(args.end, 4)
@@ -201,18 +201,18 @@ def print_plot(inpeaklist: list, dpi: int, nIntergals: int, args: argparse.Names
     y: npt.NDArray[np.float64]
     if hidden == False:
         if input("    Do you want to show matplotlib results?    ") in ("y", "yes"):
-            x, y = mplplot(normalized_plist, w=lw, y_max=y_max_normalized, y_min=-
-                           y_max_normalized*0.01, limits=(args.start, args.end), points=lw_points)
+            x, y = mplplot(Normal_plist, w=lw, y_max=Normal_y_max, y_min=-
+                           Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points)
         else:
-            x, y = mpl_plot(normalized_plist, w=lw, y_max=y_max_normalized, y_min=-
-                            y_max_normalized*0.01, limits=(args.start, args.end), points=lw_points, hidden=True)
+            x, y = mpl_plot(Normal_plist, w=lw, y_max=Normal_y_max, y_min=-
+                            Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points, hidden=True)
         print("    Plot is saved to {} !".format(args.out))
         np.savetxt(args.out, np.vstack((x, y)).T, fmt='%2.5f %12.5e')
         print("    All Done!")
         return np.vstack((x, y))
     elif hidden == True:
-        x, y = mpl_plot(normalized_plist, w=lw, y_max=y_max_normalized, y_min=-
-                        y_max_normalized*0.01, limits=(args.start, args.end), points=lw_points, hidden=True)
+        x, y = mpl_plot(Normal_plist, w=lw, y_max=Normal_y_max, y_min=-
+                        Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points, hidden=True)
         if not args.bobyqa:
             np.savetxt(args.out, np.vstack((x, y)).T, fmt='%2.5f %12.5e')
         return np.vstack((x, y))
@@ -223,7 +223,7 @@ def print_plot(inpeaklist: list, dpi: int, nIntergals: int, args: argparse.Names
             "something wrong in your print_plot method hidden setting")
 
 
-def mpl_plot(peaklist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, hidden=False) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+def mpl_plot(plist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, hidden=False) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """
     Modification by Vitamin Cheng
     Only for no show picture  for hidden == True 
@@ -231,15 +231,15 @@ def mpl_plot(peaklist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, h
     """
     from nmrsim.plt import low_high, add_lorentzians
     if hidden == True:
-        peaklist.sort()
+        plist.sort()
         if limits:
             l_limit, r_limit = low_high(limits)
         else:
-            l_limit = peaklist[0][0] - 50
-            r_limit = peaklist[-1][0] + 50
+            l_limit = plist[0][0] - 50
+            r_limit = plist[-1][0] + 50
         x: npt.NDArray[np.float64] = np.linspace(
             float(l_limit), float(r_limit), points).astype(np.float64)
-        y: npt.NDArray[np.float64] = add_lorentzians(x, peaklist, w)
+        y: npt.NDArray[np.float64] = add_lorentzians(x, plist, w)
         return x, y
     else:
         print("Please use the nmrsim mplplot ")
@@ -256,16 +256,16 @@ def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins,
     Returns     
     peaklist    : list[(peak,intensity)] 
     """
-    peaklist: list[tuple[float, float]] = []
+    plist: list[tuple[float, float]] = []
     # ic(v, J)
     if len(v) > 1:
-        peaklist = qm_partial(v=v, J=J, idx0_nspins=idx0_nspins,
-                              nIntergals=nIntergals, args=args)
+        plist = qm_partial(v=v, J=J, idx0_nspins=idx0_nspins,
+                           nIntergals=nIntergals, args=args)
     elif len(v) == 1:
-        peaklist = [(np.fabs(v[0]), float(1.00000))]
+        plist = [(np.fabs(v[0]), float(1.00000))]
     else:
         print("something wrong in your qm_Base cal.")
-    return peaklist
+    return plist
 
 
 def qm_multiplet(v: float | int, nIntergals, J: list[float]) -> list[tuple[float, float]]:
@@ -310,7 +310,7 @@ if __name__ == "__main__":
     R_peak: list = qm_full(v=v, J=J, nIntergals=1,
                            args=argparse.Namespace(**x))
     ic(len(R_peak))
-    print_plot(inpeaklist=R_peak, dpi=10000, nIntergals=2,
+    print_plot(in_plist=R_peak, dpi=10000, nIntergals=2,
                Active_range=10, args=argparse.Namespace(**x), hidden=False)
 
     R_peaks: list = []
@@ -321,5 +321,5 @@ if __name__ == "__main__":
 
     ic(R_peaks)
     ic(len(R_peaks))
-    print_plot(inpeaklist=R_peaks, dpi=10000, nIntergals=2,
+    print_plot(in_plist=R_peaks, dpi=10000, nIntergals=2,
                Active_range=10, args=argparse.Namespace(**x), hidden=False)

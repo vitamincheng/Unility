@@ -68,15 +68,14 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[
     diff: npt.NDArray[np.float64] = P - Q
     atom_square: dict[int, float] = {}
     coord_square_total: float = 0
-    for idx, x in enumerate(idx_atom):
-        coord_square: float = float((diff[idx]*diff[idx]).sum())
+    for idx0, x in enumerate(idx_atom):
+        coord_square: float = float((diff[idx0]*diff[idx0]).sum())
         # ic(coord_square)
         if __name__ == "__main__":
             print(f"{x:>5}", end=" ")
             print(f"{coord_square:>10.5f}")
         atom_square[x] = coord_square
         coord_square_total += coord_square
-    # return atom_square, np.sqrt(coord_square / P.shape[0])
     return atom_square, float(np.sqrt(coord_square_total / P.shape[0]))
 
 
@@ -313,15 +312,15 @@ def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
     Read xyz file to data 
     idx is Serial No. (from 0) in xyz file
     '''
-    atoms: dict[int, str] = xyzfile.Sts[idx0].names
-    atoms_np: npt.NDArray[np.int64] = np.array(
-        [int_atom(atom) for atom in atoms.values()])
+    Names: dict[int, str] = xyzfile.Sts[idx0].names
+    element: npt.NDArray[np.int64] = np.array(
+        [int_atom(atom) for atom in Names.values()])
     V: npt.NDArray[np.float64] = np.array(
         xyzfile.Sts[idx0].coord, dtype=np.float64)
-    return atoms_np, V
+    return element, V
 
 
-def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> tuple[dict[int, float], float]:
+def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> tuple[dict[int, float], float]:
     '''
     Read xyz file and calculate rmsd
     xyzfile is class ClassGeometryXYZs
@@ -371,15 +370,11 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
                 args.bond_broken[0], args.bond_broken[1]], "print": False, "debug": False}
             from censo_ext.Tools.topo import Topo
             Sts_topo: Topo = Topo(args_x["file"])
-            idx1_Res_Atoms: list[int] = Sts_topo.method_broken_bond(
-                argparse.Namespace(**args_x))
-            # idx1_Res_Atoms: list[int] = topo.Broken_bond(
-            #    argparse.Namespace(**x))
-            idx_atom1 = np.array(idx1_Res_Atoms, dtype=np.int64)
+            idx_atom1 = np.array(Sts_topo.method_broken_bond(
+                argparse.Namespace(**args_x)))
             index = idx_atom1-1
             p_view, q_view = index, index
 
-            pass
         else:
             print("Only support under ignore Hydrogen condition ")
             ic()

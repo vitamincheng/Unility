@@ -14,18 +14,16 @@ neighbors: dict[int, npt.NDArray[np.int64]]
 
 
 def test_m4nmr_miss_args():
-
+    FileName = Path("tests/data/crest_conformers0000.xyz")
     with pytest.raises(FileNotFoundError) as e:
         mol, neighbors = read_mol_neighbors(
-            Path("tests/data/crest_conformers0000.xyz"))
-    assert str(e.value) == " The file is not Exist ..."
+            FileName)
+    assert str(e.value) == f"{FileName} The file is not Exist ..."
 
     with pytest.raises(FileNotFoundError) as e:
-        mol, neighbors = read_mol_neighbors(
-            Path("tests/data/crest_conformers.xyz"))
         mol, neighbors, bond_order = read_mol_neighbors_bond_order(
-            Path("tests/data/crest_conformers0000.xyz"))
-    assert str(e.value) == " The file is not Exist ..."
+            FileName)
+    assert str(e.value) == f"{FileName} The file is not Exist ..."
 
 
 def test_m4nmr_read_mol_neighbors():

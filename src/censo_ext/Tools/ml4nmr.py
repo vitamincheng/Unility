@@ -5,10 +5,8 @@
 
 # use slightly modified covalent radii from ase for neighbor recognition
 from pathlib import Path
-from typing import Literal
 from ase.atoms import Atoms
 import numpy as np
-from numpy._typing._array_like import NDArray
 import numpy.typing as npt
 from icecream import ic
 from censo_ext.Tools.utility import IsExist

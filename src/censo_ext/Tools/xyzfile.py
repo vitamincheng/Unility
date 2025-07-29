@@ -20,12 +20,13 @@ class Geometry():
 
     def __init__(self, names: dict[int, str], coord: list[npt.NDArray], extras: list[list[str]], comment: str = "", energy: float = 0, ncluster: int = 0) -> None:
 
-        self.names: dict[int, str] = names          # atom's name   H Li Na K B C O S F Cl # nopep8
-        self.coord: list[npt.NDArray] = coord       # coordinates of every atom
-        self.nAtoms: int = len(names)               # numbers of atom
-        self.comment: str = comment                 # Energy =   Eh   #Cluster  :i         # nopep8
-        self.comment_energy: float = energy         # Energy (Eh)
-        self.comment_ncluster: int = ncluster       # index of Clusters
+        self.names: dict[int, str] = names                  # atom's name   H Li Na K B C O S F Cl # nopep8
+        self.coord: list[npt.NDArray[np.float64]] = coord
+        # coordinates of every atom #type:ignore #nopep8
+        self.nAtoms: int = len(names)                       # numbers of atom
+        self.comment: str = comment                         # Energy =   Eh   #Cluster  :i         # nopep8
+        self.comment_energy: float = energy                 # Energy (Eh)
+        self.comment_ncluster: int = ncluster               # index of Clusters
         self.mass: npt.NDArray
         self.extras: list[list[str]] = extras
         self.com: npt.NDArray
@@ -122,15 +123,14 @@ class Geometry():
         '''
         Returns the moment of inertia tensor
         '''
-        com = self.method_computeCOM()
-        data = self.coord - com
+        data = self.coord - self.method_computeCOM()
 
         self.inertia = -np.einsum("ax,a,ay->xy", data, self.mass, data)
         return self.inertia
 
     def method_update_masses(self) -> None:
         self.mass = np.array([])
-        for idx, x in self.names.items():
+        for _, x in self.names.items():
             from censo_ext.Tools.Parameter import masses
             self.mass = np.append(self.mass, masses[x.lower()], axis=None)
 
@@ -351,7 +351,7 @@ class GeometryXYZs():
                 result.append(St.get_comment_energy())
         return result
 
-    def method_ensoGenFlexible(self, args, thermo_list):
+    def method_ensoGenFlexible(self, args, thermo_list) -> npt.NDArray:
         import numpy.lib.recfunctions as rfn
         from censo_ext.Tools.Parameter import Eh, FACTOR
         # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),

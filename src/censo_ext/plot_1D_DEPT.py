@@ -123,10 +123,10 @@ def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> 
 
     output = np.vstack((ppm, np.real(data))).T[::-1]
     # np.savetxt("output.dat", output, fmt=" %12.5f  %12.5e")
-    from censo_ext.Tools.spectra import numpy_threshold_mean_3
+    from censo_ext.Tools.spectra import numpy_thr_mean_3
     threshold: float = 0
     if isinstance(thr, float):
-        threshold: float = numpy_threshold_mean_3(data.astype(np.float64))*thr
+        threshold: float = numpy_thr_mean_3(data.astype(np.float64))*thr
         # ic(threshold, thr)
     # detect all peaks with a threshold
     from scipy.signal import find_peaks
@@ -258,8 +258,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     output: npt.NDArray[np.float64] = np.vstack((ppm, np.real(data))).T[::-1]
     np.savetxt("output.dat", output, fmt=" %12.5f  %12.5e")
-    from censo_ext.Tools.spectra import numpy_threshold_mean_3
-    threshold: float = numpy_threshold_mean_3(
+    from censo_ext.Tools.spectra import numpy_thr_mean_3
+    threshold: float = numpy_thr_mean_3(
         data.astype(np.float64))*thr[channel]
 
     # detect all peaks with a threshold

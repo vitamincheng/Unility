@@ -89,7 +89,6 @@ def rosenbrock(x0) -> float:
     np.savetxt(Directory/FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
 
     from censo_ext.Tools.anmrfile import CensoDat
-    # ic(prog)
     if prog == None:
         # ic("internal")
         import censo_ext.anmr as anmr
@@ -120,9 +119,9 @@ def rosenbrock(x0) -> float:
 
         Dat_Cal: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
     else:
-        print("prog is Error")
+        print("Something wrong in your argument ")
         ic()
-        raise ValueError("prog is Error")
+        raise ValueError("Something wrong in your argument")
 
     Dat_Ref: CensoDat = CensoDat(file=Path(Directory/Dat_fileName))
     Dat_Cal.method_normalize_dat()

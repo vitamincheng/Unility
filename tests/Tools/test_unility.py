@@ -5,9 +5,11 @@ import pytest
 
 def test_unility_IsExists_DirFileName_miss_args():
     from censo_ext.Tools.utility import IsExists_DirFileName
+
+    FileName = Path("tests/data/04.Hydrogen/test.dat")
     with pytest.raises(FileNotFoundError) as e:
-        a, b = IsExists_DirFileName(Path("tests/data/04.Hydrogen/test.dat"))
-    assert str(e.value) == " The file is not Exist ..."
+        a, b = IsExists_DirFileName(FileName)
+    assert str(e.value) == f"{FileName} The file is not Exist ..."
 
 
 def test_unility_IsExists_DirFileName():
@@ -72,4 +74,4 @@ def test_unility_unilityIsExist():
     assert IsExist(Path("tests/data/crest_conformers.xyz")) == None
     with pytest.raises(FileNotFoundError) as e:
         IsExist(Path("kkk.xyz"))
-    assert str(e.value) == " The file is not Exist ..."
+    assert str(e.value) == "kkk.xyz The file is not Exist ..."

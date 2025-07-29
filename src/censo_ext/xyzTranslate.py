@@ -107,7 +107,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
     try:
-        infile = read_xyz_file(args.file)
+        infile: GeometryXYZs = read_xyz_file(args.file)
 
         outfile = GeometryXYZs()
         if args.cut == None:
