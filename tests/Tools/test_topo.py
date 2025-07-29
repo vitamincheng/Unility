@@ -4,6 +4,17 @@ import pytest
 from censo_ext.Tools.topo import Topo
 
 
+def test_topo_FileName_miss_args():
+    x = {"file": Path("test.xyz"),
+         "bonding": 20, "print": True, "debug": False}
+    args = argparse.Namespace(**x)
+
+    with pytest.raises(SystemExit) as e:
+        Sts_topo: Topo = Topo(Path(args.file))
+    assert e.type == SystemExit
+    assert e.value.code == 1  # for argparse error
+
+
 @pytest.mark.parametrize(argnames="input_Path,bonding,CN_Dict",
                          argvalues=[(Path("tests/data/crest_conformers.xyz"), 51,
                                      {1: 3, 2: 4, 3: 4, 4: 1, 5: 1, 6: 3, 7: 4, 8: 4, 9: 1, 10: 1, 11: 1, 12: 1, 13: 2, 14: 1, 15: 3, 16: 3, 17: 1, 18: 1, 19: 3, 20: 1, 21: 3, 22: 1, 23: 4, 24: 4, 25: 1, 26: 1, 27: 4, 28: 1, 29: 1, 30: 4, 31: 1, 32: 1, 33: 4, 34: 1, 35: 4, 36: 1,
@@ -11,7 +22,7 @@ from censo_ext.Tools.topo import Topo
                                     (Path("tests/data/isomers.xyz"), 3,
                                      {1: 4, 2: 4, 3: 4, 4: 1, 5: 1, 6: 3, 7: 1, 8: 1,
                                         9: 4, 10: 4, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1, 16: 1, 17: 1})])
-def test_method_get_cn(input_Path: str, bonding: int, CN_Dict: dict):
+def test_topo_get_cn(input_Path: str, bonding: int, CN_Dict: dict):
     x = {"file": input_Path,
          "bonding": bonding, "print": True, "debug": False}
     args = argparse.Namespace(**x)

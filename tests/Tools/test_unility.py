@@ -3,8 +3,18 @@ from pathlib import Path
 import pytest
 
 
-def test_Unility_IsExists_DirFileName():
+def test_unility_IsExists_DirFileName_miss_args():
     from censo_ext.Tools.utility import IsExists_DirFileName
+    with pytest.raises(SystemExit) as e:
+        a, b = IsExists_DirFileName(Path("tests/data/04.Hydrogen/test.dat"))
+    assert e.type == SystemExit
+    assert e.value.code == 1  # for argparse error
+
+
+def test_unility_IsExists_DirFileName():
+    from censo_ext.Tools.utility import IsExists_DirFileName
+    assert IsExists_DirFileName(
+        Path("tests/data/04.Hydrogen/.anmrrc")) == (Path("tests/data/04.Hydrogen"), ".anmrrc")
     a, b = IsExists_DirFileName(Path("tests/data/04.Hydrogen/anmr.dat"))
     assert a == Path("tests/data/04.Hydrogen")
     assert b == "anmr.dat"
@@ -49,12 +59,6 @@ def test_unility_IsExistReturnBool(input_bool: bool, input_Path: Path):
     assert IsExist_return_bool(input_Path) == input_bool
 
 
-def test_unility_IsExists_DirFileName():
-    from censo_ext.Tools.utility import IsExists_DirFileName
-    assert IsExists_DirFileName(
-        Path("tests/data/04.Hydrogen/.anmrrc")) == (Path("tests/data/04.Hydrogen"), ".anmrrc")
-
-
 def test_unility_ProgramIsExist():
     from censo_ext.Tools.utility import program_IsExist
     assert program_IsExist("xtb") == True
@@ -65,7 +69,7 @@ def test_unility_ProgramIsExist():
     assert e.value.code == 1
 
 
-def test_unility_is_exist():
+def test_unility_unilityIsExist():
     from censo_ext.Tools.utility import IsExist
     assert IsExist(Path("tests/data/crest_conformers.xyz")) == None
     with pytest.raises(SystemExit) as e:

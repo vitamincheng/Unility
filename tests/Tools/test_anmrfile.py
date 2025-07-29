@@ -9,7 +9,22 @@ import os
 import filecmp
 
 
-def test_method_read_OrcaSJ():
+def test_anmrfile_miss_args():
+
+    Missing: OrcaSJ = OrcaSJ()
+
+    with pytest.raises(SystemExit) as e:
+        Missing.method_read_orcaJ()
+    assert e.type == SystemExit
+    assert e.value.code == 1  # for argparse error
+
+    with pytest.raises(SystemExit) as e:
+        Missing.method_read_orcaS()
+    assert e.type == SystemExit
+    assert e.value.code == 1  # for argparse error
+
+
+def test_anmrfile_read_OrcaSJ():
     Hydrogen: OrcaSJ = OrcaSJ()
     assert Hydrogen.method_read_orcaJ(
         Path("tests/data/EthylAcetate/03.Censo/CONF1/NMR/orcaJ.out"))
@@ -17,7 +32,7 @@ def test_method_read_OrcaSJ():
         Path("tests/data/EthylAcetate/03.Censo/CONF1/NMR/orcaS.out"))
 
 
-def test_method_anmrrc():
+def test_anmrfile_anmrrc():
     # For Hydrogen
     file = Anmr(Path("tests/data/04.Hydrogen"))
     file.method_read_anmrrc()
@@ -57,7 +72,7 @@ def test_method_anmrrc():
     assert active == ['C']
 
 
-def test_get_avg_orcaSJ_Exist():
+def test_anmrfile_get_avg_orcaSJ_Exist():
     # For Hydrogen
     file = Anmr(Path("tests/data/04.Hydrogen"))
     exist = file.get_avg_orcaSJ_Exist()
@@ -68,7 +83,7 @@ def test_get_avg_orcaSJ_Exist():
     assert exist == True
 
 
-def test_method_read_enso_error():
+def test_anmrfile_read_enso_miss_args():
     # For Hydrogen
     file = Anmr(Path("tests/data/04.Hydrogen"))
     with pytest.raises(SystemExit) as e:
@@ -77,7 +92,7 @@ def test_method_read_enso_error():
     assert e.value.code == 1
 
 
-def test_method_read_enso():
+def test_anmrfile_read_enso():
     # For Hydrogen
     file = Anmr(Path("tests/data/04.Hydrogen"))
     file.method_read_enso()
@@ -110,7 +125,7 @@ def test_method_read_enso():
     os.remove(filename)
 
 
-def test_Censo():
+def test_anmrfile_Censo():
     from censo_ext.Tools.anmrfile import CensoDat
     infile: CensoDat = CensoDat(Path("tests/data/04.Hydrogen/anmr.dat"))
     assert len(infile) == 77868
@@ -126,7 +141,7 @@ def test_Censo():
     os.remove(outfile)
 
 
-def test_method_read_anmrSJ_H():
+def test_anmrfile_read_anmrSJ_H():
     file = Anmr(Path("tests/data/04.Hydrogen"))
     file.method_read_anmrSJ(Path("anmrh0.out"))
     assert len(file.anmrS) == 33
@@ -137,7 +152,7 @@ def test_method_read_anmrSJ_H():
     assert file.anmrJ[-1][-2] == -0.00107
 
 
-def test_method_read_anmrSJ_C():
+def test_anmrfile_read_anmrSJ_C():
     file = Anmr(Path("tests/data/07.Carbon"))
     file.method_read_anmrSJ(Path("anmrc.out"))
     assert len(file.anmrS) == 28

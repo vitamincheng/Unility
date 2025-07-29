@@ -7,6 +7,16 @@ from censo_ext.Tools.xyzfile import GeometryXYZs
 from censo_ext.Tools.calculate_rmsd import cal_rmsd_xyz
 
 
+def test_calculate_rmsd_miss_args():
+
+    xyzfile = GeometryXYZs()
+
+    with pytest.raises(SystemExit) as e:
+        xyzfile.method_read_xyz()
+    assert e.type == SystemExit
+    assert e.value.code == 1  # for argparse error
+
+
 def test_calculate_rmsd():
     # for crest_conformers.xyz
     xyzfile = GeometryXYZs(

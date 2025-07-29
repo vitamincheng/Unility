@@ -35,7 +35,14 @@ import shutil
 def IsExists_DirFileName(DirFileName: Path):
     IsExist(DirFileName)
     Name: str = DirFileName.name
-    Dir: Path = DirFileName.parents[0]
+    Dir: Path
+    if DirFileName.parents:
+        Dir = DirFileName.parents[0]
+    else:
+        print(DirFileName, " the DirFileName is not exist ...")
+        print(" Exit and close the program !!! ")
+        ic()
+        exit(1)
     return Dir, Name
 
 

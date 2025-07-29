@@ -14,7 +14,7 @@ DirName: Path = Path(
 RefDat: Path = Path("1r_h.dat")
 
 
-def test_cregen_miss_args():
+def test_BOBYQA_cregen_miss_args():
     args_x: dict = {}
     args = argparse.Namespace(**args_x)
     with pytest.raises(SystemExit) as e:

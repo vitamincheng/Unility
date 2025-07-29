@@ -5,7 +5,18 @@ from pointgroup import PointGroup
 from censo_ext.Tools.symmetry import method_get_point_group
 
 
-def test_method_test_point_group_crest_conformers():
+def test_symmetry_crest_conformers_miss_args():
+
+    from censo_ext.Tools.xyzfile import GeometryXYZs
+    xyz = GeometryXYZs(Path("tests/data/crest_conformers000.xyz"))
+
+    with pytest.raises(SystemExit) as e:
+        xyz.method_read_xyz()
+    assert e.type == SystemExit
+    assert e.value.code == 1  # for argparse error
+
+
+def test_symmetry_crest_conformers():
 
     from censo_ext.Tools.xyzfile import GeometryXYZs
     xyz = GeometryXYZs(Path("tests/data/crest_conformers.xyz"))
@@ -15,7 +26,7 @@ def test_method_test_point_group_crest_conformers():
         assert Result == 'C1'
 
 
-def test_method_test_point_group_crest_conformers_H():
+def test_symmetry_crest_conformers_H():
 
     from censo_ext.Tools.xyzfile import GeometryXYZs
     xyz = GeometryXYZs(Path("tests/data/crest_conformers.xyz"))
@@ -25,7 +36,7 @@ def test_method_test_point_group_crest_conformers_H():
         assert Result == 'C1'
 
 
-def test_method_test_point_group_isomers():
+def test_symmetry_isomers():
     from censo_ext.Tools.xyzfile import GeometryXYZs
     # for isomers.xyz
     xyz = GeometryXYZs(Path("tests/data/isomers.xyz"))
@@ -38,7 +49,7 @@ def test_method_test_point_group_isomers():
         assert Result == expected_Result[idx]
 
 
-def test_method_test_point_group_isomers_H():
+def test_symmetry_isomers_H():
     from censo_ext.Tools.xyzfile import GeometryXYZs
     # for isomers.xyz
     xyz = GeometryXYZs(Path("tests/data/isomers.xyz"))
