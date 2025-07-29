@@ -71,8 +71,9 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
     '''
     nspins: int = len(v)
     if J.shape != (nspins, nspins):
-        raise ValueError("Your JCoupl is Error")
-        os._exit(0)
+        print("Your JCoup is Error")
+        ic()
+        raise ValueError("Your JCoup is Error")
 
     H: npt.NDArray[np.complex128]
     T: npt.NDArray[np.float64]
@@ -116,11 +117,9 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     '''
     nspins: int = len(v)
     if J.shape != (nspins, nspins):
-        raise ValueError("Your JCoupl is Error")
-        os._exit(0)
+        raise ValueError("Your JCoup is Error")
     if idx0_nspins >= nspins:
         raise ValueError("Your idx0_nspins is Error")
-        os._exit(0)
 
     H: npt.NDArray[np.complex128]
     T: npt.NDArray[np.float64]
@@ -220,7 +219,8 @@ def print_plot(inpeaklist: list, dpi: int, nIntergals: int, args: argparse.Names
     else:
         print("something wrong in your print_plot method hidden setting")
         ic()
-        exit(1)
+        raise ValueError(
+            "something wrong in your print_plot method hidden setting")
 
 
 def mpl_plot(peaklist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, hidden=False) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
@@ -244,7 +244,7 @@ def mpl_plot(peaklist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, h
     else:
         print("Please use the nmrsim mplplot ")
         ic()
-        exit(0)
+        raise ValueError("Please use the nmrsim mplplot ")
 
 
 def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:

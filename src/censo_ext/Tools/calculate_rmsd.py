@@ -342,7 +342,8 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     if p_all.shape[0] != q_all.shape[0]:
         print("error: Structures not same size")
-        exit(0)
+        ic()
+        raise ValueError("error: Structures not same size")
 
     # Typing
     from typing import Union
@@ -381,7 +382,8 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
             pass
         else:
             print("Only support under ignore Hydrogen condition ")
-            exit(0)
+            ic()
+            raise ValueError("Only support under ignore Hydrogen condition ")
     else:
         pass
 
@@ -443,8 +445,8 @@ def cal_rmsd_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     delete_all_files(xyz_tmp)
 
     if len(idx_atom1) == 0:
-        print("Someting wrong in your xyzfile (idx_atom)")
-        ic()
-        exit(1)
+        raise ValueError(str("The value of idx_atom1 is error"))
+    elif len(coord_square) == 0:
+        raise ValueError(str("The value of coord_square is error"))
     else:
         return coord_square, result_rmsd

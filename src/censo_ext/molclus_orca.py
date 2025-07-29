@@ -109,7 +109,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if len(match) == 0:
         print(" Need the orca program !!!!")
         print(" Exit the program ")
-        exit(0)
+        from icecream import ic
+        ic()
+        raise ValueError(" Need the orca Program !!!")
+
     orca_path = match[0]+"/orca"
 #    orca_path="~/orca_5_0_4_linux_x86-64_shared_openmpi411/orca"
 #    orca_path="~/orca_6_0_0_linux_x86-64_avx2_shared_openmpi416/orca"

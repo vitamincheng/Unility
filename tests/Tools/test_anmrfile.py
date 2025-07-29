@@ -13,15 +13,13 @@ def test_anmrfile_miss_args():
 
     Missing: OrcaSJ = OrcaSJ()
 
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(FileNotFoundError) as e:
         Missing.method_read_orcaJ()
-    assert e.type == SystemExit
-    assert e.value.code == 1  # for argparse error
+    assert str(e.value) == " The file is not Exist ..."
 
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(FileNotFoundError) as e:
         Missing.method_read_orcaS()
-    assert e.type == SystemExit
-    assert e.value.code == 1  # for argparse error
+    assert str(e.value) == " The file is not Exist ..."
 
 
 def test_anmrfile_read_OrcaSJ():
@@ -86,10 +84,9 @@ def test_anmrfile_get_avg_orcaSJ_Exist():
 def test_anmrfile_read_enso_miss_args():
     # For Hydrogen
     file = Anmr(Path("tests/data/04.Hydrogen"))
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(FileNotFoundError) as e:
         file.method_read_enso(Path("anmr_enso_error"))
-    assert e.type == SystemExit
-    assert e.value.code == 1
+    assert str(e.value) == " The file is not Exist ..."
 
 
 def test_anmrfile_read_enso():

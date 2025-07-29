@@ -9,10 +9,9 @@ def test_topo_FileName_miss_args():
          "bonding": 20, "print": True, "debug": False}
     args = argparse.Namespace(**x)
 
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(FileNotFoundError) as e:
         Sts_topo: Topo = Topo(Path(args.file))
-    assert e.type == SystemExit
-    assert e.value.code == 1  # for argparse error
+    assert str(e.value) == " The file is not Exist ..."
 
 
 @pytest.mark.parametrize(argnames="input_Path,bonding,CN_Dict",

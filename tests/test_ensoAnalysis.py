@@ -22,19 +22,18 @@ def test_ensoAnalysis_miss_args():
 def test_ensoAnalysis_Hydrogen_miss():
     x: dict = {"file": file_anmr, "new": None}
     args = argparse.Namespace(**x)
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         ensoAnalysis.main(args)
-    assert e.type == SystemExit
-    assert e.value.code == 1  # for argparse error
+    assert str(e.value) == " Input file is exists but backup file is not exist. "
 
 
 def test_ensoAnalysis_Hydrogen_miss_file():
     x: dict = {"file": "tests/data/04.Hydrogen/anmr_enso1", "new": None}
     args = argparse.Namespace(**x)
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(FileNotFoundError) as e:
         ensoAnalysis.main(args)
-    assert e.type == SystemExit
-    assert e.value.code == 0  # for argparse error
+    assert str(
+        e.value) == f"tests/data/04.Hydrogen/anmr_enso1 was not found or is a directory"
 
 
 def test_ensoAnalysis_Hydrogen_new_read():

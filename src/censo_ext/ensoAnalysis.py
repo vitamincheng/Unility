@@ -179,12 +179,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print(
                     " IF you want to Create a New project, please Add -n or --new in arugment.")
                 print(" Exit and Close the program !!!")
-                exit(1)
+                raise ValueError(
+                    " Input file is exists but backup file is not exist. ")
 
     else:
         print(" the file is not exist.", args.file)
         print(" Exit and Close the program !!! ")
-        exit(0)
+        ic()
+        raise FileNotFoundError(
+            str(args.file) + " was not found or is a directory")
 
     if fileExists == False or backupfileExists == False:
         print("    " + args.file + " or " +

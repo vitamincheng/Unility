@@ -10,10 +10,9 @@ def test_symmetry_crest_conformers_miss_args():
     from censo_ext.Tools.xyzfile import GeometryXYZs
     xyz = GeometryXYZs(Path("tests/data/crest_conformers000.xyz"))
 
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(FileNotFoundError) as e:
         xyz.method_read_xyz()
-    assert e.type == SystemExit
-    assert e.value.code == 1  # for argparse error
+    assert str(e.value) == " The file is not Exist ..."
 
 
 def test_symmetry_crest_conformers():

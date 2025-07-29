@@ -170,7 +170,7 @@ class Geometry():
             print(comments)
             print(" Quit the program !!!")
             ic()
-            exit(1)
+            raise ValueError(" something wrong in your xyz file !!! ")
 
         self.method_rewrite_comment()
         return
@@ -233,7 +233,7 @@ class GeometryXYZs():
         else:
             print("Too much xyzs structures in your xyz file")
             ic()
-            exit(1)
+            raise ValueError("Too much xyzs structures in your xyz file")
 
     def method_idx_molecules_xyzs(self, idx1: int = 1) -> bool:
         fileName: Path = Path("~temp.xyz")
@@ -253,7 +253,8 @@ class GeometryXYZs():
                 print(" Something wrong in your Molecule Separation xyz file")
                 print(" Exit to the program !!!")
                 ic()
-                exit(1)
+                raise ValueError(
+                    " Something wrong in your Molecule Separation xyz file")
 
         path = "Separation"
         isExist: bool = os.path.exists(path)
@@ -266,11 +267,11 @@ class GeometryXYZs():
         return True
 
     def method_Sts_extend(self, Sts_: list[Geometry]) -> None:
-        raise NotImplementedError
+        raise NotImplementedError("Under Construct")
         # self.Sts.extend(Sts_)
 
     def method_Sts_append(self, St: Geometry) -> None:
-        raise NotImplementedError
+        raise NotImplementedError("Under Construct")
         # self.Sts.append(St)
 
     def method_read_xyz(self) -> None:

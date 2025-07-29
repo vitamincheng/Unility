@@ -63,7 +63,6 @@ def test_FactorAnalysis_F_bond_broken_incl_H() -> None:
                "remove_idx": None, "add_idx": None, "Filter": True}
     args = argparse.Namespace(**x)
 
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         FactorAnalysis.main(args)
-    assert e.type == SystemExit
-    assert e.value.code == 0    # for argprarse wrong
+    assert str(e.value) == "Only support under ignore Hydrogen condition "

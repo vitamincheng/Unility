@@ -42,7 +42,8 @@ def IsExists_DirFileName(DirFileName: Path):
         print(DirFileName, " the DirFileName is not exist ...")
         print(" Exit and close the program !!! ")
         ic()
-        exit(1)
+        raise FileNotFoundError(
+            str(DirFileName) + " was not found or is a directory")
     return Dir, Name
 
 
@@ -124,7 +125,6 @@ def save_dict(fileName: Path, Data: dict) -> None:
 #            print("something wrong in your orcaS.out")
 #            print("Exit to the program")
 #            ic()
-#            exit(1)
 #    return Data
 
 
@@ -149,7 +149,7 @@ def IsExist(fileName: Path) -> None:
         print(f"{fileName} the file is not exist ...")
         print("    Exit and close the program !!! ")
         ic()
-        exit(1)
+        raise FileNotFoundError(" The file is not Exist ...")
 
 
 def IsExist_return_bool(fileName: Path) -> bool:
@@ -171,7 +171,7 @@ def program_IsExist(ProgramName: str) -> bool:
         print(ProgramName, " the program is not exist ...")
         print(" Exit and close the program !!! ")
         ic()
-        exit(1)
+        raise ValueError(" the program is not Exist ...")
 
 
 def save_figure(fileName="nmrplot") -> None:

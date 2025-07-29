@@ -5,10 +5,9 @@ import pytest
 
 def test_unility_IsExists_DirFileName_miss_args():
     from censo_ext.Tools.utility import IsExists_DirFileName
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(FileNotFoundError) as e:
         a, b = IsExists_DirFileName(Path("tests/data/04.Hydrogen/test.dat"))
-    assert e.type == SystemExit
-    assert e.value.code == 1  # for argparse error
+    assert str(e.value) == " The file is not Exist ..."
 
 
 def test_unility_IsExists_DirFileName():
@@ -63,16 +62,14 @@ def test_unility_ProgramIsExist():
     from censo_ext.Tools.utility import program_IsExist
     assert program_IsExist("xtb") == True
     assert program_IsExist("orca") == True
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         program_IsExist("kkk")
-    assert e.type == SystemExit
-    assert e.value.code == 1
+    assert str(e.value) == " the program is not Exist ..."
 
 
 def test_unility_unilityIsExist():
     from censo_ext.Tools.utility import IsExist
     assert IsExist(Path("tests/data/crest_conformers.xyz")) == None
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(FileNotFoundError) as e:
         IsExist(Path("kkk.xyz"))
-    assert e.type == SystemExit
-    assert e.value.code == 1
+    assert str(e.value) == " The file is not Exist ..."

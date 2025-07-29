@@ -23,10 +23,9 @@ def test_xyzSplit_miss_cuts():
                "atoms": [52, 55], "out": "tests/compare/output.xyz", "print": False}
     args = argparse.Namespace(**x)
 
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         xyzSplit.main(args)
-    assert e.type == SystemExit
-    assert e.value.code == 0    # for argprarse wrong
+    assert str(e.value) == " Please input your atoms that you want to split "
 
 
 def test_xyzSplit_miss_atoms():
@@ -34,10 +33,9 @@ def test_xyzSplit_miss_atoms():
                "atoms": None, "out": "tests/compare/output.xyz", "print": False}
     args = argparse.Namespace(**x)
 
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         xyzSplit.main(args)
-    assert e.type == SystemExit
-    assert e.value.code == 0    # for argprarse wrong
+    assert str(e.value) == " Please input your atoms that you want to split "
 
 
 def test_xyzSplit_miss_cuts_atoms():
@@ -45,10 +43,9 @@ def test_xyzSplit_miss_cuts_atoms():
                "atoms": None, "out": "tests/compare/output.xyz", "print": False}
     args = argparse.Namespace(**x)
 
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         xyzSplit.main(args)
-    assert e.type == SystemExit
-    assert e.value.code == 0    # for argprarse wrong
+    assert str(e.value) == " Please input your atoms that you want to split "
 
 
 def test_xyzSplit_miss():

@@ -21,7 +21,7 @@ def test_qm_miss_args():
     with pytest.raises(ValueError) as e:
         R_peak: list[tuple[float, float]] = qm_partial(v=v, J=J, nIntergals=1,
                                                        idx0_nspins=1, args=argparse.Namespace(**x))
-    assert str(e.value) == "Your JCoupl is Error"
+    assert str(e.value) == "Your JCoup is Error"
 
 
 def test_qm_partial_full():

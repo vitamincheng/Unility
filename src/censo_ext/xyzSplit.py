@@ -108,7 +108,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.cuts == None or args.atoms == None:
         print(" Please input your atoms that you want to split ")
         print(" Exit to this program !!!")
-        exit(0)
+        from icecream import ic
+        ic()
+        raise ValueError(" Please input your atoms that you want to split ")
 
     from censo_ext.Tools.utility import delete_file_bool
     Delete_work: bool = False

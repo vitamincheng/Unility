@@ -24,12 +24,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
             idx_element = list(coord_square.keys())
         coord.append(var)
 
-    if len(idx_element) != 0:
-        idx_STD: list[int] = idx_element
-    else:
-        print("idx_coord is not exist and so quit this program !!!")
-        ic()
-        exit(1)
+    idx_STD: list[int] = idx_element
 
     dict_idx_STD: dict[int, float] = dict(
         zip(idx_STD, np.std(np.array(coord).T, axis=1).astype(float)))
@@ -113,7 +108,7 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
         if len(idx_STD_L) < 1 or len(idx_STD_R) < 1:
             print("something wrong in your List_STD ")
             ic()
-            exit(1)
+            raise ValueError("something wrong in your List_STD ")
 
         elif len(idx_STD_L) < (nCONFS-2) and len(idx_STD_R) < (nCONFS-2):
 

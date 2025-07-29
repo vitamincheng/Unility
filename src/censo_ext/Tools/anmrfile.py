@@ -118,9 +118,10 @@ class Anmrrc():
                 reference = x[1]
 
         if reference is None:
-            raise ValueError("No reference in your .anmrrc file")
+
+            print("No reference in your .anmrrc file")
             ic()
-            exit(0)
+            raise ValueError("No reference in your .anmrrc file")
         return reference
 
 
@@ -165,10 +166,11 @@ class Anmr():
         '''Average of orcaJ.out and orcaS.out in /NMR/CONFXX folder'''
         print(" ===== Average of all folder orcaS.out and orcaJ.out =====")
         if len(self.nucinfo) == 0 or self.enso.size == 0:
-            print(" Need to read the anmr_nucinfo and anmr_enso enso")
+            print(" Need to read the anmr_nucinfo and anmr_enso enso ")
             print(" Exit the program !!! ")
             ic()
-            exit(0)
+            raise FileNotFoundError(
+                " Need to read the anmr_nucinfo and anmr_enso enso ")
         else:
             # for Normal of weight of anmr_enso
             weight: npt.NDArray[np.float64] = self.enso['BW']
@@ -176,9 +178,9 @@ class Anmr():
             idx_CONF: npt.NDArray[np.int64] = self.enso['CONF'].astype(int)
 
             if (np.sum(switch) == 0):
-                print("anmr_enso: Table - ONOFF is Zero ")
+                print(" anmr_enso: Table - ONOFF is Zero ")
                 ic()
-                exit(0)
+                raise ValueError(" anmr_enso: Table - ONOFF is Zero ")
 
             weight = weight*switch
             weight = weight / np.sum(weight)
@@ -232,10 +234,11 @@ class Anmr():
         print(" Replace the equivalent of Sparams and JCoups")
 
         if len(self.nucinfo) == 0 or self.enso.size == 0:
-            print(" Need to read the anmr_nucinfo and anmr_enso enso")
+            print(" Need to read the anmr_nucinfo and anmr_enso enso ")
             print(" Exit the program !!! ")
             ic()
-            exit(1)
+            raise FileNotFoundError(
+                " Need to read the anmr_nucinfo and anmr_enso enso ")
         else:
             print("===== Update the equivalent of SParams and JCoups =====")
 
@@ -419,7 +422,7 @@ class Anmr():
             return False
 
     def method_save_adjust_avg_orcaS(self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError("Under Construct")
         # fileName_Average_orcaS = str(
         #    self.__Directory / Path("Average/NMR/orcaS.out"))
         # from censo_ext.Tools.utility import Save_Dict_orcaS
@@ -468,9 +471,9 @@ class Anmr():
         if start_shielding_idx != 0:
             nNuclei: int = start_idx - start_shielding_idx - 2
         else:
-            print("Something wrong")
+            print(" Something wrong ")
             ic()
-            exit(1)
+            raise ValueError(" Something wrong ")
         del bool_first_line, start_shielding_idx
 
         nLines = 0
@@ -578,7 +581,7 @@ class Anmr():
         if len(in_np.dtype) != 8:                                           # type:ignore
             print("something wrong in your anmr_enso file")
             ic()
-            exit(1)
+            raise FileNotFoundError("something wrong in your anmr_enso file")
 
     def method_read_enso(self, file: Path = Path("anmr_enso")) -> None:
         ''' anmr_enso :  8 columns '''
@@ -591,7 +594,7 @@ class Anmr():
         if len(self.enso.dtype) != 8:                                       # type:ignore
             print("something wrong in your anmr_enso file")
             ic()
-            exit(1)
+            raise FileNotFoundError("something wrong in your anmr_enso file")
 
     def method_print_enso(self) -> None:
         print("ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi     ")
@@ -662,7 +665,7 @@ class OrcaSJ():
             print(file, " the data of the file is some error ...")
             print("    exit and close the program !!! ")
             ic()
-            exit(0)
+            raise ValueError(" the data of the file is some error ...")
 
         for idx, line in enumerate(lines):
             if idx >= start_idx and idx <= end_idx:
@@ -719,9 +722,9 @@ class OrcaSJ():
                 if re.search(r"CHEMICAL SHIELDING SUMMARY", line):
                     start_idx = idx + 6
         else:
-            print("This program is not work with before orca 5.0 ")
+            print(" This program is not work with before orca 5.0 ")
             ic()
-            exit(0)
+            raise ValueError(" This program is not work with before orca 5.0 ")
 
         for idx, line in enumerate(lines):
             if idx >= start_idx and idx <= end_idx:
@@ -734,7 +737,7 @@ class OrcaSJ():
         return True
 
     def method_save_orcaS(self) -> list:
-        raise NotImplementedError
+        raise NotImplementedError("Under Construct")
         # if len(self.idxAtoms) == len(self.SParams):
         #    lines: list = []
         #    lines.append("  Nucleus  Element    Isotropic     Anisotropy\n")
@@ -753,7 +756,7 @@ class OrcaSJ():
         #    exit(0)
 
     def method_save_orcaJ(self) -> list:
-        raise NotImplementedError
+        raise NotImplementedError("Under Construct")
         # if len(self.idxAtoms) == len(self.JCoups[0]):
         #    lines: list = []
         #    list_idxAtoms: list = list(self.idxAtoms.keys())
@@ -786,7 +789,7 @@ class OrcaSJ():
             print("your orcaJ and orcaS is not fit each other")
             print("    exit and close the program !!! ")
             ic()
-            exit(0)
+            raise ValueError("your orcaJ and orcaS is not fit each other")
 
     def method_print_orcaJ(self) -> None:
         for idx in range(self.JCoups[0].size):
@@ -851,7 +854,7 @@ class CensoDat():
         else:
             print("two dat file is not the same scale")
             ic()
-            exit(0)
+            raise ValueError("two dat file is not the same scale")
         return self
 
     def set_fileName(self, file: Path) -> None:

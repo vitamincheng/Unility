@@ -12,10 +12,9 @@ def test_factor_analysis_miss_args():
                "replace": False, "factor": 0.5}
     args = argparse.Namespace(**x)
 
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(FileNotFoundError) as e:
         idx1_minor_factor, Table_S = method_factor_analysis(args)
-    assert e.type == SystemExit
-    assert e.value.code == 1  # for argparse error
+    assert str(e.value) == " The file is not Exist ..."  # for argparse error
 
 
 def test_factor_analysis():

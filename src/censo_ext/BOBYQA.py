@@ -120,9 +120,9 @@ def rosenbrock(x0) -> float:
 
         Dat_Cal: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
     else:
-        print("Something wrong")
+        print("prog is Error")
         ic()
-        exit(0)
+        raise ValueError("prog is Error")
 
     Dat_Ref: CensoDat = CensoDat(file=Path(Directory/Dat_fileName))
     Dat_Cal.method_normalize_dat()

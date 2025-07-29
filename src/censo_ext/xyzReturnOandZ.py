@@ -169,7 +169,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.atom == None and args.auto == False:
         print(" No any sepific atom in your provided arguments ")
         ic()
-        exit(0)
+        raise ValueError(" No any sepific atom in your provided arguments ")
 
     p_idx: int
     q_idx: int

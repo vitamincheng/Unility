@@ -11,10 +11,11 @@ def test_calculate_rmsd_miss_args():
 
     xyzfile = GeometryXYZs()
 
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(FileNotFoundError) as e:
         xyzfile.method_read_xyz()
-    assert e.type == SystemExit
-    assert e.value.code == 1  # for argparse error
+    assert str(e.value) == f". was not found or is a directory"
+    # assert e.type == SystemExit
+    # assert e.value.code == 1  # for argparse error
 
 
 def test_calculate_rmsd():

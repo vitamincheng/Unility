@@ -148,7 +148,8 @@ def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int
         # exit if an H atom has not exactly 1 neighbor
         if mol.get_atomic_numbers()[idx] == 1 and len(neighbors[idx+1]) != 1:  # type: ignore # nopep8
             print(f"ERROR: H atom {idx+1} has not exactly one neighbor! File in: {DirFileName}")  # nopep8
-            exit(0)
+            ic()
+            raise ValueError(" Error H atom has not exactly one neighbor ! ")
 
     return mol, neighbors
 
