@@ -45,22 +45,22 @@ class Topo():
         Returns:
             [list,int] : the list of atom's index in your assigned bond (include H atom)
         """
-        Result: list[int] = self.method_broken_bond(args)
+        Res: list[int] = self.method_broken_bond(args)
         neighbors: dict[int, npt.NDArray] = self.__neighbors
         idx1_H_atoms: list[int] = self.idx1_Hydrogen_atom
         NeighborsAtoms_H_atoms: dict[int, int] = {}  # {H:C}
         for idx in idx1_H_atoms:
             NeighborsAtoms_H_atoms[idx] = neighbors[idx][0]
         addition: list[int] = []
-        for idx in Result:
+        for idx in Res:
             for key, value in NeighborsAtoms_H_atoms.items():
                 if idx == value:
                     addition.append(key)
-        Result = Result + addition
-        Result.sort()
+        Res = Res + addition
+        Res.sort()
         if args.print:
-            print(" Terminal_Atoms_int (include H) : ", Result)
-        return Result
+            print(" Terminal_Atoms_int (include H) : ", Res)
+        return Res
 
     def method_broken_bond(self, args: argparse.Namespace) -> list[int]:
         """_summary_
@@ -125,7 +125,7 @@ class Topo():
             print(" Bonding : ", idx_p, " @ ", Neighbors_Atoms)
         return Neighbors_Atoms
 
-    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray], list[list[int]], list[list[Graph]]]:
+    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray], list[list[int]], list[list[int]]]:
         '''
         '''
         mol: ml4nmr.Atoms | list[ml4nmr.Atoms] = self.__mol
@@ -196,9 +196,9 @@ class Topo():
         g_straight: Graph = g.copy()
 
         # residual_Mols is use graph : is_connected to find the connect node and append
-        residual_Mols: list[list[Graph]] = []
+        residual_Mols: list[list[int]] = []
         for atom in residual_atoms:
-            Molecules: list[Graph] = []
+            Molecules: list[int] = []
             for node in list(g_straight.nodes()):  # type: ignore
                 if g_straight.is_connected(atom, node) == True:
                     Molecules.append(node)

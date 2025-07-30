@@ -28,31 +28,31 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
 
     dict_idx_STD: dict[int, float] = dict(
         zip(idx_STD, np.std(np.array(coord).T, axis=1).astype(float)))
-    avg_STD: np.float64 = np.float64(
+    avSTD: np.float64 = np.float64(
         np.average(np.array(list(dict_idx_STD.values()))))
 
     print(" ========== Factor Analysis Processing ========== ")
     print("\n Average of STD      : ", end="")
-    print(f"{avg_STD:>12.8f}")
+    print(f"{avSTD:>12.8f}")
     print(f" Threshold {
-          args.factor:3.2f} *STD : {avg_STD*args.factor:>12.8}", "\n")
+          args.factor:3.2f} *STD : {avSTD*args.factor:>12.8}", "\n")
     print(f" Atom        STD     Major (>STD)  or    Low (<({args.factor}STD)")
-    idx1_major_factor: list[int] = []
-    idx1_minor_factor: list[int] = []
+    idx1_MajorFactor: list[int] = []
+    idx1_MinorFactor: list[int] = []
 
     for idx, x in dict_idx_STD.items():
-        if (x >= avg_STD):
+        if (x >= avSTD):
             print(f"{int(idx):>5d} {x:>10.5f}     Major factor")
-            idx1_major_factor.append(int(idx))
-        elif (x <= avg_STD*args.factor):
+            idx1_MajorFactor.append(int(idx))
+        elif (x <= avSTD*args.factor):
             print(f"{int(idx):>5d} {x:>10.5f}", " "*23, "Low factor")
-            idx1_minor_factor.append(int(idx))
+            idx1_MinorFactor.append(int(idx))
         else:
             print(f"{idx:>5d} {x:>10.5f}")
 
-    print("\n Major Factor List: ", idx1_major_factor)
+    print("\n Major Factor List: ", idx1_MajorFactor)
     print(" ========== Finished ==========")
-    return idx1_minor_factor, dict_idx_STD
+    return idx1_MinorFactor, dict_idx_STD
 
 
 def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
@@ -64,72 +64,72 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
     print(" ")
     print(" ========== Optimized Broken-Bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
-    bonding_low_factor: list[npt.NDArray] = []
+    bonding_LowFactor: list[npt.NDArray] = []
     for idx in low_factor:
         args_x: dict = {"file": args.file, "bonding": idx,
                         "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
-        bonding_low_factor.append(
+        bonding_LowFactor.append(
             np.array(Sts_topo.method_bonding(argparse.Namespace(**args_x))))
 
-    Pair_low_factor: list[list[int]] = []
+    PairLowFactor: list[list[int]] = []
 
     for idx0, x in enumerate(low_factor):
-        for idy0, y in enumerate(bonding_low_factor[idx0]):
-            Pair_low_factor.append([x, int(bonding_low_factor[idx0][idy0])])
+        for idy0, y in enumerate(bonding_LowFactor[idx0]):
+            PairLowFactor.append([x, int(bonding_LowFactor[idx0][idy0])])
 
-    for x in Pair_low_factor:
+    for x in PairLowFactor:
         if x[0] > x[1]:
             x[0], x[1] = x[1], x[0]
 
-    unique_pair_low_factor: list[list[int]] = [
-        list(t) for t in set(tuple(x) for x in Pair_low_factor)]
+    unique_PairLowFactor: list[list[int]] = [
+        list(t) for t in set(tuple(x) for x in PairLowFactor)]
 
     nConfs: int = len(list(Table_S.keys()))
     idx_STD: dict[int, float] = Table_S
 
     idx_ratio: list[list[int]] = []
     Ratio: list[float] = []
-    for idx, x in enumerate(unique_pair_low_factor):
+    for idx, x in enumerate(unique_PairLowFactor):
 
         args_x = {"file": args.file, "bond_broken": [
             x[0], x[1]], "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
-        idx_STD_L: list[int] = Sts_topo.method_broken_bond(
+        idxSTD_L: list[int] = Sts_topo.method_broken_bond(
             argparse.Namespace(**args_x))
         args_x = {"file": args.file, "bond_broken": [
             x[1], x[0]], "print": False, "debug": False}
-        idx_STD_R: list[int] = Sts_topo.method_broken_bond(
+        idxSTD_R: list[int] = Sts_topo.method_broken_bond(
             argparse.Namespace(**args_x))
 
-        total_STD_L: float = float(0)
-        total_STD_R: float = float(0)
+        tSTD_L: float = float(0)  # total STD Left Data
+        tSTD_R: float = float(0)  # Total STD Right Data
 
-        if len(idx_STD_L) < 1 or len(idx_STD_R) < 1:
+        if len(idxSTD_L) < 1 or len(idxSTD_R) < 1:
             print("something wrong in your List_STD ")
             ic()
             raise ValueError("something wrong in your List_STD ")
 
-        elif len(idx_STD_L) < (nConfs-2) and len(idx_STD_R) < (nConfs-2):
+        elif len(idxSTD_L) < (nConfs-2) and len(idxSTD_R) < (nConfs-2):
 
             print(f" Index of atoms :      {x[0]:4d}   vs {x[1]:4d}")
-            print(f" Sizes of deviation :  {int(len(idx_STD_L)): 4d}   vs {int(len(idx_STD_R)): 4d}")  # nopep8
+            print(f" Sizes of deviation :  {int(len(idxSTD_L)): 4d}   vs {int(len(idxSTD_R)): 4d}")  # nopep8
 
-            for y in idx_STD_L:
-                total_STD_L += float(idx_STD[y])
-            for y in idx_STD_R:
-                total_STD_R += float(idx_STD[y])
+            for y in idxSTD_L:
+                tSTD_L += float(idx_STD[y])
+            for y in idxSTD_R:
+                tSTD_R += float(idx_STD[y])
 
-            print(f" STD :           {total_STD_L:10.5f}   vs {total_STD_R: 10.5f}")  # nopep8
-            print(f" STD/STD =    {(total_STD_L/total_STD_R):10.7f}")
-            if total_STD_L/total_STD_R < 1:
-                print(f" RATIO   =    {(total_STD_L/total_STD_R):10.7f}")
+            print(f" STD :           {tSTD_L:10.5f}   vs {tSTD_R: 10.5f}")  # nopep8
+            print(f" STD/STD =    {(tSTD_L/tSTD_R):10.7f}")
+            if tSTD_L/tSTD_R < 1:
+                print(f" RATIO   =    {(tSTD_L/tSTD_R):10.7f}")
                 idx_ratio.append([x[1], x[0]])
-                Ratio.append(total_STD_L/total_STD_R)
+                Ratio.append(tSTD_L/tSTD_R)
             else:
-                print(f" RATIO   =    {(total_STD_R/total_STD_L):10.7f}")
+                print(f" RATIO   =    {(tSTD_R/tSTD_L):10.7f}")
                 idx_ratio.append([x[0], x[1]])
-                Ratio.append(total_STD_R/total_STD_L)
+                Ratio.append(tSTD_R/tSTD_L)
             print("")
 
     print("")

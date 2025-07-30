@@ -130,8 +130,8 @@ def kabsch_rotate(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64]) -> npt
     U: npt.NDArray[np.float64] = kabsch(P, Q)
 
     # Rotate P
-    Result: npt.NDArray[np.float64] = np.dot(P, U)
-    return Result
+    Res: npt.NDArray[np.float64] = np.dot(P, U)
+    return Res
 
 
 def kabsch(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:

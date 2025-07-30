@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
 import numpy.typing as npt
-import os
 import argparse
 from icecream import ic
 
@@ -101,11 +100,11 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
     peaklist: npt.NDArray[np.float64] = iv[iv[:, 1] >= args.cutoff]
     # ic(peaklist)
     from nmrsim.math import normalize_peaklist
-    normalized_plist: list[tuple[float, float]
-                           ] = normalize_peaklist(peaklist, nIntergals)
-    print_plot(normalized_plist, dpi=1000,
+    Normal_plist: list[tuple[float, float]
+                       ] = normalize_peaklist(peaklist, nIntergals)
+    print_plot(Normal_plist, dpi=1000,
                nIntergals=nIntergals, args=args, Active_range=10)
-    return normalized_plist
+    return Normal_plist
 
 
 def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nIntergals, args: argparse.Namespace) -> list[tuple[float, float]]:
@@ -164,10 +163,10 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     # ic(peaklist)
     # ic(iv[:, 1])
     from nmrsim.math import normalize_peaklist
-    normalized_plist: list[tuple[float, float]
-                           ] = normalize_peaklist(peaklist, nIntergals)
+    Normal_plist: list[tuple[float, float]
+                       ] = normalize_peaklist(peaklist, nIntergals)
     # ic(normalized_plist)
-    return normalized_plist
+    return Normal_plist
 
 
 def print_plot(in_plist: list, dpi: int, nIntergals: int, args: argparse.Namespace, Active_range: int, hidden=True) -> npt.NDArray:

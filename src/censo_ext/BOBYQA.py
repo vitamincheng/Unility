@@ -66,6 +66,7 @@ def cml(descr) -> argparse.Namespace:
 
     parser.add_argument(
         "-p",
+        "--prog",
         dest="prog",
         action="store_true",
         help="Use external anmr execute file",
@@ -89,20 +90,7 @@ def rosenbrock(x0) -> float:
     np.savetxt(Directory/FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
 
     from censo_ext.Tools.anmrfile import CensoDat
-    if prog == None:
-        # ic("internal")
-        import censo_ext.anmr as anmr
-        x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0, 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
-                   'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': False}
-        import sys
-        sys.stdout = open(os.devnull, 'w')
-        anmr.main(args=argparse.Namespace(**x))
-        # np_dat: npt.NDArray[np.float64] = anmr.main(args=argparse.Namespace(**x))
-        sys.stdout = sys.__stdout__
-
-        Dat_Cal: CensoDat = CensoDat(file=Directory/Path(x["out"]))
-
-    elif prog == True:
+    if prog == True:
         # ic("external")
         cwd: Path = Path(os.getcwd())
         os.chdir(Directory)
@@ -118,6 +106,18 @@ def rosenbrock(x0) -> float:
         os.chdir(cwd)
 
         Dat_Cal: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
+    elif prog == False:
+        # ic("internal")
+        import censo_ext.anmr as anmr
+        x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0, 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
+                   'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': False}
+        import sys
+        sys.stdout = open(os.devnull, 'w')
+        anmr.main(args=argparse.Namespace(**x))
+        # np_dat: npt.NDArray[np.float64] = anmr.main(args=argparse.Namespace(**x))
+        sys.stdout = sys.__stdout__
+
+        Dat_Cal: CensoDat = CensoDat(file=Directory/Path(x["out"]))
     else:
         print("Something wrong in your argument ")
         ic()
@@ -251,8 +251,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
         ic(Dat_fileName)
     if args.limit:                          # default 0.20 ppm
         limit_border = args.limit
-
-    prog = args.prog
+    if args.prog:
+        prog = args.prog
+    else:
+        prog = False
 
     from censo_ext.Tools.utility import IsExist_return_bool
     if IsExist_return_bool(Directory / FileName_OrcaS):                 # type: ignore # nopep8
@@ -262,7 +264,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
             Scan_group_Peaks()
             return (True, False)
         else:
-            return Create_BOBYQA()
+            return Create_BOBYQA()  # (False,True)
     else:
         return (False, False)
 

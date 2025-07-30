@@ -18,7 +18,7 @@ import copy
 class Geometry():
     '''Stores all of the data in an xyz file (single confromer) '''
 
-    def __init__(self, names: dict[int, str], coord: list[npt.NDArray], extras: list[list[str]], comment: str = "", energy: float = 0, ncluster: int = 0) -> None:
+    def __init__(self, names: dict[int, str], coord: list[npt.NDArray], extras: list[list[str]], comment: str = "", energy: float = 0, nClusters: int = 0) -> None:
 
         self.names: dict[int, str] = names                  # atom's name   H Li Na K B C O S F Cl # nopep8
         self.coord: list[npt.NDArray[np.float64]] = coord
@@ -26,7 +26,7 @@ class Geometry():
         self.nAtoms: int = len(names)                       # numbers of atom
         self.comment: str = comment                         # Energy =   Eh   #Cluster  :i         # nopep8
         self.comment_energy: float = energy                 # Energy (Eh)
-        self.comment_ncluster: int = ncluster               # index of Clusters
+        self.comment_nClusters: int = nClusters             # index of Clusters
         self.mass: npt.NDArray
         self.extras: list[list[str]] = extras
         self.com: npt.NDArray
@@ -34,61 +34,60 @@ class Geometry():
 
     def __add__(self, other: Self) -> Geometry:
         import copy
-        result: Geometry = copy.deepcopy(self)
+        res: Geometry = copy.deepcopy(self)
         for key in other.names.keys():
-            result.names[len(self.names) + key] = other.names[key]
+            res.names[len(self.names) + key] = other.names[key]
         # coordinates of every atom
-        result.coord = self.coord + other.coord
-        result.extras = self.extras + other.extras
-        result.nAtoms = len(self.names) + len(other.names)
-        return result
+        res.coord = self.coord + other.coord
+        res.extras = self.extras + other.extras
+        res.nAtoms = len(self.names) + len(other.names)
+        return res
 
     def __repr__(self) -> str:
-        result: str = ""
-        result += f"{self.nAtoms}\n{self.comment}\n"
-        # ic(self.extras, len(self.extras))
-        for i in range(self.nAtoms):
+        res: str = ""
+        res += f"{self.nAtoms}\n{self.comment}\n"
+        for idx0 in range(self.nAtoms):
             extra: str = "   ".join(
-                self.extras[i]) if self.extras[i] != [] else ""
-            result += f'{self.names[i+1]:>3s}    {self.coord[i][0]: 14.10f}'  # nopep8
-            result += f'    {self.coord[i][1]: 14.10f}    {self.coord[i][2]: 14.10f}    {extra}\n'  # nopep8
-        return result
+                self.extras[idx0]) if self.extras[idx0] != [] else ""
+            res += f'{self.names[idx0+1]:>3s}    {self.coord[idx0][0]: 14.10f}'  # nopep8
+            res += f'    {self.coord[idx0][1]: 14.10f}    {self.coord[idx0][2]: 14.10f}    {extra}\n'  # nopep8
+        return res
 
     def get_comment_energy(self) -> float:
         return self.comment_energy
 
     def method_translate_xyz(self, delta: npt.NDArray) -> Geometry:
-        result: Geometry = copy.deepcopy(self)
-        for x in result.coord:
+        res: Geometry = copy.deepcopy(self)
+        for x in res.coord:
             x += delta
-        return result
+        return res
 
-    def method_molecules_separation_xyz(self, list_idx: list) -> bool:
-        new_names: dict = {}
-        idx_names: int = 1
-        for name in self.names.copy():
-            if name in list_idx:
-                new_names[idx_names] = self.names[name]
-                idx_names = idx_names + 1
+    def method_molecules_separation_xyz(self, idx1_Select_Names: list[int]) -> bool:
+        new_names: dict[int, str] = {}
+        x: int = 1
+        for names_key in self.names.copy():
+            if names_key in idx1_Select_Names:
+                new_names[x] = self.names[names_key]
+                x = x + 1
             else:
-                del self.names[name]
+                del self.names[names_key]
         self.names = new_names
         self.nAtoms = len(self.names)
-        idx0_St: list = [x-1 for x in list_idx]
+        idx0_St: list[int] = [x-1 for x in idx1_Select_Names]
         self.coord = (np.array(self.coord)[idx0_St]).tolist()
         return True
 
-    def method_idx_molecules_xyz(self, fileName: Path) -> list[int]:
+    def method_idx_molecules_xyz(self, fileName: Path) -> list[list[int]]:
         from censo_ext.Tools.topo import Topo
         import censo_ext.Tools.ml4nmr as ml4nmr
-        mol, neighbors = ml4nmr.read_mol_neighbors(fileName)
-        # ic(neighbors)
-        idx_molecule: set[int] = set([*range(1, len(neighbors)+1, 1)])
-        molecules: list = []
-        while (len(idx_molecule) != 0):
-            idx_atoms = 0
+        neighbors: dict[int, npt.NDArray[np.int64]]
+        _, neighbors = ml4nmr.read_mol_neighbors(fileName)
+        idx1_molecule: set[int] = set([*range(1, len(neighbors)+1, 1)])
+        molecules: list[list[int]] = []
+        while (len(idx1_molecule) != 0):
+            idx_atoms: int = 0
             Hydrogen: list[int] = []
-            for x in idx_molecule:
+            for x in idx1_molecule:
                 if len(neighbors[x]) == 1 or len(neighbors[x]) == 0:
                     idx_atoms = x
                     break
@@ -105,7 +104,7 @@ class Geometry():
             elif len(neighbors[idx_atoms]) == 0:
                 Hydrogen = [idx_atoms]
             molecules.append(Hydrogen)
-            idx_molecule = idx_molecule.difference(set(Hydrogen))
+            idx1_molecule = idx1_molecule.difference(set(Hydrogen))
         return molecules
 
     def method_computeCOM(self) -> npt.NDArray:
@@ -137,18 +136,18 @@ class Geometry():
     def method_rewrite_comment(self) -> None:
         self.comment = " Energy = "+" "*7 + \
             f"{self.comment_energy:.10f}"+" Eh"+" "*8 + \
-            "#Cluster:     "+str(self.comment_ncluster)
+            "#Cluster:     "+str(self.comment_nClusters)
 
     def method_update_comment(self) -> None:
         '''
         Analysis of comment
         '''
-        comments: list = self.comment.replace("a.u.", "").replace("Eh", "").replace("Energy=", "").replace("Energy =", "").replace(
+        comments: list[str] = self.comment.replace("a.u.", "").replace("Eh", "").replace("Energy=", "").replace("Energy =", "").replace(
             "Energy  =", "").replace("energy:", "").replace("Energy:", "").split()
         if comments == []:
             print(" Your xyz file have not any about Energy and Cluster !!!")
             print(" We will set Energy = 0 in your xyz file")
-            self.comment_energy, self.comment_ncluster = 0, 0
+            self.comment_energy, self.comment_nClusters = 0, 0
             self.method_rewrite_comment()
             return
 
@@ -156,15 +155,15 @@ class Geometry():
         if function_is_float(comments[0]):
             if len(comments) >= 3:
                 if comments[1] == "#Cluster:" and function_is_float(comments[2]):
-                    self.comment_energy, self.comment_ncluster = float(comments[0]), int(comments[2])  # nopep8
+                    self.comment_energy, self.comment_nClusters = float(comments[0]), int(comments[2])  # nopep8
                 else:
-                    self.comment_energy, self.comment_ncluster = float(comments[0]), 0  # nopep8
+                    self.comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
 
                 # if comments[4] == "E" and function_is_float(comments[5]):
-                #    self.comment_energy, self.comment_ncluster = float(comments[5]), 0  # nopep8
+                #    self.comment_energy, self.comment_nClusters = float(comments[5]), 0  # nopep8
 
             else:
-                self.comment_energy, self.comment_ncluster = float(comments[0]), 0  # nopep8
+                self.comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
         else:
             print("something wrong in your xyz file !!!")
             print(comments)
@@ -176,7 +175,7 @@ class Geometry():
         return
 
     def method_comment_new(self, idx1: int) -> None:
-        self.comment_ncluster = idx1
+        self.comment_nClusters = idx1
         self.method_rewrite_comment()
 
 
@@ -195,41 +194,41 @@ class GeometryXYZs():
     def set_filename(self, fileName: Path) -> None:
         self.__filename = Path(fileName)
 
-    def method_translate_cut_xyzs(self, delta: npt.NDArray, cut: int) -> GeometryXYZs:
-        result: GeometryXYZs = GeometryXYZs()
+    def method_translate_cut_xyzs(self, delta: npt.NDArray[np.float64], cut: int) -> GeometryXYZs:
+        res: GeometryXYZs = GeometryXYZs()
         if len(self) == 1:
             for x in np.linspace(0, 1, num=cut, endpoint=True):
                 dSt = self.Sts[0].method_translate_xyz(delta=delta*x)
-                result.Sts.append(copy.deepcopy(dSt))
-            return result
+                res.Sts.append(copy.deepcopy(dSt))
+            return res
         else:
             print(" More than 1 in your xyz file ")
             print(" All xyzs will to save your xyz file")
-            for St in (self.Sts):
+            for St in self.Sts:
                 for x in np.linspace(0, 1, num=cut, endpoint=True):
                     dSt: Geometry = St.method_translate_xyz(delta=delta*x)
-                    result.Sts.append(copy.deepcopy(dSt))
-            return result
+                    res.Sts.append(copy.deepcopy(dSt))
+            return res
 
-    def method_translate_xyzs(self, delta: npt.NDArray) -> GeometryXYZs:
-        result: GeometryXYZs = GeometryXYZs()
+    def method_translate_xyzs(self, delta: npt.NDArray[np.float64]) -> GeometryXYZs:
+        res: GeometryXYZs = GeometryXYZs()
         for x in self.Sts:
             x: Geometry = x.method_translate_xyz(delta=delta)
-            result.Sts.append(copy.deepcopy(x))
-        return result
+            res.Sts.append(copy.deepcopy(x))
+        return res
 
-    def __add__(self, var2: Self) -> GeometryXYZs:
+    def __add__(self, Var: Self) -> GeometryXYZs:
 
-        var3: GeometryXYZs
-        if len(var2) == 1:
-            var3: GeometryXYZs = copy.deepcopy(self)
-            var3.Sts.append(var2.Sts[0])
+        GeoXYZs: GeometryXYZs
+        if len(Var) == 1:
+            GeoXYZs = copy.deepcopy(self)
+            GeoXYZs.Sts.append(Var.Sts[0])
 
-            var4: GeometryXYZs = GeometryXYZs()
+            res: GeometryXYZs = GeometryXYZs()
             for idx in range(0, len(self), 1):
-                var4.Sts.append(
-                    var3.Sts[idx] + var3.Sts[-1])
-            return var4
+                res.Sts.append(
+                    GeoXYZs.Sts[idx] + GeoXYZs.Sts[-1])
+            return res
         else:
             print("Too much xyzs structures in your xyz file")
             ic()
@@ -239,8 +238,8 @@ class GeometryXYZs():
         fileName: Path = Path("~temp.xyz")
         self.set_filename(fileName)
         self.method_save_xyz([idx1])
-        list_idx: list = self.Sts[idx1 -
-                                  1].method_idx_molecules_xyz(fileName)
+        list_idx: list[list[int]] = self.Sts[idx1 -
+                                             1].method_idx_molecules_xyz(fileName)
         from censo_ext.Tools.utility import delete_all_files
         delete_all_files(fileName)
         for x in list_idx:

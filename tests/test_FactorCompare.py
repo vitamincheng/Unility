@@ -22,7 +22,7 @@ def test_FactorCompare_miss_args():
 def test_FactorCompare():
     x: dict = {"file": [in_file, in_file]}
     args = argparse.Namespace(**x)
-    Result = FactorCompare.main(args)
+    Res = FactorCompare.main(args)
 
     if _system == "Darwin":
         compare = ""
@@ -31,4 +31,4 @@ def test_FactorCompare():
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    assert Result == None
+    assert Res == None

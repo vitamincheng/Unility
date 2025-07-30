@@ -94,7 +94,7 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def main(args: argparse.Namespace = argparse.Namespace()) -> list:
+def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
 
     if args == argparse.Namespace():
         args = cml(descr)

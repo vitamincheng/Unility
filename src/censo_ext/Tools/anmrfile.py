@@ -61,20 +61,20 @@ class Anmrrc():
                 self.Active.append(self.element[int(x[0])])
 
     def __repr__(self) -> str:
-        Result: str = ""
+        Res: str = ""
         for x in (self.acid_atoms_NoShow):
-            Result += f'{x} '
-        Result += f'XH acid atoms\n'
-        Result += f'ENSO qm= ORCA mf= {self.mf} lw= {self.lw}  J='
-        Result += f" on" if self.JCoups else f" off"
-        Result += f" S="
-        Result += f" on" if self.SParams else f" off"
-        Result += f" T= {self.Temp}\n"
-        Result += f"{self.third_line}\n"
+            Res += f'{x} '
+        Res += f'XH acid atoms\n'
+        Res += f'ENSO qm= ORCA mf= {self.mf} lw= {self.lw}  J='
+        Res += f" on" if self.JCoups else f" off"
+        Res += f" S="
+        Res += f" on" if self.SParams else f" off"
+        Res += f" T= {self.Temp}\n"
+        Res += f"{self.third_line}\n"
 
         for x in self.anmrrc:
-            Result += f"{x[0]:<d}  {x[1]:<9.2f} {x[2]:<6.1f} {x[3]:>2d}\n"
-        return Result
+            Res += f"{x[0]:<d}  {x[1]:<9.2f} {x[2]:<6.1f} {x[3]:>2d}\n"
+        return Res
 
     def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFileName: Path) -> list[int]:
         """
@@ -821,10 +821,10 @@ class CensoDat():
         return self
 
     def __repr__(self) -> str:
-        Result: str = ""
+        Res: str = ""
         for x in self.__dat:
-            Result = Result + f'{x[0]:>12.6f}  {x[1]:>12.6e}\n'
-        return Result
+            Res = Res + f'{x[0]:>12.6f}  {x[1]:>12.6e}\n'
+        return Res
 
     def method_save_dat(self) -> None:
         original_stdout = sys.stdout

@@ -464,7 +464,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         print(" ===== Processing =====")
         print(" the group of calculate spectra :", len(idx0_ab_group_set))
         print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
-        Result_peaks: list = []
+        Res_peaks: list = []
         for idx, idx0_set_origin in enumerate(idx0_ab_group_set):
             idx0_list: list = list(idx0_set_origin)
             print(f'{(idx+1):>5d}{len(idx0_list):>5d}', {a+1 for a in idx0_list}, set(
@@ -473,11 +473,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             v: npt.NDArray[np.float64] = inSParams[idx0_list]
             J: npt.NDArray[np.float64] = inJCoups[idx0_list].T[idx0_list]
 
-            Result_qm_base: list[tuple[float, float]] = qm.qm_base(v=list(
+            Res_qm_base: list[tuple[float, float]] = qm.qm_base(v=list(
                 v), J=J, nIntergals=inHydrogen[idx0_list.index(idx)], idx0_nspins=idx0_list.index(idx), args=args)
 
-            Result_qm_multiplet: list[tuple[float, float]] = []
-            for idz, z in enumerate(Result_qm_base):
+            Res_qm_multiplet: list[tuple[float, float]] = []
+            for idz, z in enumerate(Res_qm_base):
                 list_multiplicity: list[npt.NDArray[np.int64]] = list(set([x*idx for idx, x in enumerate(
                     mat_filter_multi[idx]) if x != 0]).difference({a for a in idx0_list}))
                 inJ: list = []
@@ -489,44 +489,44 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     tmp: npt.NDArray[np.float64] = np.array(
                         qm.qm_multiplet(z[0], nIntergals=1, J=inJ))
                     tmp.T[1] *= z[1]
-                    Result_qm_multiplet += tmp.tolist()
+                    Res_qm_multiplet += tmp.tolist()
                 elif len(inJ) == 0:
-                    Result_qm_multiplet = Result_qm_base
+                    Res_qm_multiplet = Res_qm_base
                 else:
                     print("Something wrong")
                     ic()
                     exit(1)
             from nmrsim.math import normalize_peaklist
-            Result_qm_multiplet: list[tuple[float, float]] = np.array(
-                normalize_peaklist(Result_qm_multiplet, inHydrogen[idx])).tolist()
+            Res_qm_multiplet: list[tuple[float, float]] = np.array(
+                normalize_peaklist(Res_qm_multiplet, inHydrogen[idx])).tolist()
 
-            if len(Result_peaks) == 0 and len(Result_qm_multiplet) == 0:
+            if len(Res_peaks) == 0 and len(Res_qm_multiplet) == 0:
                 pass
             else:
-                Result_peaks.append(Result_qm_multiplet)
+                Res_peaks.append(Res_qm_multiplet)
 
         import json
         import pickle
         with open(str(inAnmr.get_Directory()/Path("peaks.json")), "w") as final:
-            json.dump(Result_peaks, final)
+            json.dump(Res_peaks, final)
 
-        idx0_peaks_range: list = [*range(len(Result_peaks))]
+        idx0_peaks_range: list = [*range(len(Res_peaks))]
 
     else:
         import json
         import pickle
         with open(str(inAnmr.get_Directory()/Path("peaks.json")), "r") as json_file:
-            Result_peaks = json.load(json_file)
+            Res_peaks = json.load(json_file)
 
         if args.json[0] == -1:
-            idx0_peaks_range: list = [*range(len(Result_peaks))]
+            idx0_peaks_range: list = [*range(len(Res_peaks))]
         else:
             idx0_peaks_range: list = args.json
 
-    Final_Result_peaks: list[npt.NDArray] = []
-    for idx, x in enumerate(Result_peaks):
+    Final_peaks: list[npt.NDArray] = []
+    for idx, x in enumerate(Res_peaks):
         if idx in idx0_peaks_range:
-            Final_Result_peaks += x
+            Final_peaks += x
 
     print("")
     print(" ===== Processing to plotting spectra =====")
@@ -535,7 +535,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
     if dpi != None and Active_range != None:
         np_dat: npt.NDArray[np.float64] = qm.print_plot(
-            Final_Result_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range, hidden=not args.show)
+            Final_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range, hidden=not args.show)
     else:
         print("dpi and Active_range is wrong")
         ic()

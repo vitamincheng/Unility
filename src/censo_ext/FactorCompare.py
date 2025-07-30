@@ -76,7 +76,7 @@ def Factor_xyzCompare(args) -> None:
             result.append(cal_RMSD(xyzfile_Merge, idx_P+1, idx_Q+nSts_P+1))
 
     result = np.array(result)
-    result = (result.reshape(nSts_P, nSts_Q).T)
+    result = result.reshape(nSts_P, nSts_Q).T
 
     import shutil
     if not shutil.which("crest"):
@@ -85,24 +85,24 @@ def Factor_xyzCompare(args) -> None:
         exit(1)
 
     Dir_str: Path = Path("CREST_P")
-    Original_cwd: Path = Path(os.getcwd())
-    Compare_Result: Path = Path("weight_P")
-    New_cwd: Path = Original_cwd / Dir_str
+    workDir: Path = Path(os.getcwd())
+    Compare_Res: Path = Path("weight_P")
+    New_cwd: Path = workDir / Dir_str
     from os.path import exists
     if not exists(New_cwd):
         os.makedirs(New_cwd)
     from censo_ext.Tools.utility import IsExists_DirFileName
-    FileName_Dir, FileName_str = IsExists_DirFileName(Path(args.file[0]))
+    fileName_Dir, FileName_str = IsExists_DirFileName(Path(args.file[0]))
     FileName: Path = Path(FileName_str)
-    shutil.copyfile(Original_cwd / FileName_Dir / FileName, New_cwd / FileName)
+    shutil.copyfile(workDir / fileName_Dir / FileName, New_cwd / FileName)
 
     os.chdir(New_cwd)
     subprocess.call("crest " + str(FileName) + " --cregen " + str(FileName) +
-                    " --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > " + str(Compare_Result), shell=True)
-    os.chdir(Original_cwd)
-    shutil.copyfile(New_cwd / Compare_Result, Original_cwd / Compare_Result)
+                    " --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > " + str(Compare_Res), shell=True)
+    os.chdir(workDir)
+    shutil.copyfile(New_cwd / Compare_Res, workDir / Compare_Res)
 
-    Path_weight_P: Path = New_cwd / Compare_Result
+    Path_weight_P: Path = New_cwd / Compare_Res
     from censo_ext.Tools.utility import IsExist
     IsExist(Path_weight_P)
 
@@ -129,55 +129,55 @@ def Factor_xyzCompare(args) -> None:
     print("")
     print(" ========== Structure_Integrity_Compare ========== ")
 
-    np_Result: npt.NDArray[np.float64] = result
-    min_Result: npt.NDArray[np.float64] = np_Result.min(0)
-    idx_Result: npt.NDArray[np.float64] = np.array([], dtype=int)
+    np_Res: npt.NDArray[np.float64] = result
+    min_Res: npt.NDArray[np.float64] = np_Res.min(0)
+    idx_Res: npt.NDArray[np.float64] = np.array([], dtype=int)
 
-    for idx in range(len(np_Result[0])):
-        idx_Result = np.append(idx_Result, np.where(
-            np_Result.T[idx] == np_Result.min(0)[idx])[0][0]+1)
+    for idx in range(len(np_Res[0])):
+        idx_Res = np.append(idx_Res, np.where(
+            np_Res.T[idx] == np_Res.min(0)[idx])[0][0]+1)
 
-    sort_Result: npt.NDArray[np.float64] = np.copy(min_Result)
-    sort_Result.sort()
-    if sort_Result[-1] <= 1e-14:
+    sort_Res: npt.NDArray[np.float64] = np.copy(min_Res)
+    sort_Res.sort()
+    if sort_Res[-1] <= 1e-14:
         print("")
         print("In your input two files are the same")
         print("Exit the program !!")
         exit(0)
 
-    diff2_Result: npt.NDArray[np.float64] = np.diff(np.diff(sort_Result))
-    STD_diff2_Result: float = float(diff2_Result.std())
+    diff2_Res: npt.NDArray[np.float64] = np.diff(np.diff(sort_Res))
+    STD_diff2_Res: float = float(diff2_Res.std())
 
     idx_max_diff2_R: npt.NDArray[np.float64] = np.array([], dtype=int)
-    for idx, num in enumerate(diff2_Result):
-        if num > STD_diff2_Result:
+    for idx, num in enumerate(diff2_Res):
+        if num > STD_diff2_Res:
             idx_max_diff2_R = np.append(idx_max_diff2_R, idx)
 
-    thr: float = float(sort_Result[idx_max_diff2_R[0]+2])
+    thr: float = float(sort_Res[idx_max_diff2_R[0]+2])
 
     print(f" threhsold(thr) is : {thr}")
     print("")
     print("   P_idx Erel/kcal weight/tot     STD<thr    Q_idx         STD>thr    Q_idx")
 
     weight_total = 0
-    for idx0, x in enumerate(min_Result):
+    for idx0, x in enumerate(min_Res):
 
         print(f"{(idx0+1):>8d}", end="")
         print(f"{(St_crest.T[0][idx0]):10.3f} {(St_crest.T[1][idx0]):10.5f}", end="")  # nopep8
 
         if x < thr:
-            print(f"{x:>12.5f} {(idx_Result[idx0]):>8d}")
+            print(f"{x:>12.5f} {(idx_Res[idx0]):>8d}")
             weight_total = weight_total + St_crest.T[1][idx0]
         else:
             print(" "*25, end="")
-            print(f"{x:>12.5f} {idx_Result[idx0]:>8d}")
+            print(f"{x:>12.5f} {idx_Res[idx0]:>8d}")
 
     print("")
     print(f"Weight_total  :  {weight_total:>12.5f}")
     print("")
     print(" ========== Finished ==========")
     print("")
-    subprocess.call("rm -rf "+str(Dir_str)+" " + str(Compare_Result) +
+    subprocess.call("rm -rf "+str(Dir_str)+" " + str(Compare_Res) +
                     " " + str(merge_FileName), shell=True)
     # subprocess.call("rm -rf tmp_save.xyz weight_P ", shell=True)
     print(" Removed the temp file ")

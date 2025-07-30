@@ -24,10 +24,10 @@ def test_molclus_thermo_alpb():
                "uhf": 1, "opt": True, "method": "gfn2"}
     args = argparse.Namespace(**x)
 
-    Result = thermo.main(args)
+    Res: list[str] = thermo.main(args)
 
-    assert float(Result[0]) == pytest.approx(0.083147421, abs=0.0000002)
-    assert float(Result[1]) == pytest.approx(0.082439908, abs=0.0000002)
+    assert float(Res[0]) == pytest.approx(0.083147421, abs=0.0000002)
+    assert float(Res[1]) == pytest.approx(0.082439908, abs=0.0000002)
 
     import subprocess
     subprocess.call(

@@ -69,7 +69,7 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def read_data(args) -> tuple[dict[int, npt.NDArray], list[list[int]], list[list[Graph]], dict[int, int], dict[int, int]]:
+def read_data(args) -> tuple[dict[int, npt.NDArray], list[list[int]], list[list[int]], dict[int, int], dict[int, int]]:
     from censo_ext.Tools.topo import Topo
     Sts_topo: Topo = Topo(args.file)
     _, neighbor, circleMols, residualMols = Sts_topo.topology()
@@ -84,19 +84,21 @@ def read_data(args) -> tuple[dict[int, npt.NDArray], list[list[int]], list[list[
     return neighbor, circleMols, residualMols, Bond_order, atomsCN
 
 
-def get_xyzSplitList(neighbor: dict, circleMols: list, residualMols: list, Bond_order: dict, atomsCN: dict, flattenCircleMols: list):
-    xyzSplitDict: dict = {}
+def get_xyzSplitList(neighbor: dict[int, npt.NDArray], circleMols: list[list[int]], residualMols: list[list[int]], Bond_order: dict[int, int], atomsCN: dict[int, int], flattenCircleMols: list[int]) -> dict[int, int]:
+    xyzSplitDict: dict[int, int] = {}
     for mol in residualMols:
         # ic(mol)
-        flexibleMols: list = [a for a in mol if a not in flattenCircleMols]
-        nodeMols: list = [a for a in mol if a in flattenCircleMols]
+        flexibleMols: list[int] = [
+            a for a in mol if a not in flattenCircleMols]
+        nodeMols: list[int] = [a for a in mol if a in flattenCircleMols]
 
         if len(flexibleMols) == 1:
             continue
         # ic(flexibleMols, nodeMols)
         # ic()
 
-        flexibleMolsCNis4: list = [a for a in flexibleMols if atomsCN[a] == 4]
+        flexibleMolsCNis4: list = [
+            a for a in flexibleMols if atomsCN[a] == 4]
         # ic(mol, flexibleMolsCNis4, nodeMols)
         for nodeMol in nodeMols:
             argmin: int = mol.index(nodeMol)
@@ -125,7 +127,7 @@ def get_xyzSplitList(neighbor: dict, circleMols: list, residualMols: list, Bond_
     return xyzSplitDict
 
 
-def gen_GeometryXYZs(xyzSplitDict: dict, args: argparse.Namespace) -> None:
+def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> None:
 
     print(" xyzSplitDict :", xyzSplitDict)
     if args.manual == True:
@@ -134,7 +136,7 @@ def gen_GeometryXYZs(xyzSplitDict: dict, args: argparse.Namespace) -> None:
             print(key, " ", end="")
         print("")
         loop: bool = True
-        idx_xyzSplitDict: list = []
+        idx_xyzSplit: list[int] = []
         while (loop):
             pos: str = input()
             loop = False
@@ -145,13 +147,13 @@ def gen_GeometryXYZs(xyzSplitDict: dict, args: argparse.Namespace) -> None:
                         print(" Error numbers and input the data again")
                         loop = True
                     else:
-                        idx_xyzSplitDict.append(int(idx))
+                        idx_xyzSplit.append(int(idx))
                 else:
                     print(" Error word and input the data again")
                     loop = True
 
         x: dict = {key: value for key, value in xyzSplitDict.items()
-                   if key in idx_xyzSplitDict}
+                   if key in idx_xyzSplit}
         xyzSplitDict = x
 
     xyzfile: GeometryXYZs = GeometryXYZs(args.file)
@@ -185,12 +187,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     neighbor, circleMols, residualMols, Bond_order, atomsCN = read_data(
         args)
-    flattenCircleMols: list = []
+    flattenCircleMols: list[int] = []
     for mol in circleMols:
         flattenCircleMols += mol
 
-    xyzSplitDict: dict = get_xyzSplitList(neighbor, circleMols, residualMols,
-                                          Bond_order, atomsCN, flattenCircleMols)
+    xyzSplitDict: dict[int, int] = get_xyzSplitList(neighbor, circleMols, residualMols,
+                                                    Bond_order, atomsCN, flattenCircleMols)
     gen_GeometryXYZs(xyzSplitDict, args)
 
 

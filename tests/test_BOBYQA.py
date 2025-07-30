@@ -33,8 +33,8 @@ def BOBYQA_init():
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
 
-    Result = BOBYQA.main(args2)
-    assert Result == (False, True)
+    Res: tuple[bool, bool] = BOBYQA.main(args2)
+    assert Res == (False, True)
 
 
 def test_BOBYQA_block_file():
@@ -42,16 +42,20 @@ def test_BOBYQA_block_file():
     BOBYQA_init()
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-    Result = BOBYQA.main(args2)
-    assert Result == (True, False)
+    Res: tuple[bool, bool] = BOBYQA.main(args2)
+    assert Res == (True, False)
     BOBYQA_final_remove_files()
 
 
 def test_BOBYQA_single():
     BOBYQA_init()
-    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
+    import shutil
+    shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
+                    DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
+    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-    BOBYQA.main(args2)
+    Res: tuple[bool, bool] = BOBYQA.main(args2)
+    assert Res == (True, False)
     BOBYQA_final_remove_files()
 
 
@@ -62,7 +66,7 @@ def test_BOBYQA_single_external_prog():
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
 
-    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
+    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
     args2 = argparse.Namespace(**args_y)
     BOBYQA.main(args2)
     BOBYQA_final_remove_files()

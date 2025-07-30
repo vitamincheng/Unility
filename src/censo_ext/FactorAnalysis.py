@@ -220,22 +220,22 @@ def FactorFilter(args) -> None:
         idx1_separate += 1
         nConfs = len(idx1_cal)
 
-    Dir_Result: Path = Path("Final_Result")
-    isExist: bool = os.path.exists(Dir_Result)
+    Dir_Res: Path = Path("Final_Result")
+    isExist: bool = os.path.exists(Dir_Res)
     if not isExist:
-        Dir_Result.mkdir()
+        Dir_Res.mkdir()
 
     print(" ========== Finally Data ==========")
 
     nMinor: list[int] = []
     for idx, x in enumerate(idx1_minor):
-        xyzfile.set_filename(Dir_Result / Path(f"minor{str(idx+1)}.xyz"))
+        xyzfile.set_filename(Dir_Res / Path(f"minor{str(idx+1)}.xyz"))
         xyzfile.method_save_xyz(x)
         print(f" minor{str(idx+1)}.xyz  : {x}")
         nMinor.append(len(x))
 
     residue_file: Path = Path("residue.xyz")
-    xyzfile.set_filename(Dir_Result / residue_file)
+    xyzfile.set_filename(Dir_Res / residue_file)
     xyzfile.method_save_xyz(major_idx)
     print(f" {residue_file} : {major_idx}")
 
