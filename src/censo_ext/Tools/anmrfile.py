@@ -141,7 +141,7 @@ class Anmr():
         self.anmrS: list[list[float]] = []          # Shielding of anmr.out generated from anmr # nopep8
         self.orcaSJ: list[OrcaSJ] = []              # directory of orcaSJ
         self.avg_orcaSJ = OrcaSJ()                  #
-        self.nucinfo: list[list[list[int | list[int]]]] = [
+        self.nucinfo: list[list[list[list[int]]]] = [
         ]                                           # anmr_nucinfo
 
     def get_Directory(self) -> Path:

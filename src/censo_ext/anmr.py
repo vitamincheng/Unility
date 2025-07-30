@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import copy
+from typing import Union
 import numpy as np
 import numpy.typing as npt
 import argparse
@@ -284,8 +285,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     args.thr = args.lw * 0.3
                 inJCoups = np.zeros_like(inJCoups)
             elif x == 'H':
-                inHydrogenDict: dict = {}
-                for key, value in inAnmr.avg_orcaSJ.idxAtoms.items():
+                inHydrogenDict: dict[int, int] = {}
+                for key in inAnmr.avg_orcaSJ.idxAtoms.keys():
                     inHydrogenDict[key] = len(inAnmr.nucinfo[1][key-1][2])
                 for x in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
                         inAnmr.get_Directory()/in_File):
@@ -307,7 +308,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             print("only for ONE Active Nuclear element, waiting to build")
             ic()
             exit(0)
-    idx0_ab_group_set: list[set] = []
+    idx0_ab_group_set: list[set[int]] = []
     mat_filter_multi: npt.NDArray[np.int64] = np.array([])
 
     if args.json == None:
@@ -352,15 +353,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                                     pass
                                 else:
                                     ic(idx, x, idy, y)
-                                    print("something wrong !!!")
+                                    print("Something wrong in your SParams !!!")
                                     ic()
-                                    exit(1)
+                                    raise ValueError(
+                                        idx + x + idy + y + " was not found or is a directory")
 
             # ic(mat_filter_ab_quartet)
 
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
 
-            idx0_ab_connect: list = []
+            idx0_ab_connect: list[list[int | set[int]]] = []
             for idx, x in enumerate(mat_filter_ab_quartet):
                 np_nonzero: npt.NDArray[np.int64] = (x*(idx+1)).nonzero()[0]
                 group: set[int] = set(np_nonzero.tolist())
@@ -369,11 +371,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 idx0_ab_connect.append([idx, group])
 
             idx0_ab_group_set = []
-            for _idx, x in idx0_ab_connect:
-                if len(x) == 1:
+            for _, x in idx0_ab_connect:
+                if len(x) == 1:                                 # type: ignore
                     idx0_ab_group_set.append(x)
-                elif len(x) > 1:
-                    group = x
+                elif len(x) > 1:                                # type: ignore
+                    group: set[int] = x
                     jump: bool = False
                     bond_penetration: int = 1
                     while jump == False:
@@ -385,9 +387,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                             bond_penetration += 1
                     idx0_ab_group_set.append(group)
                 else:
-                    print("something wrong")
+                    print("Something wrong in ab_group_set")
                     ic()
-                    exit(1)
+                    raise ValueError("idx0_ab_group_set is bugs !!!")
 
             # CH3 Equivalent is manually control by symmetry
             # So if chemical shift in AB quartet region need to move to multiplet
@@ -434,7 +436,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         # AB quartet if more than two peaks of AB quartet, added closed peaks (not in AB quartet)
         print(" ===== Modification AB quartet =====")
         for idx, idx0_set_origin in enumerate(idx0_ab_group_set):
-            idx0_list: list = list(idx0_set_origin)
+            idx0_list: list[int] = list(idx0_set_origin)
             # print(set(inSParams[list(idx0_set_origin)]))
             if len(set(list(inSParams[idx0_list]))) == 1:
                 from censo_ext.Tools.spectra import find_nearest
@@ -447,7 +449,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     set(int(idx) for idx in a[0]))
                 # print(set(list(inSParams[list(idx0_set_origin)])))
         for idx, idx0_set_origin in enumerate(idx0_ab_group_set):
-            idx0_list: list = list(idx0_set_origin)
+            idx0_list = list(idx0_set_origin)
             print(f'{(idx+1):>5d}{len(idx0_list):>5d}', {a+1 for a in idx0_list}, set(
                 a+1 for a in [idx0_set*idx for idx, idx0_set in enumerate(mat_filter_multi[idx].tolist()) if idx0_set != 0]).difference({a+1 for a in idx0_list}))
         print(" Use this parameter to calculate the Full Spectra")
@@ -456,7 +458,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     # see https://nmrsim.readthedocs.io/en/latest/index.html
     #
     import censo_ext.Tools.qm as qm
-    idx0_peaks_range: list = []
+    idx0_peaks_range: list[int] = []
     # ic(args.lw)
 
     if args.json == None:
@@ -464,9 +466,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         print(" ===== Processing =====")
         print(" the group of calculate spectra :", len(idx0_ab_group_set))
         print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
-        Res_peaks: list = []
+        Res_peaks: list[list[tuple[float, float]]] = []
         for idx, idx0_set_origin in enumerate(idx0_ab_group_set):
-            idx0_list: list = list(idx0_set_origin)
+            idx0_list: list[int] = list(idx0_set_origin)
             print(f'{(idx+1):>5d}{len(idx0_list):>5d}', {a+1 for a in idx0_list}, set(
                 a+1 for a in [idx0_set*idx for idx, idx0_set in enumerate(mat_filter_multi[idx].tolist()) if idx0_set != 0]).difference({a+1 for a in idx0_list}))
 
@@ -477,10 +479,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 v), J=J, nIntergals=inHydrogen[idx0_list.index(idx)], idx0_nspins=idx0_list.index(idx), args=args)
 
             Res_qm_multiplet: list[tuple[float, float]] = []
-            for idz, z in enumerate(Res_qm_base):
+            for _, z in enumerate(Res_qm_base):
                 list_multiplicity: list[npt.NDArray[np.int64]] = list(set([x*idx for idx, x in enumerate(
                     mat_filter_multi[idx]) if x != 0]).difference({a for a in idx0_list}))
-                inJ: list = []
+                inJ: list[tuple[float, int]] = []
                 for ida, a in enumerate(list_multiplicity):
                     if np.fabs(inSParams[idx]-inSParams[a]) > 0.1:
                         inJ.append((inJCoups[idx][a], inHydrogen[a]))
@@ -510,7 +512,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         with open(str(inAnmr.get_Directory()/Path("peaks.json")), "w") as final:
             json.dump(Res_peaks, final)
 
-        idx0_peaks_range: list = [*range(len(Res_peaks))]
+        idx0_peaks_range = [*range(len(Res_peaks))]
 
     else:
         import json
@@ -519,11 +521,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             Res_peaks = json.load(json_file)
 
         if args.json[0] == -1:
-            idx0_peaks_range: list = [*range(len(Res_peaks))]
+            idx0_peaks_range = [*range(len(Res_peaks))]
         else:
-            idx0_peaks_range: list = args.json
+            idx0_peaks_range = args.json
 
-    Final_peaks: list[npt.NDArray] = []
+    Final_peaks: list[tuple[float, float]] = []
     for idx, x in enumerate(Res_peaks):
         if idx in idx0_peaks_range:
             Final_peaks += x

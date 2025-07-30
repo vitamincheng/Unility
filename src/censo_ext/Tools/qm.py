@@ -169,7 +169,7 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     return Normal_plist
 
 
-def print_plot(in_plist: list, dpi: int, nIntergals: int, args: argparse.Namespace, Active_range: int, hidden=True) -> npt.NDArray:
+def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, args: argparse.Namespace, Active_range: int, hidden=True) -> npt.NDArray:
     '''
     peaklist :  Chemical Shift(Hz), Intensities
     dpi: 10000 for Hydrogen, 500 for Carbon
@@ -267,7 +267,7 @@ def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins,
     return plist
 
 
-def qm_multiplet(v: float | int, nIntergals, J: list[float]) -> list[tuple[float, float]]:
+def qm_multiplet(v: float | int, nIntergals, J: list[tuple[float, int]]) -> list[tuple[float, float]]:
     '''
     v : Hz 
     J : Hz
