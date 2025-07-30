@@ -91,13 +91,13 @@ def rosenbrock(x0) -> float:
 
     from censo_ext.Tools.anmrfile import CensoDat
     if prog == True:
-        # ic("external")
+        # ic("External")
         cwd: Path = Path(os.getcwd())
         os.chdir(Directory)
 
         import sys
         sys.stdout = open(os.devnull, 'w')
-        result: int = subprocess.call(["bash", "anmr.sh"], shell=True)
+        result = subprocess.call("anmr.sh", shell=True)
         sys.stdout = sys.__stdout__
 
         if result != 0:
@@ -106,8 +106,9 @@ def rosenbrock(x0) -> float:
         os.chdir(cwd)
 
         Dat_Cal: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
+
     elif prog == False:
-        # ic("internal")
+        # ic("Internal")
         import censo_ext.anmr as anmr
         x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0, 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
                    'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': False}
@@ -275,3 +276,8 @@ if __name__ == "__main__":
 # test
 # BOBYQA.py -d tests/data/EthylAcetate/03.Censo -r 1r.dat
 # BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) -r 1r_h.dat
+#
+# anmr.py   -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) --auto
+# BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS)
+# rewrite orcaS-BOBYQA.out
+# BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) -r 1r_h.dat -p

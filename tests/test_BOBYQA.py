@@ -33,8 +33,8 @@ def BOBYQA_init():
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
 
-    Res: tuple[bool, bool] = BOBYQA.main(args2)
-    assert Res == (False, True)
+    Res_init: tuple[bool, bool] = BOBYQA.main(args2)
+    assert Res_init == (False, True)
 
 
 def test_BOBYQA_block_file():
@@ -68,7 +68,8 @@ def test_BOBYQA_single_external_prog():
 
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
     args2 = argparse.Namespace(**args_y)
-    BOBYQA.main(args2)
+    Res: tuple[bool, bool] = BOBYQA.main(args2)
+    assert Res == (True, False)
     BOBYQA_final_remove_files()
 
 
