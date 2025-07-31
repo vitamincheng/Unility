@@ -78,7 +78,6 @@ def test_BOBYQA_single_external_prog():
 
 
 def test_BOBYQA_group():
-    raise NotImplementedError("pending")
     BOBYQA_init()
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA-group.out"),
@@ -88,7 +87,7 @@ def test_BOBYQA_group():
     Res: tuple[bool, bool] = BOBYQA.main(args2)
     assert Res == (True, False)
     assert filecmp.cmp(DirName / Path("output.dat"),
-                       DirName / Path("output-BOBYQA-anmrpy.dat")) == True
+                       DirName / Path("output-BOBYQA-group-anmrpy.dat")) == True
     BOBYQA_final_remove_files()
 
 
