@@ -288,11 +288,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
                     Ref_TMS: float = 31.820
                     subprocess.call("mkdir backup", shell=True)
                     subprocess.call("mv CONF* backup", shell=True)
-                    subprocess.call("cp -r backup/CONF1/ ../", shell=True)
-                    orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-                        Directory / FileName_OrcaS)  # type: ignore
-                    orcaS_Table.T[1] = orcaS_Table.T[1]-Ref_TMS
-                    subprocess.call("cp -r backup/CONF1/ ../", shell=True)
+                    subprocess.call("cp -r backup/CONF1/ .", shell=True)
                     import sys
                     template_inp: str = "CONF1/NMR/orcaS.out"
                     original_stdout = sys.stdout
@@ -307,9 +303,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
                         print("  -------  -------  ------------   ------------")
                     sys.stdout = original_stdout
 
-                    np.savetxt(Directory/Path("CONF1/NMR/orcaS-main.out"), orcaS_Table, fmt="%10d H %10.5f")  # type: ignore # nopep8
+                    orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
+                        FileName_OrcaS)  # type: ignore
+                    orcaS_Table.T[1] = orcaS_Table.T[1]+Ref_TMS
+                    orcaS_Table.T[0] = orcaS_Table.T[0]-1
+                    np.savetxt(Path("CONF1/NMR/orcaS-main.out"), orcaS_Table, fmt="%7d       H    %10.5f          0")  # type: ignore # nopep8
+
                     subprocess.call(
-                        "cat CONF1/NMR/orcaS-main.out >> orcaS.out", shell=True)
+                        "cat CONF1/NMR/orcaS-main.out >> CONF1/NMR/orcaS.out", shell=True)
                     subprocess.call("rm CONF1/NMR/orcaS-main.out", shell=True)
                 os.chdir(cwd)
             Scan_single_Peak()
@@ -317,11 +318,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
             if prog == True:
                 cwd: Path = Path(os.getcwd())
                 os.chdir(Directory)  # type: ignore
-                print(" Recover the data from backup directory")
-                Res = input("Are you Sure to Continue ?? (Y/N)")
-                if Res == "Y":
-                    subprocess.call("rm -rf CONF1", shell=True)
-                    subprocess.call("mv backup/CONF* ../", shell=True)
+                # print(" Recover the data from backup directory")
+                # Res = input("Are you Sure to Continue ?? (Y/N)")
+                # if Res == "Y":
+                subprocess.call("rm -rf CONF1", shell=True)
+                subprocess.call("mv backup/CONF* .", shell=True)
                 os.chdir(cwd)
             return (True, False)
         else:

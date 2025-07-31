@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from _pytest import monkeypatch
 import pytest
 from pathlib import Path
 import argparse
@@ -57,23 +58,25 @@ def test_BOBYQA_single():
     Res: tuple[bool, bool] = BOBYQA.main(args2)
     assert Res == (True, False)
     assert filecmp.cmp(DirName / Path("output.dat"),
-                       DirName / Path("output-BOBYQA-anmrpy.dat")) == True
+                       DirName / Path("orcaS-BOBYQA-anmrpy.dat")) == True
     BOBYQA_final_remove_files()
 
 
 @pytest.mark.skipif(_system == "Darwin", reason="crest only work under linux")
-def test_BOBYQA_single_external_prog():
+def test_BOBYQA_single_external_prog(monkeypatch):
     BOBYQA_init()
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
 
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
+    from io import StringIO
+    monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
     args2 = argparse.Namespace(**args_y)
     Res: tuple[bool, bool] = BOBYQA.main(args2)
     assert Res == (True, False)
     assert filecmp.cmp(DirName / Path("anmr.dat"),
-                       DirName / Path("output-BOBYQA-anmr.dat")) == True
+                       DirName / Path("orcaS-BOBYQA-anmr.dat")) == True
     BOBYQA_final_remove_files()
 
 
@@ -87,7 +90,7 @@ def test_BOBYQA_group():
     Res: tuple[bool, bool] = BOBYQA.main(args2)
     assert Res == (True, False)
     assert filecmp.cmp(DirName / Path("output.dat"),
-                       DirName / Path("output-BOBYQA-group-anmrpy.dat")) == True
+                       DirName / Path("orcaS-BOBYQA-group-anmrpy.dat")) == True
     BOBYQA_final_remove_files()
 
 
