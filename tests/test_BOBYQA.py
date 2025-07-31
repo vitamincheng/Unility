@@ -56,6 +56,8 @@ def test_BOBYQA_single():
     args2 = argparse.Namespace(**args_y)
     Res: tuple[bool, bool] = BOBYQA.main(args2)
     assert Res == (True, False)
+    assert filecmp.cmp(DirName / Path("output.dat"),
+                       DirName / Path("output-BOBYQA-anmrpy.dat")) == True
     BOBYQA_final_remove_files()
 
 
@@ -70,6 +72,23 @@ def test_BOBYQA_single_external_prog():
     args2 = argparse.Namespace(**args_y)
     Res: tuple[bool, bool] = BOBYQA.main(args2)
     assert Res == (True, False)
+    assert filecmp.cmp(DirName / Path("anmr.dat"),
+                       DirName / Path("output-BOBYQA-anmr.dat")) == True
+    BOBYQA_final_remove_files()
+
+
+def test_BOBYQA_group():
+    raise NotImplementedError("pending")
+    BOBYQA_init()
+    import shutil
+    shutil.copyfile(DirName / Path("orcaS-BOBYQA-group.out"),
+                    DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
+    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
+    args2 = argparse.Namespace(**args_y)
+    Res: tuple[bool, bool] = BOBYQA.main(args2)
+    assert Res == (True, False)
+    assert filecmp.cmp(DirName / Path("output.dat"),
+                       DirName / Path("output-BOBYQA-anmrpy.dat")) == True
     BOBYQA_final_remove_files()
 
 
@@ -81,18 +100,6 @@ def BOBYQA_final_remove_files():
                      DirName / "Average/NMR/orcaJ.out",
                      DirName / "Average/NMR/orcaS.out",
                      DirName / "Average/NMR/orcaS-BOBYQA.out",)
-
-    # compare = ""
-    # if _system == "Linux":
-    #    compare = f"tests/compare/cregen_cluster.xyz"
-    # elif _system == "Darwin":  # No crest under Darwin system
-    #    compare = f"tests/compare/cregen_cluster_Darwin.xyz"
-    # else:
-    #    pytest.raises(
-    #        ValueError, match="OS system only can run under Darwin or Linux")
-    # assert filecmp.cmp(args.out, compare) == True
-    # os.remove(args.out)
-    # os.remove("isomers.out")
 
 
 if __name__ == "__main__":

@@ -15,9 +15,9 @@ ________________________________________________________________________________
 | Usages  : BOBYQA.py [options]
 | [options]
 | Dir      : -d the directory [default .]
-| Ref      : -r the actual reference file [default 1r.dat] 
+| Ref      : -r the actual reference file [default 1r.dat]
 | Limit    : -l limit border(ppm) [defalut 0.20]
-| Package  : Tools 
+| Package  : Tools
 | Module   : ??.py
 |______________________________________________________________________________
 """
@@ -84,10 +84,18 @@ def rosenbrock(x0) -> float:
     orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileName_BOBYQA)
 
-    for idx, idx_k in enumerate(idx_keys):
-        orcaS_Table[idx_k][1] = x0[idx]
+    if len(x0) == 1:
+        # single peak
+        for idx_key in idx_keys:
+            orcaS_Table[idx_key][1] = x0[0]
+    else:
+        # group peaks
+        for idx, idx_k in enumerate(idx_keys):
+            orcaS_Table[idx_k][1] = x0[idx]
 
     np.savetxt(Directory/FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
+    orcaS_Table = np.delete(orcaS_Table, 2, axis=1)
+    np.savetxt(Directory/FileName_OrcaS, orcaS_Table, fmt="%10d %10.5f")
 
     from censo_ext.Tools.anmrfile import CensoDat
     if prog == True:
@@ -129,58 +137,62 @@ def rosenbrock(x0) -> float:
     Dat_Ref.method_normalize_dat()
     Diff: CensoDat = Dat_Cal.method_subtract_dat(Dat_Ref)
 
-    return np.sum(np.square(Diff.get_Dat()))
+    res = np.sum(np.square(Diff.get_Dat()))
+    # ic(Res)
+    return res
 
 
 def Scan_single_Peak() -> None:
     import pybobyqa
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileName_BOBYQA)
+    in_set: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
+    in_set = {x for x in in_set if x <= 100 and x >= 1}
+    # in_set.discard(0)
+    for nSerial in in_set:
+        ic(nSerial)
+        intp: npt.NDArray[np.int64] = np.argwhere(
+            OrcaS_Table.T[2] == nSerial).flatten()
+        Data_Chemical_Shift: list[float] = list(
+            map(float, np.atleast_1d(OrcaS_Table.T[1][intp[0]])))
+        ic(Data_Chemical_Shift)
+        ic(intp)
 
-    for idx, SParam in enumerate(OrcaS_Table):
-
-        if SParam[2] == 1:  # on/off
-
-            Data_Chemical_Shift: list = []
-            Data_Chemical_Shift.append(SParam[1])
-            global idx_keys
-            idx_keys = []
-            idx_keys.append(idx)
-            x0: npt.NDArray[np.float64] = np.array(Data_Chemical_Shift)
-            lower: npt.NDArray[np.float64] = x0 - limit_border
-            upper: npt.NDArray[np.float64] = x0 + limit_border
-            ic(int(SParam[0]), x0.tolist())
-            soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
-                lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
-            print(soln)
+        global idx_keys
+        idx_keys = list(intp)
+        x0: npt.NDArray[np.float64] = np.array(Data_Chemical_Shift)
+        lower: npt.NDArray[np.float64] = x0 - limit_border
+        upper: npt.NDArray[np.float64] = x0 + limit_border
+        # ic(int(SParam[0]), x0.tolist())
+        soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
+            lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
+        print(soln)
     print(" ==== Finished single_peak ====")
 
 
-def Scan_group_Peaks(inGroup: list[int] = []) -> None:
+def Scan_group_Peaks() -> None:
     import pybobyqa
     orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileName_BOBYQA)
 
-    group: set = set()
-    for idx, SParam in enumerate(orcaS_Table):
-        if SParam[2] >= 100:
-            group.add(SParam[2])
+    in_set: set[int] = set(orcaS_Table.T[2].astype(int).tolist())
+    in_set = {x for x in in_set if x >= 1000}
 
-    list_group: list = list(group)
-    list_group.sort()
-
-    for idg in list_group:
+    for nSerial in in_set:
 
         global idx_keys
-        idx_keys = list()
         Data_Chemical_Shift: list[float] = list()
-        idx_atoms: list[int] = list()
 
-        for idx, SParam in enumerate(orcaS_Table):
-            if SParam[2] == idg:
-                idx_keys.append(idx)
-                idx_atoms.append(int(SParam[0]))
-                Data_Chemical_Shift.append(SParam[1])
+        ic(nSerial)
+        intp: npt.NDArray[np.int64] = np.argwhere(
+            orcaS_Table.T[2] == nSerial).flatten()
+        Data_Chemical_Shift: list[float] = list(
+            map(float, orcaS_Table.T[1][intp]))
+        idx_keys = list(map(int, intp))
+        idx_atoms = orcaS_Table.T[0][intp]
+        ic(Data_Chemical_Shift)
+        ic(intp)
+        ic(idx_atoms)
 
         nNumbers: int = len(idx_keys)
         from itertools import permutations
@@ -224,9 +236,9 @@ def Create_BOBYQA() -> tuple[bool, bool]:
     np.savetxt(Directory / FileName_BOBYQA,
                orcaS_Table, fmt="%10d %10.5f %10d")
     print(" Create the orcaS-BOBYQA.out file ")
-    print(" three column :        0 - Do nothing ")
-    print("                       1 - Use BOBYQA single point to find the peak ")
-    print("               Above 100 - Use BOBYQA groups to find the peaks ")
+    print(" three column :         0 - Do nothing ")
+    print("                     1~99 - Use BOBYQA single point to find the peak (use First Chemical Shift)")
+    print("               Above 1000 - Use BOBYQA groups to find the peaks ")
     print(" Run this program again")
     return (False, True)
 
