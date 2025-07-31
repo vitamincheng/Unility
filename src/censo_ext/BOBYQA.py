@@ -293,18 +293,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
                         Directory / FileName_OrcaS)  # type: ignore
                     orcaS_Table.T[1] = orcaS_Table.T[1]-Ref_TMS
                     subprocess.call("cp -r backup/CONF1/ ../", shell=True)
-                    subprocess.call(
-                        'cat "--------------------------------" > CONF1/NMR/orcaS.out', shell=True)
-                    subprocess.call(
-                        '"CHEMICAL SHIELDING SUMMARY (ppm)" >> CONF1/NMR/orcaS.out', shell=True)
-                    subprocess.call(
-                        '"--------------------------------" >> CONF1/NMR/orcaS.out', shell=True)
-                    subprocess.call('"" >> CONF1/NMR/orcaS.out', shell=True)
-                    subprocess.call('"" >> CONF1/NMR/orcaS.out', shell=True)
-                    subprocess.call(
-                        '"  Nucleus  Element    Isotropic     Anisotropy" >> CONF1/NMR/orcaS.out', shell=True)
-                    subprocess.call(
-                        '"  -------  -------  ------------   ------------" >> CONF1/NMR/orcaS.out', shell=True)
+                    import sys
+                    template_inp: str = "CONF1/NMR/orcaS.out"
+                    original_stdout = sys.stdout
+                    with open(template_inp, "w") as f:
+                        sys.stdout = f
+                        print("--------------------------------")
+                        print("CHEMICAL SHIELDING SUMMARY (ppm)")
+                        print("--------------------------------")
+                        print("")
+                        print("")
+                        print("  Nucleus  Element    Isotropic     Anisotropy")
+                        print("  -------  -------  ------------   ------------")
+                    sys.stdout = original_stdout
+
                     np.savetxt(Directory/Path("CONF1/NMR/orcaS-main.out"), orcaS_Table, fmt="%10d H %10.5f")  # type: ignore # nopep8
                     subprocess.call(
                         "cat CONF1/NMR/orcaS-main.out >> orcaS.out", shell=True)
