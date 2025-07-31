@@ -7,7 +7,7 @@ import censo_ext.molclus_orca as orca
 import filecmp
 import platform
 
-in_file = f"tests/data/EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz"
+in_file = f"tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz"
 out_file = f"isomers.xyz"
 _system = platform.system()
 

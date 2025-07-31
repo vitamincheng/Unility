@@ -201,6 +201,6 @@ if __name__ == "__main__":
     main()
 
 #   test
-#   python molclus_tblite_xtb.py  -i ../../tests/data/EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz --alpb chloroform --opt
-#   python molclus_tblite_xtb.py  -i ../../tests/data/EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz --alpb chloroform
-#   python molclus_tblite_xtb.py  -i ../../tests/data/EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz
+#   python molclus_tblite_xtb.py  -i ../../tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz --alpb chloroform --opt
+#   python molclus_tblite_xtb.py  -i ../../tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz --alpb chloroform
+#   python molclus_tblite_xtb.py  -i ../../tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz

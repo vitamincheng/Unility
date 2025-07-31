@@ -7,7 +7,7 @@ import censo_ext.ensoAnalysis as ensoAnalysis
 import filecmp
 import platform
 
-file_anmr = "tests/data/04.Hydrogen/anmr_enso"
+file_anmr = "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso"
 
 
 def test_ensoAnalysis_miss_args():
@@ -28,12 +28,13 @@ def test_ensoAnalysis_Hydrogen_miss():
 
 
 def test_ensoAnalysis_Hydrogen_miss_file():
-    x: dict = {"file": "tests/data/04.Hydrogen/anmr_enso1", "new": None}
+    x: dict = {
+        "file": "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso1", "new": None}
     args = argparse.Namespace(**x)
     with pytest.raises(FileNotFoundError) as e:
         ensoAnalysis.main(args)
     assert str(
-        e.value) == f"tests/data/04.Hydrogen/anmr_enso1 was not found or is a directory"
+        e.value) == f"tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso1 was not found or is a directory"
 
 
 def test_ensoAnalysis_Hydrogen_new_read():
@@ -133,7 +134,7 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
 
 
 def test_ensoAnalysis_Hydrogen_new_read_weights():
-    file_anmr_weights = "tests/data/04.Hydrogen/anmr_enso_weights"
+    file_anmr_weights = "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso_weights"
     x: dict = {"file": file_anmr_weights, "new": True}
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:

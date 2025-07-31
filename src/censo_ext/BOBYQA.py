@@ -286,7 +286,7 @@ if __name__ == "__main__":
     main()
 
 # test
-# BOBYQA.py -d tests/data/EthylAcetate/03.Censo -r 1r.dat
+# BOBYQA.py -d tests/data/06.EthylAcetate/03.Censo -r 1r.dat
 # BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) -r 1r_h.dat
 #
 # anmr.py   -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) --auto

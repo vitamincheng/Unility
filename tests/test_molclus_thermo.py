@@ -7,7 +7,7 @@ import censo_ext.molclus_thermo as thermo
 import filecmp
 import platform
 
-in_file = f"tests/data/EthylAcetate/01.Crest/crest_conformers.xyz"
+in_file = f"tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz"
 
 
 def test_molclus_thermo_miss_args():

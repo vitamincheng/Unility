@@ -68,7 +68,7 @@ def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, npt.NDA
     neighbor: dict[int, npt.NDArray[np.int64]]
     bond_order: dict[int, int]
     mol, neighbor, bond_order = read_mol_neighbors_bond_order(
-        Path("Test/04.Hydrogen/crest_conformers.xyz"))
+        Path("Test/34.Ergocalciferol/04.Hydrogen/crest_conformers.xyz"))
     idx_H_atom: list[int] = [idx+1 for idx,
                              i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
     idx_C_atom: list[int] = [idx+1 for idx,
@@ -80,13 +80,13 @@ def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, npt.NDA
         neighbor[key] = np.array([x for x in value if x in idx_H_atom])
 
     tmp = list(np.genfromtxt(
-        "Test/07.Carbon/Average/NMR/orcaS-BOBYQA.out", usecols=[0, 1]))
+        "Test/34.Ergocalciferol/07.Carbon/Average/NMR/orcaS-BOBYQA.out", usecols=[0, 1]))
 
     idxAtoms_C: dict = {int(x): -y for x, y in tmp}
     # list_idxAtoms_C:list = list(idxAtoms_C.keys())
 
     tmp = list(np.genfromtxt(
-        "Test/04.Hydrogen/Average/NMR/orcaS-BOBYQA.out", usecols=[0, 1]))
+        "Test/34.Ergocalciferol/04.Hydrogen/Average/NMR/orcaS-BOBYQA.out", usecols=[0, 1]))
     idxAtoms_H: dict = {int(x): -y for x, y in tmp}
     # list_idxAtoms_H:list = list(idxAtoms_H.keys())
     ax.set_xlim(max(data_x.T[0]),  min(data_x.T[0]))
@@ -103,7 +103,7 @@ def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, npt.NDA
             for idx0 in idx0_neighbor:
 
                 import censo_ext.anmr as anmr
-                x = {'out': 'output.dat', 'mf': 500.0, "dir": "Test/04.Hydrogen", 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
+                x = {'out': 'output.dat', 'mf': 500.0, "dir": "Test/34.Ergocalciferol/04.Hydrogen", 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
                      'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': True, 'json': [idx0]}
 
                 sys.stdout = open(os.devnull, 'w')
@@ -166,8 +166,8 @@ def main(args=argparse.Namespace()) -> None:
         pass
     hidden = True
 
-    directory_H: str = "Test/04.Hydrogen"
-    directory_C: str = "Test/07.Carbon"
+    directory_H: str = "Test/34.Ergocalciferol/04.Hydrogen"
+    directory_C: str = "Test/34.Ergocalciferol/07.Carbon"
     data_x, data_y = Load_Directory(directory_H, directory_C)
 
     # data_x, data_y = Load_dat(

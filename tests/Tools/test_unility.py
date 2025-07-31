@@ -6,7 +6,7 @@ import pytest
 def test_unility_IsExists_DirFileName_miss_args():
     from censo_ext.Tools.utility import IsExists_DirFileName
 
-    FileName = Path("tests/data/04.Hydrogen/test.dat")
+    FileName = Path("tests/data/34.Ergocalciferol/04.Hydrogen/test.dat")
     with pytest.raises(FileNotFoundError) as e:
         a, b = IsExists_DirFileName(FileName)
     assert str(e.value) == f"{FileName} The file is not Exist ..."
@@ -15,9 +15,10 @@ def test_unility_IsExists_DirFileName_miss_args():
 def test_unility_IsExists_DirFileName():
     from censo_ext.Tools.utility import IsExists_DirFileName
     assert IsExists_DirFileName(
-        Path("tests/data/04.Hydrogen/.anmrrc")) == (Path("tests/data/04.Hydrogen"), ".anmrrc")
-    a, b = IsExists_DirFileName(Path("tests/data/04.Hydrogen/anmr.dat"))
-    assert a == Path("tests/data/04.Hydrogen")
+        Path("tests/data/34.Ergocalciferol/04.Hydrogen/.anmrrc")) == (Path("tests/data/34.Ergocalciferol/04.Hydrogen"), ".anmrrc")
+    a, b = IsExists_DirFileName(
+        Path("tests/data/34.Ergocalciferol/04.Hydrogen/anmr.dat"))
+    assert a == Path("tests/data/34.Ergocalciferol/04.Hydrogen")
     assert b == "anmr.dat"
 
 

@@ -18,7 +18,7 @@ def test_datNormalized_miss_args():
 
 
 def test_datNormalized():
-    in_file: Path = Path("tests/data/04.Hydrogen/anmr.dat")
+    in_file: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen/anmr.dat")
     out_file: Path = Path("tests/compare/out.dat")
     compare_file: Path = Path("tests/compare/anmr_normal.dat")
 
