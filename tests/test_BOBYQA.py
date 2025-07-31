@@ -92,6 +92,11 @@ def test_BOBYQA_group():
     BOBYQA_final_remove_files()
 
 
+@pytest.mark.skipif(_system == "Darwin", reason="crest only work under linux")
+def test_BOBYQA_group_external_prog():
+    raise NotImplementedError("pending")
+
+
 def BOBYQA_final_remove_files():
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(DirName / "output.dat",

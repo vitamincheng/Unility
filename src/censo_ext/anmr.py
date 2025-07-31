@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-import os
 import copy
-from typing import Union
 import numpy as np
 import numpy.typing as npt
 import argparse
@@ -361,7 +359,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             # ic(mat_filter_ab_quartet)
 
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
-
             idx0_ab_connect: list[list[int | set[int]]] = []
             for idx, x in enumerate(mat_filter_ab_quartet):
                 np_nonzero: npt.NDArray[np.int64] = (x*(idx+1)).nonzero()[0]
@@ -370,20 +367,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 group.add(idx)
                 idx0_ab_connect.append([idx, group])
 
-            idx0_ab_group_set = []
+            idx0_ab_group_set: list[set[int]] = []
             for _, x in idx0_ab_connect:
-                if len(x) == 1:                                 # type: ignore
-                    idx0_ab_group_set.append(x)
-                elif len(x) > 1:                                # type: ignore
-                    group: set[int] = x
+                if len(x) == 1:                     # type: ignore
+                    idx0_ab_group_set.append(x)     # type: ignore
+                elif len(x) > 1:                    # type: ignore
+                    group: set[int] = x             # type: ignore
                     jump: bool = False
                     bond_penetration: int = 1
                     while jump == False:
                         jump = True
                         for idy, y in enumerate(group):
-                            if (not group.issuperset(idx0_ab_connect[y][1])) and bond_penetration <= args.tb:
+                            if (not group.issuperset(idx0_ab_connect[y][1])) and bond_penetration <= args.tb:  # type: ignore # nopep8
                                 jump = False
-                                group = group.union(idx0_ab_connect[y][1])
+                                group = group.union(idx0_ab_connect[y][1])  # type: ignore # nopep8
                             bond_penetration += 1
                     idx0_ab_group_set.append(group)
                 else:

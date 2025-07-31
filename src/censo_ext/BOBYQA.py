@@ -90,19 +90,19 @@ def rosenbrock(x0) -> float:
             orcaS_Table[idx_key][1] = x0[0]
     else:
         # group peaks
-        for idx, idx_k in enumerate(idx_keys):
-            orcaS_Table[idx_k][1] = x0[idx]
+        for idx, idx_key in enumerate(idx_keys):
+            orcaS_Table[idx_key][1] = x0[idx]
 
     np.savetxt(Directory/FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
     orcaS_Table = np.delete(orcaS_Table, 2, axis=1)
     np.savetxt(Directory/FileName_OrcaS, orcaS_Table, fmt="%10d %10.5f")
 
     from censo_ext.Tools.anmrfile import CensoDat
+
     if prog == True:
-        # ic("External")
+
         cwd: Path = Path(os.getcwd())
         os.chdir(Directory)
-
         import sys
         sys.stdout = open(os.devnull, 'w')
         result = subprocess.call("anmr.sh", shell=True)
@@ -110,9 +110,10 @@ def rosenbrock(x0) -> float:
 
         if result != 0:
             ic("Cal.=================", result)
-            exit(0)
-        os.chdir(cwd)
+            raise ValueError(
+                " call anmr.sh process have something wrong !!!")
 
+        os.chdir(cwd)
         Dat_Cal: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
 
     elif prog == False:
@@ -123,7 +124,6 @@ def rosenbrock(x0) -> float:
         import sys
         sys.stdout = open(os.devnull, 'w')
         anmr.main(args=argparse.Namespace(**x))
-        # np_dat: npt.NDArray[np.float64] = anmr.main(args=argparse.Namespace(**x))
         sys.stdout = sys.__stdout__
 
         Dat_Cal: CensoDat = CensoDat(file=Directory/Path(x["out"]))
@@ -196,18 +196,19 @@ def Scan_group_Peaks() -> None:
 
         nNumbers: int = len(idx_keys)
         from itertools import permutations
-        Permutations: list = list(permutations(
+        Permutations: list[tuple] = list(permutations(
             [*range(0, nNumbers)], nNumbers))
         solution_f: list = []
         solution_x0: list = []
 
         for Permutation in Permutations:
-            x0 = np.array(Data_Chemical_Shift)[list(Permutation)]
+            x0: npt.NDArray[np.int64] = np.array(Data_Chemical_Shift)[
+                list(Permutation)]
             # idx_atoms =[ int(x) for x in np.array(idx_atoms)[list(Permutation)]]
 
             lower = x0 - limit_border
             upper = x0 + limit_border
-            ic(idx_atoms, x0.tolist())
+            # ic(idx_atoms, x0.tolist())
             soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
                 lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
             print(soln)
@@ -221,11 +222,13 @@ def Scan_group_Peaks() -> None:
         OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
             Directory/FileName_BOBYQA)
 
-        for idx, idx_k in enumerate(idx_keys):
-            OrcaS_Table[idx_k][1] = list_x0[idx]
+        for idx, idx_key in enumerate(idx_keys):
+            OrcaS_Table[idx_key][1] = list_x0[idx]
 
         np.savetxt(Directory/FileName_BOBYQA,
                    OrcaS_Table, fmt="%10d %10.5f %10d")
+        OrcaS_Table = np.delete(OrcaS_Table, 2, axis=1)
+        np.savetxt(Directory/FileName_OrcaS, OrcaS_Table, fmt="%10d %10.5f")
     print(" ==== Finished group_peaks ====")
 
 
@@ -269,12 +272,55 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
     else:
         prog = False
 
-    from censo_ext.Tools.utility import IsExist_return_bool
     if IsExist_return_bool(Directory / FileName_OrcaS):                 # type: ignore # nopep8
         if IsExist_return_bool(Directory / FileName_BOBYQA):            # type: ignore # nopep8
             ic("BOBYQA is exist")
+            if prog == True:
+                # ic("External")
+                cwd: Path = Path(os.getcwd())
+                os.chdir(Directory)  # type: ignore
+                print(" Need to build the new CONF* system")
+                print(" And copy your CONF* to /Backup/CONF*")
+                print(" And create a new CONF1 (copy from /Backup/CONF1)")
+                print(" Modify from /Average/NMR/orcaS.out")
+                Res = input("Are you Sure to Continue ?? (Y/N)")
+                if Res == "Y":
+                    Ref_TMS: float = 31.820
+                    subprocess.call("mkdir backup", shell=True)
+                    subprocess.call("mv CONF* backup", shell=True)
+                    subprocess.call("cp -r backup/CONF1/ ../", shell=True)
+                    orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
+                        Directory / FileName_OrcaS)  # type: ignore
+                    orcaS_Table.T[1] = orcaS_Table.T[1]-Ref_TMS
+                    subprocess.call("cp -r backup/CONF1/ ../", shell=True)
+                    subprocess.call(
+                        'cat "--------------------------------" > CONF1/NMR/orcaS.out', shell=True)
+                    subprocess.call(
+                        '"CHEMICAL SHIELDING SUMMARY (ppm)" >> CONF1/NMR/orcaS.out', shell=True)
+                    subprocess.call(
+                        '"--------------------------------" >> CONF1/NMR/orcaS.out', shell=True)
+                    subprocess.call('"" >> CONF1/NMR/orcaS.out', shell=True)
+                    subprocess.call('"" >> CONF1/NMR/orcaS.out', shell=True)
+                    subprocess.call(
+                        '"  Nucleus  Element    Isotropic     Anisotropy" >> CONF1/NMR/orcaS.out', shell=True)
+                    subprocess.call(
+                        '"  -------  -------  ------------   ------------" >> CONF1/NMR/orcaS.out', shell=True)
+                    np.savetxt(Directory/Path("CONF1/NMR/orcaS-main.out"), orcaS_Table, fmt="%10d H %10.5f")  # type: ignore # nopep8
+                    subprocess.call(
+                        "cat CONF1/NMR/orcaS-main.out >> orcaS.out", shell=True)
+                    subprocess.call("rm CONF1/NMR/orcaS-main.out", shell=True)
+                os.chdir(cwd)
             Scan_single_Peak()
             Scan_group_Peaks()
+            if prog == True:
+                cwd: Path = Path(os.getcwd())
+                os.chdir(Directory)  # type: ignore
+                print(" Recover the data from backup directory")
+                Res = input("Are you Sure to Continue ?? (Y/N)")
+                if Res == "Y":
+                    subprocess.call("rm -rf CONF1", shell=True)
+                    subprocess.call("mv backup/CONF* ../", shell=True)
+                os.chdir(cwd)
             return (True, False)
         else:
             return Create_BOBYQA()  # (False,True)
