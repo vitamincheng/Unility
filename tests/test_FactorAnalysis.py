@@ -21,8 +21,7 @@ def test_FactorAnalysis_opt():
     x: dict = {"file": inFile, "factor": 0.50, "opt": True, "thr": 2,
                "ignore_Hydrogen": False, "Analysis": True, "Filter": None}
     args = argparse.Namespace(**x)
-    Res = FactorAnalysis.main(args)
-    assert Res == None
+    assert FactorAnalysis.main(args) == None
 
 
 def test_FactorAnalysis_A_bond_broken() -> None:
@@ -30,8 +29,7 @@ def test_FactorAnalysis_A_bond_broken() -> None:
                "bond_broken": [40, 44], "ignore_Hydrogen": False,
                "Analysis": True, "Filter": None}
     args = argparse.Namespace(**x)
-    Res = FactorAnalysis.main(args)
-    assert Res == None
+    assert FactorAnalysis.main(args) == None
 
 
 def test_FactorAnalysis_F_bond_broken() -> None:

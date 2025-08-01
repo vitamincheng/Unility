@@ -22,8 +22,7 @@ def test_symmetry_crest_conformers():
     xyz = GeometryXYZs(Path("tests/data/crest_conformers.xyz"))
     xyz.method_read_xyz()
     for idx in range(len(xyz)):
-        Res: str = method_get_point_group(xyz.Sts, idx, False)
-        assert Res == 'C1'
+        assert method_get_point_group(xyz.Sts, idx, False) == 'C1'
 
 
 def test_symmetry_crest_conformers_H():
@@ -32,8 +31,7 @@ def test_symmetry_crest_conformers_H():
     xyz = GeometryXYZs(Path("tests/data/crest_conformers.xyz"))
     xyz.method_read_xyz()
     for idx in range(len(xyz)):
-        Res: str = method_get_point_group(xyz.Sts, idx, True)
-        assert Res == 'C1'
+        assert method_get_point_group(xyz.Sts, idx, True) == 'C1'
 
 
 def test_symmetry_isomers():
@@ -45,8 +43,7 @@ def test_symmetry_isomers():
     expected_Res: list[str] = ["Cs", "C2", "C1"]
 
     for idx in range(len(xyz)):
-        Res: str = method_get_point_group(xyz.Sts, idx, False)
-        assert Res == expected_Res[idx]
+        assert method_get_point_group(xyz.Sts, idx, False) == expected_Res[idx]
 
 
 def test_symmetry_isomers_H():
@@ -58,5 +55,4 @@ def test_symmetry_isomers_H():
     expected_Res: list[str] = ["Cs", "C2", "C1"]
 
     for idx in range(len(xyz)):
-        Res: str = method_get_point_group(xyz.Sts, idx, True)
-        assert Res == expected_Res[idx]
+        assert method_get_point_group(xyz.Sts, idx, True) == expected_Res[idx]

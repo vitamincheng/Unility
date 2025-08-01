@@ -40,12 +40,12 @@ class Anmrrc():
             else:
                 break
 
-        second_line: list[str] = lines[1].split()
-        self.mf: float = float(second_line[4])             # mf      : nmr frequency           # nopep8
-        self.lw: float = float(second_line[6])             # lw      : lines of width          # nopep8
-        self.Temp: float = float(second_line[12])          # Temp    : Temperature (K)         # nopep8
-        self.JCoups: bool = bool(second_line[8])           # JCoups  : bool of JCoups ONOFF    # nopep8
-        self.SParams: bool = bool(second_line[10])         # Sparams : bool of SParams ONOFF   # nopep8
+        _2nd_line: list[str] = lines[1].split()
+        self.mf: float = float(_2nd_line[4])             # mf      : nmr frequency           # nopep8
+        self.lw: float = float(_2nd_line[6])             # lw      : lines of width          # nopep8
+        self.Temp: float = float(_2nd_line[12])          # Temp    : Temperature (K)         # nopep8
+        self.JCoups: bool = bool(_2nd_line[8])           # JCoups  : bool of JCoups ONOFF    # nopep8
+        self.SParams: bool = bool(_2nd_line[10])         # Sparams : bool of SParams ONOFF   # nopep8
 
         # 3 lines of .anmrrc Parameters
         # self.third_line: str = lines[2].rstrip()
@@ -79,7 +79,6 @@ class Anmrrc():
     def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFileName: Path) -> list[int]:
         """
             Return the list of be removed hydrogen of acid_atoms_NoShow in .anmrrc setting
-
         Args:
             fileName (str, optional): _description_. Defaults to "crest_conformers.xyz".
         """
@@ -94,7 +93,8 @@ class Anmrrc():
             for y in acid_atoms_NoShow:
                 if x.symbol == y:  # type: ignore
                     acid_atoms_NoShowRemove.append(idx+1)
-        NoShow_Remove_Group: npt.NDArray[np.int64] = np.array([], dtype=int)
+        NoShow_Remove_Group: npt.NDArray[np.int64] = np.array(
+            [], dtype=np.int64)
         for idx, x in enumerate(acid_atoms_NoShowRemove):
             NoShow_Remove_Group = np.concatenate(
                 (NoShow_Remove_Group, neighbors[x]), axis=None)
@@ -176,7 +176,8 @@ class Anmr():
             # for Normal of weight of anmr_enso
             weight: npt.NDArray[np.float64] = self.enso['BW']
             switch: npt.NDArray[np.int64] = self.enso['ONOFF']
-            idx1_CONF: npt.NDArray[np.int64] = self.enso['CONF'].astype(int)
+            idx1_CONF: npt.NDArray[np.int64] = self.enso['CONF'].astype(
+                np.int64)
 
             if (np.sum(switch) == 0):
                 print(" anmr_enso: Table - ONOFF is Zero ")

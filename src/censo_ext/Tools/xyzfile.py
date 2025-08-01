@@ -16,9 +16,18 @@ import copy
 
 
 class Geometry():
-    '''Stores all of the data in an xyz file (single confromer) '''
 
-    def __init__(self, names: dict[int, str], coord: list[npt.NDArray], extras: list[list[str]], comment: str = "", energy: float = 0, nClusters: int = 0) -> None:
+    def __init__(self, names: dict[int, str], coord: list[npt.NDArray[np.float64]], extras: list[list[str]], comment: str = "", energy: float = 0, nClusters: int = 0) -> None:
+        """Initialize a Geometry object with given atom names, coordinates, and other properties.
+
+        Parameters:
+            names (dict[int, str]): A dictionary of atom names with their respective atomic number and Symbol.
+            coord (list[npt.NDArray[np.float64]]): List of atomic coordinates.
+            extras (list[list[str]]): List of extra information for each atom.
+            comment (str): Comment or additional information associated with the geometry.
+            energy (float): Electronic energy value associated with the geometry.
+            nClusters (int): Number of clusters associated with the geometry.
+        """
 
         self.names: dict[int, str] = names                  # atom's name   H Li Na K B C O S F Cl # nopep8
         self.coord: list[npt.NDArray[np.float64]] = coord
@@ -33,6 +42,13 @@ class Geometry():
         self.inertia: npt.NDArray
 
     def __add__(self, other: Self) -> Geometry:
+        """Concatenate two Geometry objects by merging their properties.
+        Parameters:
+            other (Self): The Geometry object to be added.
+        Returns:
+            Geometry: A new Geometry object with merged properties.
+        """
+
         import copy
         res: Geometry = copy.deepcopy(self)
         for key in other.names.keys():
@@ -44,6 +60,10 @@ class Geometry():
         return res
 
     def __repr__(self) -> str:
+        """Generate a string representation of the Geometry object.
+        Returns:
+            str: A formatted string describing the geometry.
+        """
         res: str = ""
         res += f"{self.nAtoms}\n{self.comment}\n"
         for idx0 in range(self.nAtoms):
@@ -185,16 +205,42 @@ class GeometryXYZs():
     '''
 
     def __init__(self, fileName: Path = Path("")) -> None:
+        """Initialize a GeometryXYZs object with a given filename.
+        Parameters:
+            fileName (Path): The path to the xyz file.
+        """
+
         self.__filename: Path = Path(fileName)
         self.Sts: list[Geometry] = list()
 
     def __len__(self) -> int:
+        """Return the number of Geometry objects in the collection.
+        Returns:
+            int: Number of Geometry objects.
+        """
+
         return int(len(self.Sts))
 
     def set_filename(self, fileName: Path) -> None:
+        """Set the filename for the GeometryXYZs object.
+
+        Parameters:
+            fileName (Path): The new path to the xyz file.
+        """
+
         self.__filename = Path(fileName)
 
     def method_translate_cut_xyzs(self, delta: npt.NDArray[np.float64], cut: int) -> GeometryXYZs:
+        """Translate and cut a list of Geometry objects by a given delta.
+
+        Parameters:
+            delta (npt.NDArray[np.float64]): The translation vector.
+            cut (int): Number of cuts to make.
+
+        Returns:
+            GeometryXYZs: A new GeometryXYZs object with translated structures.
+        """
+
         res: GeometryXYZs = GeometryXYZs()
         if len(self) == 1:
             for x in np.linspace(0, 1, num=cut, endpoint=True):
@@ -211,6 +257,15 @@ class GeometryXYZs():
             return res
 
     def method_translate_xyzs(self, delta: npt.NDArray[np.float64]) -> GeometryXYZs:
+        """Translate a list of Geometry objects by a given delta.
+
+        Parameters:
+            delta (npt.NDArray[np.float64]): The translation vector.
+
+        Returns:
+            GeometryXYZs: A new GeometryXYZs object with translated structures.
+        """
+
         res: GeometryXYZs = GeometryXYZs()
         for x in self.Sts:
             x: Geometry = x.method_translate_xyz(delta=delta)
@@ -235,6 +290,15 @@ class GeometryXYZs():
             raise ValueError("Too much xyzs structures in your xyz file")
 
     def method_idx_molecules_xyzs(self, idx1: int = 1) -> bool:
+        """Identify and create separate geometries for molecules from a specific index.
+
+        Parameters:
+            idx1 (int): Index to start processing the molecule separation.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+
         fileName: Path = Path("~temp.xyz")
         self.set_filename(fileName)
         self.method_save_xyz([idx1])

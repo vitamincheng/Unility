@@ -23,9 +23,7 @@ def anmr_BOBYQA_init():
 
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-
-    Res_init: tuple[bool, bool] = BOBYQA.main(args2)
-    assert Res_init == (False, True)
+    assert BOBYQA.main(args2) == (False, True)
 
 
 def BOBYQA_final_remove_files():
@@ -52,8 +50,7 @@ def test_BOBYQA_block_file():
     anmr_BOBYQA_init()
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-    Res: tuple[bool, bool] = BOBYQA.main(args2)
-    assert Res == (True, False)
+    assert BOBYQA.main(args2) == (True, False)
 
 
 def test_BOBYQA_block_file_final_remove_files():
@@ -67,8 +64,7 @@ def test_BOBYQA_single():
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-    Res: tuple[bool, bool] = BOBYQA.main(args2)
-    assert Res == (True, False)
+    assert BOBYQA.main(args2) == (True, False)
     assert filecmp.cmp(DirName / Path("output.dat"),
                        DirName / Path("orcaS-BOBYQA-anmrpy.dat")) == True
     BOBYQA_final_remove_files()
@@ -85,8 +81,7 @@ def test_BOBYQA_single_external_prog(monkeypatch):
     from io import StringIO
     monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
     args2 = argparse.Namespace(**args_y)
-    Res: tuple[bool, bool] = BOBYQA.main(args2)
-    assert Res == (True, False)
+    assert BOBYQA.main(args2) == (True, False)
     assert filecmp.cmp(DirName / Path("anmr.dat"),
                        DirName / Path("orcaS-BOBYQA-anmr.dat")) == True
     BOBYQA_final_remove_files()
@@ -99,8 +94,7 @@ def test_BOBYQA_group():
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-    Res: tuple[bool, bool] = BOBYQA.main(args2)
-    assert Res == (True, False)
+    assert BOBYQA.main(args2) == (True, False)
     assert filecmp.cmp(DirName / Path("output.dat"),
                        DirName / Path("orcaS-BOBYQA-group-anmrpy.dat")) == True
     BOBYQA_final_remove_files()

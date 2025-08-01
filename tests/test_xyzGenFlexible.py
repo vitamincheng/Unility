@@ -27,8 +27,7 @@ def test_xyzGenFlexible_args():
     xyzGenFlexible.main(args)
 
     compare = f"tests/compare/xyzGen_Darwin.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
@@ -41,6 +40,5 @@ def test_xyzGenFlexible_args_manual(monkeypatch):
     xyzGenFlexible.main(args)
 
     compare = f"tests/compare/xyzGen_Darwin_manual.xyz"
-    dcmp = filecmp.cmp(args.out, compare)
-    assert (dcmp == True)
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)

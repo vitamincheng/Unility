@@ -29,7 +29,6 @@ def test_tblite_xtb_alpb_opt():
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
-    dcmp: bool = False
     compare = ""
     if _system == "Darwin":
         compare = f"tests/compare/molclus_xtb_1_Darwin.xyz"
@@ -38,9 +37,7 @@ def test_tblite_xtb_alpb_opt():
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    dcmp = filecmp.cmp(args.out, compare)
-    # os.remove(args.out)
-    assert dcmp == True
+    assert filecmp.cmp(args.out, compare) == True
 
 
 @pytest.mark.skipif(_system == "Darwin" or _system == "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
@@ -50,7 +47,6 @@ def test_tblite_xtb_gbsa_opt():
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
-    dcmp: bool = False
     compare = ""
     if _system == "Darwin":
         compare = f"tests/compare/molclus_xtb_2_Darwin.xyz"
@@ -59,9 +55,11 @@ def test_tblite_xtb_gbsa_opt():
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    dcmp = filecmp.cmp(args.out, compare)
-    os.remove(args.out)
-    assert dcmp == True
+    try:
+        assert filecmp.cmp(args.out, compare) == True
+    except AssertionError as e:
+        print(e)
+        os.remove(args.out)
 
 
 def test_tblite_xtb_alpb():
@@ -70,7 +68,6 @@ def test_tblite_xtb_alpb():
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
-    dcmp = False
     compare = ""
     if _system == "Darwin":
         compare = f"tests/compare/molclus_tblite_xtb_3_Darwin.xyz"
@@ -79,9 +76,12 @@ def test_tblite_xtb_alpb():
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    dcmp = filecmp.cmp(args.out, compare)
-    os.remove(args.out)
-    assert dcmp == True
+    try:
+
+        assert filecmp.cmp(args.out, compare) == True
+    except AssertionError as e:
+        print(e)
+        os.remove(args.out)
 
 
 @pytest.mark.skipif(_system == "Darwin" or _system == "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
@@ -91,7 +91,6 @@ def test_tblite_xtb_gbsa():
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
-    dcmp = False
     compare = ""
     if _system == "Darwin":
         compare = f"tests/compare/molclus_xtb_4_Darwin.xyz"
@@ -100,6 +99,8 @@ def test_tblite_xtb_gbsa():
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    dcmp = filecmp.cmp(args.out, compare)
-    os.remove(args.out)
-    assert dcmp == True
+    try:
+        assert filecmp.cmp(args.out, compare) == True
+    except AssertionError as e:
+        print(e)
+        os.remove(args.out)

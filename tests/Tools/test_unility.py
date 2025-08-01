@@ -32,8 +32,8 @@ def test_unility_file():
                      Path("tests/data/temp2.xyz"))
     copy_file(Path("tests/data/crest_conformers.xyz"),
               Path("tests/data/temp.xyz"))
-    assert False == delete_file_bool(Path("tests/data/temp1.xyz"))
-    assert True == delete_file_bool(Path("tests/data/temp.xyz"))
+    assert delete_file_bool(Path("tests/data/temp1.xyz")) == False
+    assert delete_file_bool(Path("tests/data/temp.xyz")) == True
 
 
 @pytest.mark.parametrize(argnames="input_bool,input_str",

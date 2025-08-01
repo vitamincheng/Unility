@@ -42,13 +42,10 @@ def test_anmrfile_anmrrc():
     sys.stdout = original_stdout
 
     source = "tests/data/34.Ergocalciferol/04.Hydrogen/.anmrrc"
-    dcmp = filecmp.cmp(filename, source)
-    assert (dcmp == True)
+    assert filecmp.cmp(filename, source) == True
     os.remove(filename)
-    path = file.get_Directory()
-    assert path == Path("tests/data/34.Ergocalciferol/04.Hydrogen")
-    active = file.get_Anmr_Active()
-    assert active == ['H']
+    assert file.get_Directory() == Path("tests/data/34.Ergocalciferol/04.Hydrogen")
+    assert file.get_Anmr_Active() == ['H']
 
     # For Carbon
     file = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
@@ -61,24 +58,19 @@ def test_anmrfile_anmrrc():
     sys.stdout = original_stdout
 
     source = "tests/data/34.Ergocalciferol/07.Carbon/.anmrrc"
-    dcmp = filecmp.cmp(filename, source)
-    assert (dcmp == True)
+    assert filecmp.cmp(filename, source) == True
     os.remove(filename)
-    path = file.get_Directory()
-    assert path == Path("tests/data/34.Ergocalciferol/07.Carbon")
-    active = file.get_Anmr_Active()
-    assert active == ['C']
+    assert file.get_Directory() == Path("tests/data/34.Ergocalciferol/07.Carbon")
+    assert file.get_Anmr_Active() == ['C']
 
 
 def test_anmrfile_get_avg_orcaSJ_Exist():
     # For Hydrogen
     file = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
-    exist = file.get_avg_orcaSJ_Exist()
-    assert exist == True
+    assert file.get_avg_orcaSJ_Exist() == True
     # for Carbon
     file = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
-    exist = file.get_avg_orcaSJ_Exist()
-    assert exist == True
+    assert file.get_avg_orcaSJ_Exist() == True
 
 
 def test_anmrfile_read_enso_miss_args():
@@ -119,8 +111,7 @@ def test_anmrfile_read_enso():
     sys.stdout = original_stdout
 
     source = "tests/data/34.Ergocalciferol/07.Carbon/anmr_enso"
-    dcmp = filecmp.cmp(filename, source)
-    assert (dcmp == True)
+    assert filecmp.cmp(filename, source) == True
     os.remove(filename)
 
 
@@ -137,8 +128,7 @@ def test_anmrfile_Censo():
     infile.set_fileName(outfile)
     infile.method_save_dat()
 
-    dcmp = filecmp.cmp(outfile, source)
-    assert (dcmp == True)
+    assert filecmp.cmp(outfile, source) == True
     os.remove(outfile)
 
 

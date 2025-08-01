@@ -25,8 +25,7 @@ def test_topo_get_cn(input_Path: str, bonding: int, CN_Dict: dict):
     x = {"file": input_Path,
          "bonding": bonding, "print": True, "debug": False}
     args = argparse.Namespace(**x)
-    Sts_topo: Topo = Topo(Path(args.file))
-    assert Sts_topo.get_cn() == CN_Dict
+    assert Topo(Path(args.file)).get_cn() == CN_Dict
 
 
 @pytest.mark.parametrize(argnames="input_Path,bonding,Neighbors_Atoms",
@@ -37,8 +36,7 @@ def test_topo_Bonding(input_Path: Path, bonding: int, Neighbors_Atoms: list):
     x = {"file": input_Path,
          "bonding": bonding, "print": True, "debug": False}
     args = argparse.Namespace(**x)
-    Sts_topo: Topo = Topo(Path(args.file))
-    assert Sts_topo.method_bonding(args) == Neighbors_Atoms
+    assert Topo(Path(args.file)).method_bonding(args) == Neighbors_Atoms
 
 
 @pytest.mark.parametrize(argnames="input_Path,bonding,len_neighbor,circle_Mols,residual_Mols",
@@ -55,8 +53,8 @@ def test_topo_topology(input_Path: Path, bonding: int, len_neighbor: int, circle
     # for crest_conformers.xyz
     x = {"file": input_Path, "bonding": bonding, "print": True, "debug": False}
     args = argparse.Namespace(**x)
-    Sts_topo: Topo = Topo(Path(args.file))
-    mol, neighbors, circle_Mols_R, residual_Mols_R = Sts_topo.topology()
+    mol, neighbors, circle_Mols_R, residual_Mols_R = Topo(
+        Path(args.file)).topology()
     assert len(neighbors) == len_neighbor
     assert (circle_Mols_R) == circle_Mols
     assert residual_Mols_R == residual_Mols
@@ -73,8 +71,7 @@ def test_topo_Broken_bond_H(input_Path: Path, bond_broken: list, broken_Atoms_H:
     x = {"file": input_Path, "bond_broken": bond_broken,
          "print": True, "debug": False}
     args = argparse.Namespace(**x)
-    Sts_topo: Topo = Topo(Path(args.file))
-    assert Sts_topo.method_broken_bond_H(args) == broken_Atoms_H
+    assert Topo(Path(args.file)).method_broken_bond_H(args) == broken_Atoms_H
 
 
 @pytest.mark.parametrize(argnames="input_Path,bond_broken,broken_Atoms",
@@ -87,5 +84,4 @@ def test_topo_Broken_bond(input_Path: Path, bond_broken: list, broken_Atoms: lis
     x = {"file": input_Path,
          "bond_broken": bond_broken, "print": True, "debug": False}
     args = argparse.Namespace(**x)
-    Sts_topo: Topo = Topo(Path(args.file))
-    assert Sts_topo.method_broken_bond(args) == broken_Atoms
+    assert Topo(Path(args.file)).method_broken_bond(args) == broken_Atoms

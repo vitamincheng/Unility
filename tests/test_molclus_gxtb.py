@@ -30,7 +30,6 @@ def test_gxtb_alpb_opt():
     args = argparse.Namespace(**x)
     gxtb.main(args)
 
-    dcmp: bool = False
     compare = ""
     if _system == "Darwin":
         compare = "tests/compare/molclus_gxtb_1_Darwin.xyz"
@@ -39,8 +38,7 @@ def test_gxtb_alpb_opt():
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    dcmp = filecmp.cmp(args.out, compare)
-    assert dcmp == True
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
@@ -51,7 +49,6 @@ def test_gxtb_gbsa_opt():
     args = argparse.Namespace(**x)
     gxtb.main(args)
 
-    dcmp: bool = False
     compare = ""
     if _system == "Darwin":
         # gxtb is not work in Darwin system
@@ -61,8 +58,7 @@ def test_gxtb_gbsa_opt():
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    dcmp = filecmp.cmp(args.out, compare)
-    assert dcmp == True
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
@@ -73,7 +69,6 @@ def test_gxtb_alpb():
     args = argparse.Namespace(**x)
     gxtb.main(args)
 
-    dcmp: bool = False
     compare = ""
     if _system == "Darwin":
         compare = "tests/compare/molclus_gxtb_3_Darwin.xyz"
@@ -83,8 +78,7 @@ def test_gxtb_alpb():
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
 
-    dcmp = filecmp.cmp(args.out, compare)
-    assert dcmp == True
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
@@ -95,7 +89,6 @@ def test_gxtb_gbsa():
     args = argparse.Namespace(**x)
     gxtb.main(args)
 
-    dcmp: bool = False
     compare = ""
     if _system == "Darwin":
         # gxtb is not work in Darwin system
@@ -106,6 +99,5 @@ def test_gxtb_gbsa():
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
 
-    dcmp = filecmp.cmp(args.out, compare)
-    assert dcmp == True
+    assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)

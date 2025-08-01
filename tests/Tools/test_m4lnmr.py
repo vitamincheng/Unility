@@ -34,9 +34,8 @@ def test_m4nmr_read_mol_neighbors():
         Path("tests/data/crest_conformers.xyz"))
     atoms_nums = (len([atom for atom in mol]))
     assert atoms_nums == 73
-    atoms_list = ([atom.number for atom in mol])  # type: ignore
-    assert atoms_list == [6, 6, 6, 1, 1, 6, 6, 6, 1, 1, 1, 1, 8, 1, 6, 6, 1, 1, 6, 1, 6, 1, 6, 6, 1, 1, 6, 1, 1, 6, 1, 1, 6, 1,
-                          6, 1, 6, 1, 1, 6, 1, 1, 1, 6, 6, 1, 1, 1, 1, 6, 6, 6, 1, 1, 6, 6, 6, 1, 1, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    assert [atom.number for atom in mol] == [6, 6, 6, 1, 1, 6, 6, 6, 1, 1, 1, 1, 8, 1, 6, 6, 1, 1, 6, 1, 6, 1, 6, 6, 1, 1, 6, 1, 1, 6, 1, 1, 6, 1,
+                                             6, 1, 6, 1, 1, 6, 1, 1, 1, 6, 6, 1, 1, 1, 1, 6, 6, 6, 1, 1, 6, 6, 6, 1, 1, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     _, len_neighbors, bond_order = (mol, len(neighbors), bond_order)
     assert len_neighbors == 73
     assert bond_order == {1: 0, 2: 2, 3: 1, 6: 0, 7: 2, 8: 2, 15: 1, 16: 2, 19: 1, 21: 0, 23: 2, 24: 2, 27: 2,
@@ -50,8 +49,8 @@ def test_m4nmr_read_mol_neighbors():
         Path("tests/data/isomers.xyz"))
     atoms_nums = (len([atom for atom in mol]))
     assert atoms_nums == 17
-    atoms_list = ([atom.number for atom in mol])  # type: ignore
-    assert atoms_list == [6, 6, 6, 1, 1, 6, 1, 1, 6, 6, 1, 1, 1, 1, 1, 1, 8]
+    assert [atom.number for atom in mol] == [
+        6, 6, 6, 1, 1, 6, 1, 1, 6, 6, 1, 1, 1, 1, 1, 1, 8]
 
     _, len_neighbors, bond_order = (mol, len(neighbors), bond_order)
     assert len_neighbors == 17

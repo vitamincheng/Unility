@@ -9,6 +9,14 @@ from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 
 
 def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
+    """ Factor Analyasis of molecues 
+
+    Args:
+        args (_type_): _description_
+
+    Returns:
+        tuple[list[int], dict[int, float]]: _description_
+    """
 
     xyzfile: GeometryXYZs = GeometryXYZs(args.file)
     xyzfile.method_read_xyz()
@@ -56,9 +64,18 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
 
 
 def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
-    """
-    Optimize the broken-bond location based on calculated STD values.
-    return: A tuple indicating whether the optimization is successful, the optimized broken-bond location, and the ratio.
+    """Optimize the broken-bond location based on calculated STD values.
+
+    Args:
+        args (_type_): 
+        low_factor (list[int]): the index of low factor 
+        Table_S (dict[int, float]): the index of low factor and it's STD
+
+    Raises:
+        ValueError: _description_
+
+    Returns:
+        tuple[Literal[True], list[int], float] | Literal[False]: A tuple indicating whether the optimization is successful, the optimized broken-bond location, and the ratio.
     """
 
     print(" ")
