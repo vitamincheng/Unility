@@ -18,15 +18,14 @@ import copy
 class Geometry():
 
     def __init__(self, names: dict[int, str], coord: list[npt.NDArray[np.float64]], extras: list[list[str]], comment: str = "", energy: float = 0, nClusters: int = 0) -> None:
-        """Initialize a Geometry object with given atom names, coordinates, and other properties.
-
+        """ Initialize a Geometry object with atom names, coordinates, and metadata.
         Parameters:
-            names (dict[int, str]): A dictionary of atom names with their respective atomic number and Symbol.
+            names (dict[int, str]): Dictionary mapping atom indices to names.
             coord (list[npt.NDArray[np.float64]]): List of atomic coordinates.
-            extras (list[list[str]]): List of extra information for each atom.
-            comment (str): Comment or additional information associated with the geometry.
-            energy (float): Electronic energy value associated with the geometry.
-            nClusters (int): Number of clusters associated with the geometry.
+            extras (list[list[str]]): Extra data for each atom (e.g., charges).
+            comment (str): Optional comment string.
+            energy (float): Optional energy value (in Eh).
+            nClusters (int): Optional cluster index.
         """
 
         self.names: dict[int, str] = names                  # atom's name   H Li Na K B C O S F Cl # nopep8
@@ -42,11 +41,9 @@ class Geometry():
         self.inertia: npt.NDArray
 
     def __add__(self, other: Self) -> Geometry:
-        """Concatenate two Geometry objects by merging their properties.
-        Parameters:
-            other (Self): The Geometry object to be added.
+        """ Concatenate two Geometry objects by combining atoms and coordinates.
         Returns:
-            Geometry: A new Geometry object with merged properties.
+            Geometry: New Geometry instance with combined data.
         """
 
         import copy
@@ -60,10 +57,11 @@ class Geometry():
         return res
 
     def __repr__(self) -> str:
-        """Generate a string representation of the Geometry object.
+        """ Generate a string representation of the Geometry object in XYZ format.
         Returns:
-            str: A formatted string describing the geometry.
+            str: Formatted XYZ string with atom names, coordinates, and extras.
         """
+
         res: str = ""
         res += f"{self.nAtoms}\n{self.comment}\n"
         for idx0 in range(self.nAtoms):
@@ -74,15 +72,35 @@ class Geometry():
         return res
 
     def get_comment_energy(self) -> float:
+        """Retrieve the energy value from the comment field.
+        Returns:
+            float: Energy value in Eh units.
+        """
+
         return self.comment_energy
 
     def method_translate_xyz(self, delta: npt.NDArray) -> Geometry:
+        """Translate all atoms by a given vector.
+
+        Parameters:
+            delta (npt.NDArray): Translation vector (x, y, z).
+        Returns:
+            Geometry: Translated Geometry instance.
+        """
+
         res: Geometry = copy.deepcopy(self)
         for x in res.coord:
             x += delta
         return res
 
     def method_molecules_separation_xyz(self, idx1_Select_Names: list[int]) -> bool:
+        """Filter atoms by selected indices and update the Geometry.
+        Parameters:
+            idx1_Select_Names (list[int]): List of atom indices to retain.
+        Returns:
+            bool: True if operation succeeded.
+        """
+
         new_names: dict[int, str] = {}
         x: int = 1
         for names_key in self.names.copy():
@@ -98,6 +116,13 @@ class Geometry():
         return True
 
     def method_idx_molecules_xyz(self, fileName: Path) -> list[list[int]]:
+        """Identify molecular clusters from a topology file.
+        Parameters:
+            fileName (Path): Path to topology file.
+        Returns:
+            list[list[int]]: List of molecule atom index lists.
+        """
+
         from censo_ext.Tools.topo import Topo
         import censo_ext.Tools.ml4nmr as ml4nmr
         neighbors: dict[int, npt.NDArray[np.int64]]
@@ -128,9 +153,11 @@ class Geometry():
         return molecules
 
     def method_computeCOM(self) -> npt.NDArray:
-        '''
-        Returns the center of mass of the geometry.
-        '''
+        """Calculate the center of mass (COM) of the molecule.
+        Returns:
+            npt.NDArray: COM coordinates.
+        """
+
         self.method_update_masses()
         if (len(self.com) == 3):
             return self.com
@@ -139,29 +166,37 @@ class Geometry():
             return self.com
 
     def method_computeInertia(self) -> npt.NDArray:
-        '''
-        Returns the moment of inertia tensor
-        '''
+        """Calculate the moment of inertia tensor.
+        Returns:
+            npt.NDArray: 3x3 inertia tensor.
+        """
+
         data = self.coord - self.method_computeCOM()
 
         self.inertia = -np.einsum("ax,a,ay->xy", data, self.mass, data)
         return self.inertia
 
     def method_update_masses(self) -> None:
+        """Update atomic masses based on element names.
+        """
+
         self.mass = np.array([])
         for _, x in self.names.items():
             from censo_ext.Tools.Parameter import masses
             self.mass = np.append(self.mass, masses[x.lower()], axis=None)
 
     def method_rewrite_comment(self) -> None:
+        """Format and update the comment field with energy and cluster info.
+        """
+
         self.comment = " Energy = "+" "*7 + \
             f"{self.comment_energy:.10f}"+" Eh"+" "*8 + \
             "#Cluster:     "+str(self.comment_nClusters)
 
     def method_update_comment(self) -> None:
-        '''
-        Analysis of comment
-        '''
+        """Parse and extract energy and cluster information from the comment field.
+        """
+
         comments: list[str] = self.comment.replace("a.u.", "").replace("Eh", "").replace("Energy=", "").replace("Energy =", "").replace(
             "Energy  =", "").replace("energy:", "").replace("Energy:", "").split()
         if comments == []:
@@ -195,50 +230,39 @@ class Geometry():
         return
 
     def method_comment_new(self, idx1: int) -> None:
+        """Set a new cluster index in the comment field.
+        Parameters:
+            idx1 (int): Cluster index to set.
+        """
+
         self.comment_nClusters = idx1
         self.method_rewrite_comment()
 
 
 class GeometryXYZs():
-    '''
-    stores all the data in an xyz file (multi-conformers)
-    '''
 
     def __init__(self, fileName: Path = Path("")) -> None:
-        """Initialize a GeometryXYZs object with a given filename.
+        """Initialize a GeometryXYZs object to manage multiple Geometry instances.
         Parameters:
-            fileName (Path): The path to the xyz file.
+            fileName (Path): Path to XYZ file.
         """
 
         self.__filename: Path = Path(fileName)
         self.Sts: list[Geometry] = list()
 
     def __len__(self) -> int:
-        """Return the number of Geometry objects in the collection.
-        Returns:
-            int: Number of Geometry objects.
-        """
-
         return int(len(self.Sts))
 
     def set_filename(self, fileName: Path) -> None:
-        """Set the filename for the GeometryXYZs object.
-
-        Parameters:
-            fileName (Path): The new path to the xyz file.
-        """
-
         self.__filename = Path(fileName)
 
     def method_translate_cut_xyzs(self, delta: npt.NDArray[np.float64], cut: int) -> GeometryXYZs:
-        """Translate and cut a list of Geometry objects by a given delta.
-
+        """Generate interpolated GeometryXYZs by translating along a vector.
         Parameters:
-            delta (npt.NDArray[np.float64]): The translation vector.
-            cut (int): Number of cuts to make.
-
+            delta (npt.NDArray[np.float64]): Translation vector.
+            cut (int): Number of interpolation points.
         Returns:
-            GeometryXYZs: A new GeometryXYZs object with translated structures.
+            GeometryXYZs: Interpolated structures.
         """
 
         res: GeometryXYZs = GeometryXYZs()
@@ -257,22 +281,26 @@ class GeometryXYZs():
             return res
 
     def method_translate_xyzs(self, delta: npt.NDArray[np.float64]) -> GeometryXYZs:
-        """Translate a list of Geometry objects by a given delta.
-
+        """Translate all Geometry instances in the collection.
         Parameters:
-            delta (npt.NDArray[np.float64]): The translation vector.
-
+            delta (npt.NDArray[np.float64]): Translation vector.
         Returns:
-            GeometryXYZs: A new GeometryXYZs object with translated structures.
+            GeometryXYZs: Translated structures.
         """
 
-        res: GeometryXYZs = GeometryXYZs()
+        Res: GeometryXYZs = GeometryXYZs()
         for x in self.Sts:
             x: Geometry = x.method_translate_xyz(delta=delta)
-            res.Sts.append(copy.deepcopy(x))
-        return res
+            Res.Sts.append(copy.deepcopy(x))
+        return Res
 
     def __add__(self, Var: Self) -> GeometryXYZs:
+        """Concatenate two GeometryXYZs objects.
+        Parameters:
+            Var (GeometryXYZs): Other GeometryXYZs instance.
+        Returns:
+            GeometryXYZs: Concatenated structures.
+        """
 
         GeoXYZs: GeometryXYZs
         if len(Var) == 1:
@@ -290,13 +318,11 @@ class GeometryXYZs():
             raise ValueError("Too much xyzs structures in your xyz file")
 
     def method_idx_molecules_xyzs(self, idx1: int = 1) -> bool:
-        """Identify and create separate geometries for molecules from a specific index.
-
+        """Split molecules in all Geometry instances using topology data.
         Parameters:
-            idx1 (int): Index to start processing the molecule separation.
-
+            idx1 (int): Starting index for molecule separation.
         Returns:
-            bool: True if successful, False otherwise.
+            bool: True if operation succeeded.
         """
 
         fileName: Path = Path("~temp.xyz")
@@ -338,7 +364,9 @@ class GeometryXYZs():
         # self.Sts.append(St)
 
     def method_read_xyz(self) -> None:
-        '''reads xyz file and save the data into self geometry object'''
+        """Read XYZ file and populate the GeometryXYZs collection.
+        """
+
         from censo_ext.Tools.utility import IsExists_DirFileName
         IsExists_DirFileName(self.__filename)
 
@@ -370,6 +398,11 @@ class GeometryXYZs():
         self.method_comment_keep()
 
     def method_save_xyz(self, idx1_list: list[int]) -> None:
+        """Save selected Geometry instances to an XYZ file.
+        Parameters:
+            idx1_list (list[int]): List of indices to save.
+        """
+
         original_stdout = sys.stdout
         with open(self.__filename, "w") as f:
             sys.stdout = f
@@ -377,6 +410,11 @@ class GeometryXYZs():
         sys.stdout = original_stdout
 
     def method_save_xyz_append(self, idx1_list: list) -> None:  # append to old xyz file
+        """Append selected Geometry instances to an existing XYZ file.
+        Parameters:
+            idx1_list (list): List of indices to append.
+        """
+
         original_stdout = sys.stdout
         with open(self.__filename, "a") as f:
             sys.stdout = f
@@ -384,6 +422,11 @@ class GeometryXYZs():
         sys.stdout = original_stdout
 
     def method_print(self, idx1_St: list[int]) -> None:
+        """Print selected Geometry instances to stdout.
+        Parameters:
+            idx1_St (list[int]): List of indices to print.
+        """
+
         if (idx1_St == []):
             idx0_St: list = [*range(len(self))]
         else:
@@ -392,29 +435,51 @@ class GeometryXYZs():
             print(self.Sts[key], end="")
 
     def method_comment_keep(self) -> None:
+        """Update comment fields for all Geometry instances.
+        """
+
         for St in self.Sts:
             if St.method_update_comment():
                 St.method_update_comment()
 
     def method_comment_new(self) -> None:
+        """Assign unique cluster indices to all Geometry instances.
+        """
+
         for idx0, St in enumerate(self.Sts):
             if St.method_update_comment():
                 St.method_update_comment()
             St.method_comment_new(idx0+1)
 
     def method_rewrite_comment(self) -> None:
+        """Format and update comment fields for all Geometry instances.
+        """
+
         for St in self.Sts:
             if St.method_rewrite_comment():
                 St.method_rewrite_comment()
 
-    def get_comment_energy(self) -> list:
-        result: list = []
+    def get_comment_energy(self) -> list[float]:
+        """Retrieve energy values from all Geometry instances.
+        Returns:
+            list [float]: List of energy values in Eh units.
+        """
+
+        Res: list = []
         for St in self.Sts:
             if St.get_comment_energy():
-                result.append(St.get_comment_energy())
-        return result
+                Res.append(St.get_comment_energy())
+        return Res
 
     def method_ensoGenFlexible(self, args, thermo_list) -> npt.NDArray:
+        """Generate thermodynamic data for all Geometry instances.
+        Parameters:
+            args: Command-line arguments.
+            thermo_list: Thermodynamic data list.
+        Returns:
+            npt.NDArray: Structured array with thermodynamic properties.
+        """
+
         import numpy.lib.recfunctions as rfn
         from censo_ext.Tools.Parameter import Eh, FACTOR
         # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),

@@ -9,13 +9,13 @@ from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 
 
 def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
-    """ Factor Analyasis of molecues 
-
+    """ Performs factor analysis on a set of geometries.
     Args:
-        args (_type_): _description_
+        args(argparse.Namespace): Command-line arguments.
 
     Returns:
-        tuple[list[int], dict[int, float]]: _description_
+        tuple[list[int],dict[int,float]]: A tuple containing a list of minor factor atom indices
+        and a dictionary of atom indices and their standard deviations.
     """
 
     xyzfile: GeometryXYZs = GeometryXYZs(args.file)
@@ -64,22 +64,19 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
 
 
 def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
-    """Optimize the broken-bond location based on calculated STD values.
-
+    """ Optimizes the location of a broken bond based on factor analysis results.
     Args:
-        args (_type_): 
-        low_factor (list[int]): the index of low factor 
-        Table_S (dict[int, float]): the index of low factor and it's STD
-
-    Raises:
-        ValueError: _description_
-
+        args(argparse.Namespace): Command-line arguments.
+        low_factor(list[int]): List of atom indices with low factor values.
+        Table_S(dict[int,float]): Dictionary of atom indices and their standard deviations.
     Returns:
-        tuple[Literal[True], list[int], float] | Literal[False]: A tuple indicating whether the optimization is successful, the optimized broken-bond location, and the ratio.
+        tuple[Literal[True],list[int],float]|Literal[False]: A tuple containing a boolean indicating success,
+        the optimized broken bond location as a list of two atom indices, and the corresponding ratio.
+        Returns False if the ratio is below a certain threshold.
     """
 
     print(" ")
-    print(" ========== Optimized Broken-Bond Location Process ==========")
+    print(" ========== Optimized Broken-bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
     bonding_LowFactor: list[npt.NDArray] = []
     for idx in low_factor:
