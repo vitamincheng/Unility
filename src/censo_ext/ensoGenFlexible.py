@@ -81,8 +81,8 @@ def cml(descr) -> argparse.Namespace:
 
 
 ######
-out_file: Path = Path(".isomers.xyz")
-in_file: Path = Path(".traj.xyz")
+outFile: Path = Path(".isomers.xyz")
+inFile: Path = Path(".traj.xyz")
 
 
 def xtb(args):
@@ -91,17 +91,17 @@ def xtb(args):
     # if not os.path.isdir(xtb_folder):
     if not xtb_folder.is_dir():
         xtb_folder.mkdir()
-    copy_file(args.file, xtb_folder / in_file)
+    copy_file(args.file, xtb_folder / inFile)
 
     cwd: Path = Path(os.getcwd())
     xtb_folder.mkdir()
-    x: dict = {"file": in_file, "method": "gfn2",
-               "chrg": 0, "uhf": 1, "out": out_file, "alpb": "CHCl3", "gbsa": None, "opt": True}
+    x: dict = {"file": inFile, "method": "gfn2",
+               "chrg": 0, "uhf": 1, "out": outFile, "alpb": "CHCl3", "gbsa": None, "opt": True}
     import censo_ext.molclus_xtb as molclus_xtb
     molclus_xtb.main(argparse.Namespace(**x))
     os.chdir(cwd)
-    copy_file(xtb_folder / out_file, in_file)
-    copy_file(xtb_folder / out_file, Path("isomers.xyz"))
+    copy_file(xtb_folder / outFile, inFile)
+    copy_file(xtb_folder / outFile, Path("isomers.xyz"))
     print(" Saved the isomers.xyz in your working directory ")
     shutil.rmtree(xtb_folder, ignore_errors=True)
     print(" ========== End ==========")
@@ -112,18 +112,18 @@ def orca(args, Dir, FileName):
     xtb_folder: Path = Path(".orca")
     if not xtb_folder.is_dir():
         xtb_folder.mkdir()
-    copy_file(Path(in_file), xtb_folder / in_file)
+    copy_file(Path(inFile), xtb_folder / inFile)
 
     working_Dir = os.getcwd()
     xtb_folder.mkdir()
     import censo_ext.molclus_orca as molclus_orca
 
-    x: dict = {"file": in_file, "template": "template.inp", "remove": True,
-               "chrg": 0, "uhf": 1, "out": out_file}
+    x: dict = {"file": inFile, "template": "template.inp", "remove": True,
+               "chrg": 0, "uhf": 1, "out": outFile}
     molclus_orca.main(argparse.Namespace(**x))
     os.chdir(working_Dir)
-    copy_file(xtb_folder / out_file, in_file)
-    copy_file(xtb_folder / out_file, Path("isomers.xyz"))
+    copy_file(xtb_folder / outFile, inFile)
+    copy_file(xtb_folder / outFile, Path("isomers.xyz"))
     print(" Saved the isomers.xyz in your working directory ")
     shutil.rmtree(xtb_folder, ignore_errors=True)
     print(" ========== End ==========")
@@ -135,11 +135,11 @@ def thermo(args) -> list:
     thermo_folder: Path = Path(".thermo")
     if not thermo_folder.is_dir():
         thermo_folder.mkdir()
-    copy_file(in_file, thermo_folder / in_file)
+    copy_file(inFile, thermo_folder / inFile)
 
     cwd: Path = Path(os.getcwd())
     os.chdir(thermo_folder)
-    args_x: dict = {"file": in_file,
+    args_x: dict = {"file": inFile,
                     "method": "gfn2", "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1}
     thermo: list = molclus_thermo.main(argparse.Namespace(**args_x))
     os.chdir(cwd)
@@ -196,7 +196,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         orca(args, Dir, fileName)
         thermo_list = thermo(args)
         ensoGen(args, thermo_list)
-    delete_all_files(in_file, out_file)
+    delete_all_files(inFile, outFile)
 
 
 if __name__ == "__main__":

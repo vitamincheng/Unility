@@ -18,13 +18,13 @@ def test_datNormalized_miss_args():
 
 
 def test_datNormalized():
-    in_file: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen/anmr.dat")
-    out_file: Path = Path("tests/compare/out.dat")
+    inFile: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen/anmr.dat")
+    outFile: Path = Path("tests/compare/out.dat")
     compare_file: Path = Path("tests/compare/anmr_normal.dat")
 
-    x: dict = {"file": in_file, "start": -5.0, "end": 15.0, "dpi": 10000,
-               "out": out_file}
+    x: dict = {"file": inFile, "start": -5.0, "end": 15.0, "dpi": 10000,
+               "out": outFile}
     args = argparse.Namespace(**x)
     datNormalized.main(args)
-    assert filecmp.cmp(out_file, compare_file) == True
-    delete_all_files(out_file)
+    assert filecmp.cmp(outFile, compare_file) == True
+    delete_all_files(outFile)

@@ -127,7 +127,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     program_IsExist(xtb_name)
     xtb_cmd += xtb_name
 
-    print(" Inputted geometry file: "+args.file)
+    print(" Inputted geometry file: "+str(args.file))
     xtb_cmd += " " + single_traj_Name
     print(" Loading basic information from the inputted geometry file ...")
     print(f" There are totally       {str(len(infile))} geometries in the inputted geometry file\n")  # nopep8

@@ -5,42 +5,42 @@ import argparse
 import censo_ext.xyzTranslate as xyzTranslate
 import filecmp
 import os
-in_file = f"tests/data/crest_conformers.xyz"
-out_file = f"tests/compare/output.xyz"
+inFile: Path = Path(f"tests/data/crest_conformers.xyz")
+outFile: Path = Path(f"tests/compare/output.xyz")
 
 
 def test_xyzTranslate_move():
-    x: dict = {"file": in_file,
-               "move": [5, 0, 0], "out": out_file, "cut": None}
+    x: dict = {"file": inFile,
+               "move": [5, 0, 0], "out": outFile, "cut": None}
     args = argparse.Namespace(**x)
     xyzTranslate.main(args)
-    compare = "tests/compare/xyzTranslate-move.xyz"
+    compare: Path = Path(f"tests/compare/xyzTranslate-move.xyz")
     assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
 def test_xyzTranslate_cut():
-    x: dict = {"file": in_file,
-               "move": [5, 0, 0], "out": out_file, "cut": 10}
+    x: dict = {"file": inFile,
+               "move": [5, 0, 0], "out": outFile, "cut": 10}
     args = argparse.Namespace(**x)
     xyzTranslate.main(args)
-    compare = "tests/compare/xyzTranslate-cut.xyz"
+    compare: Path = Path(f"tests/compare/xyzTranslate-cut.xyz")
     assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
 def test_xyzTranslate_cut_move():
-    x: dict = {"file": in_file,
-               "move": [5, 0, 0], "out": out_file, "cut": 3}
+    x: dict = {"file": inFile,
+               "move": [5, 0, 0], "out": outFile, "cut": 3}
     args = argparse.Namespace(**x)
     xyzTranslate.main(args)
 
-    x: dict = {"file": out_file,
-               "move": [0, 0, 5], "out": "tests/compare/output2.xyz", "cut": 3}
+    x: dict = {"file": outFile,
+               "move": [0, 0, 5], "out": Path(f"tests/compare/output2.xyz"), "cut": 3}
     args = argparse.Namespace(**x)
     xyzTranslate.main(args)
 
-    compare = "tests/compare/xyzTranslate-cut-move.xyz"
+    compare: Path = Path(f"tests/compare/xyzTranslate-cut-move.xyz")
     assert filecmp.cmp(args.out, compare) == True
     os.remove(args.file)
     os.remove(args.out)
@@ -56,7 +56,7 @@ def test_xyzTranslate_miss_args():
 
 
 def test_xyzTranslate_without_move():
-    x: dict = {"file": in_file, "out": out_file, "cut": 10}
+    x: dict = {"file": inFile, "out": outFile, "cut": 10}
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         xyzTranslate.main(args)
@@ -65,8 +65,8 @@ def test_xyzTranslate_without_move():
 
 
 def test_xyzTranslate_miss_file():
-    x: dict = {"file": "tests/data/crest_conformers000.xyz",
-               "out": out_file, "cut": 10}
+    x: dict = {"file": Path(f"tests/data/crest_conformers000.xyz"),
+               "out": outFile, "cut": 10}
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         xyzTranslate.main(args)

@@ -7,7 +7,7 @@ import censo_ext.molclus_thermo as thermo
 import filecmp
 import platform
 
-in_file = f"tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz"
+inFile = f"tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz"
 
 
 def test_molclus_thermo_miss_args():
@@ -20,7 +20,7 @@ def test_molclus_thermo_miss_args():
 
 
 def test_molclus_thermo_alpb():
-    x: dict = {"file": in_file, "alpb": "CHCl3", "gbsa": None, "chrg": 0,
+    x: dict = {"file": inFile, "alpb": "CHCl3", "gbsa": None, "chrg": 0,
                "uhf": 1, "opt": True, "method": "gfn2"}
     args = argparse.Namespace(**x)
 

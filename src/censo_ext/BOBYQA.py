@@ -334,11 +334,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
 if __name__ == "__main__":
     main()
 
-# test
+# standard test
 # BOBYQA.py -d tests/data/06.EthylAcetate/03.Censo -r 1r.dat
 # BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) -r 1r_h.dat
 #
+# Want to use external anmr program (Not Implemented on pytest,because subprocess function)
+# Start new one
+# Run below anmr.py command and it will create average folder
 # anmr.py   -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) --auto
+# Run below BOBYQA.py command and it will create ocaS-BOBYQA.out
 # BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS)
-# rewrite orcaS-BOBYQA.out
+# rewrite orcaS-BOBYQA.out file and run below BOBYQA.py by use external program
 # BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) -r 1r_h.dat -p

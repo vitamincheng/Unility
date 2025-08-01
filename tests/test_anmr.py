@@ -6,6 +6,8 @@ import argparse
 import censo_ext.anmr as anmr
 import numpy.typing as npt
 import numpy as np
+Dir = f"tests/data/34.Ergocalciferol/04.Hydrogen"
+outFile = f"output.dat"
 
 
 def test_anmr_miss_args() -> None:
@@ -19,30 +21,29 @@ def test_anmr_miss_args() -> None:
 
 
 def test_anmr_from_raw_data() -> None:
-    x: dict = {"auto": True, "average": False, "dir": "tests/data/34.Ergocalciferol/04.Hydrogen",
-               "bobyqa": False, "mf": 500, "lw": None, "thr": None, "json": None, "thrab": 0.025,
-               "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
+    x: dict = {"auto": True, "average": False, "dir": Dir, "bobyqa": False, "mf": 500,
+               "lw": None, "thr": None, "json": None, "thrab": 0.025, "tb": 4, "mss": 9,
+               "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
     peaks: npt.NDArray[np.float64] = anmr.main(argparse.Namespace(**x))
     assert peaks.shape == (2, 77868)
 
 
 def test_anmr_bobyqa_false_json_off() -> None:
-    x: dict = {"auto": True, "average": True, "dir": "tests/data/34.Ergocalciferol/04.Hydrogen",
-               "bobyqa": False, "mf": 500, "lw": None, "thr": None, "json": None, "thrab": 0.025,
-               "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
+    x: dict = {"auto": True, "average": True, "dir": Dir, "bobyqa": False, "mf": 500,
+               "lw": None, "thr": None, "json": None, "thrab": 0.025, "tb": 4, "mss": 9,
+               "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
     peaks: npt.NDArray[np.float64] = anmr.main(argparse.Namespace(**x))
     assert peaks.shape == (2, 77868)
     # delete_all_files("tests/data/34.Ergocalciferol/04.Hydrogen/peaks.json")   # Normal is necessary to remove the peaks.json but next method need this file
 
 
 def test_anmr_bobyqa_true_json() -> None:
-    x: dict = {"auto": True, "average": False, "dir": "tests/data/34.Ergocalciferol/04.Hydrogen",
-               "bobyqa": True, "mf": 500, "lw": None, "thr": None, "json": [-1], "thrab": 0.025,
-               "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
+    x: dict = {"auto": True, "average": False, "dir": Dir, "bobyqa": True, "mf": 500,
+               "lw": None, "thr": None, "json": [-1], "thrab": 0.025, "tb": 4, "mss": 9,
+               "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
     peaks: npt.NDArray[np.float64] = anmr.main(argparse.Namespace(**x))
     assert peaks.shape == (2, 77868)
-    delete_all_files("tests/data/34.Ergocalciferol/04.Hydrogen/peaks.json",
-                     "tests/data/34.Ergocalciferol/04.Hydrogen/output.dat")
+    delete_all_files(Dir / Path("peaks.json"), Dir/Path(outFile))
 
 
 if __name__ == "__main__":

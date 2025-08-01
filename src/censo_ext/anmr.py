@@ -266,14 +266,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     dpi: int | None = None
     Active_range: int | None = None
     inHydrogen: list[int] = []
-    in_File: Path = Path("crest_conformers.xyz")
+    inFile: Path = Path("crest_conformers.xyz")
     # ic(inAnmr.Directory)
     for idx, x in enumerate(inAnmr.get_Anmr_Active()):
         if idx == 0:
             if x == 'C':
                 from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
                 mol, neighbors, bond_order = read_mol_neighbors_bond_order(
-                    inAnmr.get_Directory() / in_File)
+                    inAnmr.get_Directory() / inFile)
                 inHydrogen = [value+1 for value in bond_order.values()]
                 Active_range = 200
                 dpi = 500
@@ -287,7 +287,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 for key in inAnmr.avg_orcaSJ.idxAtoms.keys():
                     inHydrogenDict[key] = len(inAnmr.nucinfo[1][key-1][2])
                 for x in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
-                        inAnmr.get_Directory()/in_File):
+                        inAnmr.get_Directory()/inFile):
                     if x in inHydrogenDict.keys():
                         del inHydrogenDict[x]
                         del in_idxAtoms[x]

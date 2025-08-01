@@ -5,34 +5,34 @@ import argparse
 import censo_ext.xyzSerial as xyzSerial
 import filecmp
 import os
-out_file = f"tests/compare/output.xyz"
+outFile: Path = Path(f"tests/compare/output.xyz")
 
 
 def test_xyzSerial_new():
     x: dict = {"file": f"tests/data/crest_conformers.xyz", "new": True,
-               "keep": False, "out": out_file, "print": False}
+               "keep": False, "out": outFile, "print": False}
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
-    compare = "tests/compare/xyzSerial-new.xyz"
+    compare = f"tests/compare/xyzSerial-new.xyz"
     assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
 def test_xyzSerial_keep():
     x: dict = {"file": "tests/data/crest_conformers_xyzSerial.xyz", "new": False,
-               "keep": True, "out": out_file, "print": False}
+               "keep": True, "out": outFile, "print": False}
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
-    compare = "tests/compare/xyzSerial-keep.xyz"
+    compare = f"tests/compare/xyzSerial-keep.xyz"
     assert filecmp.cmp(args.out, compare) == True
     os.remove(args.out)
 
 
 def test_xyzSerial_filename_miss():
     x: dict = {"file": "tests/data/crest_conformers_xyzSerial000.xyz", "new": True,
-               "keep": True, "out": out_file, "print": False}
+               "keep": True, "out": outFile, "print": False}
 
     args = argparse.Namespace(**x)
 

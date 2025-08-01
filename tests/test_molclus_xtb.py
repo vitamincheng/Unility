@@ -7,8 +7,9 @@ import censo_ext.molclus_xtb as xtb
 import filecmp
 import platform
 
-in_file = f"tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz"
-out_file = f"tests/compare/isomers.xyz"
+inFile: Path = Path(
+    f"tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz")
+outFile: Path = Path(f"tests/compare/isomers.xyz")
 _system = platform.system()
 
 
@@ -23,17 +24,17 @@ def test_xtb_miss_args():
 
 @pytest.mark.skipif(_system == "Darwin", reason="xtb have some bugs under Darwin")
 def test_xtb_alpb_opt():
-    x: dict = {"file": in_file, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
-               "method": "gfn2", "out": out_file}
+    x: dict = {"file": inFile, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
+               "method": "gfn2", "out": outFile}
     args = argparse.Namespace(**x)
 
     dcmp: bool = False
-    compare = ""
+    compare = f""
     xtb.main(args)
     if _system == "Darwin":
-        compare = "tests/compare/molclus_xtb_1_Darwin.xyz"
+        compare = f"tests/compare/molclus_xtb_1_Darwin.xyz"
     elif _system == "Linux":
-        compare = "tests/compare/molclus_xtb_1.xyz"
+        compare = f"tests/compare/molclus_xtb_1.xyz"
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
@@ -44,17 +45,17 @@ def test_xtb_alpb_opt():
 
 @pytest.mark.skipif(_system == "Darwin", reason="xtb have some bugs under Darwin")
 def test_xtb_gbsa_opt():
-    x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
-               "method": "gfn2", "out": out_file}
+    x: dict = {"file": inFile, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
+               "method": "gfn2", "out": outFile}
     args = argparse.Namespace(**x)
 
     dcmp: bool = False
-    compare = ""
+    compare = f""
     xtb.main(args)
     if _system == "Darwin":
-        compare = "tests/compare/molclus_xtb_2_Darwin.xyz"
+        compare = f"tests/compare/molclus_xtb_2_Darwin.xyz"
     elif _system == "Linux":
-        compare = "tests/compare/molclus_xtb_2.xyz"
+        compare = f"tests/compare/molclus_xtb_2.xyz"
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
@@ -64,17 +65,17 @@ def test_xtb_gbsa_opt():
 
 
 def test_xtb_alpb():
-    x: dict = {"file": in_file, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": False,
-               "method": "gfn2", "out": out_file}
+    x: dict = {"file": inFile, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": False,
+               "method": "gfn2", "out": outFile}
     args = argparse.Namespace(**x)
 
     xtb.main(args)
     dcmp: bool = False
-    compare = ""
+    compare = f""
     if _system == "Darwin":
-        compare = "tests/compare/molclus_xtb_3_Darwin.xyz"
+        compare = f"tests/compare/molclus_xtb_3_Darwin.xyz"
     elif _system == "Linux":
-        compare = "tests/compare/molclus_xtb_3.xyz"
+        compare = f"tests/compare/molclus_xtb_3.xyz"
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
@@ -84,16 +85,16 @@ def test_xtb_alpb():
 
 
 def test_xtb_gbsa():
-    x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
-               "method": "gfn2", "out": out_file}
+    x: dict = {"file": inFile, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
+               "method": "gfn2", "out": outFile}
     args = argparse.Namespace(**x)
     xtb.main(args)
     dcmp = False
-    compare = ""
+    compare = f""
     if _system == "Darwin":
-        compare = "tests/compare/molclus_xtb_4_Darwin.xyz"
+        compare = f"tests/compare/molclus_xtb_4_Darwin.xyz"
     elif _system == "Linux":
-        compare = "tests/compare/molclus_xtb_4.xyz"
+        compare = f"tests/compare/molclus_xtb_4.xyz"
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")

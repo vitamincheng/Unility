@@ -99,8 +99,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         sys.stdout = original_stdout
 
     # Read input file
-    in_File: GeometryXYZs = GeometryXYZs(args.file)
-    in_File.method_read_xyz()
+    inGeoXYZs: GeometryXYZs = GeometryXYZs(args.file)
+    inGeoXYZs.method_read_xyz()
     solo_xyz: Path = Path("[xyzfile]")
 
     # Find orca executable path
@@ -123,7 +123,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     print(" Inputted geometry file: " + args.file)
     print(" Loading basic information from the inputted geometry file ...")
-    print(" There are totally       " + str(len(in_File)) +
+    print(" There are totally       " + str(len(inGeoXYZs)) +
           " geometries in the inputted geometry file\n")
     if template_Exist == True:
         print(" Setting file : " + args.template)
@@ -138,11 +138,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(" Running: rm isomers.xyz *.tmp")
     templateFileIsExists: bool = False
 
-    for idx1 in range(1, len(in_File)+1, 1):
+    for idx1 in range(1, len(inGeoXYZs)+1, 1):
         idx1_str = ("{:05d}".format(idx1))
-        in_File.set_filename(solo_xyz
-                             )
-        in_File.method_save_xyz([idx1])
+        inGeoXYZs.set_filename(solo_xyz
+                               )
+        inGeoXYZs.method_save_xyz([idx1])
 
         print("                          *** Configuration        "+str(idx1)+" ****")
         print(" Loading geometry	"+str(idx1) +
@@ -179,7 +179,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                             ".xyz " + idx1_str + ".xyz", shell=True)
         else:
             if get_energy:
-                in_File.Sts[idx1 - 1].comment_energy = float(orca_lines[get_energy].split()[4])  # nopep8
+                inGeoXYZs.Sts[idx1 - 1].comment_energy = float(orca_lines[get_energy].split()[4])  # nopep8
 
         subprocess.call("mv -f " + template_Name + ".out " +
                         idx1_str+".out", shell=True)
@@ -193,10 +193,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         out_File.method_save_xyz([])
         print(f" Saved to  {args.out} \n All is done !!!")
     else:
-        in_File.method_rewrite_comment()
-        in_File.method_comment_new()
-        in_File.set_filename(args.out)
-        in_File.method_save_xyz([])
+        inGeoXYZs.method_rewrite_comment()
+        inGeoXYZs.method_comment_new()
+        inGeoXYZs.set_filename(args.out)
+        inGeoXYZs.method_save_xyz([])
         print(f" Saved to  {args.out} \n All is done !!!")
 
     if args.remove == True:

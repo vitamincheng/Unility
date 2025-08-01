@@ -8,8 +8,8 @@ import censo_ext.molclus_gxtb as gxtb
 import filecmp
 import platform
 
-in_file = f"tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz"
-out_file = f"tests/compare/isomers.xyz"
+inFile = f"tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz"
+outFile = f"tests/compare/isomers.xyz"
 _system = platform.system()
 
 
@@ -25,8 +25,8 @@ def test_gxtb_miss_args():
 @pytest.mark.skipif(_system == "Darwin", reason="g-xtb only work under Linux")
 def test_gxtb_alpb_opt():
 
-    x: dict = {"file": in_file, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
-               "method": "gxtb", "out": out_file}
+    x: dict = {"file": inFile, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
+               "method": "gxtb", "out": outFile}
     args = argparse.Namespace(**x)
     gxtb.main(args)
 
@@ -46,8 +46,8 @@ def test_gxtb_alpb_opt():
 
 @pytest.mark.skipif(_system == "Darwin", reason="g-xtb only work under Linux")
 def test_gxtb_gbsa_opt():
-    x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
-               "method": "gxtb", "out": out_file}
+    x: dict = {"file": inFile, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
+               "method": "gxtb", "out": outFile}
     args = argparse.Namespace(**x)
     gxtb.main(args)
 
@@ -68,8 +68,8 @@ def test_gxtb_gbsa_opt():
 
 @pytest.mark.skipif(_system == "Darwin", reason="g-xtb only work under Linux")
 def test_gxtb_alpb():
-    x: dict = {"file": in_file, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": False,
-               "method": "gxtb", "out": out_file}
+    x: dict = {"file": inFile, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": False,
+               "method": "gxtb", "out": outFile}
     args = argparse.Namespace(**x)
     gxtb.main(args)
 
@@ -90,8 +90,8 @@ def test_gxtb_alpb():
 
 @pytest.mark.skipif(_system == "Darwin", reason="g-xtb only work under Linux")
 def test_gxtb_gbsa():
-    x: dict = {"file": in_file, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
-               "method": "gxtb", "out": out_file}
+    x: dict = {"file": inFile, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
+               "method": "gxtb", "out": outFile}
     args = argparse.Namespace(**x)
     gxtb.main(args)
 

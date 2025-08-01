@@ -16,7 +16,7 @@ def test_molManipulate():
     dirNames: list[str] = next(os.walk(Dir))[1]
     import filecmp
     for dirName in dirNames:
-        compare = str("tests/compare/") + str(dirName)
+        compare: Path = Path("tests/compare") / Path(dirName)
         assert filecmp.cmp(dirName, compare) == True
 
     x: dict = {"separate": None, "merge": ["Separation/1.xyz", "Separation/2.xyz"],
@@ -29,7 +29,7 @@ def test_molManipulate():
     molManipulate.main(args)
 
     import filecmp
-    compare = "tests/compare/molManipulate.xyz"
+    compare = Path(f"tests/compare/molManipulate.xyz")
     assert filecmp.cmp(args.out, compare) == True
 
     import shutil

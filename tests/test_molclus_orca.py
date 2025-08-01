@@ -7,8 +7,8 @@ import censo_ext.molclus_orca as orca
 import filecmp
 import platform
 
-in_file = f"tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz"
-out_file = f"isomers.xyz"
+inFile = f"tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz"
+outFile = f"isomers.xyz"
 _system = platform.system()
 
 
@@ -23,8 +23,8 @@ def test_orca_miss_args():
 
 @pytest.mark.skipif(_system == "Darwin", reason="")
 def test_orca_opt():
-    x: dict = {"file": in_file, "template": "template.inp",
-               "remove": True, "out": out_file}
+    x: dict = {"file": inFile, "template": "template.inp",
+               "remove": True, "out": outFile}
 
     args = argparse.Namespace(**x)
     orca.main(args)

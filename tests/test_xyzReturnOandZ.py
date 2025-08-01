@@ -7,7 +7,7 @@ import os
 import filecmp
 import platform
 _system = platform.system()
-in_file = f"tests/data/crest_conformers.xyz"
+inFile = f"tests/data/crest_conformers.xyz"
 
 
 def test_xyzReturnOandZ_miss_args():
@@ -20,16 +20,16 @@ def test_xyzReturnOandZ_miss_args():
 
 
 def test_xyzReturnOandZ():
-    x: dict = {"file": in_file,
+    x: dict = {"file": inFile,
                "atom": [30, 45, 47], "print": False, "replace": False, "out": "tests/compare/output_xyzReturnOandZ.xyz"}
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
-    compare = ""
+    compare = f""
     if _system == 'Darwin':
-        compare = "tests/compare/xyzReturnOandZ_Darwin.xyz"
+        compare = f"tests/compare/xyzReturnOandZ_Darwin.xyz"
     elif _system == "Linux":
-        compare = "tests/compare/xyzReturnOandZ.xyz"
+        compare = f"tests/compare/xyzReturnOandZ.xyz"
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
@@ -38,16 +38,16 @@ def test_xyzReturnOandZ():
 
 
 def test_xyzReturnOandZ_auto():
-    x: dict = {"file": in_file, "auto": True,
+    x: dict = {"file": inFile, "auto": True,
                "atom": None, "print": False, "replace": False, "out": "tests/compare/output_xyzReturnOandZ_auto.xyz"}
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
     compare = ""
     if _system == 'Darwin':
-        compare = "tests/compare/xyzReturnOandZ_auto_Darwin.xyz"
+        compare = f"tests/compare/xyzReturnOandZ_auto_Darwin.xyz"
     elif _system == "Linux":
-        compare = "tests/compare/xyzReturnOandZ_auto.xyz"
+        compare = f"tests/compare/xyzReturnOandZ_auto.xyz"
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")

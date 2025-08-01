@@ -7,7 +7,7 @@ import censo_ext.ensoAnalysis as ensoAnalysis
 import filecmp
 import platform
 
-file_anmr = "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso"
+file_anmr = f"tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso"
 
 
 def test_ensoAnalysis_miss_args():
@@ -29,7 +29,7 @@ def test_ensoAnalysis_Hydrogen_miss():
 
 def test_ensoAnalysis_Hydrogen_miss_file():
     x: dict = {
-        "file": "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso1", "new": None}
+        "file": f"tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso1", "new": None}
     args = argparse.Namespace(**x)
     with pytest.raises(FileNotFoundError) as e:
         ensoAnalysis.main(args)
@@ -63,8 +63,8 @@ def test_ensoAnalysis_Hydrogen_new_read():
     os.remove(out_print)
     os.remove(args.file+".backup")
 
-    out_enso = "average_enso"
-    compare = "tests/compare/test_average_enso"
+    out_enso = f"average_enso"
+    compare = f"tests/compare/test_average_enso"
     assert filecmp.cmp(out_enso, compare) == True
     os.remove(out_enso)
 
@@ -95,8 +95,8 @@ def test_ensoAnalysis_Hydrogen_new_read_miss_args():
     os.remove(out_print)
     os.remove(args.file+".backup")
 
-    out_enso = "average_enso"
-    compare = "tests/compare/test_average_enso"
+    out_enso = f"average_enso"
+    compare = f"tests/compare/test_average_enso"
     assert filecmp.cmp(out_enso, compare) == True
     os.remove(out_enso)
 
@@ -109,7 +109,7 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
     assert e.type == SystemExit
     assert e.value.code == 0  # for argparse error
 
-    out_print = "result.txt"
+    out_print = f"result.txt"
     import sys
     original_stdout = sys.stdout
     with open(out_print, "w") as f:
@@ -127,8 +127,8 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
     os.remove(out_print)
     os.remove(args.file+".backup")
 
-    out_enso = "average_enso"
-    compare = "tests/compare/test_average_enso"
+    out_enso = f"average_enso"
+    compare = f"tests/compare/test_average_enso"
     assert filecmp.cmp(out_enso, compare) == True
     os.remove(out_enso)
 

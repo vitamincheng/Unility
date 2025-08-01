@@ -5,7 +5,7 @@ import argparse
 import censo_ext.FactorCompare as FactorCompare
 import filecmp
 import platform
-in_file: Path = Path("tests/data/crest_conformers.xyz")
+inFile: Path = Path("tests/data/crest_conformers.xyz")
 _system = platform.system()
 
 
@@ -20,7 +20,7 @@ def test_FactorCompare_miss_args():
 
 @pytest.mark.skipif(_system == "Darwin", reason="Crest only work under Linux")
 def test_FactorCompare():
-    x: dict = {"file": [in_file, in_file]}
+    x: dict = {"file": [inFile, inFile]}
     args = argparse.Namespace(**x)
     Res = FactorCompare.main(args)
 
