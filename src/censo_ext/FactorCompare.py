@@ -4,7 +4,7 @@ import os
 import numpy as np
 import numpy.typing as npt
 from sys import argv as sysargv
-from icecream import ic
+# from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 descr = """

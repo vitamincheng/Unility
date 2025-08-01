@@ -1,10 +1,7 @@
 
 import argparse
-from pathlib import Path
 import pytest
-from icecream import ic
 from censo_ext.Tools.factor import method_factor_analysis, method_factor_opt
-import numpy as np
 
 
 def test_factor_analysis_miss_args():
@@ -48,6 +45,6 @@ def test_factor_opt():
 
     a0, a1, a2 = method_factor_opt(
         args, idx1_minor_factor, Table_S)  # type: ignore
-    assert a0 == True
+    assert a0 is True
     assert a1 == [52, 55]
     assert a2 == pytest.approx(0.9863091021443952)

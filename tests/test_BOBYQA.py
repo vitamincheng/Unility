@@ -41,7 +41,7 @@ def test_BOBYQA_cregen_miss_args():
     args = argparse.Namespace(**args_x)
     with pytest.raises(SystemExit) as e:
         BOBYQA.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
 
@@ -66,7 +66,7 @@ def test_BOBYQA_single():
     args2 = argparse.Namespace(**args_y)
     assert BOBYQA.main(args2) == (True, False)
     assert filecmp.cmp(DirName / Path("output.dat"),
-                       DirName / Path("orcaS-BOBYQA-anmrpy.dat")) == True
+                       DirName / Path("orcaS-BOBYQA-anmrpy.dat"))
     BOBYQA_final_remove_files()
 
 
@@ -83,7 +83,7 @@ def test_BOBYQA_single_external_prog(monkeypatch):
     args2 = argparse.Namespace(**args_y)
     assert BOBYQA.main(args2) == (True, False)
     assert filecmp.cmp(DirName / Path("anmr.dat"),
-                       DirName / Path("orcaS-BOBYQA-anmr.dat")) == True
+                       DirName / Path("orcaS-BOBYQA-anmr.dat"))
     BOBYQA_final_remove_files()
 
 
@@ -96,7 +96,7 @@ def test_BOBYQA_group():
     args2 = argparse.Namespace(**args_y)
     assert BOBYQA.main(args2) == (True, False)
     assert filecmp.cmp(DirName / Path("output.dat"),
-                       DirName / Path("orcaS-BOBYQA-group-anmrpy.dat")) == True
+                       DirName / Path("orcaS-BOBYQA-group-anmrpy.dat"))
     BOBYQA_final_remove_files()
 
 

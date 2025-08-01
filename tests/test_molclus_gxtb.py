@@ -1,15 +1,13 @@
 #!/usr/bin/env python4
 import os
-from re import I
 import pytest
-from pathlib import Path
 import argparse
 import censo_ext.molclus_gxtb as gxtb
 import filecmp
 import platform
 
-inFile = f"tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz"
-outFile = f"tests/compare/isomers.xyz"
+inFile = "tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz"
+outFile = "tests/compare/isomers.xyz"
 _system = platform.system()
 
 
@@ -18,7 +16,7 @@ def test_gxtb_miss_args():
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         gxtb.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
 
@@ -38,7 +36,7 @@ def test_gxtb_alpb_opt():
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    assert filecmp.cmp(args.out, compare) == True
+    assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
 
 
@@ -58,7 +56,7 @@ def test_gxtb_gbsa_opt():
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    assert filecmp.cmp(args.out, compare) == True
+    assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
 
 
@@ -78,7 +76,7 @@ def test_gxtb_alpb():
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
 
-    assert filecmp.cmp(args.out, compare) == True
+    assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
 
 
@@ -99,5 +97,5 @@ def test_gxtb_gbsa():
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
 
-    assert filecmp.cmp(args.out, compare) == True
+    assert filecmp.cmp(args.out, compare)
     os.remove(args.out)

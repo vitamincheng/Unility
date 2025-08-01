@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 import argparse
-from pathlib import Path
 import pytest
 import numpy as np
 import numpy.typing as npt
-from icecream import ic
 from censo_ext.Tools.qm import qm_partial, qm_full
 
 
@@ -19,8 +17,8 @@ def test_qm_miss_args():
                                            [0.0,   0.0,   7.0,   0.0]])
 
     with pytest.raises(ValueError) as e:
-        R_peak: list[tuple[float, float]] = qm_partial(v=v, J=J, nIntergals=1,
-                                                       idx0_nspins=1, args=argparse.Namespace(**x))
+        qm_partial(v=v, J=J, nIntergals=1, idx0_nspins=1,
+                   args=argparse.Namespace(**x))
     assert str(e.value) == "Your JCoup is Error"
 
 

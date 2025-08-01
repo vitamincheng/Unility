@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 import argparse
 from icecream import ic
-import nmrglue as ng
+# import nmrglue as ng
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
@@ -164,7 +164,7 @@ def plot_target(ax) -> None:
 def main(args=argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         pass
-    hidden = True
+    # hidden = True
 
     directory_H: str = "Test/34.Ergocalciferol/04.Hydrogen"
     directory_C: str = "Test/34.Ergocalciferol/07.Carbon"

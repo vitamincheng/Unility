@@ -4,10 +4,8 @@ from censo_ext.Tools.utility import delete_all_files
 from pathlib import Path
 import argparse
 import censo_ext.anmr as anmr
-import numpy.typing as npt
-import numpy as np
-Dir = f"tests/data/34.Ergocalciferol/04.Hydrogen"
-outFile = f"output.dat"
+Dir = "tests/data/34.Ergocalciferol/04.Hydrogen"
+outFile = "output.dat"
 
 
 def test_anmr_miss_args() -> None:
@@ -16,7 +14,7 @@ def test_anmr_miss_args() -> None:
 
     with pytest.raises(SystemExit) as e:
         anmr.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
 

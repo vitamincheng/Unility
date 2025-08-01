@@ -1,8 +1,7 @@
-import pathlib
 import argparse
 from pathlib import Path
 import pytest
-import numpy as np
+# import numpy as np
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 
@@ -13,7 +12,7 @@ def test_calculate_rmsd_miss_args():
 
     with pytest.raises(FileNotFoundError) as e:
         xyzfile.method_read_xyz()
-    assert str(e.value) == f". was not found or is a directory"
+    assert str(e.value) == ". was not found or is a directory"
 
 
 def test_calculate_rmsd():

@@ -89,7 +89,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # Define default template
     template_inp: str = ".template.inp"
-    if template_Exist == False:
+    if not template_Exist:
         original_stdout = sys.stdout
         with open(template_inp, "w") as f:
             sys.stdout = f
@@ -116,7 +116,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     orca_path = match[0]+"/orca"
 #    orca_path="~/orca_5_0_4_linux_x86-64_shared_openmpi411/orca"
 #    orca_path="~/orca_6_0_0_linux_x86-64_avx2_shared_openmpi416/orca"
-    if template_Exist == True:
+    if template_Exist:
         template_Name: str = args.template[:-4]
     else:
         template_Name: str = template_inp[:-4]
@@ -125,7 +125,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(" Loading basic information from the inputted geometry file ...")
     print(" There are totally       " + str(len(inGeoXYZs)) +
           " geometries in the inputted geometry file\n")
-    if template_Exist == True:
+    if template_Exist:
         print(" Setting file : " + args.template)
     else:
         print(" Setting file : use default [r2SCAN-3c / CHCl3] ")
@@ -199,7 +199,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         inGeoXYZs.method_save_xyz([])
         print(f" Saved to  {args.out} \n All is done !!!")
 
-    if args.remove == True:
+    if args.remove:
         subprocess.call("rm -rf "+template_Name+".cpcm "+template_Name+".densities "+template_Name+".engrad "+template_Name +
                         ".out "+template_Name+"_property.txt "+template_Name+"_trj.xyz "+template_Name+".opt ", shell=True)
         subprocess.call("rm -rf "+template_Name+".cpcm_corr "+template_Name+".densitiesinfo "+template_Name+".property.txt "+template_Name +

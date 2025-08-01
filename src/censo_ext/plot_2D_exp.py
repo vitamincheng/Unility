@@ -1,14 +1,14 @@
 #! /usr/bin/env python3
-from icecream import ic
+# from icecream import ic
 import matplotlib.pyplot as plt
 from nmrglue.fileio.fileiobase import unit_conversion
 from censo_ext.Tools.spectra import numpy_thr
 from sys import argv as sysargv
 import nmrglue as ng
 import argparse
-import os
+# import os
 import numpy as np
-import sys
+# import sys
 
 descr = """
 ________________________________________________________________________________
@@ -150,7 +150,7 @@ def plot_2D_Basic(udic, data, uc_1h, uc_13c):
     ax_histy.plot(-y_axis_data, uc_13c.ppm_scale(), color='k', linewidth=1)
 
     contour_thr = numpy_thr(data, 10.0)
-    maximum = np.max(data)
+    # maximum = np.max(data)
 
     import matplotlib
     # type: ignore  # contour map (colors to use for contours)
@@ -202,7 +202,7 @@ def main(args=argparse.Namespace()) -> None:
     # Important
     # Remember to fix the pipe.py in ng.pipe.make_uc to remark   171 lines: size = size / 2
     ###
-    if args.path == None:
+    if args.path is None:
         args.path = "../../bmse000510/nmr/set01/1H_13C_HSQC/pdata/1/"
         # args.path = "../../bmse000510/nmr/set01/1H_13C_HMBC/pdata/1/"
         # args.path = "../../bmse000405/nmr/set01/HH_TOCSY/pdata/1/"
@@ -218,7 +218,7 @@ def main(args=argparse.Namespace()) -> None:
     # ic(y_thr)
     import matplotlib.axes as axes
     ax: axes.Axes | None = None
-    if args.hidden == False:
+    if not args.hidden:
         ax = plot_2D_Basic(udic, data, uc_1h, uc_13c)
     max_peaks: list = cal_contour_peak(data, contour_thr_factor=1)
     max_peaks = [a for a in list(
@@ -231,9 +231,9 @@ def main(args=argparse.Namespace()) -> None:
     for y_idx in y_peaks:
         xslice = data[y_idx, :]
         maximum = xslice.max()
-        x_sum = xslice.sum()
+        # x_sum = xslice.sum()
         xright = uc_1h.ppm(xslice.size)
-        if args.hidden == False and ax != None:
+        if not args.hidden and ax is not None:
             # ax.plot(uc_1h.ppm_scale(), -xslice/maximum *
             #        5 + uc_13c.ppm(y_idx), linewidth=0.5)
             ax.plot(uc_1h.ppm_scale(), -xslice/x_grobal_maximum *
@@ -259,7 +259,7 @@ def main(args=argparse.Namespace()) -> None:
 
     from censo_ext.Tools.utility import save_figure
     save_figure()
-    if args.hidden == False:
+    if not args.hidden:
         plt.show()
 
 

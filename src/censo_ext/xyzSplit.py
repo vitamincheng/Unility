@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from scipy.spatial.transform import Rotation as R
 import argparse
-import os
+# import os
 from pathlib import Path
 import numpy as np
 import numpy.typing as npt
@@ -105,7 +105,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(descr)  # Program description
         print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    if args.cuts == None or args.atoms == None:
+    if args.cuts is None or args.atoms is None:
         print(" Please input your atoms that you want to split ")
         print(" Exit to this program !!!")
         from icecream import ic
@@ -159,7 +159,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 infile.method_save_xyz_append([idx0_St+1])
 
     if not args.print:
-        if Delete_work == True:
+        if Delete_work is True:
             print(f"   {args.out} is here, it will be removed.")
             print(f"    Overwrite the file : {args.out}")
         else:

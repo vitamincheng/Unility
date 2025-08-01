@@ -2,9 +2,9 @@
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 import argparse
-import os
+# import os
 from sys import argv as sysargv
-from icecream import ic
+# from icecream import ic
 descr = """
 ________________________________________________________________________________
 |                                          [07.07.2023] vitamin.cheng@gmail.com

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import argparse
-import os
 import numpy as np
 from sys import argv as sysargv
 from icecream import ic

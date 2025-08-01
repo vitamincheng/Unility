@@ -4,7 +4,7 @@ import os
 import numpy as np
 import numpy.typing as npt
 from sys import argv as sysargv
-from icecream import ic
+# from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 descr = """
@@ -254,8 +254,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    if args.Analysis == True:
-        if args.factor == None:
+    if args.Analysis is True:
+        if args.factor is None:
             args.factor = 0.50
         minor_list: list[int]
         Table_S: dict[int, float]
@@ -265,10 +265,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             method_factor_opt(
                 args=args, low_factor=minor_list, Table_S=Table_S)
 
-    if args.Filter == True:
-        if args.factor == None:
+    if args.Filter is True:
+        if args.factor is None:
             args.factor = 0.20
-        if args.thr == None:
+        if args.thr is None:
             args.thr = 2
         FactorFilter(args)
 

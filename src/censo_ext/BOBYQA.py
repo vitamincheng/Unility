@@ -99,7 +99,7 @@ def rosenbrock(x0) -> float:
 
     from censo_ext.Tools.anmrfile import CensoDat
 
-    if prog == True:
+    if prog is True:
 
         cwd: Path = Path(os.getcwd())
         os.chdir(Directory)
@@ -116,7 +116,7 @@ def rosenbrock(x0) -> float:
         os.chdir(cwd)
         Dat_Cal: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
 
-    elif prog == False:
+    elif not prog:
         # ic("Internal")
         import censo_ext.anmr as anmr
         x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0, 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
@@ -275,7 +275,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
     if IsExist_return_bool(Directory / FileName_OrcaS):                 # type: ignore # nopep8
         if IsExist_return_bool(Directory / FileName_BOBYQA):            # type: ignore # nopep8
             ic("BOBYQA is exist")
-            if prog == True:
+            if prog is True:
                 # ic("External")
                 cwd: Path = Path(os.getcwd())
                 os.chdir(Directory)  # type: ignore
@@ -315,7 +315,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
                 os.chdir(cwd)
             Scan_single_Peak()
             Scan_group_Peaks()
-            if prog == True:
+            if prog is True:
                 cwd: Path = Path(os.getcwd())
                 os.chdir(Directory)  # type: ignore
                 # print(" Recover the data from backup directory")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from icecream import ic
+# from icecream import ic
 import argparse
 from sys import argv as sysargv
 # from scipy.signal import argrelmax, argrelmin
@@ -95,7 +95,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    if args.file != None:
+    if args.file is not None:
         from censo_ext.Tools.utility import IsExist
         IsExist(args.file)
         from censo_ext.Tools.anmrfile import CensoDat

@@ -1,5 +1,3 @@
-import pathlib
-import argparse
 from pathlib import Path
 import pytest
 from censo_ext.Tools.anmrfile import Anmr
@@ -42,7 +40,7 @@ def test_anmrfile_anmrrc():
     sys.stdout = original_stdout
 
     source = "tests/data/34.Ergocalciferol/04.Hydrogen/.anmrrc"
-    assert filecmp.cmp(filename, source) == True
+    assert filecmp.cmp(filename, source)
     os.remove(filename)
     assert file.get_Directory() == Path("tests/data/34.Ergocalciferol/04.Hydrogen")
     assert file.get_Anmr_Active() == ['H']
@@ -58,7 +56,7 @@ def test_anmrfile_anmrrc():
     sys.stdout = original_stdout
 
     source = "tests/data/34.Ergocalciferol/07.Carbon/.anmrrc"
-    assert filecmp.cmp(filename, source) == True
+    assert filecmp.cmp(filename, source)
     os.remove(filename)
     assert file.get_Directory() == Path("tests/data/34.Ergocalciferol/07.Carbon")
     assert file.get_Anmr_Active() == ['C']
@@ -67,10 +65,10 @@ def test_anmrfile_anmrrc():
 def test_anmrfile_get_avg_orcaSJ_Exist():
     # For Hydrogen
     file = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
-    assert file.get_avg_orcaSJ_Exist() == True
+    assert file.get_avg_orcaSJ_Exist()
     # for Carbon
     file = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
-    assert file.get_avg_orcaSJ_Exist() == True
+    assert file.get_avg_orcaSJ_Exist()
 
 
 def test_anmrfile_read_enso_miss_args():
@@ -111,7 +109,7 @@ def test_anmrfile_read_enso():
     sys.stdout = original_stdout
 
     source = "tests/data/34.Ergocalciferol/07.Carbon/anmr_enso"
-    assert filecmp.cmp(filename, source) == True
+    assert filecmp.cmp(filename, source)
     os.remove(filename)
 
 
@@ -128,7 +126,7 @@ def test_anmrfile_Censo():
     infile.set_fileName(outfile)
     infile.method_save_dat()
 
-    assert filecmp.cmp(outfile, source) == True
+    assert filecmp.cmp(outfile, source)
     os.remove(outfile)
 
 

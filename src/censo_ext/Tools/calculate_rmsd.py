@@ -353,8 +353,8 @@ def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     q_view: None | npt.NDArray[np.int64] = None
 
     if args.ignore_Hydrogen:
-        assert type(p_all_atoms[0]) != str
-        assert type(q_all_atoms[0]) != str
+        assert type(p_all_atoms[0]) is not str
+        assert type(q_all_atoms[0]) is not str
         for idx in range(len(p_all_atoms)):
             if p_all_atoms[idx] != 1:
                 idx_atom1 = np.append(idx_atom1, [idx+1])

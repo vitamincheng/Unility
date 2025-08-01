@@ -1,4 +1,3 @@
-from censo_ext.Tools.utility import function_is_int
 from pathlib import Path
 import pytest
 
@@ -32,8 +31,8 @@ def test_unility_file():
                      Path("tests/data/temp2.xyz"))
     copy_file(Path("tests/data/crest_conformers.xyz"),
               Path("tests/data/temp.xyz"))
-    assert delete_file_bool(Path("tests/data/temp1.xyz")) == False
-    assert delete_file_bool(Path("tests/data/temp.xyz")) == True
+    assert not delete_file_bool(Path("tests/data/temp1.xyz"))
+    assert delete_file_bool(Path("tests/data/temp.xyz"))
 
 
 @pytest.mark.parametrize(argnames="input_bool,input_str",
@@ -63,8 +62,8 @@ def test_unility_IsExistReturnBool(input_bool: bool, input_Path: Path):
 
 def test_unility_ProgramIsExist():
     from censo_ext.Tools.utility import program_IsExist
-    assert program_IsExist("xtb") == True
-    assert program_IsExist("orca") == True
+    assert program_IsExist("xtb")
+    assert program_IsExist("orca")
     with pytest.raises(ValueError) as e:
         program_IsExist("kkk")
     assert str(e.value) == " the program is not Exist ..."
@@ -72,7 +71,7 @@ def test_unility_ProgramIsExist():
 
 def test_unility_unilityIsExist():
     from censo_ext.Tools.utility import IsExist
-    assert IsExist(Path("tests/data/crest_conformers.xyz")) == None
+    assert IsExist(Path("tests/data/crest_conformers.xyz")) is None
     with pytest.raises(FileNotFoundError) as e:
         IsExist(Path("kkk.xyz"))
     assert str(e.value) == "kkk.xyz The file is not Exist ..."

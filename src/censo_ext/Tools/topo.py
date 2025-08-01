@@ -3,12 +3,10 @@
 # Need ml4nmr.py
 #  ASE library / graph-theory library
 
-from sys import argv as sysargv
 import argparse
 import numpy as np
 import numpy.typing as npt
 import censo_ext.Tools.ml4nmr as ml4nmr
-from icecream import ic
 from graph import Graph
 from ase.atoms import Atoms
 from pathlib import Path
@@ -90,13 +88,13 @@ class Topo():
             Is_Terminal_Atoms: bool = True
             for idx in Terminal_Atoms:
                 for idy in NeighborsAtoms_not_H[idx]:
-                    if idy in Terminal_Atoms and (Is_Terminal_Atoms == True):
+                    if idy in Terminal_Atoms and Is_Terminal_Atoms:
                         Is_Terminal_Atoms = True
                     else:
                         Terminal_Atoms.append(int(idy))
                         Terminal_Atoms = list(set(Terminal_Atoms))
                         Complete_Atoms, Is_Terminal_Atoms = False, False
-            if Is_Terminal_Atoms == True:
+            if Is_Terminal_Atoms:
                 Complete_Atoms = True
         if args.print:
             print(" Terminal_Atoms (not H) : ", Terminal_Atoms)
@@ -167,7 +165,7 @@ class Topo():
                     for circle_Mol in circle_Mols:
                         if set(x) == set(circle_Mol):
                             the_same = True
-                    if the_same == False:
+                    if not the_same:
                         circle_Mols.append(x)
 
         # Remove the repeated the same Atoms by use the set function (the same of the length)
@@ -200,12 +198,12 @@ class Topo():
         for atom in residual_atoms:
             Molecules: list[int] = []
             for node in list(g_straight.nodes()):  # type: ignore
-                if g_straight.is_connected(atom, node) == True:
+                if g_straight.is_connected(atom, node):
                     Molecules.append(node)
             the_same: bool = False
             for residual_Mol in residual_Mols:
                 if set(Molecules) == set(residual_Mol):
                     the_same = True
-            if the_same == False:
+            if not the_same:
                 residual_Mols.append(Molecules)
         return mol, neighbors, circle_Mols, residual_Mols

@@ -15,7 +15,7 @@ def test_cregen_miss_args():
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         cregen.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
 
@@ -34,5 +34,5 @@ def test_cregen_crest():
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    assert filecmp.cmp(args.out, compare) == True
+    assert filecmp.cmp(args.out, compare)
     delete_all_files(args.out, "isomers.out")

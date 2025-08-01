@@ -85,16 +85,16 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
     E, V = np.linalg.eigh(H)
     # ic(E, V)
     V = V.real
-    I: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
+    I_np: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
-    I_upper: npt.NDArray[np.float64] = np.triu(I)
+    I_upper: npt.NDArray[np.float64] = np.triu(I_np)
     # ic(I)
     E_matrix: npt.NDArray[np.float64] = np.abs(E[:, np.newaxis] - E)
     # ic(E_matrix)
     E_upper: npt.NDArray[np.float64] = np.triu(E_matrix)
     combo: npt.NDArray[np.float64] = np.stack([E_upper, I_upper])
-    iv: npt.NDArray[np.float64] = combo.reshape(2, I.shape[0] ** 2).T
+    iv: npt.NDArray[np.float64] = combo.reshape(2, I_np.shape[0] ** 2).T
 
     # an arbitrary cutoff where peaks below this intensity are filtered out of the solution
     peaklist: npt.NDArray[np.float64] = iv[iv[:, 1] >= args.cutoff]
@@ -143,10 +143,10 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     # ic(E,V)
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
-    I: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
+    I_np: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
     # ic(I)
     IF: npt.NDArray[np.float64] = np.square(V.T.dot(F.dot(V)))
-    I_upper: npt.NDArray[np.float64] = np.triu(I*IF)
+    I_upper: npt.NDArray[np.float64] = np.triu(I_np*IF)
     # ic(IF)
     # ic(I*IF)
 
@@ -156,7 +156,7 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     E_upper: npt.NDArray[np.float64] = np.triu(E_matrix)
 
     combo: npt.NDArray[np.float64] = np.stack([E_upper, I_upper])
-    iv: npt.NDArray[np.float64] = combo.reshape(2, I.shape[0] ** 2).T
+    iv: npt.NDArray[np.float64] = combo.reshape(2, I_np.shape[0] ** 2).T
     # ic(iv)
     thr: np.float64 = np.max(iv[:, 1])*args.cutoff
     peaklist: npt.NDArray[np.float64] = iv[iv[:, 1] >= thr]
@@ -182,9 +182,9 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
     Normal_plist: list[tuple[float, float]
                        ] = normalize_peaklist(plist, nIntergals)
     # ic(normalized_plist)
-    if args.start == None:
+    if args.start is None:
         args.start = (plist.T)[0].min() - Active_range * 0.1
-    if args.end == None:
+    if args.end is None:
         args.end = (plist.T)[0].max() + Active_range * 0.1
 
     Normal_y_max: float = np.array(Normal_plist).max()*2
@@ -198,7 +198,7 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
     from nmrsim.plt import mplplot
     x: npt.NDArray[np.float64]
     y: npt.NDArray[np.float64]
-    if hidden == False:
+    if not hidden:
         if input("    Do you want to show matplotlib results?    ") in ("y", "yes"):
             x, y = mplplot(Normal_plist, w=lw, y_max=Normal_y_max, y_min=-
                            Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points)
@@ -209,7 +209,7 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
         np.savetxt(args.out, np.vstack((x, y)).T, fmt='%2.5f %12.5e')
         print("    All Done!")
         return np.vstack((x, y))
-    elif hidden == True:
+    elif hidden:
         x, y = mpl_plot(Normal_plist, w=lw, y_max=Normal_y_max, y_min=-
                         Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points, hidden=True)
         if not args.bobyqa:
@@ -229,7 +229,7 @@ def mpl_plot(plist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, hidd
 
     """
     from nmrsim.plt import low_high, add_lorentzians
-    if hidden == True:
+    if hidden:
         plist.sort()
         if limits:
             l_limit, r_limit = low_high(limits)

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import argparse
-import os
+# import os
 import numpy as np
 from pathlib import Path
-from icecream import ic
+# from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 
@@ -110,7 +110,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         infile: GeometryXYZs = read_xyz_file(args.file)
 
         outfile = GeometryXYZs()
-        if args.cut == None:
+        if args.cut is None:
             outfile: GeometryXYZs = infile.method_translate_xyzs(
                 np.array(args.move))
         elif args.cut:

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import os
 from sys import argv as sysargv
-from icecream import ic
+# from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
 
 

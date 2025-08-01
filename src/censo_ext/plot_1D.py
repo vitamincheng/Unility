@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-from math import isclose
 from icecream import ic
 import nmrglue as ng
 import matplotlib.pyplot as plt
@@ -7,7 +6,6 @@ import numpy as np
 import numpy.typing as npt
 from sys import argv as sysargv
 import argparse
-import os
 # from typing import Any
 # global variable
 peaks_fileName = "plot_1D.peaks"
@@ -192,7 +190,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    if args.path == None:
+    if args.path is None:
         # args.path = "FAD/2/pdata/1/"
         # args.path = "../../bmse000510/nmr/set01/1H/pdata/1"
         # args.path = "../../bmse000510/nmr/set01/13C/pdata/1"
@@ -215,10 +213,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     ppm_1h_0, ppm_1h_1 = uc.ppm_limits()
     ppm = np.linspace(ppm_1h_0, ppm_1h_1, data.shape[0])
-    if args.start == None or args.end == None:
+    if args.start is None or args.end is None:
         args.end, args.start = uc.ppm_limits()
 
-    if args.out != None:
+    if args.out is not None:
         output: npt.NDArray[np.float64] = np.vstack(
             (ppm, np.real(data))).T[::-1]
         np.savetxt(args.out, output, fmt=" %12.5f  %12.5e")
@@ -227,7 +225,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     threshold = numpy_thr_mean_3(data)*args.thr
 
     # detect all peaks with a threshold
-    from scipy.signal import find_peaks
+    # from scipy.signal import find_peaks
     y_heighest = np.max(data)
     y_lowest = np.min(data)
     # ic(len(data))
@@ -246,12 +244,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     np_peaks: npt.NDArray = np.array(
         [], dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
-    if args.manual == True:
+    if args.manual:
         np_peaks = np.genfromtxt(peaks_fileName, names=True,
                                  dtype=['i8', 'f8', 'f8', 'f8'])
 
     # Automatically Intergate the peaks if use the original data of fid file
-    if args.auto == True:
+    if args.auto:
         peak_list: list = []
         sorted_cID_peaks = np.sort(new_peaks, order='cID')
 
@@ -283,7 +281,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             peak_list, dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
 
     # Intergrate the peaks if manually fixed the plot_1D_peaks.out file
-    if args.manual == True:
+    if args.manual:
         idx: int = 0
         for cID, start, end, _ in np_peaks:  # type: ignore
             min: int = uc(start, "ppm")
@@ -298,8 +296,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             idx += 1
 
     # Delete or Merge peaks if manually read the file
-    if args.manual == True:
-        if args.delete != False:
+    if args.manual:
+        if args.delete:
             for x in args.delete:
                 if x in np_peaks['cID']:
                     np_peaks = np_peaks[np_peaks['cID'] != x]
@@ -308,7 +306,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     ic()
                     exit(1)
 
-        if args.merge != False:
+        if args.merge:
             min_cID = np.array(args.merge).min()
             start, end = -99999, 99999
             for x in sorted(args.merge):
@@ -343,7 +341,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 np_peaks, args_x[0], (min_cID, start, end, data[min:max+1].sum()))
             # ic(np_peaks)
 
-        if args.cut != False:
+        if args.cut:
 
             if args.cut in np_peaks['cID']:
                 # use ng.peakpick.pick from y_heighest 0.99 to down two different peaks
@@ -355,7 +353,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 max: int = uc(r_peaks[0], "ppm")
                 if min > max:
                     min, max = max, min
-                y_cut_heighest = data[min:max+1].max()*0.99
+                # y_cut_heighest = data[min:max+1].max()*0.99
                 cut_peaks = ng.peakpick.pick(
                     data=data[min:max+1], pthres=threshold, algorithm="downward")
                 sorted_cut_peaks = np.sort(cut_peaks, order='VOL')
@@ -383,7 +381,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 exit(1)
 
             # Draw the intergral lines
-    if args.auto == True or args.manual == True:
+    if args.auto or args.manual:
         for cID, start, end, _ in np_peaks:  # type: ignore
             min: int = uc(start, "ppm")
             max: int = uc(end, "ppm")
@@ -401,11 +399,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     fontsize=8)
 
     # Saved the plot_1D.peaks
-    if args.save == True:
+    if args.save:
         np.savetxt(peaks_fileName, np_peaks, fmt=['%10i', '%12.6f', '%12.6f', '%15.1f'], header="     cID        Start          End        Area")  # type: ignore  # nopep8
 
     # add markers for peak positions. It is not necessary
-    if args.auto == False and args.manual == False:
+    if not args.auto and not args.manual:
         for peak, cID, _, _ in new_peaks:
             height = data[int(peak)]
             ppm = uc.ppm(peak)
@@ -419,7 +417,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     plt.plot(uc.ppm_scale(), data, 'b', linewidth=1)
 
     # draw the threshold line
-    if args.manual == False:
+    if not args.manual:
         plt.hlines(threshold, args.end, args.start, linestyles="--")  # type: ignore # nopep8
     # plt.hlines(threshold, args.end, args.start,
     #           linestyles="dashdot", linewidth=0.5)

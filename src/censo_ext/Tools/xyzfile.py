@@ -460,6 +460,6 @@ class GeometryXYZs():
         # copy BW and delete residual parameter
         np_enso['BW'] = np_enso['NEW_BW']
         names_anmr: list = list()
-        if np_enso.dtype.names != None:
+        if np_enso.dtype.names is not None:
             names_anmr = list(np_enso.dtype.names)
         return np_enso[names_anmr[:8]]

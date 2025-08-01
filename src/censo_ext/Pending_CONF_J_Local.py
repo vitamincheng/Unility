@@ -76,7 +76,7 @@ if __name__ == "__main__":
     print("    provided arguments: {}".format(" ".join(sysargv)))
     print(descr)
 
-    if args.recover == True:
+    if args.recover:
         path = os.getcwd()
         print("Files and directories in ", path, " : ")
         dirNames: list[str] = next(os.walk(path))[1]
@@ -93,7 +93,7 @@ if __name__ == "__main__":
             PathBackup: str = dirName + "/NMR/orcaJ.out.backup"
             orcaJPath: str = dirName + "/NMR/orcaJ.out"
 
-            if (os.path.exists(PathBackup) == True):
+            if os.path.exists(PathBackup):
                 import shutil
                 shutil.copyfile(PathBackup, orcaJPath)
                 os.remove(PathBackup)
@@ -150,7 +150,7 @@ if __name__ == "__main__":
             orcaJfile: Path = Path(dirName + "/NMR/orcaJ.out")
             JCoup: npt.NDArray[np.float64]
 
-            if (os.path.exists(fileBackup) == True):
+            if os.path.exists(fileBackup):
                 JCoup = function_read_orcaJ(fileBackup)
             else:
                 JCoup = function_read_orcaJ(orcaJfile)

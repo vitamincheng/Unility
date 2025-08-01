@@ -864,7 +864,6 @@ if __name__ == "__main__":
             gs = gridspec.GridSpec(len(args.file), 1)
             axislist = []
             for i in range(len(args.file)):
-                from icecream import ic
                 if i == 0:
                     axislist.append(plt.subplot(gs[0]))
                 else:
@@ -920,9 +919,6 @@ if __name__ == "__main__":
                 plot_show_findpeaks(height_thr_sp, ppm, intensit)
 
             if args.assign and len(args.file) == 2:
-                from os.path import exists
-                import os
-                from icecream import ic
                 args.orientation = [1, -1]
                 from pathlib import Path
                 filename: Path = Path("Average/NMR/orcaS-BOBYQA.out")

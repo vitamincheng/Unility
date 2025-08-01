@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import os
+# import os
 from sys import argv as sysargv
-from typing import Any
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 import numpy.typing as npt
@@ -166,7 +165,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(descr)  # Program description
         print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    if args.atom == None and args.auto == False:
+    if args.atom is None and not args.auto:
         print(" No any sepific atom in your provided arguments ")
         ic()
         raise ValueError(" No any sepific atom in your provided arguments ")
@@ -174,7 +173,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     p_idx: int
     q_idx: int
     r_idx: int
-    if args.atom == None and args.auto:
+    if args.atom is None and args.auto:
         print("\n Automated to set the 3 atoms to return origin and lay on XZ plane")
         print(" First FactorAnalysis.py will executive and second continue the RetrunOandZ.py ")
         p_idx, q_idx, r_idx = idx_3atom_opt(args)
@@ -203,13 +202,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         R_pq = R.from_rotvec(np.pi*Normalized_rotation_axis)
         infile.Sts[idx_st].coord = R_pq.apply(
-            infile.Sts[idx_st].coord)
+            infile.Sts[idx_st].coord)  # type: ignore
 
         Angle_qr = np.angle(complex(infile.Sts[idx_st].coord[r_idx-1][0], complex(
             infile.Sts[idx_st].coord[r_idx-1][1])))
         R_qr = R.from_euler('z', -Angle_qr)
         infile.Sts[idx_st].coord = R_qr.apply(
-            infile.Sts[idx_st].coord)
+            infile.Sts[idx_st].coord)  # type: ignore
 
     # Save or print result
     if args.print:

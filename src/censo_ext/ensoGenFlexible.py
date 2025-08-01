@@ -3,8 +3,8 @@ import argparse
 import os
 import shutil
 from pathlib import Path
-import numpy as np
-from icecream import ic
+# import numpy as np
+# from icecream import ic
 from censo_ext.Tools.utility import delete_all_files
 from censo_ext.Tools.utility import copy_file
 from sys import argv as sysargv
@@ -170,14 +170,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    WorkingDir: str = os.getcwd()
-
     # from Tools.utility import IsExists_DirFileName
     p = Path(args.file)
     fileName: str = p.name
     Dir: Path = p.parents[0]
 
-    if args.manual == True:
+    if args.manual is True:
         choice_xtb: str = input(
             " Geometry optimization use xtb : Yes or No ").lower().split()[0]
         if choice_xtb == "y" or choice_xtb == "yes":

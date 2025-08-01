@@ -1,5 +1,3 @@
-import pathlib
-import argparse
 from pathlib import Path
 from ase import Atoms
 import numpy.typing as npt
@@ -7,7 +5,6 @@ import numpy as np
 import pytest
 from icecream import ic
 from censo_ext.Tools.ml4nmr import read_mol_neighbors, read_mol_neighbors_bond_order
-from ase.atoms import Atoms
 
 mol: Atoms | list[Atoms]
 neighbors: dict[int, npt.NDArray[np.int64]]

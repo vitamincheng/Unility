@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-from ast import arguments
 from pathlib import Path
 from icecream import ic
 import nmrglue as ng
@@ -8,7 +7,6 @@ import numpy as np
 import numpy.typing as npt
 from sys import argv as sysargv
 import argparse
-import os
 import sys
 
 # global variable
@@ -118,10 +116,10 @@ def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> 
 
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
     ppm = np.linspace(ppm_1h_0, ppm_1h_1, data.shape[0])
-    if args.start == None or args.end == None:
+    if args.start is None or args.end is None:
         args.end, args.start = uc_1h.ppm_limits()
 
-    output = np.vstack((ppm, np.real(data))).T[::-1]
+    # output = np.vstack((ppm, np.real(data))).T[::-1]
     # np.savetxt("output.dat", output, fmt=" %12.5f  %12.5e")
     from censo_ext.Tools.spectra import numpy_thr_mean_3
     threshold: float = 0
@@ -131,7 +129,7 @@ def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> 
     # detect all peaks with a threshold
     from scipy.signal import find_peaks
     y_heighest = max(data)
-    y_lowest = min(data)
+    # y_lowest = min(data)
     # ic(len(data))
     # for H 65536 for C 131072
     # DEPT 90 32768 DEPT 32768
@@ -253,7 +251,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
     ppm: npt.NDArray[np.float64] = np.linspace(
         ppm_1h_0, ppm_1h_1, data.shape[0])
-    if args.start == None or args.end == None:
+    if args.start is None or args.end is None:
         args.end, args.start = uc_1h.ppm_limits()
 
     output: npt.NDArray[np.float64] = np.vstack((ppm, np.real(data))).T[::-1]
@@ -286,7 +284,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(f"{n+1:6d} {ppm:>15.5f}        {StAtoms[n+1]:>3d}")
 
     # save to file
-    if args.save == True:
+    if args.save is True:
         original_stdout = sys.stdout
         with open(peaks_fileName, "w") as f:
             sys.stdout = f

@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 import os
 import pytest
-from pathlib import Path
 import argparse
 import censo_ext.ensoAnalysis as ensoAnalysis
 import filecmp
-import platform
 
-file_anmr = f"tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso"
+file_anmr = "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso"
 
 
 def test_ensoAnalysis_miss_args():
@@ -15,7 +13,7 @@ def test_ensoAnalysis_miss_args():
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         ensoAnalysis.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
 
@@ -29,12 +27,12 @@ def test_ensoAnalysis_Hydrogen_miss():
 
 def test_ensoAnalysis_Hydrogen_miss_file():
     x: dict = {
-        "file": f"tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso1", "new": None}
+        "file": "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso1", "new": None}
     args = argparse.Namespace(**x)
     with pytest.raises(FileNotFoundError) as e:
         ensoAnalysis.main(args)
     assert str(
-        e.value) == f"tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso1 was not found or is a directory"
+        e.value) == "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso1 was not found or is a directory"
 
 
 def test_ensoAnalysis_Hydrogen_new_read():
@@ -42,7 +40,7 @@ def test_ensoAnalysis_Hydrogen_new_read():
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         ensoAnalysis.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0  # for argparse error
 
     out_print = "result.txt"
@@ -63,9 +61,9 @@ def test_ensoAnalysis_Hydrogen_new_read():
     os.remove(out_print)
     os.remove(args.file+".backup")
 
-    out_enso = f"average_enso"
-    compare = f"tests/compare/test_average_enso"
-    assert filecmp.cmp(out_enso, compare) == True
+    out_enso = "average_enso"
+    compare = "tests/compare/test_average_enso"
+    assert filecmp.cmp(out_enso, compare)
     os.remove(out_enso)
 
 
@@ -74,7 +72,7 @@ def test_ensoAnalysis_Hydrogen_new_read_miss_args():
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         ensoAnalysis.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0  # for argparse error
 
     out_print = "result.txt"
@@ -95,9 +93,9 @@ def test_ensoAnalysis_Hydrogen_new_read_miss_args():
     os.remove(out_print)
     os.remove(args.file+".backup")
 
-    out_enso = f"average_enso"
-    compare = f"tests/compare/test_average_enso"
-    assert filecmp.cmp(out_enso, compare) == True
+    out_enso = "average_enso"
+    compare = "tests/compare/test_average_enso"
+    assert filecmp.cmp(out_enso, compare)
     os.remove(out_enso)
 
 
@@ -106,10 +104,10 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         ensoAnalysis.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0  # for argparse error
 
-    out_print = f"result.txt"
+    out_print = "result.txt"
     import sys
     original_stdout = sys.stdout
     with open(out_print, "w") as f:
@@ -127,9 +125,9 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
     os.remove(out_print)
     os.remove(args.file+".backup")
 
-    out_enso = f"average_enso"
-    compare = f"tests/compare/test_average_enso"
-    assert filecmp.cmp(out_enso, compare) == True
+    out_enso = "average_enso"
+    compare = "tests/compare/test_average_enso"
+    assert filecmp.cmp(out_enso, compare)
     os.remove(out_enso)
 
 
@@ -139,7 +137,7 @@ def test_ensoAnalysis_Hydrogen_new_read_weights():
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         ensoAnalysis.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0  # for argparse error
 
     x: dict = {"file": file_anmr_weights, "new": None, "switch": None,
@@ -148,6 +146,6 @@ def test_ensoAnalysis_Hydrogen_new_read_weights():
 
     with pytest.raises(SystemExit) as e:
         ensoAnalysis.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0  # for argparse error
     os.remove(args.file+".backup")

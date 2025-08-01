@@ -5,7 +5,6 @@ import argparse
 import censo_ext.datNormalized as datNormalized
 import filecmp
 from censo_ext.Tools.utility import delete_all_files
-import platform
 
 
 def test_datNormalized_miss_args():
@@ -13,7 +12,7 @@ def test_datNormalized_miss_args():
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         datNormalized.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
 
@@ -26,5 +25,5 @@ def test_datNormalized():
                "out": outFile}
     args = argparse.Namespace(**x)
     datNormalized.main(args)
-    assert filecmp.cmp(outFile, compare_file) == True
+    assert filecmp.cmp(outFile, compare_file)
     delete_all_files(outFile)

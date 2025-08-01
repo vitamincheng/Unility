@@ -277,7 +277,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 inHydrogen = [value+1 for value in bond_order.values()]
                 Active_range = 200
                 dpi = 500
-                if args.lw == None:
+                if args.lw is None:
                     args.lw = 20
                 if not args.thr:
                     args.thr = args.lw * 0.3
@@ -294,9 +294,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 inHydrogen = [value for value in inHydrogenDict.values()]
                 Active_range = 10
                 dpi = 10000
-                if args.lw == None:
+                if args.lw is None:
                     args.lw = 1
-                if args.thr == None:
+                if args.thr is None:
                     args.thr = args.lw * 0.3
             else:
                 print("Other Active Nuclear element, waiting to build")
@@ -309,7 +309,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     idx0_ab_group_set: list[set[int]] = []
     mat_filter_multi: npt.NDArray[np.int64] = np.array([])
 
-    if args.json == None:
+    if args.json is None:
         inJCoups_origin: npt.NDArray[np.float64] = copy.deepcopy(inJCoups)
 
         while (1):
@@ -375,7 +375,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     group: set[int] = x             # type: ignore
                     jump: bool = False
                     bond_penetration: int = 1
-                    while jump == False:
+                    while not jump:
                         jump = True
                         for idy, y in enumerate(group):
                             if (not group.issuperset(idx0_ab_connect[y][1])) and bond_penetration <= args.tb:  # type: ignore # nopep8
@@ -458,7 +458,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     idx0_peaks_range: list[int] = []
     # ic(args.lw)
 
-    if args.json == None:
+    if args.json is None:
         print("")
         print(" ===== Processing =====")
         print(" the group of calculate spectra :", len(idx0_ab_group_set))
@@ -505,7 +505,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 Res_peaks.append(Res_qm_multiplet)
 
         import json
-        import pickle
+        # import pickle
         with open(str(inAnmr.get_Directory()/Path("peaks.json")), "w") as final:
             json.dump(Res_peaks, final)
 
@@ -513,7 +513,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
     else:
         import json
-        import pickle
+        # import pickle
         with open(str(inAnmr.get_Directory()/Path("peaks.json")), "r") as json_file:
             Res_peaks = json.load(json_file)
 
@@ -532,7 +532,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     print(" Wait a minutes ...")
     args.out = str(inAnmr.get_Directory()/Path(args.out))
 
-    if dpi != None and Active_range != None:
+    if dpi is not None and Active_range is not None:
         np_dat: npt.NDArray[np.float64] = qm.print_plot(
             Final_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range, hidden=not args.show)
     else:

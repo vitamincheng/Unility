@@ -10,7 +10,7 @@ def test_topo_FileName_miss_args():
     args = argparse.Namespace(**x)
 
     with pytest.raises(FileNotFoundError) as e:
-        Sts_topo: Topo = Topo(Path(args.file))
+        Topo(Path(args.file))
     assert str(e.value) == f"{x["file"]} The file is not Exist ..."
 
 

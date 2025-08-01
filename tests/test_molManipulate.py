@@ -17,7 +17,7 @@ def test_molManipulate():
     import filecmp
     for dirName in dirNames:
         compare: Path = Path("tests/compare") / Path(dirName)
-        assert filecmp.cmp(dirName, compare) == True
+        assert filecmp.cmp(dirName, compare)
 
     x: dict = {"separate": None, "merge": ["Separation/1.xyz", "Separation/2.xyz"],
                "out": "Separation/1&2.xyz"}
@@ -29,8 +29,8 @@ def test_molManipulate():
     molManipulate.main(args)
 
     import filecmp
-    compare = Path(f"tests/compare/molManipulate.xyz")
-    assert filecmp.cmp(args.out, compare) == True
+    compare = Path("tests/compare/molManipulate.xyz")
+    assert filecmp.cmp(args.out, compare)
 
     import shutil
     shutil.rmtree(Dir)
@@ -43,7 +43,7 @@ def test_molManipulate_multi():
 
     with pytest.raises(SystemExit) as e:
         molManipulate.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0   # for argprarse wrong
 
 
@@ -52,5 +52,5 @@ def test_molManipulate_miss_args():
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         molManipulate.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error

@@ -2,10 +2,10 @@
 import argparse
 import os
 import sys
-from graph import Graph
-import numpy as np
+# from graph import Graph
+# import numpy as np
 import numpy.typing as npt
-from icecream import ic
+# from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 from pathlib import Path
@@ -130,7 +130,7 @@ def get_xyzSplitList(neighbor: dict[int, npt.NDArray], circleMols: list[list[int
 def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> None:
 
     print(" xyzSplitDict :", xyzSplitDict)
-    if args.manual == True:
+    if args.manual is True:
         print("Assign the first number of list : ", end="")
         for key, value in xyzSplitDict.items():
             print(key, " ", end="")

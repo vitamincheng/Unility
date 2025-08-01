@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 import pytest
-from pathlib import Path
 import argparse
 import censo_ext.xyzSplit as xyzSplit
 import filecmp
 import os
-inFile = f"tests/data/crest_conformers1.xyz"
-outFile = f"tests/compare/output.xyz"
+inFile = "tests/data/crest_conformers1.xyz"
+outFile = "tests/compare/output.xyz"
 
 
 def test_xyzSplit():
@@ -15,8 +14,8 @@ def test_xyzSplit():
     args = argparse.Namespace(**x)
     xyzSplit.main(args)
 
-    compare = f"tests/compare/xyzSplit.xyz"
-    assert filecmp.cmp(args.out, compare) == True
+    compare = "tests/compare/xyzSplit.xyz"
+    assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
 
 
@@ -56,5 +55,5 @@ def test_xyzSplit_miss():
 
     with pytest.raises(SystemExit) as e:
         xyzSplit.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2    # for argprarse wrong

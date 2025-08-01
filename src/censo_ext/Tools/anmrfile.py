@@ -64,13 +64,13 @@ class Anmrrc():
         Res: str = ""
         for x in (self.acid_atoms_NoShow):
             Res += f'{x} '
-        Res += f'XH acid atoms\n'
+        Res += 'XH acid atoms\n'
         Res += f'ENSO qm= ORCA mf= {self.mf} lw= {self.lw}  J='
-        Res += f" on" if self.JCoups else f" off"
-        Res += f" S="
-        Res += f" on" if self.SParams else f" off"
-        Res += f" T= {self.Temp}\n"
-        Res += f"{self.third_line}\n"
+        Res += " on" if self.JCoups else " off"
+        Res += " S="
+        Res += ' on' if self.SParams else ' off'
+        Res += f' T= {self.Temp}\n'
+        Res += f'{self.third_line}\n'
 
         for x in self.anmrrc:
             Res += f"{x[0]:<d}  {x[1]:<9.2f} {x[2]:<6.1f} {x[3]:>2d}\n"
@@ -290,11 +290,11 @@ class Anmr():
 
                     if (self.nucinfo[1][x-1][1] > 2):
                         for k in (self.nucinfo[1][x-1][2]):
-                            for l in (self.nucinfo[1][x-1][2]):
+                            for ll in (self.nucinfo[1][x-1][2]):
                                 orcaSJ.JCoups[list(AtomsKeep).index(
-                                    k)][list(AtomsKeep).index(l)] = 0
+                                    k)][list(AtomsKeep).index(ll)] = 0
                                 orcaSJ.JCoups[list(AtomsKeep).index(
-                                    l)][list(AtomsKeep).index(k)] = 0
+                                    ll)][list(AtomsKeep).index(k)] = 0
                 for idx, x in enumerate(orcaSJ.JCoups):
                     orcaSJ.JCoups[idx][idx] = 0
 
@@ -335,7 +335,7 @@ class Anmr():
             for orcaSJ in self.orcaSJ:
                 for idy0, SParam in enumerate(orcaSJ.SParams.copy()):
                     if SParam in idx1_acid_atoms_NoShow_RemoveH:
-                        if not idy0 in idx0_AtomsDelete:
+                        if idy0 not in idx0_AtomsDelete:
                             idx0_AtomsDelete.append(idy0)
                         del orcaSJ.SParams[SParam]
 
@@ -370,15 +370,15 @@ class Anmr():
         for idx0 in range(len(dirNames)):
             file_orcaS: Path = Dir / Path(dirNames[idx0] + "/NMR/orcaS.out")  # nopep8
             file_orcaJ: Path = Dir / Path(dirNames[idx0] + "/NMR/orcaJ.out")  # nopep8
-            if (os.path.exists(file_orcaS) == True and os.path.exists(file_orcaJ) == True):
+            if os.path.exists(file_orcaS) and os.path.exists(file_orcaJ):
                 print(str(idx0)+"  :  "+str(file_orcaS))
                 print(str(idx0)+"  :  "+str(file_orcaJ))
 
                 iter: OrcaSJ = OrcaSJ()
                 iter.CONFSerialNums = int(dirNames[idx0].replace('CONF', ''))
-                if (iter.method_read_orcaS(file=file_orcaS) == False):
+                if not iter.method_read_orcaS(file=file_orcaS):
                     print("Something wrong in your orcaS.out")
-                if (iter.method_read_orcaJ(file=file_orcaJ) == False):
+                if not iter.method_read_orcaJ(file=file_orcaJ):
                     print("Something wrong in your orcaJ.out")
                 self.orcaSJ.append(iter)
 
@@ -469,7 +469,7 @@ class Anmr():
         for idx0, line in enumerate(lines):
             if re.search(r"MATRIX PRINTED:", line):
                 start_idx1 = idx0 + 1
-            if re.search(r"\+\/\-", line) and firstLine == False:
+            if re.search(r"\+\/\-", line) and not firstLine:
                 start_shielding_idx1 = idx0
                 firstLine = True
         if start_shielding_idx1 != 0:
@@ -569,7 +569,6 @@ class Anmr():
         for idx, x in enumerate(lines):
             x: str = x.rstrip()
             if (idx % 2) == 0:
-                from typing import Union
                 tmp: list[int | list[int]] = []
                 tmp.append(int(x.split()[0]))
                 tmp.append(int(x.split()[1]))

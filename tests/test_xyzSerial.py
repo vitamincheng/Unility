@@ -5,17 +5,17 @@ import argparse
 import censo_ext.xyzSerial as xyzSerial
 import filecmp
 import os
-outFile: Path = Path(f"tests/compare/output.xyz")
+outFile: Path = Path("tests/compare/output.xyz")
 
 
 def test_xyzSerial_new():
-    x: dict = {"file": f"tests/data/crest_conformers.xyz", "new": True,
+    x: dict = {"file": "tests/data/crest_conformers.xyz", "new": True,
                "keep": False, "out": outFile, "print": False}
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
-    compare = f"tests/compare/xyzSerial-new.xyz"
-    assert filecmp.cmp(args.out, compare) == True
+    compare = "tests/compare/xyzSerial-new.xyz"
+    assert filecmp.cmp(args.out, compare) is True
     os.remove(args.out)
 
 
@@ -25,8 +25,8 @@ def test_xyzSerial_keep():
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
-    compare = f"tests/compare/xyzSerial-keep.xyz"
-    assert filecmp.cmp(args.out, compare) == True
+    compare = "tests/compare/xyzSerial-keep.xyz"
+    assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
 
 
@@ -47,5 +47,5 @@ def test_xyzSerial_miss():
 
     with pytest.raises(SystemExit) as e:
         xyzSerial.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2    # for argprarse wrong

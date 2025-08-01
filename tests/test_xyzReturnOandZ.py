@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 import pytest
-from pathlib import Path
 import argparse
 import censo_ext.xyzReturnOandZ as xyzReturnOandZ
 import os
 import filecmp
 import platform
 _system = platform.system()
-inFile = f"tests/data/crest_conformers.xyz"
+inFile = "tests/data/crest_conformers.xyz"
 
 
 def test_xyzReturnOandZ_miss_args():
@@ -15,7 +14,7 @@ def test_xyzReturnOandZ_miss_args():
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         xyzReturnOandZ.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
 
@@ -25,15 +24,15 @@ def test_xyzReturnOandZ():
     args = argparse.Namespace(**x)
     xyzReturnOandZ.main(args)
 
-    compare = f""
+    compare = ""
     if _system == 'Darwin':
-        compare = f"tests/compare/xyzReturnOandZ_Darwin.xyz"
+        compare = "tests/compare/xyzReturnOandZ_Darwin.xyz"
     elif _system == "Linux":
-        compare = f"tests/compare/xyzReturnOandZ.xyz"
+        compare = "tests/compare/xyzReturnOandZ.xyz"
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    assert filecmp.cmp(args.out, compare) == True
+    assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
 
 
@@ -45,11 +44,11 @@ def test_xyzReturnOandZ_auto():
 
     compare = ""
     if _system == 'Darwin':
-        compare = f"tests/compare/xyzReturnOandZ_auto_Darwin.xyz"
+        compare = "tests/compare/xyzReturnOandZ_auto_Darwin.xyz"
     elif _system == "Linux":
-        compare = f"tests/compare/xyzReturnOandZ_auto.xyz"
+        compare = "tests/compare/xyzReturnOandZ_auto.xyz"
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    assert filecmp.cmp(args.out, compare) == True
+    assert filecmp.cmp(args.out, compare)
     os.remove(args.out)

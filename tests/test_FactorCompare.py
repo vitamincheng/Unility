@@ -3,7 +3,6 @@ import pytest
 from pathlib import Path
 import argparse
 import censo_ext.FactorCompare as FactorCompare
-import filecmp
 import platform
 inFile: Path = Path("tests/data/crest_conformers.xyz")
 _system = platform.system()
@@ -14,7 +13,7 @@ def test_FactorCompare_miss_args():
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
         FactorCompare.main(args)
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
 
@@ -27,8 +26,8 @@ def test_FactorCompare():
     if _system == "Darwin":
         compare = ""
     elif _system == "Linux":
-        compare = ""
+        compare = ""  # noqa: F841
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    assert Res == None
+    assert Res is None
