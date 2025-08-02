@@ -4,9 +4,12 @@ import numpy.typing as npt
 
 
 def numpy_thr_mean_3(x_in: npt.NDArray[np.float64]) -> float:
-    """Calculates a threshold based on the 25th, 27th and 28th percentiles.
+    """
+    Calculates a threshold based on the 25th, 27th and 28th percentiles.
+
     Args:
         x_in(npt.NDArray[np.float64]): Input array.
+
     Returns:
         float: Calculated threshold.
     """
@@ -19,10 +22,13 @@ def numpy_thr_mean_3(x_in: npt.NDArray[np.float64]) -> float:
 
 
 def numpy_thr(x_in: npt.NDArray[np.float64], multi: float) -> float:
-    """Calculates a threshold based on the mean and median of the input array.
+    """
+    Calculates a threshold based on the mean and median of the input array.
+
     Args:
         x_in(npt.NDArray[np.float64]): Input array.
         multi(float): Multiplier for the threshold calculation.
+
     Returns:
         float: Calculated threshold.
     """
@@ -34,10 +40,13 @@ def numpy_thr(x_in: npt.NDArray[np.float64], multi: float) -> float:
 
 
 def find_nearest(x_in: list[float], value) -> tuple[float, int]:
-    """Finds the nearest value in a list to a given value.
+    """
+    Finds the nearest value in a list to a given value.
+
     Args:
         x_in(list[float]): List of floats.
         value(float): Value to find the nearest to.
+
     Returns:
         tuple[float,int]: Nearest value and its index.
     """

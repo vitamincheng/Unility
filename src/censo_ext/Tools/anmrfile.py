@@ -14,15 +14,25 @@ from censo_ext.Tools.utility import IsExist, IsExist_return_bool
 
 
 class Anmrrc():
+    """Singleton class for handling .anmrrc files used in NMR calculations."""
+
     _instance = None
 
     def __new__(cls, *args, **kwargs) -> Self:
-        '''Singleton Pattern'''
+        """
+        Singleton Pattern
+        """
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self, DirFileName: Path) -> None:
+        """
+        Initialize the Anmrrc object by reading and parsing a .anmrrc file.
+
+        Args:
+            DirFileName (Path): The path to the .anmrrc file.
+        """
         lines: list[str] = open(DirFileName, "r").readlines()
 
         # Dict of Atomic Numbers and Atomic label
@@ -61,6 +71,12 @@ class Anmrrc():
                 self.Active.append(self.element[int(x[0])])
 
     def __repr__(self) -> str:
+        """
+        Return a string representation of the Anmrrc object.
+
+        Returns:
+            str: Formatted string showing all parameters from the .anmrrc file.
+        """
         Res: str = ""
         for x in (self.acid_atoms_NoShow):
             Res += f'{x} '
@@ -78,11 +94,14 @@ class Anmrrc():
 
     def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFileName: Path) -> list[int]:
         """
-            Return the list of be removed hydrogen of acid_atoms_NoShow in .anmrrc setting
-        Args:
-            fileName (str, optional): _description_. Defaults to "crest_conformers.xyz".
-        """
+        Return the list of hydrogen atoms to be removed based on acid atom settings.
 
+        Args:
+            DirFileName (Path): The path to the XYZ file containing molecular structure.
+
+        Returns:
+            list[int]: List of hydrogen atom indices to remove.
+        """
         from censo_ext.Tools.Parameter import ELEMENT_NAMES
         acid_atoms_NoShow: list[str] = [ELEMENT_NAMES[i]
                                         for i in self.acid_atoms_NoShow]
@@ -104,13 +123,13 @@ class Anmrrc():
 
     def get_Reference_anmrrc(self) -> float:
         """
-            Retrieve the reference shielding value from the .anmrrc file.
+        Retrieve the reference shielding value from the .anmrrc file.
 
-            Returns:
-                float: The reference shielding value.
+        Returns:
+            float: The reference shielding value.
 
-            Raises:
-                ValueError: If no active species is found in the .anmrrc file.
+        Raises:
+            ValueError: If no active species is found in the .anmrrc file.
         """
         reference: float | None = None
         for x in self.anmrrc:
@@ -126,6 +145,8 @@ class Anmrrc():
 
 
 class Anmr():
+    """Main class for handling NMR data processing and analysis."""
+
     _instance = None
 
     def __new__(cls, *args, **kwargs) -> Self:
@@ -135,6 +156,12 @@ class Anmr():
         return cls._instance
 
     def __init__(self, Directory: Path = Path(".")) -> None:
+        """
+        Initialize the Anmr object.
+
+        Args:
+            Directory (Path, optional): The directory containing NMR data files. Defaults to Path(".").
+        """
         self.__Directory: Path = Directory
         self.enso: npt.NDArray                      # anmr_enso
         self.anmrJ: npt.NDArray[np.float64]         # JCoup of anmr.out generated from anmr # nopep8
@@ -145,26 +172,52 @@ class Anmr():
         ]                                           # anmr_nucinfo
 
     def get_Directory(self) -> Path:
+        """
+        Get the directory path.
+
+        Returns:
+            Path: The directory containing NMR data files.
+        """
         return self.__Directory
 
     def get_Anmr_Active(self) -> list[str]:
+        """
+        Get the list of active species from the .anmrrc file.
+
+        Returns:
+            list[str]: List of active atomic symbols.
+        """
         return self.__AnmrParams.Active
 
     def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFileName=Path("crest_conformers.xyz")) -> list[int]:
+        """
+        Get indices of hydrogen atoms to remove based on acid atom settings.
+
+        Args:
+            DirFileName (Path, optional): Path to the XYZ file. Defaults to Path("crest_conformers.xyz").
+
+        Returns:
+            list[int]: List of hydrogen atom indices to remove.
+        """
         return self.__AnmrParams.get_idx1_acid_atoms_NoShow_RemoveH(DirFileName)
 
     def method_read_anmrrc(self, fileName=Path(".anmrrc")) -> None:
-        '''Read .anmrrc setting file from censo '''
+        """Read .anmrrc setting file from censo.
+
+        Args:
+            fileName (Path, optional): Name of the .anmrrc file. Defaults to Path(".anmrrc").
+        """
         DirFileName: Path = self.__Directory / fileName
         IsExist(DirFileName)
         self.__AnmrParams: Anmrrc = Anmrrc(DirFileName)
         # self.__AnmrParams: Anmrrc = Anmrrc(lines)
 
     def method_print_anmrrc(self) -> None:
+        """Print the contents of the .anmrrc file."""
         print(self.__AnmrParams, end="")
 
     def method_avg_orcaSJ(self) -> None:
-        '''Average of orcaJ.out and orcaS.out in /NMR/CONFXX folder'''
+        """Average of orcaJ.out and orcaS.out in /NMR/CONFXX folder."""
         print(" ===== Average of all folder orcaS.out and orcaJ.out =====")
         if len(self.nucinfo) == 0 or self.enso.size == 0:
             print(" Need to read the anmr_nucinfo and anmr_enso enso ")
@@ -230,9 +283,12 @@ class Anmr():
         print(" ===== Finished the Average of all folder orcaS.out and orcaJ.out =====")
 
     def method_update_equiv_orcaSJ(self) -> None:
-        '''
-        update the equivalent of SParams and JCoups in /NMR/CONFXX folder
-        '''
+        """
+        Update equivalent atoms in SParams and JCoups.
+
+        This method handles equivalent atom replacement in both shielding parameters
+        and coupling constants to ensure proper averaging across equivalent atoms.
+        """
         print(" Replace the equivalent of Sparams and JCoups")
 
         if len(self.nucinfo) == 0 or self.enso.size == 0:
@@ -351,7 +407,12 @@ class Anmr():
             print(" ===== Finished the equivalent of SParams and JCoups ===== ")
 
     def method_read_folder_orcaSJ(self) -> None:
+        """
+        Read orcaS.out and orcaJ.out files from all CONFXX directories.
 
+        This method scans through all directories in the working directory that match
+        the CONFXX pattern and reads NMR data from orcaS.out and orcaJ.out files.
+        """
         Dir: Path = self.__Directory
         print("Files and directories in ", Dir, " : ")
 
@@ -383,7 +444,12 @@ class Anmr():
                 self.orcaSJ.append(iter)
 
     def get_avg_orcaSJ_Exist(self) -> bool:
+        """
+        Check if average orcaSJ files exist in the Average/NMR directory.
 
+        Returns:
+            bool: True if all average orcaSJ files exist, False otherwise.
+        """
         fileName_Av_orcaS: Path = self.__Directory / \
             Path("Average/NMR/orcaS.out")
         fileName_Av_orcaJ: Path = self.__Directory / \
@@ -397,7 +463,15 @@ class Anmr():
             return False
 
     def method_load_avg_orcaSJ(self, args) -> bool:
+        """
+        Load average orcaSJ data from files.
 
+        Args:
+            args: Command-line arguments containing BOBYQA flag.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
         from censo_ext.Tools.utility import jsonKeys2int
         if self.get_avg_orcaSJ_Exist():
             if args.bobyqa:
@@ -425,6 +499,11 @@ class Anmr():
             return False
 
     def method_save_adjust_avg_orcaS(self) -> None:
+        """
+        Save adjusted average orcaS data.
+
+        Note: This method is currently not implemented.
+        """
         raise NotImplementedError("Under Construct")
         # fileName_Average_orcaS = str(
         #    self.__Directory / Path("Average/NMR/orcaS.out"))
@@ -433,7 +512,12 @@ class Anmr():
         #                self.Average_orcaSJ.orcaSParams)
 
     def method_save_avg_orcaSJ(self) -> None:
+        """
+        Save average orcaSJ data to files in Average/NMR directory.
 
+        This method saves the averaged shielding parameters, coupling constants, and
+        atom indices to respective files for future use.
+        """
         avg_orcaS: Path = self.__Directory / Path("Average/NMR/orcaS.out")      # nopep8
         avg_orcaJ: Path = self.__Directory / Path("Average/NMR/orcaJ.out")      # nopep8
         avg_orcaAtoms: Path = self.__Directory / Path("Average/NMR/orcaA.out")  # nopep8
@@ -449,12 +533,20 @@ class Anmr():
         np.savetxt(avg_orcaJ, self.avg_orcaSJ.JCoups, fmt="%10.5f")
 
     def method_save_folder_orcaSJ(self) -> None:
+        """
+        Save orcaSJ data to individual folder files.
+
+        Note: This method is currently not implemented.
+        """
         raise NotImplementedError("Under Construct")
 
     def method_read_anmrSJ(self, fileName: Path = Path("anmr.out")) -> None:
-        '''
-        Read the file anmr.out from anmr program
-        '''
+        """
+        Read the file anmr.out from anmr program.
+
+        Args:
+            fileName (Path, optional): Name of the anmr.out file. Defaults to Path("anmr.out").
+        """
         fileName = self.__Directory / Path(fileName)
         IsExist(fileName)
 
@@ -537,17 +629,32 @@ class Anmr():
                     DataJ_triangle[idx0].split()[idy0])
 
     def method_print_anmrS(self) -> None:
+        """
+        Print the anmr shielding data.
+
+        Displays the nucleus indices, coordination numbers, and chemical shift values.
+        """
         print("    #  in coord file  # nucs   delta(ppm)")
         for idx, x in enumerate(self.anmrS):
             print(f"{x[0]:>5d} {x[1]:>9d} {x[2]:>9d} {x[3]:>13.3f}")
 
     def method_print_anmrJ(self) -> None:
+        """
+        Print the anmr coupling constants matrix.
+
+        Displays the JCoups matrix in a formatted manner.
+        """
         for idx0 in range(self.anmrJ[0].size):
             for idy0 in range(self.anmrJ[0].size):
                 print(f'{self.anmrJ[idx0][idy0]:>10.5f}', end="")
             print("")
 
     def method_print_nucinfo(self) -> None:
+        """
+        Print nuclear information data.
+
+        Displays atom indices, nucleus counts, and equivalent atom groups.
+        """
         nAtoms: int = len(self.nucinfo[0])
         print(f"{nAtoms:>12d}")
 
@@ -559,6 +666,12 @@ class Anmr():
                 print("")
 
     def method_read_nucinfo(self, file: Path = Path("anmr_nucinfo")) -> None:
+        """
+        Read nuclear information from file.
+
+        Args:
+            file (Path, optional): Name of the nucinfo file. Defaults to Path("anmr_nucinfo").
+        """
         file = self.__Directory / Path(file)
         IsExist(file)
 
@@ -583,14 +696,28 @@ class Anmr():
                 page = []
 
     def method_create_enso(self, in_np: npt.NDArray) -> None:
+        """
+        Create enso data structure from input numpy array.
+
+        Args:
+            in_np (npt.NDArray): Input numpy array containing enso data.
+        """
         if len(in_np.dtype) != 8:                                           # type:ignore
             print("something wrong in your anmr_enso file")
             ic()
             raise FileNotFoundError("something wrong in your anmr_enso file")
 
     def method_read_enso(self, file: Path = Path("anmr_enso")) -> None:
-        ''' anmr_enso :  8 columns '''
-        ''' ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi  '''
+        """
+        Read enso data from file.
+
+        Args:
+            file (Path, optional): Name of the enso file. Defaults to Path("anmr_enso").
+        """
+        #
+        # anmr_enso :  8 columns
+        # ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi
+        #
 
         file = self.__Directory / Path(file)
         IsExist(file)
@@ -602,11 +729,22 @@ class Anmr():
             raise FileNotFoundError("something wrong in your anmr_enso file")
 
     def method_print_enso(self) -> None:
+        """
+        Print enso data.
+
+        Displays the enso data table with columns: ONOFF, NMR, CONF, BW, Energy, Gsolv, mRRHO, gi.
+        """
         print("ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi     ")
         for Enso in self.enso:
             print(f'{int(Enso[0]):<1d}      {int(Enso[1]):<4d} {int(Enso[2]):<4d} {Enso[3]:>6.4f} {Enso[4]: > 11.7f} {Enso[5]: > 10.7f} {Enso[6]: > 10.7f} {Enso[7]:>4.3f}')  # nopep8
 
     def method_save_enso(self, file: Path = Path("anmr_enso.new")) -> None:
+        """
+        Save enso data to file.
+
+        Args:
+            file (Path, optional): Name of the output file. Defaults to Path("anmr_enso.new").
+        """
         DirFileName: Path = self.__Directory / Path(file)
         original_stdout = sys.stdout
         with open(DirFileName, "w") as f:
@@ -616,7 +754,14 @@ class Anmr():
 
 
 class OrcaSJ():
+    """Class for handling ORCA NMR output files (orcaS.out and orcaJ.out)."""
+
     def __init__(self) -> None:
+        """
+        Initialize the OrcaSJ object.
+
+        This class holds data from ORCA's chemical shielding and coupling constant outputs.
+        """
         self.JCoups: npt.NDArray[np.float64]
         self.SParams: dict[int, float] = {}
         self.Anisotropy: dict[int, float] = {}
@@ -624,7 +769,15 @@ class OrcaSJ():
         self.idxAtoms: dict[int, str] = {}
 
     def method_read_orcaJ(self, file: Path = Path("orcaJ.out")) -> bool:
-        ''' Read the file orcaJ.out in censo program '''
+        """
+        Read the file orcaJ.out in censo program.
+
+        Args:
+            file (Path, optional): Path to the orcaJ.out file. Defaults to Path("orcaJ.out").
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
         print(" method_read_orcaJ", file)
         IsExist(file)
 
@@ -696,6 +849,15 @@ class OrcaSJ():
         return True
 
     def method_read_orcaS(self, file: Path = Path("orcaS.out")) -> bool:
+        """
+        Read the file orcaS.out in censo program.
+
+        Args:
+            file (Path, optional): Path to the orcaS.out file. Defaults to Path("orcaS.out").
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
         ''' Read the file orcaS.out in censo program '''
         print(" method_read_orcaS", file)
         IsExist(file)
@@ -744,6 +906,11 @@ class OrcaSJ():
         return True
 
     def method_save_orcaS(self) -> list:
+        """
+        Save orcaS data to list format.
+
+        Note: This method is currently not implemented.
+        """
         raise NotImplementedError("Under Construct")
         # if len(self.idxAtoms) == len(self.SParams):
         #    lines: list = []
@@ -763,6 +930,11 @@ class OrcaSJ():
         #    exit(0)
 
     def method_save_orcaJ(self) -> list:
+        """
+        Save orcaJ data to list format.
+
+        Note: This method is currently not implemented.
+        """
         raise NotImplementedError("Under Construct")
         # if len(self.idxAtoms) == len(self.JCoups[0]):
         #    lines: list = []
@@ -787,6 +959,11 @@ class OrcaSJ():
         #    exit(0)
 
     def method_print_orcaS(self) -> None:
+        """
+        Print orcaS data.
+
+        Displays nucleus indices, elements, and chemical shielding values.
+        """
         if len(self.idxAtoms) == len(self.SParams):
             print("Nucleus  Element   Anisotropy")
             for idx, Atom in self.idxAtoms.items():
@@ -799,6 +976,11 @@ class OrcaSJ():
             raise ValueError("your orcaJ and orcaS is not fit each other")
 
     def method_print_orcaJ(self) -> None:
+        """
+        Print orcaJ data.
+
+        Displays the JCoups matrix in a formatted manner.
+        """
         for idx0 in range(self.JCoups[0].size):
             for idy0 in range(self.JCoups[0].size):
                 print(f'{(self.JCoups[idx0][idy0]):>8.3f}', end="")
@@ -806,27 +988,60 @@ class OrcaSJ():
 
 
 class CensoDat():
+    """Class for handling NMR data files (dat format)."""
 
     def __init__(self, file: Path = Path("anmr.dat")) -> None:
+        """
+        Initialize the CensoDat object.
+
+        Args:
+            file (Path, optional): Path to the dat file. Defaults to Path("anmr.dat").
+        """
         IsExist(file)
         self.__fileName: Path = Path(file)
         self.__dat: npt.NDArray[np.float64] = np.genfromtxt(file)
 
     def __len__(self) -> int:
+        """
+        Get the length of the data array.
+
+        Returns:
+            int: Number of data points.
+        """
         return len(self.__dat)
 
     def __sub__(self, other: Self) -> CensoDat:
+        """
+        Subtract another CensoDat object from this one.
+
+        Args:
+            other (Self): Another CensoDat object to subtract.
+
+        Returns:
+            CensoDat: New CensoDat object with difference.
+        """
         if np.array_equal(self.__dat[:, 0], other.__dat[:, 0]):
             self.__dat[:, 1] -= other.__dat[:, 1]
         return self
 
     def __repr__(self) -> str:
+        """
+        Return string representation of the data.
+
+        Returns:
+            str: Formatted string showing all data points.
+        """
         Res: str = ""
         for x in self.__dat:
             Res = Res + f'{x[0]:>12.6f}  {x[1]:>12.6e}\n'
         return Res
 
     def method_save_dat(self) -> None:
+        """
+        Save the data to file.
+
+        Writes the current data to the file specified in __fileName.
+        """
         original_stdout = sys.stdout
         with open(self.__fileName, "w") as f:
             sys.stdout = f
@@ -834,7 +1049,15 @@ class CensoDat():
         sys.stdout = original_stdout
 
     def method_normalize_dat(self, start: float = -5.0, end: float = 15.0, dpi: int = 10000, highest: int = 10000) -> None:
+        """
+        Normalize the data to a specific range.
 
+        Args:
+            start (float, optional): Start of the range. Defaults to -5.0.
+            end (float, optional): End of the range. Defaults to 15.0.
+            dpi (int, optional): Data points per unit. Defaults to 10000.
+            highest (int, optional): Maximum value for normalization. Defaults to 10000.
+        """
         ppm_least: float = self.__dat[:, 0][-1]
         if ppm_least > 50 and end < 50:
             start, end, dpi = -20, 240, 500
@@ -856,6 +1079,18 @@ class CensoDat():
             self.__dat = res_new.T
 
     def method_subtract_dat(self, other: Self) -> CensoDat:
+        """
+        Subtract another CensoDat object from this one.
+
+        Args:
+            other (Self): Another CensoDat object to subtract.
+
+        Returns:
+            CensoDat: New CensoDat object with difference.
+
+        Raises:
+            ValueError: If the data arrays don't match.
+        """
         if np.array_equal(self.__dat[:, 0], other.__dat[:, 0]):
             self.__dat[:, 1] -= other.__dat[:, 1]
         else:
@@ -865,10 +1100,28 @@ class CensoDat():
         return self
 
     def set_fileName(self, file: Path) -> None:
+        """
+        Set the filename for output.
+
+        Args:
+            file (Path): New filename.
+        """
         self.__fileName = Path(file)
 
     def get_fileName(self) -> Path:
+        """
+        Get the current filename.
+
+        Returns:
+            Path: Current filename.
+        """
         return self.__fileName
 
     def get_Dat(self) -> npt.NDArray:
+        """
+        Get the raw data array.
+
+        Returns:
+            npt.NDArray: The data array.
+        """
         return self.__dat

@@ -20,8 +20,10 @@ class Topo():
     """
 
     def __init__(self, file: Path) -> None:
-        """ Initializes a new instance of the Topo class with the provided file path.
-        Parameters:
+        """ 
+        Initializes a new instance of the Topo class with the provided file path.
+
+        Args:
             __fileName(Path): The path to the input file containing molecular data.
             __mol(Atoms|list[Atoms]): The molecular structure(s) read from the input file.
             __neighbors(dict[int,npt.NDArray[np.int64]]): A dictionary of atom indices and their respective neighbors.
@@ -36,7 +38,9 @@ class Topo():
                            i in enumerate(self.__mol) if i.symbol == "H"]  # type: ignore # nopep8
 
     def get_cn(self) -> dict[int, int]:
-        """ Computes and returns the coordination number (CN) for each atom in the molecular structure.
+        """ 
+        Computes and returns the coordination number (CN) for each atom in the molecular structure.
+
         Returns: 
             dict[int,int]: A dict of atom indice and coordination number for each atom.  
         """
@@ -46,11 +50,14 @@ class Topo():
         return cn
 
     def method_broken_bond_H(self, args: argparse.Namespace) -> list[int]:
-        """ Identifies terminal atoms involved in a broken bond, including hydrogen atoms.
-        Parameters:
+        """ 
+        Identifies terminal atoms involved in a broken bond, including hydrogen atoms.
+
+        Args:
             args[argparse.Namespace]: Command-line arguments containing information about the broken bond and whether to print results.
             args.bond_broken[int,int]: atom's index of broken-bond[include 1's atom , not include 2's atom]
             args.print[bool]: print the final data on screen   
+
         Returns:
             list[int]: A list of atom indices involved in the broken bond (including H atoms).
         """
@@ -72,11 +79,14 @@ class Topo():
         return Res
 
     def method_broken_bond(self, args: argparse.Namespace) -> list[int]:
-        """Identifies terminal atoms involved in a broken bond, excluding hydrogen atoms.
-        Parameters:
+        """
+        Identifies terminal atoms involved in a broken bond, excluding hydrogen atoms.
+
+        Args:
             args[argparse.Namespace]: Command-line arguments containing information about the broken bond and whether to print results.
             args.bond_broken[int,int] : atom's index of broken-bond [include 1's atom, not include 2's atom]
             args.print[bool] : print the final data on screen   
+
         Returns:
             list[int]: A list of atom indices involved in the broken bond (excluding H atoms).
         """
@@ -110,10 +120,13 @@ class Topo():
         return Terminal_Atoms
 
     def method_bonding(self, args: argparse.Namespace) -> list[int]:
-        """ Retrieves the bonding partners for a specified atom, excluding hydrogen atoms.
-        Parameters:
+        """ 
+        Retrieves the bonding partners for a specified atom, excluding hydrogen atoms.
+
+        Args:
             args.bonding[int]: atom's index
             args.print[bool]: print the List of bonding
+
         Returns:
             list[int]: A list of atom indices bonded to the specified atom (excluding H atoms).
         """
@@ -130,7 +143,9 @@ class Topo():
         return Neighbors_Atoms
 
     def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray], list[list[int]], list[list[int]]]:
-        """ Analyzes the molecular structure to classify it into circular and residual molecules.
+        """ 
+        Analyzes the molecular structure to classify it into circular and residual molecules.
+
         Returns:
             tuple: A tuple containing the following elements:
                 mol(ml4nmr.Atoms|list[ml4nmr.Atoms]): The original molecular structure(s).

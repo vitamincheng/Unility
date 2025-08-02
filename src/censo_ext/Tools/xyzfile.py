@@ -18,8 +18,10 @@ import copy
 class Geometry():
 
     def __init__(self, names: dict[int, str], coord: list[npt.NDArray[np.float64]], extras: list[list[str]], comment: str = "", energy: float = 0, nClusters: int = 0) -> None:
-        """ Initialize a Geometry object with atom names, coordinates, and metadata.
-        Parameters:
+        """ 
+        Initialize a Geometry object with atom names, coordinates, and metadata.
+
+        Args:
             names (dict[int, str]): Dictionary mapping atom indices to names.
             coord (list[npt.NDArray[np.float64]]): List of atomic coordinates.
             extras (list[list[str]]): Extra data for each atom (e.g., charges).
@@ -41,7 +43,9 @@ class Geometry():
         self.inertia: npt.NDArray
 
     def __add__(self, other: Self) -> Geometry:
-        """ Concatenate two Geometry objects by combining atoms and coordinates.
+        """ 
+        Concatenate two Geometry objects by combining atoms and coordinates.
+
         Returns:
             Geometry: New Geometry instance with combined data.
         """
@@ -57,7 +61,9 @@ class Geometry():
         return res
 
     def __repr__(self) -> str:
-        """ Generate a string representation of the Geometry object in XYZ format.
+        """ 
+        Generate a string representation of the Geometry object in XYZ format.
+
         Returns:
             str: Formatted XYZ string with atom names, coordinates, and extras.
         """
@@ -72,7 +78,9 @@ class Geometry():
         return res
 
     def get_comment_energy(self) -> float:
-        """Retrieve the energy value from the comment field.
+        """
+        Retrieve the energy value from the comment field.
+
         Returns:
             float: Energy value in Eh units.
         """
@@ -80,10 +88,12 @@ class Geometry():
         return self.comment_energy
 
     def method_translate_xyz(self, delta: npt.NDArray) -> Geometry:
-        """Translate all atoms by a given vector.
+        """
+        Translate all atoms by a given vector.
 
-        Parameters:
+        Args:
             delta (npt.NDArray): Translation vector (x, y, z).
+
         Returns:
             Geometry: Translated Geometry instance.
         """
@@ -94,9 +104,12 @@ class Geometry():
         return res
 
     def method_molecules_separation_xyz(self, idx1_Select_Names: list[int]) -> bool:
-        """Filter atoms by selected indices and update the Geometry.
-        Parameters:
+        """
+        Filter atoms by selected indices and update the Geometry.
+
+        Args:
             idx1_Select_Names (list[int]): List of atom indices to retain.
+
         Returns:
             bool: True if operation succeeded.
         """
@@ -116,9 +129,12 @@ class Geometry():
         return True
 
     def method_idx_molecules_xyz(self, fileName: Path) -> list[list[int]]:
-        """Identify molecular clusters from a topology file.
-        Parameters:
+        """
+        Identify molecular clusters from a topology file.
+
+        Args:
             fileName (Path): Path to topology file.
+
         Returns:
             list[list[int]]: List of molecule atom index lists.
         """
@@ -153,7 +169,9 @@ class Geometry():
         return molecules
 
     def method_computeCOM(self) -> npt.NDArray:
-        """Calculate the center of mass (COM) of the molecule.
+        """
+        Calculate the center of mass (COM) of the molecule.
+
         Returns:
             npt.NDArray: COM coordinates.
         """
@@ -166,7 +184,9 @@ class Geometry():
             return self.com
 
     def method_computeInertia(self) -> npt.NDArray:
-        """Calculate the moment of inertia tensor.
+        """
+        Calculate the moment of inertia tensor.
+
         Returns:
             npt.NDArray: 3x3 inertia tensor.
         """
@@ -177,7 +197,8 @@ class Geometry():
         return self.inertia
 
     def method_update_masses(self) -> None:
-        """Update atomic masses based on element names.
+        """
+        Update atomic masses based on element names.
         """
 
         self.mass = np.array([])
@@ -186,7 +207,8 @@ class Geometry():
             self.mass = np.append(self.mass, masses[x.lower()], axis=None)
 
     def method_rewrite_comment(self) -> None:
-        """Format and update the comment field with energy and cluster info.
+        """
+        Format and update the comment field with energy and cluster info.
         """
 
         self.comment = " Energy = "+" "*7 + \
@@ -194,7 +216,8 @@ class Geometry():
             "#Cluster:     "+str(self.comment_nClusters)
 
     def method_update_comment(self) -> None:
-        """Parse and extract energy and cluster information from the comment field.
+        """
+        Parse and extract energy and cluster information from the comment field.
         """
 
         comments: list[str] = self.comment.replace("a.u.", "").replace("Eh", "").replace("Energy=", "").replace("Energy =", "").replace(
@@ -230,8 +253,10 @@ class Geometry():
         return
 
     def method_comment_new(self, idx1: int) -> None:
-        """Set a new cluster index in the comment field.
-        Parameters:
+        """
+        Set a new cluster index in the comment field.
+
+        Args:
             idx1 (int): Cluster index to set.
         """
 
@@ -242,8 +267,10 @@ class Geometry():
 class GeometryXYZs():
 
     def __init__(self, fileName: Path = Path("")) -> None:
-        """Initialize a GeometryXYZs object to manage multiple Geometry instances.
-        Parameters:
+        """
+        Initialize a GeometryXYZs object to manage multiple Geometry instances.
+
+        Args:
             fileName (Path): Path to XYZ file.
         """
 
@@ -257,10 +284,13 @@ class GeometryXYZs():
         self.__filename = Path(fileName)
 
     def method_translate_cut_xyzs(self, delta: npt.NDArray[np.float64], cut: int) -> GeometryXYZs:
-        """Generate interpolated GeometryXYZs by translating along a vector.
-        Parameters:
+        """
+        Generate interpolated GeometryXYZs by translating along a vector.
+
+        Args:
             delta (npt.NDArray[np.float64]): Translation vector.
             cut (int): Number of interpolation points.
+
         Returns:
             GeometryXYZs: Interpolated structures.
         """
@@ -281,9 +311,12 @@ class GeometryXYZs():
             return res
 
     def method_translate_xyzs(self, delta: npt.NDArray[np.float64]) -> GeometryXYZs:
-        """Translate all Geometry instances in the collection.
-        Parameters:
+        """
+        Translate all Geometry instances in the collection.
+
+        Args:
             delta (npt.NDArray[np.float64]): Translation vector.
+
         Returns:
             GeometryXYZs: Translated structures.
         """
@@ -295,9 +328,12 @@ class GeometryXYZs():
         return Res
 
     def __add__(self, Var: Self) -> GeometryXYZs:
-        """Concatenate two GeometryXYZs objects.
-        Parameters:
+        """
+        Concatenate two GeometryXYZs objects.
+
+        Args:
             Var (GeometryXYZs): Other GeometryXYZs instance.
+
         Returns:
             GeometryXYZs: Concatenated structures.
         """
@@ -318,9 +354,12 @@ class GeometryXYZs():
             raise ValueError("Too much xyzs structures in your xyz file")
 
     def method_idx_molecules_xyzs(self, idx1: int = 1) -> bool:
-        """Split molecules in all Geometry instances using topology data.
-        Parameters:
+        """
+        Split molecules in all Geometry instances using topology data.
+
+        Args:
             idx1 (int): Starting index for molecule separation.
+
         Returns:
             bool: True if operation succeeded.
         """
@@ -364,7 +403,8 @@ class GeometryXYZs():
         # self.Sts.append(St)
 
     def method_read_xyz(self) -> None:
-        """Read XYZ file and populate the GeometryXYZs collection.
+        """
+        Read XYZ file and populate the GeometryXYZs collection.
         """
 
         from censo_ext.Tools.utility import IsExists_DirFileName
@@ -398,8 +438,10 @@ class GeometryXYZs():
         self.method_comment_keep()
 
     def method_save_xyz(self, idx1_list: list[int]) -> None:
-        """Save selected Geometry instances to an XYZ file.
-        Parameters:
+        """
+        Save selected Geometry instances to an XYZ file.
+
+        Args:
             idx1_list (list[int]): List of indices to save.
         """
 
@@ -410,8 +452,10 @@ class GeometryXYZs():
         sys.stdout = original_stdout
 
     def method_save_xyz_append(self, idx1_list: list) -> None:  # append to old xyz file
-        """Append selected Geometry instances to an existing XYZ file.
-        Parameters:
+        """
+        Append selected Geometry instances to an existing XYZ file.
+
+        Args:
             idx1_list (list): List of indices to append.
         """
 
@@ -422,8 +466,10 @@ class GeometryXYZs():
         sys.stdout = original_stdout
 
     def method_print(self, idx1_St: list[int]) -> None:
-        """Print selected Geometry instances to stdout.
-        Parameters:
+        """
+        Print selected Geometry instances to stdout.
+
+        Args:
             idx1_St (list[int]): List of indices to print.
         """
 
@@ -435,7 +481,8 @@ class GeometryXYZs():
             print(self.Sts[key], end="")
 
     def method_comment_keep(self) -> None:
-        """Update comment fields for all Geometry instances.
+        """
+        Update comment fields for all Geometry instances.
         """
 
         for St in self.Sts:
@@ -443,7 +490,8 @@ class GeometryXYZs():
                 St.method_update_comment()
 
     def method_comment_new(self) -> None:
-        """Assign unique cluster indices to all Geometry instances.
+        """
+        Assign unique cluster indices to all Geometry instances.
         """
 
         for idx0, St in enumerate(self.Sts):
@@ -452,7 +500,8 @@ class GeometryXYZs():
             St.method_comment_new(idx0+1)
 
     def method_rewrite_comment(self) -> None:
-        """Format and update comment fields for all Geometry instances.
+        """
+        Format and update comment fields for all Geometry instances.
         """
 
         for St in self.Sts:
@@ -460,7 +509,9 @@ class GeometryXYZs():
                 St.method_rewrite_comment()
 
     def get_comment_energy(self) -> list[float]:
-        """Retrieve energy values from all Geometry instances.
+        """
+        Retrieve energy values from all Geometry instances.
+
         Returns:
             list [float]: List of energy values in Eh units.
         """
@@ -472,10 +523,13 @@ class GeometryXYZs():
         return Res
 
     def method_ensoGenFlexible(self, args, thermo_list) -> npt.NDArray:
-        """Generate thermodynamic data for all Geometry instances.
-        Parameters:
+        """
+        Generate thermodynamic data for all Geometry instances.
+
+        Args:
             args: Command-line arguments.
             thermo_list: Thermodynamic data list.
+
         Returns:
             npt.NDArray: Structured array with thermodynamic properties.
         """

@@ -7,11 +7,14 @@ from censo_ext.Tools.xyzfile import Geometry
 
 
 def method_get_point_group(Sts: list[Geometry], idx: int, Hydrogen: bool) -> str:
-    """Calculate the point group symmetry of a given xyz file.
+    """
+    Calculate the point group symmetry of a given xyz file.
+
     Args:
         Sts(list[Geometry]): A list of Geometry objects.
         idx(int): The index of the xyz file to process.
         Hydrogen(bool): Whether to include hydrogen atoms in the calculation.
+
     Returns:
         str: The point group symmetry as a string.
     """

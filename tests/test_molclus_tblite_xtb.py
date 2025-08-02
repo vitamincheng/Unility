@@ -37,6 +37,7 @@ def test_tblite_xtb_alpb_opt():
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
     assert filecmp.cmp(args.out, compare)
+    os.remove(args.out)
 
 
 @pytest.mark.skipif(_system == "Darwin" or _system == "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
@@ -56,6 +57,7 @@ def test_tblite_xtb_gbsa_opt():
             ValueError, match="OS system only can run under Darwin or Linux")
     try:
         assert filecmp.cmp(args.out, compare)
+        os.remove(args.out)
     except AssertionError as e:
         print(e)
         os.remove(args.out)
@@ -78,6 +80,7 @@ def test_tblite_xtb_alpb():
     try:
 
         assert filecmp.cmp(args.out, compare)
+        os.remove(args.out)
     except AssertionError as e:
         print(e)
         os.remove(args.out)
@@ -100,6 +103,7 @@ def test_tblite_xtb_gbsa():
             ValueError, match="OS system only can run under Darwin or Linux")
     try:
         assert filecmp.cmp(args.out, compare)
+        os.remove(args.out)
     except AssertionError as e:
         print(e)
         os.remove(args.out)

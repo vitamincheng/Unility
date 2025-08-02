@@ -6,10 +6,21 @@ from icecream import ic
 
 
 def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]:
-    '''
-    v (Hz)      : list[float]          
-    J (Hz)      : npt.NDArray[np.float64]         
-    '''
+    """
+    Calculate the Hamiltonian and transition matrix for a spin system.
+
+    This function constructs the angular momentum operators (Lx, Ly, Lz) for each spin
+    and builds the total Hamiltonian H from the Zeeman terms (v) and dipolar coupling terms (J).
+
+    Args:
+        v (list[float]): List of resonance frequencies in Hz for each spin.
+        J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
+
+    Returns:
+        tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]: 
+        - H: The total Hamiltonian matrix (complex128)
+        - T: Transition matrix for intensity calculations (float64)
+    """
     sigma_x: npt.NDArray[np.complex128] = np.array([[0, 1 / 2], [1 / 2, 0]])
     sigma_y: npt.NDArray[np.complex128] = np.array([[0, -1j / 2], [1j / 2, 0]])
     sigma_z: npt.NDArray[np.complex128] = np.array([[1 / 2, 0], [0, -1 / 2]])
@@ -63,11 +74,22 @@ def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArra
 
 
 def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: argparse.Namespace) -> list[tuple[float, float]]:
-    '''
-    v (Hz)      : list[float]          
-    J (Hz)      : npt.NDArray[np.float64]         
-    nIntergals  : int               -   the total numbers of Intensities
-    '''
+    """
+    Calculate full spin system spectrum using quantum mechanical approach.
+
+    This function computes the complete energy eigenvalues and eigenvectors for a 
+    spin system, calculates intensities based on transition matrix, and normalizes
+    the resulting peaklist.
+
+    Args:
+        v (list[float]): List of resonance frequencies in Hz for each spin.
+        J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
+        nIntergals (int): The total number of intensities to generate.
+        args (argparse.Namespace): Command line arguments containing plotting parameters.
+
+    Returns:
+        list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
+    """
     nspins: int = len(v)
     if J.shape != (nspins, nspins):
         print("Your JCoup is Error")
@@ -108,12 +130,22 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
 
 
 def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nIntergals, args: argparse.Namespace) -> list[tuple[float, float]]:
-    '''
-    v (Hz)      : list[float]          
-    J (Hz)      : npt.NDArray[np.float64]         
-    nIntergals  : the total numbers of Intensities 
-    idx0_nspins : for each spin serial numbers in nspins from 0 to n-1 
-    '''
+    """
+    Calculate partial spin system spectrum for a specific spin.
+
+    This function computes the spectrum contribution from a single spin (idx0_nspins) 
+    by restricting transitions to only those involving that spin.
+
+    Args:
+        v (list[float]): List of resonance frequencies in Hz for each spin.
+        J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
+        idx0_nspins (int): Index of the spin to calculate spectrum for (0-based).
+        nIntergals (int): The total number of intensities to generate.
+        args (argparse.Namespace): Command line arguments containing plotting parameters.
+
+    Returns:
+        list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
+    """
     nspins: int = len(v)
     if J.shape != (nspins, nspins):
         raise ValueError("Your JCoup is Error")
@@ -170,11 +202,23 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
 
 
 def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, args: argparse.Namespace, Active_range: int, hidden=True) -> npt.NDArray:
-    '''
-    peaklist :  Chemical Shift(Hz), Intensities
-    dpi: 10000 for Hydrogen, 500 for Carbon
-    nIntergals : total numbers of Intensities
-    '''
+    """
+    Generate and save a plot of the NMR spectrum.
+
+    This function creates a matplotlib plot of the peaklist with specified parameters
+    and saves it to a file. It also outputs the data to a text file.
+
+    Args:
+        in_plist (list[tuple[float, float]]): List of (frequency, intensity) tuples.
+        dpi (int): Plot resolution (10000 for Hydrogen, 500 for Carbon).
+        nIntergals (int): Total number of intensities to generate.
+        args (argparse.Namespace): Command line arguments containing plotting parameters.
+        Active_range (int): Range around spectrum to display.
+        hidden (bool): If True, suppress matplotlib display and save plot only.
+
+    Returns:
+        npt.NDArray: Array containing x and y coordinates of the plot data.
+    """
     from nmrsim.math import normalize_peaklist
     plist: npt.NDArray[np.float64] = np.array(in_plist)
     plist.T[0] = plist.T[0] / args.mf
@@ -224,9 +268,24 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
 
 def mpl_plot(plist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, hidden=False) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """
-    Modification by Vitamin Cheng
-    Only for no show picture  for hidden == True 
+    Generate a plot using lorentzian lineshape for NMR spectrum.
 
+    This function creates an NMR spectrum plot using lorentzian line shapes.
+    It's designed to be used internally by print_plot when hidden mode is enabled.
+
+    Args:
+        plist (list[tuple[float, float]]): List of (frequency, intensity) tuples.
+        w (float): Lorentzian width parameter (default: 1.0).
+        y_min (float): Minimum y-axis value for plot (default: -0.01).
+        y_max (float): Maximum y-axis value for plot (default: 1.0).
+        points (int): Number of points to generate for the curve (default: 800).
+        limits (tuple, optional): x-axis limits as (min, max) tuple.
+        hidden (bool): If True, suppress matplotlib display (default: False).
+
+    Returns:
+        tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]: 
+        - x: Array of x-coordinates
+        - y: Array of y-coordinates
     """
     from nmrsim.plt import low_high, add_lorentzians
     if hidden:
@@ -247,13 +306,22 @@ def mpl_plot(plist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, hidd
 
 
 def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
-    """ QM_Base 
-    v (Hz)      : list[float]          
-    J (Hz)      : npt.NDArray[np.float64]         
-     nIntergals : the total numbers of Intensities 
-    idx0_npsins : idx numbers in AB quartet
-    Returns     
-    peaklist    : list[(peak,intensity)] 
+    """
+    Base quantum mechanical calculation function for spin systems.
+
+    This function serves as the main interface for quantum mechanical calculations,
+    handling both single spin and multi-spin cases appropriately.
+
+    Args:
+        v (list[float]): List of resonance frequencies in Hz for each spin.
+        J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
+        nIntergals (int): The total number of intensities to generate.
+        idx0_nspins (int): Index of the spin to calculate spectrum for (0-based), 
+                          used in partial calculations.
+        args (argparse.Namespace): Command line arguments containing plotting parameters.
+
+    Returns:
+        list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
     """
     plist: list[tuple[float, float]] = []
     # ic(v, J)
@@ -268,11 +336,20 @@ def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins,
 
 
 def qm_multiplet(v: float | int, nIntergals, J: list[tuple[float, int]]) -> list[tuple[float, float]]:
-    '''
-    v : Hz 
-    J : Hz
-    nIntergals : the total numbers of Intensities 
-    '''
+    """
+    Calculate multiplet spectrum using nmrsim library.
+
+    This function generates a multiplet spectrum for a single spin system 
+    with specified coupling constants and number of peaks.
+
+    Args:
+        v (float | int): Chemical shift in Hz.
+        nIntergals (int): The total number of intensities to generate.
+        J (list[tuple[float, int]]): List of (coupling_constant, multiplicity) tuples.
+
+    Returns:
+        list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
+    """
     from nmrsim import Multiplet
     td = Multiplet(v, nIntergals, J)
     # ic(td.peaklist())

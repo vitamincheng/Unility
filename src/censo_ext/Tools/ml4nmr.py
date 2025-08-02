@@ -121,8 +121,20 @@ covalent_rad_d3 = 4.0 / 3.0 * covalent_rad_2009
 
 
 def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]]]:
-    """Read the molecule and return mol (ase.Atoms object) and dict neighbors."""
+    """
+    Read the molecule and return mol (ase.Atoms object) and dict neighbors.
 
+    Args:
+        DirFileName (Path): Path to the .xyz file containing molecular coordinates
+
+    Returns:
+        tuple[Atoms|list[Atoms],dict[int,npt.NDArray[np.int64]]]: Tuple of (mol, neighbors)
+            where mol is the ASE Atoms object and neighbors is a dictionary mapping atom indices
+            to arrays of neighboring atom indices
+
+    Raises:
+        ValueError: If an H atom has not exactly one neighbor
+    """
     # read the .xyz coordinates from the molecular structures
     import ase.io
     from ase import neighborlist
@@ -153,8 +165,19 @@ def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int
 
 
 def read_mol_neighbors_bond_order(DirfileName: Path = Path("crest_conformers.xyz")) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]], dict[int, int]]:
-    """Read the molecule and return mol (ase.Atoms object) and dict neighbors."""
+    """
+    Read the molecule and return mol (ase.Atoms object) and dict neighbors.
 
+    Args:
+        DirfileName (Path, optional): Path to the .xyz file containing molecular coordinates.
+            Defaults to "crest_conformers.xyz".
+
+    Returns:
+        tuple[Atoms|list[Atoms],dict[int,npt.NDArray[np.int64]],dict[int,int]]: Tuple of 
+            (mol, neighbors, bond_order) where mol is the ASE Atoms object, neighbors is a 
+            dictionary mapping atom indices to arrays of neighboring atom indices, and 
+            bond_order is a dictionary mapping carbon atom indices to their bond orders
+    """
     # read the .xyz coordinates from the molecular structures
     mol: Atoms | list[Atoms]
     neighbors: dict[int, npt.NDArray[np.int64]]
