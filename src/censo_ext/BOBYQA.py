@@ -79,8 +79,11 @@ def cml(descr) -> argparse.Namespace:
 FileName_OrcaS: Path = Path("Average/NMR/orcaS.out")
 FileName_BOBYQA: Path = Path("Average/NMR/orcaS-BOBYQA.out")
 
+Ref_TMS: float = 31.820
+
 
 def rosenbrock(x0) -> float:
+    from censo_ext.Tools.anmrfile import CensoDat
     orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileName_BOBYQA)
 
@@ -95,14 +98,34 @@ def rosenbrock(x0) -> float:
 
     np.savetxt(Directory/FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
     orcaS_Table = np.delete(orcaS_Table, 2, axis=1)
-    np.savetxt(Directory/FileName_OrcaS, orcaS_Table, fmt="%10d %10.5f")
-
-    from censo_ext.Tools.anmrfile import CensoDat
 
     if prog is True:
-
+        ic("External")
+        import sys
         cwd: Path = Path(os.getcwd())
         os.chdir(Directory)
+        template_inp: str = "CONF1/NMR/orcaS.out"
+        original_stdout = sys.stdout
+        with open(template_inp, "w") as f:
+            sys.stdout = f
+            print("--------------------------------")
+            print("CHEMICAL SHIELDING SUMMARY (ppm)")
+            print("--------------------------------")
+            print("")
+            print("")
+            print("  Nucleus  Element    Isotropic     Anisotropy")
+            print("  -------  -------  ------------   ------------")
+        sys.stdout = original_stdout
+
+        # orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
+        #    FileName_OrcaS)  # type: ignore
+        orcaS_Table.T[1] = orcaS_Table.T[1]+Ref_TMS
+        orcaS_Table.T[0] = orcaS_Table.T[0]-1
+        np.savetxt(Path("CONF1/NMR/orcaS-main.out"), orcaS_Table, fmt="%7d       H    %10.5f          0")  # type: ignore # nopep8
+
+        subprocess.call(
+            "cat CONF1/NMR/orcaS-main.out >> CONF1/NMR/orcaS.out", shell=True)
+        subprocess.call("rm CONF1/NMR/orcaS-main.out", shell=True)
         import sys
         sys.stdout = open(os.devnull, 'w')
         result = subprocess.call("anmr.sh", shell=True)
@@ -118,6 +141,7 @@ def rosenbrock(x0) -> float:
 
     elif not prog:
         # ic("Internal")
+        np.savetxt(Directory/FileName_OrcaS, orcaS_Table, fmt="%10d %10.5f")
         import censo_ext.anmr as anmr
         x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0, 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
                    'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': False}
@@ -285,33 +309,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
                 print(" Modify from /Average/NMR/orcaS.out")
                 Res = input("Are you Sure to Continue ?? (Y/N)")
                 if Res == "Y":
-                    Ref_TMS: float = 31.820
                     subprocess.call("mkdir backup", shell=True)
                     subprocess.call("mv CONF* backup", shell=True)
                     subprocess.call("cp -r backup/CONF1/ .", shell=True)
-                    import sys
-                    template_inp: str = "CONF1/NMR/orcaS.out"
-                    original_stdout = sys.stdout
-                    with open(template_inp, "w") as f:
-                        sys.stdout = f
-                        print("--------------------------------")
-                        print("CHEMICAL SHIELDING SUMMARY (ppm)")
-                        print("--------------------------------")
-                        print("")
-                        print("")
-                        print("  Nucleus  Element    Isotropic     Anisotropy")
-                        print("  -------  -------  ------------   ------------")
-                    sys.stdout = original_stdout
-
-                    orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-                        FileName_OrcaS)  # type: ignore
-                    orcaS_Table.T[1] = orcaS_Table.T[1]+Ref_TMS
-                    orcaS_Table.T[0] = orcaS_Table.T[0]-1
-                    np.savetxt(Path("CONF1/NMR/orcaS-main.out"), orcaS_Table, fmt="%7d       H    %10.5f          0")  # type: ignore # nopep8
-
-                    subprocess.call(
-                        "cat CONF1/NMR/orcaS-main.out >> CONF1/NMR/orcaS.out", shell=True)
-                    subprocess.call("rm CONF1/NMR/orcaS-main.out", shell=True)
                 os.chdir(cwd)
             Scan_single_Peak()
             Scan_group_Peaks()
@@ -323,6 +323,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
                 # if Res == "Y":
                 subprocess.call("rm -rf CONF1", shell=True)
                 subprocess.call("mv backup/CONF* .", shell=True)
+                subprocess.call("rmdir backup", shell=True)
                 os.chdir(cwd)
             return (True, False)
         else:

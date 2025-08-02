@@ -70,7 +70,7 @@ def test_BOBYQA_single():
     BOBYQA_final_remove_files()
 
 
-@pytest.mark.skipif(_system == "Darwin", reason="crest only work under linux")
+@pytest.mark.skipif(_system == "Darwin", reason="anmr only work under linux CLI")
 def test_BOBYQA_single_external_prog(monkeypatch):
     anmr_BOBYQA_init()
     import shutil
@@ -85,6 +85,12 @@ def test_BOBYQA_single_external_prog(monkeypatch):
     assert filecmp.cmp(DirName / Path("anmr.dat"),
                        DirName / Path("orcaS-BOBYQA-anmr.dat"))
     BOBYQA_final_remove_files()
+    from censo_ext.Tools.utility import delete_all_files
+    delete_all_files(DirName / "anmr.dat",
+                     DirName / "anmr.out",
+                     DirName / "tmpanmr.1",
+                     DirName / "tmpanmr_frag.av",
+                     DirName / "tmpanmr_full.av")
 
 
 def test_BOBYQA_group():
@@ -100,7 +106,7 @@ def test_BOBYQA_group():
     BOBYQA_final_remove_files()
 
 
-@pytest.mark.skipif(_system == "Darwin", reason="crest only work under linux")
+@pytest.mark.skipif(_system == "Darwin", reason="anmr only work under linux CLI")
 def test_BOBYQA_group_external_prog():
     raise NotImplementedError("pending")
 
@@ -114,5 +120,5 @@ if __name__ == "__main__":
 #   pytest -v tests/test_BOBYQA.py::test_BOBYQA_block_file
 #   pytest -v tests/test_BOBYQA.py::test_BOBYQA_single_external_prog
 #   pytest -v tests/test_BOBYQA.py::test_BOBYQA_group_external_prog
-#
+#   pytest -v --pdb tests/test_BOBYQA.py::test_BOBYQA_single_external_prog   (--pdb is debug)
 #
