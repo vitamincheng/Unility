@@ -1021,7 +1021,11 @@ class CensoDat():
             CensoDat: New CensoDat object with difference.
         """
         if np.array_equal(self.__dat[:, 0], other.__dat[:, 0]):
-            self.__dat[:, 1] -= other.__dat[:, 1]
+            self.__dat[:, 1] = np.subtract(self.__dat[:, 1], other.__dat[:, 1])
+        else:
+            print("two dat file is not the same scale")
+            ic()
+            raise ValueError("two dat file is not the same scale")
         return self
 
     def __repr__(self) -> str:
@@ -1078,27 +1082,6 @@ class CensoDat():
             res_new[1] = res_new[1] / np.max(res_new[1]) * highest
             self.__dat = res_new.T
 
-    def method_subtract_dat(self, other: Self) -> CensoDat:
-        """
-        Subtract another CensoDat object from this one.
-
-        Args:
-            other (Self): Another CensoDat object to subtract.
-
-        Returns:
-            CensoDat: New CensoDat object with difference.
-
-        Raises:
-            ValueError: If the data arrays don't match.
-        """
-        if np.array_equal(self.__dat[:, 0], other.__dat[:, 0]):
-            self.__dat[:, 1] -= other.__dat[:, 1]
-        else:
-            print("two dat file is not the same scale")
-            ic()
-            raise ValueError("two dat file is not the same scale")
-        return self
-
     def set_fileName(self, file: Path) -> None:
         """
         Set the filename for output.
@@ -1117,7 +1100,7 @@ class CensoDat():
         """
         return self.__fileName
 
-    def get_Dat(self) -> npt.NDArray:
+    def get_Dat(self) -> npt.NDArray[np.float64]:
         """
         Get the raw data array.
 

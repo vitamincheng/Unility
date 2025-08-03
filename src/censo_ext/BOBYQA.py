@@ -167,10 +167,10 @@ def rosenbrock(x0) -> float:
     Dat_Ref: CensoDat = CensoDat(file=Path(Directory/Dat_fileName))
     Dat_Cal.method_normalize_dat()
     Dat_Ref.method_normalize_dat()
-    Diff: CensoDat = Dat_Cal.method_subtract_dat(Dat_Ref)
+    Diff: CensoDat = Dat_Cal - Dat_Ref
 
     res = np.sum(np.square(Diff.get_Dat()))
-    # ic(Res)
+
     return res
 
 

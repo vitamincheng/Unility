@@ -163,6 +163,8 @@ if __name__ == "__main__":
 #   pytest -v tests/test_BOBYQA.py::test_BOBYQA_block_file
 #   pytest -v tests/test_BOBYQA.py::test_BOBYQA_single_external_prog
 #   pytest -v tests/test_BOBYQA.py::test_BOBYQA_group_external_prog
-#   pytest -v -s --pdb tests/test_BOBYQA.py::test_BOBYQA_single_external_prog   (--pdb is debug, -s display print)
-#   pytest -v -s --pdb tests/test_BOBYQA.py::test_BOBYQA_group_external_prog   (--pdb is debug, -s display print)
+#
+#   (--pdb is debug, -s display print)
+#   pytest -v -s --pdb tests/test_BOBYQA.py::test_BOBYQA_single_external_prog
+#   pytest -v -s --pdb tests/test_BOBYQA.py::test_BOBYQA_group_external_prog
 #
