@@ -13,17 +13,23 @@ DirName: Path = Path(
 RefDat: Path = Path("1r_h.dat")
 
 
-def anmr_BOBYQA_init():
+def anmr_init():
     # Create Average/NMR/orcaS.out and Average/NMR/orcaS_BOBYQA.out file
-    args_x: dict = {"auto": True, "average": False, "dir": DirName,
-                    "bobyqa": False, "mf": 500, "lw": None, "thr": None, "json": None, "thrab": 0.025,
-                    "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
+    args_x: dict = {"auto": True, "average": False, "dir": DirName, "bobyqa": False, "mf": 500,
+                    "lw": None, "thr": None, "json": None, "thrab": 0.025, "tb": 4, "mss": 9,
+                    "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
     args = argparse.Namespace(**args_x)
     anmr.main(args)
 
+
+def BOBYQA_init():
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-    assert BOBYQA.main(args2) == (False, True)
+
+    with pytest.raises(SystemExit) as e:
+        BOBYQA.main(args2)
+    assert e.type is SystemExit
+    assert e.value.code == 0  # for normal exit(0)
 
 
 def BOBYQA_final_remove_files():
@@ -36,7 +42,14 @@ def BOBYQA_final_remove_files():
                      DirName / "Average/NMR/orcaS-BOBYQA.out",)
 
 
-def test_BOBYQA_cregen_miss_args():
+def test_BOBYQA_miss_all_args():
+    args_x: dict = {}
+    args = argparse.Namespace(**args_x)
+    with pytest.raises(SystemExit) as e:
+        anmr.main(args)
+    assert e.type is SystemExit
+    assert e.value.code == 2  # for argparse error
+
     args_x: dict = {}
     args = argparse.Namespace(**args_x)
     with pytest.raises(SystemExit) as e:
@@ -45,26 +58,37 @@ def test_BOBYQA_cregen_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
-def test_BOBYQA_block_file():
-    # run block orcaS_BOBYQA file
-    anmr_BOBYQA_init()
+def test_BOBYQA_miss_orcaS_file():
+    #
+    # not run anmr_BOBYQA_init() and directly run BOBYQA.py
+    import argparse
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-    assert BOBYQA.main(args2) == (True, False)
+    with pytest.raises(FileNotFoundError) as e:
+        BOBYQA.main(args2)
+    assert str(e.value) == str(
+        DirName/Path("Average/NMR/orcaS.out")) + " is not exist !!!"
 
 
-def test_BOBYQA_block_file_final_remove_files():
+def test_BOBYQA_blank_file():
+    # run block orcaS_BOBYQA file
+    anmr_init()
+    BOBYQA_init()
+
+
+def test_BOBYQA_blank_file_final_remove_files():
     BOBYQA_final_remove_files()
 
 
 def test_BOBYQA_single():
-    anmr_BOBYQA_init()
+    anmr_init()
+    BOBYQA_init()
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-    assert BOBYQA.main(args2) == (True, False)
+    BOBYQA.main(args2)
     assert filecmp.cmp(DirName / Path("output.dat"),
                        DirName / Path("orcaS-BOBYQA-anmrpy.dat"))
     BOBYQA_final_remove_files()
@@ -72,7 +96,8 @@ def test_BOBYQA_single():
 
 @pytest.mark.skipif(_system == "Darwin", reason="anmr only work under linux CLI")
 def test_BOBYQA_single_external_prog(monkeypatch):
-    anmr_BOBYQA_init()
+    anmr_init()
+    BOBYQA_init()
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
@@ -81,7 +106,7 @@ def test_BOBYQA_single_external_prog(monkeypatch):
     from io import StringIO
     monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
     args2 = argparse.Namespace(**args_y)
-    assert BOBYQA.main(args2) == (True, False)
+    BOBYQA.main(args2)
     assert filecmp.cmp(DirName / Path("anmr.dat"),
                        DirName / Path("orcaS-BOBYQA-anmr.dat"))
     BOBYQA_final_remove_files()
@@ -94,21 +119,39 @@ def test_BOBYQA_single_external_prog(monkeypatch):
 
 
 def test_BOBYQA_group():
-    anmr_BOBYQA_init()
+    anmr_init()
+    BOBYQA_init()
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA-group.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
     args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     args2 = argparse.Namespace(**args_y)
-    assert BOBYQA.main(args2) == (True, False)
+    BOBYQA.main(args2)
     assert filecmp.cmp(DirName / Path("output.dat"),
                        DirName / Path("orcaS-BOBYQA-group-anmrpy.dat"))
     BOBYQA_final_remove_files()
 
 
 @pytest.mark.skipif(_system == "Darwin", reason="anmr only work under linux CLI")
-def test_BOBYQA_group_external_prog():
-    raise NotImplementedError("pending")
+def test_BOBYQA_group_external_prog(monkeypatch):
+    anmr_init()
+    BOBYQA_init()
+    import shutil
+    shutil.copyfile(DirName / Path("orcaS-BOBYQA-group.out"),
+                    DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
+    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
+    from io import StringIO
+    monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
+    args2 = argparse.Namespace(**args_y)
+    BOBYQA.main(args2)
+    assert filecmp.cmp(DirName / Path("anmr.dat"),
+                       DirName / Path("orcaS-BOBYQA-group-anmr.dat"))
+    from censo_ext.Tools.utility import delete_all_files
+    delete_all_files(DirName / "anmr.dat",
+                     DirName / "anmr.out",
+                     DirName / "tmpanmr.1",
+                     DirName / "tmpanmr_frag.av",
+                     DirName / "tmpanmr_full.av")
 
 
 if __name__ == "__main__":
@@ -120,5 +163,6 @@ if __name__ == "__main__":
 #   pytest -v tests/test_BOBYQA.py::test_BOBYQA_block_file
 #   pytest -v tests/test_BOBYQA.py::test_BOBYQA_single_external_prog
 #   pytest -v tests/test_BOBYQA.py::test_BOBYQA_group_external_prog
-#   pytest -v --pdb tests/test_BOBYQA.py::test_BOBYQA_single_external_prog   (--pdb is debug)
+#   pytest -v -s --pdb tests/test_BOBYQA.py::test_BOBYQA_single_external_prog   (--pdb is debug, -s display print)
+#   pytest -v -s --pdb tests/test_BOBYQA.py::test_BOBYQA_group_external_prog   (--pdb is debug, -s display print)
 #

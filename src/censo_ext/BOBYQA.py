@@ -83,6 +83,11 @@ Ref_TMS: float = 31.820
 
 
 def rosenbrock(x0) -> float:
+    #
+    # Average/NMR/orcaS-BOBYQA.out for setting
+    # Average/NMR/orcaS.out        for anmr.py   (internal)
+    # CONF1/NMR/orcaS.out          for anmr      (external)
+    #
     from censo_ext.Tools.anmrfile import CensoDat
     orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileName_BOBYQA)
@@ -93,8 +98,9 @@ def rosenbrock(x0) -> float:
             orcaS_Table[idx_key][1] = x0[0]
     else:
         # group peaks
-        for idx, idx_key in enumerate(idx_keys):
-            orcaS_Table[idx_key][1] = x0[idx]
+        for idx, loop in enumerate(idx_keys):
+            for idx_key in loop:
+                orcaS_Table[idx_key][1] = x0[idx]
 
     np.savetxt(Directory/FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
     orcaS_Table = np.delete(orcaS_Table, 2, axis=1)
@@ -119,14 +125,14 @@ def rosenbrock(x0) -> float:
 
         # orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         #    FileName_OrcaS)  # type: ignore
-        orcaS_Table.T[1] = orcaS_Table.T[1]+Ref_TMS
+        orcaS_Table.T[1] = orcaS_Table.T[1] + Ref_TMS
         orcaS_Table.T[0] = orcaS_Table.T[0]-1
         np.savetxt(Path("CONF1/NMR/orcaS-main.out"), orcaS_Table, fmt="%7d       H    %10.5f          0")  # type: ignore # nopep8
 
         subprocess.call(
             "cat CONF1/NMR/orcaS-main.out >> CONF1/NMR/orcaS.out", shell=True)
         subprocess.call("rm CONF1/NMR/orcaS-main.out", shell=True)
-        import sys
+
         sys.stdout = open(os.devnull, 'w')
         result = subprocess.call("anmr.sh", shell=True)
         sys.stdout = sys.__stdout__
@@ -143,8 +149,10 @@ def rosenbrock(x0) -> float:
         # ic("Internal")
         np.savetxt(Directory/FileName_OrcaS, orcaS_Table, fmt="%10d %10.5f")
         import censo_ext.anmr as anmr
-        x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0, 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
-                   'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': False}
+        x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0,
+                   'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
+                   'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False,
+                   'mss': 9, 'auto': True, 'average': True, 'bobyqa': False}
         import sys
         sys.stdout = open(os.devnull, 'w')
         anmr.main(args=argparse.Namespace(**x))
@@ -171,7 +179,7 @@ def Scan_single_Peak() -> None:
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileName_BOBYQA)
     in_set: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
-    in_set = {x for x in in_set if x <= 100 and x >= 1}
+    in_set = {x for x in in_set if x < 1000 and x >= 1}
     # in_set.discard(0)
     for nSerial in in_set:
         ic(nSerial)
@@ -196,91 +204,98 @@ def Scan_single_Peak() -> None:
 
 def Scan_group_Peaks() -> None:
     import pybobyqa
-    orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
+    OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileName_BOBYQA)
 
-    in_set: set[int] = set(orcaS_Table.T[2].astype(int).tolist())
+    in_set: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
     in_set = {x for x in in_set if x >= 1000}
 
+    if len(in_set) == 0:
+        print(" ==== Finished group_peaks ====")
+        return
+
+    # Data structure of idx, Chemical_Shift, idx_atoms
+    Data: list[list] = []
+
     for nSerial in in_set:
-
-        global idx_keys
-        Data_Chemical_Shift: list[float] = list()
-
-        ic(nSerial)
         intp: npt.NDArray[np.int64] = np.argwhere(
-            orcaS_Table.T[2] == nSerial).flatten()
-        Data_Chemical_Shift: list[float] = list(
-            map(float, orcaS_Table.T[1][intp]))
-        idx_keys = list(map(int, intp))
-        idx_atoms = orcaS_Table.T[0][intp]
-        ic(Data_Chemical_Shift)
-        ic(intp)
-        ic(idx_atoms)
+            OrcaS_Table.T[2] == nSerial).flatten()
+        # idx_keys = list(map(int, intp))
+        # idx_atoms = OrcaS_Table.T[0][intp]
+        Data.append(
+            [nSerial, OrcaS_Table.T[1][intp[0]], intp])
 
-        nNumbers: int = len(idx_keys)
-        from itertools import permutations
-        Permutations: list[tuple] = list(permutations(
-            [*range(0, nNumbers)], nNumbers))
-        solution_f: list = []
-        solution_x0: list = []
+    ic(Data)
+    nNumbers: int = len(Data)
+    from itertools import permutations
+    Permutations: list[tuple] = list(permutations(
+        [*range(0, nNumbers)], nNumbers))
+    solution_f: list = []
+    solution_x0: list = []
+    global idx_keys
 
-        for Permutation in Permutations:
-            x0: npt.NDArray[np.int64] = np.array(Data_Chemical_Shift)[
-                list(Permutation)]
-            # idx_atoms =[ int(x) for x in np.array(idx_atoms)[list(Permutation)]]
+    for Permutation in Permutations:
+        x0: npt.NDArray[np.int64] = np.array([x[1] for x in Data])[
+            list(Permutation)]
+        ic(x0)
+        idx_keys = [x[2] for x in Data]
+        ic(idx_keys)
+        lower = x0 - limit_border
+        upper = x0 + limit_border
+        soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
+            lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
+        print(soln)
+        solution_f.append(soln.f)
+        solution_x0.append(soln.x)
 
-            lower = x0 - limit_border
-            upper = x0 + limit_border
-            # ic(idx_atoms, x0.tolist())
-            soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
-                lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
-            print(soln)
-            solution_f.append(soln.f)
-            solution_x0.append(soln.x)
+    ic(solution_f)
+    argsmin: int = min(range(len(solution_f)), key=solution_f.__getitem__)
+    list_x0: list[float] = solution_x0[argsmin]
+    ic(list_x0)
 
-        ic(solution_f)
-        argsmin: int = min(range(len(solution_f)), key=solution_f.__getitem__)
-        list_x0: list[int] = solution_x0[argsmin]
+    # After Permutations, the best choice x0 is calculated again and get output.dat or anmr.dat
+    x0 = np.array(list_x0)
+    limit_tiny: float = 0.0001
+    lower = x0 - limit_tiny
+    upper = x0 + limit_tiny
+    soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
+        lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
 
-        OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-            Directory/FileName_BOBYQA)
-
-        for idx, idx_key in enumerate(idx_keys):
-            OrcaS_Table[idx_key][1] = list_x0[idx]
-
-        np.savetxt(Directory/FileName_BOBYQA,
-                   OrcaS_Table, fmt="%10d %10.5f %10d")
-        OrcaS_Table = np.delete(OrcaS_Table, 2, axis=1)
-        np.savetxt(Directory/FileName_OrcaS, OrcaS_Table, fmt="%10d %10.5f")
     print(" ==== Finished group_peaks ====")
 
 
-def Create_BOBYQA() -> tuple[bool, bool]:
-    orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
+def Create_BOBYQA() -> None:
+    OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileName_OrcaS)
-    orcaS_Table = np.insert(orcaS_Table, 2, 0, axis=1)
+    OrcaS_Table = np.insert(OrcaS_Table, 2, 0, axis=1)
     np.savetxt(Directory / FileName_BOBYQA,
-               orcaS_Table, fmt="%10d %10.5f %10d")
+               OrcaS_Table, fmt="%10d %10.5f %10d")
     print(" Create the orcaS-BOBYQA.out file ")
     print(" three column :         0 - Do nothing ")
-    print("                     1~99 - Use BOBYQA single point to find the peak (use First Chemical Shift)")
-    print("               Above 1000 - Use BOBYQA groups to find the peaks ")
+    print("                     1~99 - Use BOBYQA to calcuate and fit each chemical shift of each number")
+    print("               Above 1000 - Use BOBYQA to calucate and fit each chemical shift of all groups to find the peaks in one time")
+    print("                            Each chemical shift of the same number is assigned to the same by the first chemical shift")
     print(" Run this program again")
-    return (False, True)
+    import sys
+    sys.exit(0)
 
 
-def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
+def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     '''
 
     return (bool,bool)
-           FileName_BOBYQA is Exist ??
-           Create_BOBYQA() is Work ??
     '''
+    #
+    # orcaS-BOBYQA.out  for setting
+    # Average/NMR/orcaS.out for anmr.py   (internal)
+    # CONF1/NMR/orcaS.out for anmr        (external)
+    #
+
     global Directory
     global Dat_fileName
     global limit_border
     global prog
+
     if args == argparse.Namespace():
         args = cml("")
     if args.dir:                            # default .
@@ -297,8 +312,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
         prog = False
 
     if IsExist_return_bool(Directory / FileName_OrcaS):                 # type: ignore # nopep8
+        ic("orcaS.out is exist")
         if IsExist_return_bool(Directory / FileName_BOBYQA):            # type: ignore # nopep8
-            ic("BOBYQA is exist")
+            ic("orcaS-BOBYQA.out is exist")
             if prog is True:
                 # ic("External")
                 cwd: Path = Path(os.getcwd())
@@ -325,11 +341,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> tuple[bool, bool]:
                 subprocess.call("mv backup/CONF* .", shell=True)
                 subprocess.call("rmdir backup", shell=True)
                 os.chdir(cwd)
-            return (True, False)
         else:
-            return Create_BOBYQA()  # (False,True)
+            Create_BOBYQA()
     else:
-        return (False, False)
+        ic()
+        raise FileNotFoundError(
+            str(Directory/FileName_OrcaS) + " is not exist !!!")  # type: ignore # nopep8
 
 
 if __name__ == "__main__":
