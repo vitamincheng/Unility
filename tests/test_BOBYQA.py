@@ -156,13 +156,21 @@ def test_BOBYQA_group_external_prog(monkeypatch):
 
 if __name__ == "__main__":
     import cProfile
-    cProfile.run("test_BOBYQA_init()", sort="cumtime")
-    cProfile.run("test_BOBYQA_single()", sort="cumtime")
+    from pstats import Stats
 
-#   on Unility directory
-#   pytest -v tests/test_BOBYQA.py::test_BOBYQA_block_file
-#   pytest -v tests/test_BOBYQA.py::test_BOBYQA_single_external_prog
-#   pytest -v tests/test_BOBYQA.py::test_BOBYQA_group_external_prog
+    pr = cProfile.Profile()
+    pr.enable()
+
+    test_BOBYQA_single()
+
+    pr.disable()
+    stats = Stats(pr)
+    stats.sort_stats('cumtime').print_stats(50)
+
+    # import cProfile
+    # cProfile.run("test_BOBYQA_init()", sort="cumtime")
+    # cProfile.run("test_BOBYQA_single()", sort="cumtime")
+
 #
 #   (--pdb is debug, -s display print)
 #   pytest -v -s --pdb tests/test_BOBYQA.py::test_BOBYQA_single_external_prog

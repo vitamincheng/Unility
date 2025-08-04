@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 from icecream import ic
 import nmrglue as ng
 import matplotlib.pyplot as plt
@@ -6,8 +6,8 @@ import numpy as np
 import numpy.typing as npt
 from sys import argv as sysargv
 import argparse
-# from typing import Any
 # global variable
+
 peaks_fileName = "plot_1D.peaks"
 
 descr = """
@@ -222,7 +222,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         np.savetxt(args.out, output, fmt=" %12.5f  %12.5e")
 
     from censo_ext.Tools.spectra import numpy_thr_mean_3
-    threshold = numpy_thr_mean_3(data)*args.thr
+    threshold: float = numpy_thr_mean_3(data)*args.thr
 
     # detect all peaks with a threshold
     # from scipy.signal import find_peaks

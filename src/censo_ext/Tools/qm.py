@@ -63,13 +63,12 @@ def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArra
 
     # ic(H)
     n: int = 2 ** nspins
-    T: npt.NDArray[np.float64] = np.zeros((n, n))
+    T: npt.NDArray[np.float64] = np.zeros((n, n), dtype=np.float64)
     for i in range(n - 1):
         for j in range(i + 1, n):
             if bin(i ^ j).count('1') == 1:
                 T[i, j] = 1
     T += T.T
-    # ic(T)
     return H, T
 
 
