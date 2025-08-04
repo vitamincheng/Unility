@@ -235,9 +235,8 @@ def Scan_group_Peaks() -> None:
     global idx_keys
 
     for Permutation in Permutations:
-        x0: npt.NDArray[np.int64] = np.array([x[1] for x in Data])[
+        x0: npt.NDArray[np.float64] = np.array([x[1] for x in Data])[
             list(Permutation)]
-        ic(x0)
         idx_keys = [x[2] for x in Data]
         ic(idx_keys)
         lower = x0 - limit_border

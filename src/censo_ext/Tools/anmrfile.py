@@ -1000,6 +1000,7 @@ class CensoDat():
         IsExist(file)
         self.__fileName: Path = Path(file)
         self.__dat: npt.NDArray[np.float64] = np.genfromtxt(file)
+        # self.__dat [[chemical_shift, amplitude],[...]]
 
     def __len__(self) -> int:
         """
@@ -1021,12 +1022,14 @@ class CensoDat():
             CensoDat: New CensoDat object with difference.
         """
         if np.array_equal(self.__dat[:, 0], other.__dat[:, 0]):
-            self.__dat[:, 1] = np.subtract(self.__dat[:, 1], other.__dat[:, 1])
+            import copy
+            Res: Self = copy.deepcopy(self)
+            Res.__dat[:, 1] = np.subtract(self.__dat[:, 1], other.__dat[:, 1])
         else:
             print("two dat file is not the same scale")
             ic()
             raise ValueError("two dat file is not the same scale")
-        return self
+        return Res
 
     def __repr__(self) -> str:
         """
