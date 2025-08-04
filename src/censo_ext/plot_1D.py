@@ -6,8 +6,8 @@ import numpy as np
 import numpy.typing as npt
 from sys import argv as sysargv
 import argparse
-# global variable
 
+# global variable
 peaks_fileName = "plot_1D.peaks"
 
 descr = """
@@ -112,14 +112,13 @@ def cml(descr) -> argparse.Namespace:
         type=float,
         required=False,
         default=1.0,
-        help="phase of spectra (1 or -1) [default 1.0]",
+        help="phase of spectra (1 to -1) [default 1.0]",
     )
 
     parser.add_argument(
         "--auto",
         dest="auto",
         action="store_true",
-        default=False,
         help="Automatically integrate the peaks [default False]",
     )
 
@@ -127,7 +126,6 @@ def cml(descr) -> argparse.Namespace:
         "--save",
         dest="save",
         action="store_true",
-        default=False,
         help="Saved the automatically Integral of the peaks to plot_1D_peaks.out [default False]",
     )
 
@@ -136,7 +134,6 @@ def cml(descr) -> argparse.Namespace:
         "--manual",
         dest="manual",
         action="store_true",
-        default=False,
         help="Manually integrate and use plot_1D_peaks.out file [default False]",
     )
 
@@ -147,7 +144,7 @@ def cml(descr) -> argparse.Namespace:
         type=int,
         nargs="+",
         default=False,
-        help="Delete all cID peaks",
+        help="Delete specific cID peaks",
     )
 
     parser.add_argument(
@@ -174,8 +171,7 @@ def cml(descr) -> argparse.Namespace:
         "--hidden",
         dest="hidden",
         action="store_true",
-        default=False,
-        help="Show the plot [default False]",
+        help="Show the plot [default True]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -209,14 +205,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # end ---------+--------- start
     # args.end                args.start
-    # ppm_1h_0                ppm_1h_1
+    # limit_ppm[0]            limit_ppm[1]
 
-    ppm_1h_0, ppm_1h_1 = uc.ppm_limits()
-    ppm = np.linspace(ppm_1h_0, ppm_1h_1, data.shape[0])
+    limit_ppm = uc.ppm_limits()
+    ppm: npt.NDArray[np.float64] = np.linspace(
+        limit_ppm[0], limit_ppm[1], data.shape[0])
     if args.start is None or args.end is None:
         args.end, args.start = uc.ppm_limits()
 
-    if args.out is not None:
+    if args.out:
         output: npt.NDArray[np.float64] = np.vstack(
             (ppm, np.real(data))).T[::-1]
         np.savetxt(args.out, output, fmt=" %12.5f  %12.5e")
@@ -226,8 +223,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # detect all peaks with a threshold
     # from scipy.signal import find_peaks
-    y_heighest = np.max(data)
-    y_lowest = np.min(data)
+    y_heighest: np.float64 = np.max(data)
+    y_lowest: np.float64 = np.min(data)
     # ic(len(data))
     # for H 65536 for C 131072
     # DEPT 90 32768 DEPT 32768

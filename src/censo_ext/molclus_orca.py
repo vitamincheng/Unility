@@ -104,8 +104,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     solo_xyz: Path = Path("[xyzfile]")
 
     # Find orca executable path
-    str_list = os.environ['PATH'].split(":")
-    match = [x for x in str_list if "orca" in x]
+    str_env: list[str] = os.environ['PATH'].split(":")
+    match: list[str] = [x for x in str_env if "orca" in x]
     if len(match) == 0:
         print(" Need the orca program !!!!")
         print(" Exit the program ")
@@ -164,7 +164,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         from os.path import exists
         templateFileIsExists = exists(template_Name + ".xyz")
         if templateFileIsExists:
-            templateLines: list = open(
+            templateLines: list[str] = open(
                 template_Name + ".xyz", "r").readlines()
             for idy, y in enumerate(templateLines):
                 if re.search(r"Coordinates from ORCA-job "+template_Name, y) and get_energy:

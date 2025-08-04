@@ -13,7 +13,7 @@ ________________________________________________________________________________
 | Usages  : anmr.py [options]
 | [options]
 | Output   : -o output file [default output.dat]
-| Dir      : -d the directory of input files(CONF) [default .]
+| Dir      : -D the directory of input files(CONF) [default .]
 | mf       : -mf magnetic frequency of scan nmr [default 500.0]
 | lw       : -lw line width of scan nmr [1.0 for H, 20 for C]
 | auto     : -auto --auto automated to adjust the threshold of J and AB quartet   
@@ -58,13 +58,13 @@ def cml(descr) -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-d",
+        "-D",
         "--dir",
         dest="dir",
         action="store",
         required=False,
         default=".",
-        help="Provide output_file name [default .]",
+        help="Provide the directory name [default .]",
     )
 
     parser.add_argument(
@@ -456,7 +456,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     #
     import censo_ext.Tools.qm as qm
     idx0_peaks_range: list[int] = []
-    # ic(args.lw)
 
     if args.json is None:
         print("")
@@ -477,10 +476,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
             Res_qm_multiplet: list[tuple[float, float]] = []
             for _, z in enumerate(Res_qm_base):
-                list_multiplicity: list[npt.NDArray[np.int64]] = list(set([x*idx for idx, x in enumerate(
+                multiplicity: list[npt.NDArray[np.int64]] = list(set([x*idx for idx, x in enumerate(
                     mat_filter_multi[idx]) if x != 0]).difference({a for a in idx0_list}))
                 inJ: list[tuple[float, int]] = []
-                for ida, a in enumerate(list_multiplicity):
+                for ida, a in enumerate(multiplicity):
                     if np.fabs(inSParams[idx]-inSParams[a]) > 0.1:
                         inJ.append((inJCoups[idx][a], inHydrogen[a]))
 

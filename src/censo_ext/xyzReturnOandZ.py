@@ -105,12 +105,12 @@ def idx_3atom_opt(args) -> tuple[int, int, int]:
     from censo_ext.Tools.factor import method_factor_analysis
     args_x: dict = {"file": args.file,
                     "factor": 0.5, "debug": False, "opt": False}
-    minor_list: list[int]
+    minor_idx: list[int]
     TableSTD: dict[int, float]
-    minor_list, TableSTD = method_factor_analysis(
+    minor_idx, TableSTD = method_factor_analysis(
         args=argparse.Namespace(**args_x))
-    idx1_Low_Factor: list[int] = list(minor_list)
-    idx1_Atom_list: list[int] = list(TableSTD.keys())
+    idx1_Low_Factor: list[int] = list(minor_idx)
+    idx1_Atom: list[int] = list(TableSTD.keys())
     AtomSTD: list[float] = list(map(float, TableSTD.values()))
 
     idx1_Bonding: list[list[int]] = []
@@ -135,8 +135,7 @@ def idx_3atom_opt(args) -> tuple[int, int, int]:
     from itertools import combinations
     idx1_Combine_3atom: list[tuple[int, int, int]] = []
     for idx, x in enumerate(idx1_3atom):
-        return_list = list(combinations(x, 3))
-        for y in (return_list):
+        for y in list(combinations(x, 3)):
             idx1_Combine_3atom.append(y)
 
     idx_min_Total_Dev = 0
@@ -144,7 +143,7 @@ def idx_3atom_opt(args) -> tuple[int, int, int]:
     for idx, x in enumerate(idx1_Combine_3atom):
         Total_Dev_Atom = 0
         for y in x:
-            Total_Dev_Atom += (AtomSTD[idx1_Atom_list.index(y)])
+            Total_Dev_Atom += (AtomSTD[idx1_Atom.index(y)])
         if min_Total_Dev > Total_Dev_Atom:
             min_Total_Dev = Total_Dev_Atom
             idx_min_Total_Dev: int = idx
