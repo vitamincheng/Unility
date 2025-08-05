@@ -105,7 +105,6 @@ def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, npt.NDA
                 import censo_ext.anmr as anmr
                 x = {'out': 'output.dat', 'mf': 500.0, "dir": "Test/34.Ergocalciferol/04.Hydrogen", 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
                      'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': True, 'json': [idx0]}
-
                 sys.stdout = open(os.devnull, 'w')
                 np_dat = anmr.main(args=argparse.Namespace(**x))
                 sys.stdout = sys.__stdout__

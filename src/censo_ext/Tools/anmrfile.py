@@ -746,11 +746,10 @@ class Anmr():
             file (Path, optional): Name of the output file. Defaults to Path("anmr_enso.new").
         """
         DirFileName: Path = self.__Directory / Path(file)
-        original_stdout = sys.stdout
         with open(DirFileName, "w") as f:
             sys.stdout = f
             self.method_print_enso()
-        sys.stdout = original_stdout
+        sys.stdout = sys.__stdout__
 
 
 class OrcaSJ():
@@ -1049,11 +1048,10 @@ class CensoDat():
 
         Writes the current data to the file specified in __fileName.
         """
-        original_stdout = sys.stdout
         with open(self.__fileName, "w") as f:
             sys.stdout = f
             print(self, end="")
-        sys.stdout = original_stdout
+        sys.stdout = sys.__stdout__
 
     def method_normalize_dat(self, start: float = -5.0, end: float = 15.0, dpi: int = 10000, highest: int = 10000) -> None:
         """

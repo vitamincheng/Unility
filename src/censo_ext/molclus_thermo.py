@@ -144,7 +144,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     xtb_cmd = xtb_cmd + " --enso -I ../xcontrol-inp > thermo.out"
     xcontrol_inp: str = "xcontrol-inp"
     import sys
-    original_stdout = sys.stdout
     with open(xcontrol_inp, "w") as f:
         sys.stdout = f
         print("$thermo")
@@ -156,7 +155,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
         print("$gbsa")
         print("  gbsagrid=tight")
         print("$end")
-    sys.stdout = original_stdout
+    sys.stdout = sys.__stdout__
 
     thermo: list = []
     for idx in range(1, len(infile)+1, 1):

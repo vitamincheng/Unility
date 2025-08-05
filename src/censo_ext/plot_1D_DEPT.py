@@ -285,7 +285,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # save to file
     if args.save is True:
-        original_stdout = sys.stdout
         with open(peaks_fileName, "w") as f:
             sys.stdout = f
             print("#   ID             ppm    nHydrogens")
@@ -293,7 +292,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 height = data[int(peak)]
                 ppm = uc_1h.ppm(peak)
                 print(f"{n+1:6d} {ppm:>15.5f}        {StAtoms[n+1]:>3d}")
-        sys.stdout = original_stdout
+        sys.stdout = sys.__stdout__
 
     # add markers for peak positions
     for n, peak in enumerate(peaks):

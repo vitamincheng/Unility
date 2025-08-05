@@ -32,12 +32,11 @@ def test_anmrfile_anmrrc():
     # For Hydrogen
     file = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
     file.method_read_anmrrc()
-    original_stdout = sys.stdout
     filename = "tests/compare/.anmrrc"
     with open(filename, "w") as f:
         sys.stdout = f
         file.method_print_anmrrc()
-    sys.stdout = original_stdout
+    sys.stdout = sys.__stdout__
 
     source = "tests/data/34.Ergocalciferol/04.Hydrogen/.anmrrc"
     assert filecmp.cmp(filename, source)
@@ -48,12 +47,11 @@ def test_anmrfile_anmrrc():
     # For Carbon
     file = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
     file.method_read_anmrrc()
-    original_stdout = sys.stdout
     filename = "tests/compare/.anmrrctest"
     with open(filename, "w") as f:
         sys.stdout = f
         file.method_print_anmrrc()
-    sys.stdout = original_stdout
+    sys.stdout = sys.__stdout__
 
     source = "tests/data/34.Ergocalciferol/07.Carbon/.anmrrc"
     assert filecmp.cmp(filename, source)
@@ -86,12 +84,11 @@ def test_anmrfile_read_enso():
     file = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
     file.method_read_enso()
 
-    original_stdout = sys.stdout
     filename = "tests/compare/ensotest"
     with open(filename, "w") as f:
         sys.stdout = f
         file.method_print_enso()
-    sys.stdout = original_stdout
+    sys.stdout = sys.__stdout__
 
     source = "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso"
     assert filecmp.cmp(filename, source)
@@ -101,13 +98,11 @@ def test_anmrfile_read_enso():
     file = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
     file.method_read_enso()
 
-    original_stdout = sys.stdout
     filename = "tests/compare/ensotest"
     with open(filename, "w") as f:
         sys.stdout = f
         file.method_print_enso()
-    sys.stdout = original_stdout
-
+    sys.stdout = sys.__stdout__
     source = "tests/data/34.Ergocalciferol/07.Carbon/anmr_enso"
     assert filecmp.cmp(filename, source)
     os.remove(filename)

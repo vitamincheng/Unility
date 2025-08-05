@@ -444,7 +444,7 @@ class GeometryXYZs():
         Args:
             idx1_list (list[int]): List of indices to save.
         """
-
+        # Do't use sys.stdout = sys.__stdout__ to replace it, test function need use it
         original_stdout = sys.stdout
         with open(self.__filename, "w") as f:
             sys.stdout = f
@@ -459,6 +459,7 @@ class GeometryXYZs():
             idx1_list (list): List of indices to append.
         """
 
+        # Do't use sys.stdout = sys.__stdout__ to replace it, test function need use it
         original_stdout = sys.stdout
         with open(self.__filename, "a") as f:
             sys.stdout = f

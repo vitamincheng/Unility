@@ -90,13 +90,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Define default template
     template_inp: str = ".template.inp"
     if not template_Exist:
-        original_stdout = sys.stdout
         with open(template_inp, "w") as f:
             sys.stdout = f
             print("! r2SCAN-3c opt miniprint PAL8 CPCM(chloroform) noautostart")
             print("%maxcore 6000")
             print("* xyzfile 0 1 [xyzfile]")
-        sys.stdout = original_stdout
+        sys.stdout = sys.__stdout__
 
     # Read input file
     inGeoXYZs: GeometryXYZs = GeometryXYZs(args.file)

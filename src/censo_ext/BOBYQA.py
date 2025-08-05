@@ -111,7 +111,6 @@ def rosenbrock(x0) -> float:
         cwd: Path = Path(os.getcwd())
         os.chdir(Directory)
         template_inp: str = "CONF1/NMR/orcaS.out"
-        original_stdout = sys.stdout
         with open(template_inp, "w") as f:
             sys.stdout = f
             print("--------------------------------")
@@ -121,10 +120,7 @@ def rosenbrock(x0) -> float:
             print("")
             print("  Nucleus  Element    Isotropic     Anisotropy")
             print("  -------  -------  ------------   ------------")
-        sys.stdout = original_stdout
-
-        # orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-        #    FileName_OrcaS)  # type: ignore
+        sys.stdout = sys.__stdout__
         orcaS_Table.T[1] = orcaS_Table.T[1] + Ref_TMS
         orcaS_Table.T[0] = orcaS_Table.T[0]-1
         np.savetxt(Path("CONF1/NMR/orcaS-main.out"), orcaS_Table, fmt="%7d       H    %10.5f          0")  # type: ignore # nopep8

@@ -45,14 +45,13 @@ def test_ensoAnalysis_Hydrogen_new_read():
 
     out_print = "result.txt"
     import sys
-    original_stdout = sys.stdout
     with open(out_print, "w") as f:
         sys.stdout = f
         x: dict = {"file": file_anmr, "new": None, "switch": [*range(1, 55)],
                    "temp": 298.15, "weights": False, "complete": False}
         args = argparse.Namespace(**x)
         ensoAnalysis.main(args)
-    sys.stdout = original_stdout
+    sys.stdout = sys.__stdout__
     with open(out_print, "r") as f:
         lines = f.readlines()
     assert float(lines[-2].split()[-1]) == -0.1968
@@ -77,14 +76,13 @@ def test_ensoAnalysis_Hydrogen_new_read_miss_args():
 
     out_print = "result.txt"
     import sys
-    original_stdout = sys.stdout
     with open(out_print, "w") as f:
         sys.stdout = f
         x: dict = {"file": file_anmr, "new": None, "switch": None,
                    "temp": None, "weights": False, "complete": False}
         args = argparse.Namespace(**x)
         ensoAnalysis.main(args)
-    sys.stdout = original_stdout
+    sys.stdout = sys.__stdout__
     with open(out_print, "r") as f:
         lines = f.readlines()
     assert float(lines[-2].split()[-1]) == -0.1968
@@ -109,14 +107,13 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
 
     out_print = "result.txt"
     import sys
-    original_stdout = sys.stdout
     with open(out_print, "w") as f:
         sys.stdout = f
         x: dict = {"file": file_anmr, "new": None, "switch": None,
                    "temp": None, "weights": False, "complete": True}
         args = argparse.Namespace(**x)
         ensoAnalysis.main(args)
-    sys.stdout = original_stdout
+    sys.stdout = sys.__stdout__
     with open(out_print, "r") as f:
         lines = f.readlines()
     assert float(lines[-5].split()[-1]) == -0.1968

@@ -37,11 +37,11 @@ def test_FactorAnalysis_F_bond_broken() -> None:
     args = argparse.Namespace(**x)
     out_print = "result.txt"
     import sys
-    original_stdout = sys.stdout
+    o_stdout = sys.stdout
     with open(out_print, "w") as f:
         sys.stdout = f
         FactorAnalysis.main(args)
-    sys.stdout = original_stdout
+    sys.stdout = o_stdout
     with open(out_print, "r") as f:
         lines: list[str] = f.readlines()
 
