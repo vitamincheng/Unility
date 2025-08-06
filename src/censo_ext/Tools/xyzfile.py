@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 #  Modification             [08.26.2024] vitamin.cheng@gmail.com
 #

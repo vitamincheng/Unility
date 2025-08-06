@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import pytest
 from censo_ext.Tools.utility import delete_all_files
 from pathlib import Path

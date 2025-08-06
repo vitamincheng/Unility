@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 #
 # Copyright (C) 2019 Fabian Bohle
@@ -42,12 +42,14 @@ useit = """\
                         delta /ppm
     """
 
+
 def checkval(value):
     """ check if value larger than 0.0 or smaller than 1.0"""
     x = float(value)
     if x < 0 or x > 1.0:
         raise argparse.ArgumentTypeError("%r not in range [0.0, 1.0]" % (x,))
     return x
+
 
 def cml(descr):
     """ Get args object from commandline interface.
@@ -139,7 +141,7 @@ def cml(descr):
         required=False,
         default=[],
         nargs="+",
-        help="Provide labels for all files provided -l label1 label2 label3" 
+        help="Provide labels for all files provided -l label1 label2 label3"
              "... , if no labels are provided, filename is used as label",
     )
     parser.add_argument(
@@ -187,7 +189,8 @@ def cml(descr):
         required=False,
         nargs="+",
         type=int,
-        default=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        default=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         help="Up (1) or down (-1).",
     )
     parser.add_argument(
@@ -196,7 +199,8 @@ def cml(descr):
         dest="colors",
         action="store",
         nargs="+",
-        choices=["gray", "blue", "cyan", "red", "green", "magenta", "yellow", "black"],
+        choices=["gray", "blue", "cyan", "red",
+                 "green", "magenta", "yellow", "black"],
         required=False,
         metavar="",
         default=["blue", "black", "red", "magenta", "green"],
@@ -212,8 +216,9 @@ def cml(descr):
         action="store",
         nargs="+",
         required=False,
-        type=checkval,  ### own function
-        default=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+        type=checkval,  # own function
+        default=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+                 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
         help="Cut intensity. Accepts values from 0.0 (flat line) to 1.0 (full intensity).",
     )
     args_defaults["cut"] = parser.get_default("cut")
@@ -263,6 +268,7 @@ def readinput(filename, ppm, intensit, number):
     intensit.append(y)
     return ppm, intensit
 
+
 def axdefaultsettings(ax):
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
@@ -276,12 +282,14 @@ def axdefaultsettings(ax):
         labelbottom=False,
         labelsize=args.fontsize,
     )
-    ax.tick_params(axis="y", which="both", left=False, right=False, labelleft=False)
+    ax.tick_params(axis="y", which="both", left=False,
+                   right=False, labelleft=False)
     ax.get_yaxis().set_visible(False)
-    ###(matplotlib 2.x space between spine and axis Set padding of Y data limits prior to autoscaling.
+    # (matplotlib 2.x space between spine and axis Set padding of Y data limits prior to autoscaling.
     ax.set_ymargin(0.002)
     ax.autoscale(enable=True, axis="y", tight=True)
     return
+
 
 def equal_ticks(axes1, axes2):
     xticksax1 = abs(axes1.get_xticks()[0] - axes1.get_xticks()[1])
@@ -313,6 +321,7 @@ def equal_ticks(axes1, axes2):
 
     return axes1, axes2
 
+
 def debug():
     print("    Current python version: {}".format(version_info))
     print("    {}".format(plt.__file__))
@@ -322,7 +331,7 @@ def debug():
 
 
 if __name__ == "__main__":
-    ##try and except handling of imports
+    # try and except handling of imports
     try:
         import argparse
     except ImportError:
@@ -347,14 +356,14 @@ if __name__ == "__main__":
     except ImportError:
         raise ImportError("    Error while importing from sys!")
 
-    print(descr)  ### Program description
+    print(descr)  # Program description
     args, args_defaults = cml(descr)
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
     if args.debug:
         debug()
 
-    ### errors from start end startremove endremove
+    # errors from start end startremove endremove
     errors = []
     if not args.start < args.end:
         errors.append("    Error! Start has to be smaller than end!"
@@ -386,7 +395,7 @@ if __name__ == "__main__":
         print(useit)
         exit(1)
 
-    if len(args.label) < len(args.file):  ### labels from filenames
+    if len(args.label) < len(args.file):  # labels from filenames
         print("    Labels not provided or not provided for every file, "
               "using filenames as labels.")
         args.label = []
@@ -396,7 +405,7 @@ if __name__ == "__main__":
             else:
                 args.label.append(file.split(".")[1])
 
-    if len(args.colors) < len(args.file):  ### colors
+    if len(args.colors) < len(args.file):  # colors
         print("    Provided less colors than files, choosing "
               "defaults: {}.".format(args_defaults["colors"]))
         args.colors = args_defaults["colors"]
@@ -404,7 +413,7 @@ if __name__ == "__main__":
         print("    Plotting 1 data file.")
     else:
         print("    Plotting {} data files.".format(len(args.file)))
-    ### Get data from data files
+    # Get data from data files
     ppm = []
     intensit = []
     i = 0
@@ -418,14 +427,14 @@ if __name__ == "__main__":
             )
             exit(1)
         i += 1
-    ### ppm ranges of datafiles:
+    # ppm ranges of datafiles:
     for i in range(len(args.file)):
         print(
             "    ppm range goes from {:6.2f} to {:6.2f} in file: {}.".format(
                 min(ppm[i]), max(ppm[i]), args.file[i]
             )
         )
-    ### cut in case of too large intensities
+    # cut in case of too large intensities
     if args.cut:
         if len(args.cut) < len(args.file):
             print(
@@ -435,19 +444,20 @@ if __name__ == "__main__":
         for i in range(len(args.file)):
             newmax = np.amax(np.array(intensit[i])) * args.cut[i]
             # newmax= max(intensit[i]) * args.cut[i]
-            intensit[i] = np.clip(np.array(intensit[i]), -10, newmax)  # .tolist()
+            intensit[i] = np.clip(
+                np.array(intensit[i]), -10, newmax)  # .tolist()
             # intensit[i] = [newmax if x >= newmax else x for x in intensit[i]]
             # intensit[i] = [newmax if x <= newmax else x for x in intensit[i]]
-    ### end cut
+    # end cut
 
-    ### shift manually:
+    # shift manually:
     if len(args.shift) < len(args.file):
         print("    Provided less or no shift values than files, therfore "
               "nothing is shifted!")
     else:
         for i in range(len(args.file)):
             ppm[i] = [item + args.shift[i] for item in ppm[i]]
-    figure = plt.figure(figsize=(11.69, 8.27))  ### A4 in inches
+    figure = plt.figure(figsize=(11.69, 8.27))  # A4 in inches
     figure.suptitle(args.title, fontsize=args.fontsize, y=0.93)
     # removed
     if args.startremove and args.endremove is not None:
@@ -478,7 +488,8 @@ if __name__ == "__main__":
             maxint = []
             for i in range(len(args.file)):
                 maxint.append(max([yval for yval in intensit[i]]))
-                maxint[i] = maxint[i] + 0.000001 if maxint[i] == 0 else maxint[i]
+                maxint[i] = maxint[i] + \
+                    0.000001 if maxint[i] == 0 else maxint[i]
             for i in range(len(args.file)):
                 ax1.plot(
                     ppm[i],
@@ -490,7 +501,7 @@ if __name__ == "__main__":
                 axdefaultsettings(ax1)
                 ax1.set_xlim(
                     left=args.end, right=args.endremove
-                )  ### sets x limits must be here
+                )  # sets x limits must be here
 
                 ax2.plot(
                     ppm[i],
@@ -502,7 +513,7 @@ if __name__ == "__main__":
                 axdefaultsettings(ax2)
                 ax2.set_xlim(
                     left=args.startremove, right=args.start
-                )  ### sets x limits must be here
+                )  # sets x limits must be here
 
             ax1.tick_params(axis="x", bottom=True, labelbottom=True)
             ax1.xaxis.set_tick_params(which='minor', bottom=True)
@@ -519,17 +530,18 @@ if __name__ == "__main__":
             ax2.spines["bottom"].set_position(
                 ("outward", 1)
             )  # set spine (in picture the x axis down by x points)
-            ax2.legend(loc="upper right", frameon=args.keybox, fontsize=args.fontsize)
-            ### make ticks equal
+            ax2.legend(loc="upper right", frameon=args.keybox,
+                       fontsize=args.fontsize)
+            # make ticks equal
             ax1, ax2 = equal_ticks(ax1, ax2)
             # From https://matplotlib.org/examples/pylab_examples/broken_axis.html
             d = 0.01  # how big to make the diagonal lines in axes coordinates
             # arguments to pass to plot, just so we don't keep repeating them
             d2 = 0.01 * (a / b)
             kwargs = dict(transform=ax1.transAxes, color="k", clip_on=False)
-            ax1.plot((1 - d, 1 + d), (-d, +d), **kwargs) # type: ignore
+            ax1.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # type: ignore
             kwargs = dict(transform=ax2.transAxes, color="k", clip_on=False)
-            ax2.plot((-d2, +d2), (-d, +d), **kwargs) # type: ignore
+            ax2.plot((-d2, +d2), (-d, +d), **kwargs)  # type: ignore
             # https://stackoverflow.com/questions/42045767/how-can-i-change-the-x-axis-in-matplotlib-so-there-is-no-white-space
         # ***removed and not ontop
         if not args.ontop:
@@ -555,7 +567,7 @@ if __name__ == "__main__":
                 axdefaultsettings(axislist[i])
                 axislist[i].set_xlim(
                     left=args.end, right=args.endremove
-                )  ### sets x limits must be here
+                )  # sets x limits must be here
                 axislist[i].get_yaxis().set_visible(False)
                 axislist[i + 1].plot(
                     ppm[int(i / 2)],
@@ -567,7 +579,7 @@ if __name__ == "__main__":
                 axdefaultsettings(axislist[i + 1])
                 axislist[i + 1].set_xlim(
                     left=args.startremove, right=args.start
-                )  ### sets x limits must be here
+                )  # sets x limits must be here
                 axislist[i + 1].get_yaxis().set_visible(False)
                 axislist[i + 1].legend(
                     loc="upper right",
@@ -579,52 +591,61 @@ if __name__ == "__main__":
                 )
                 if int((i + 2) / 2) == len(args.file):
                     axislist[i].patch.set_alpha(0.0)
-                    axislist[i].tick_params(axis="x", bottom=True, labelbottom=True)
-                    axislist[i].xaxis.set_tick_params(which='minor', bottom=True)
+                    axislist[i].tick_params(
+                        axis="x", bottom=True, labelbottom=True)
+                    axislist[i].xaxis.set_tick_params(
+                        which='minor', bottom=True)
                     axislist[i].xaxis.set_minor_locator(tck.AutoMinorLocator())
                     axislist[i].spines["bottom"].set_visible(True)
                     axislist[i].spines["bottom"].set_position(
                         ("outward", 1)
                     )  # set spine (in picture the x axis down by x points)
                     axislist[i+1].patch.set_alpha(0.0)
-                    axislist[i + 1].tick_params(axis="x", bottom=True, labelbottom=True)
-                    axislist[i + 1].xaxis.set_tick_params(which='minor', bottom=True)
-                    axislist[i + 1].xaxis.set_minor_locator(tck.AutoMinorLocator())
+                    axislist[i + 1].tick_params(axis="x",
+                                                bottom=True, labelbottom=True)
+                    axislist[i +
+                             1].xaxis.set_tick_params(which='minor', bottom=True)
+                    axislist[i +
+                             1].xaxis.set_minor_locator(tck.AutoMinorLocator())
                     axislist[i + 1].spines["bottom"].set_visible(True)
                     axislist[i + 1].spines["bottom"].set_position(
                         ("outward", 1)
                     )  # set spine (in picture the x axis down by x points)
-            ### make ticks equal
+            # make ticks equal
             axislist[0], axislist[1] = equal_ticks(axislist[0], axislist[1])
 
             numfiles = len(args.file)
             # From https://matplotlib.org/examples/pylab_examples/broken_axis.html
             d = 0.005*numfiles  # how big to make the diagonal lines in axes coordinates
             # arguments to pass to plot, just so we don't keep repeating them
-            d2 = 0.005 * (a / b) *numfiles
+            d2 = 0.005 * (a / b) * numfiles
 
             for i in range(0, len(args.file) * 2, 2):
                 if args.orientation[int(i / 2)] != 1:
                     kwargs = dict(
                         transform=axislist[i].transAxes, color="k", clip_on=False
                     )
-                    axislist[i].plot((1 - d, 1 + d), (1 - d * 3, 1 + d * 3), **kwargs)
+                    axislist[i].plot(
+                        (1 - d, 1 + d), (1 - d * 3, 1 + d * 3), **kwargs)
                     axislist[i].patch.set_alpha(0.0)
                     kwargs = dict(
                         transform=axislist[i + 1].transAxes, color="k", clip_on=False
                     )
-                    axislist[i + 1].plot((-d2, +d2), (1 - d * 3, 1 + d * 3), **kwargs)
+                    axislist[i + 1].plot((-d2, +d2),
+                                         (1 - d * 3, 1 + d * 3), **kwargs)
                     axislist[i+1].patch.set_alpha(0.0)
                 else:
                     kwargs = dict(
                         transform=axislist[i].transAxes, color="k", clip_on=False
                     )
-                    axislist[i].plot((1 - d, 1 + d), (-d * 3, +d * 3), **kwargs)
+                    axislist[i].plot(
+                        (1 - d, 1 + d), (-d * 3, +d * 3), **kwargs)
                     axislist[i].patch.set_alpha(0.0)
                     kwargs = dict(
                         transform=axislist[i + 1].transAxes, color="k", clip_on=False
                     )
-                    axislist[i + 1].plot((-d2, +d2), (-d * 3, +d * 3), **kwargs)
+                    axislist[i + 1].plot((-d2, +d2),
+                                         (-d * 3, +d * 3), **kwargs)
                     axislist[i+1].patch.set_alpha(0.0)
             if args.orientation[int(len(args.file))-1] == -1:
                 kwargs = dict(
@@ -637,7 +658,6 @@ if __name__ == "__main__":
                 )
                 axislist[i + 1].plot((-d2, +d2), (-d * 3, +d * 3), **kwargs)
                 axislist[i+1].patch.set_alpha(0.0)
-
 
     elif args.startremove is None or args.endremove is None:
         # spectrum not removed!
@@ -675,7 +695,7 @@ if __name__ == "__main__":
             ax1.autoscale(enable=False, axis="y")
             ax1.set_xlim(
                 left=args.end, right=args.start
-            )  ### sets x limits must be here
+            )  # sets x limits must be here
             ax1.tick_params(axis="x", bottom=True, labelbottom=True)
             ax1.xaxis.set_tick_params(which='minor', bottom=True)
             ax1.xaxis.set_minor_locator(tck.AutoMinorLocator())
@@ -683,7 +703,8 @@ if __name__ == "__main__":
             # set spine (in picture the x axis down by x points)
             ax1.spines["bottom"].set_position(("outward", 1))
             ax1.get_yaxis().set_visible(False)
-            ax1.legend(loc="upper right", frameon=args.keybox, fontsize=args.fontsize)
+            ax1.legend(loc="upper right", frameon=args.keybox,
+                       fontsize=args.fontsize)
 
         if args.stacked:
             # *** teste versetztes plotten ontop (innerhalb eines subplots, sonst wie normales plotten )
@@ -730,7 +751,7 @@ if __name__ == "__main__":
             ax1.autoscale(enable=False, axis="y")
             ax1.set_xlim(
                 left=args.end, right=args.start
-            )  ### sets x limits must be here
+            )  # sets x limits must be here
             ax1.tick_params(axis="x", bottom=True, labelbottom=True)
             ax1.xaxis.set_tick_params(which='minor', bottom=True)
             ax1.xaxis.set_minor_locator(tck.AutoMinorLocator())
@@ -738,7 +759,8 @@ if __name__ == "__main__":
             ax1.spines["bottom"].set_position(("outward", 1))
             ax1.spines["bottom"].set_visible(True)
             ax1.get_yaxis().set_visible(False)
-            ax1.legend(loc="upper right", frameon=args.keybox, fontsize=args.fontsize)
+            ax1.legend(loc="upper right", frameon=args.keybox,
+                       fontsize=args.fontsize)
         elif not args.ontop:
             # *** spectra not removed and not ontop (normal case)***
             gs = gridspec.GridSpec(len(args.file), 1)
@@ -760,7 +782,7 @@ if __name__ == "__main__":
                 axdefaultsettings(axislist[i])
                 axislist[i].set_xlim(
                     left=args.end, right=args.start
-                )  ### sets x limits must be here
+                )  # sets x limits must be here
                 axislist[i].legend(
                     loc="upper right",
                     bbox_to_anchor=(1.1, 0.6),
@@ -771,8 +793,10 @@ if __name__ == "__main__":
                 )
 
                 if i == len(args.file) - 1:
-                    axislist[i].tick_params(axis="x", bottom=True, labelbottom=True)
-                    axislist[i].xaxis.set_tick_params(which='minor', bottom=True)
+                    axislist[i].tick_params(
+                        axis="x", bottom=True, labelbottom=True)
+                    axislist[i].xaxis.set_tick_params(
+                        which='minor', bottom=True)
                     axislist[i].xaxis.set_minor_locator(tck.AutoMinorLocator())
                     axislist[i].spines["bottom"].set_visible(True)
                     axislist[i].get_yaxis().set_visible(False)
@@ -781,7 +805,8 @@ if __name__ == "__main__":
                     )  # set spine (in picture the x axis down by x points)
 
     figure.subplots_adjust(wspace=0.05, hspace=0.05)
-    figure.text(0.5, 0.04, "$\\delta$ / ppm", ha="center", fontsize=args.fontsize)
+    figure.text(0.5, 0.04, "$\\delta$ / ppm",
+                ha="center", fontsize=args.fontsize)
     plt.savefig(args.out + ".pdf", dpi=300)
     plt.savefig(args.out + ".svg")
     print("    Plot is saved to {}.pdf !".format(args.out))

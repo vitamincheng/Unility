@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.12
+#!/usr/bin/env python.12
 from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 from pathlib import Path

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # from icecream import ic
 import argparse
 from sys import argv as sysargv

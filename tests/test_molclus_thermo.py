@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import pytest
 import argparse
 import censo_ext.molclus_thermo as thermo

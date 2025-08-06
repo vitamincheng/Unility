@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #                                   [07.11.2023] vitamin.cheng@gmail.com
 # Need ml4nmr.py
 #  ASE library / graph-theory library

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #  Module anmr/ censo           [08.27.2024] vitamin.cheng@gmail.com
 from __future__ import annotations
 from scipy.interpolate import interp1d

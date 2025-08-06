@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import subprocess

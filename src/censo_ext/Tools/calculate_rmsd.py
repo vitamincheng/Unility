@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import argparse
 __doc__ = """
 Calculate Root-mean-square deviation (RMSD) between structure A and B, in XYZ

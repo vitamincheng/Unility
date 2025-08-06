@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #  Module unility           [07.06.2024] vitamin.cheng@gmail.com
 #
 # masses of most common isotopes to 3 decimal points, from

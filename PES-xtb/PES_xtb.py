@@ -1,5 +1,6 @@
-#!/usr/bin/env python3
-import argparse, os
+#!/usr/bin/env python
+import argparse
+import os
 from sys import argv as sysargv
 import subprocess
 from icecream import ic
@@ -20,13 +21,14 @@ ________________________________________________________________________________
 |______________________________________________________________________________
 """
 
+
 def cml(descr):
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
         description="",
-#        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-         formatter_class=argparse.RawDescriptionHelpFormatter,
+        #        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
     )  # argparse.RawDescriptionHelpFormatter) #,
 
@@ -39,7 +41,7 @@ def cml(descr):
         default="traj.xyz",
         help="Provide one xyz file to reorganize the serial numbers [default: traj.xyz]",
     )
-    
+
     parser.add_argument(
         "-c",
         "--center-atom",
@@ -72,7 +74,7 @@ def cml(descr):
         type=float,
         help="Distance of 3's Atom with 2's Atom : 1(From) 2(To)",
     )
-    
+
     parser.add_argument(
         "-cut",
         "--cut-distance",
@@ -81,10 +83,10 @@ def cml(descr):
         nargs=2,
         required=False,
         type=int,
-        default=[10,10],
+        default=[10, 10],
         help="cut part of bond1 and bond 2 distances [default: 10,10]",
     )
-    
+
     parser.add_argument(
         "-max",
         "--max-cycle",
@@ -96,56 +98,57 @@ def cml(descr):
         help="opt maxmium cycles [default: 10]",
     )
     args = parser.parse_args()
-    return args 
+    return args
 
 
-if __name__ == "__main__" :
+if __name__ == "__main__":
     args = cml(descr)
-    ic(args.center_atom)    
-    ic(args.bond1_distance)    
-    ic(args.bond2_distance) 
+    ic(args.center_atom)
+    ic(args.bond1_distance)
+    ic(args.bond2_distance)
     ic(args.cut_distance)
-    ic(args.max_cycle) 
-    force_constant=0.95
+    ic(args.max_cycle)
+    force_constant = 0.95
 
     with open("scan.inp", "w") as f:
         f.write("$constrain\n")
         f.write("   force constant="+str(force_constant)+"\n")
         f.write("   distance: "+str(args.center_atom[1])+", "
-                +str(args.center_atom[0])+", "+str(args.bond1_distance[0])+"\n")
+                + str(args.center_atom[0])+", "+str(args.bond1_distance[0])+"\n")
         f.write("$scan\n")
         f.write("   1: "+str(args.bond1_distance[0])+", "+str(args.bond1_distance[1])
-                +", "+str(args.cut_distance[0])+"\n")
+                + ", "+str(args.cut_distance[0])+"\n")
         f.write("$opt\n")
         f.write("   maxcycle="+str(args.max_cycle)+"\n")
         f.write("$end")
-    
-    subprocess.call("bash 1Atom.sh",shell=True)
-    
+
+    subprocess.call("bash 1Atom.sh", shell=True)
+
     infile = ClassGeometryXYZs("xtbscan.xyz")
     infile.method_read_xyz()
-    
-    for idx in range(1,infile.get_nSt()+1,1):
+
+    for idx in range(1, infile.get_nSt()+1, 1):
         infile.set_filename("xtbscan_single.xyz")
         infile.method_save_xyz([idx])
-    
+
         with open("scan.inp", "w") as f:
-            #f.write("$fix")
-            #f.write("   atoms : "+str(args.center_atom[1])+", "+str(args.center_atom[0])+"\n")
+            # f.write("$fix")
+            # f.write("   atoms : "+str(args.center_atom[1])+", "+str(args.center_atom[0])+"\n")
             f.write("$constrain\n")
             f.write("   force constant="+str(force_constant)+"\n")
             f.write("   distance: "+str(args.center_atom[1])+", "
-                    +str(args.center_atom[2])+", "+str(args.bond2_distance[0])+"\n")
+                    + str(args.center_atom[2])+", "+str(args.bond2_distance[0])+"\n")
             f.write("   distance: "+str(args.center_atom[1])+", "
-                    +str(args.center_atom[0])+", "+str(abs(args.bond1_distance[0]-args.bond1_distance[1])*(idx-1)/infile.get_nSt()+args.bond1_distance[0])+"\n")
+                    + str(args.center_atom[0])+", "+str(abs(args.bond1_distance[0]-args.bond1_distance[1])*(idx-1)/infile.get_nSt()+args.bond1_distance[0])+"\n")
             f.write("$scan\n")
             f.write("   1: "+str(args.bond2_distance[0])+", "+str(args.bond2_distance[1])
-                    +", "+str(args.cut_distance[1])+"\n")
+                    + ", "+str(args.cut_distance[1])+"\n")
             f.write("$opt\n")
             f.write("   maxcycle="+str(args.max_cycle)+"\n")
             f.write("$end")
 
-        subprocess.call("bash 2Atom.sh",shell=True)
-    subprocess.call("grep 'energy' xtbscan2.xyz | awk '{print $2}' > out",shell=True)
-    subprocess.call("rm -rf xtbscan_single.xyz xtb_1Atom scan.inp xtb_2Atom",shell=True)
-    
+        subprocess.call("bash 2Atom.sh", shell=True)
+    subprocess.call(
+        "grep 'energy' xtbscan2.xyz | awk '{print $2}' > out", shell=True)
+    subprocess.call(
+        "rm -rf xtbscan_single.xyz xtb_1Atom scan.inp xtb_2Atom", shell=True)
