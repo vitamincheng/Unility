@@ -1,0 +1,11 @@
+!XTB NEB-TS PAL8 ALPB(chcl3)
+
+%geom MaxIter 3000 end
+
+%neb 
+#Restart_ALLXYZFile "interpolated.allxyz" 
+#nImages 15
+ neb_end_xyzfile "final.xyz"
+end
+
+*xyzfile 0 1 start.xyz

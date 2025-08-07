@@ -196,9 +196,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args.remove:
         subprocess.call(f"rm -rf {template_Name}.cpcm {template_Name}.densities {template_Name}.engrad "
-                        "{template_Name}.out {template_Name}_property.txt {template_Name}_trj.xyz {template_Name}.opt", shell=True)
+                        f"{template_Name}.out {template_Name}_property.txt {template_Name}_trj.xyz {template_Name}.opt", shell=True)
         subprocess.call(f"rm -rf {template_Name}.cpcm_corr {template_Name}.densitiesinfo "
-                        "{template_Name}.property.txt {template_Name}.bibtex ", shell=True)
+                        f"{template_Name}.property.txt {template_Name}.bibtex ", shell=True)
         delete_all_files(solo_xyz, template_inp)
 
 

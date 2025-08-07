@@ -1,0 +1,18 @@
+!ExtOpt NEB-TS 
+#FREQ NUMFREQ
+
+%method
+  ProgExt "../orca-external-tools/gxtb.py"
+end
+
+%geom 
+ MaxIter 3000
+end
+
+%NEB
+  #Restart_ALLXYZFile "interpolated.allxyz"
+  #nImages 15
+  NEB_END_XYZFILE "product.xyz"
+END
+
+*XYZFILE 0 1 reactant.xyz
