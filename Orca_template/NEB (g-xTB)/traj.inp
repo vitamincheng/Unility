@@ -2,7 +2,7 @@
 #FREQ NUMFREQ
 
 %method
-  ProgExt "../orca-external-tools/gxtb.py"
+  ProgExt "/home/vitamin/orca-external-tools/gxtb.py"
 end
 
 %geom 
@@ -12,6 +12,7 @@ end
 %NEB
   #Restart_ALLXYZFile "interpolated.allxyz"
   #nImages 15
+  preopt true
   NEB_END_XYZFILE "product.xyz"
 END
 
