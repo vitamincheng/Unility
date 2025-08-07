@@ -16,8 +16,8 @@ ________________________________________________________________________________
 | Input    : -i input file [default traj.xyz]
 | Output   : -o output file [default isomers.xyz]
 | Template : -t orca template file [default template.inp]
-| Remove   : -r only reserve .gbw .out .xyz three files, others will be removed  
-| Packages : Tools 
+| Remove   : -r only reserve .gbw .out .xyz three files, others will be removed
+| Packages : Tools
 | Module   : xyzfile.py / unility.py
 |______________________________________________________________________________
 """
@@ -120,12 +120,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     else:
         template_Name: str = template_inp[:-4]
 
-    print(" Inputted geometry file: " + args.file)
+    print(f" Inputted geometry file: {args.file}")
     print(" Loading basic information from the inputted geometry file ...")
-    print(" There are totally       " + str(len(inGeoXYZs)) +
-          " geometries in the inputted geometry file\n")
+    print(f" There are totally       {str(len(inGeoXYZs))} "
+          "geometries in the inputted geometry file")
     if template_Exist:
-        print(" Setting file : " + args.template)
+        print(f" Setting file : {args.template}")
     else:
         print(" Setting file : use default [r2SCAN-3c / CHCl3] ")
         args.template = template_inp
@@ -139,19 +139,18 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     for idx1 in range(1, len(inGeoXYZs)+1, 1):
         idx1_str = ("{:05d}".format(idx1))
-        inGeoXYZs.set_filename(solo_xyz
-                               )
+        inGeoXYZs.set_filename(solo_xyz)
         inGeoXYZs.method_save_xyz([idx1])
 
-        print("                          *** Configuration        "+str(idx1)+" ****")
-        print(" Loading geometry	"+str(idx1) +
-              " from the inputted geometry file")
+        print(f"                          "
+              f"*** Configuration        {str(idx1)} ****")
+        print(f" Loading geometry	{str(idx1)} from the inputted geometry file")
         print(" Generating  file...")
 
         # Run orca
-        orca_cmd: str = orca_path + " "+args.template+" > " + template_Name + ".out "
+        orca_cmd: str = f"{orca_path} {args.template} > {template_Name}.out"
         subprocess.call(orca_cmd, shell=True)
-        print(" Running: " + orca_cmd)
+        print(f" Running: {orca_path} {args.template} > {idx1_str}.out")
 
         orca_lines: list[str] = open(template_Name + ".out", "r").readlines()
         import re
@@ -161,29 +160,26 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 get_energy = idy
 
         from os.path import exists
-        templateFileIsExists = exists(template_Name + ".xyz")
+        templateFileIsExists = exists(f"{template_Name}.xyz")
         if templateFileIsExists:
-            templateLines: list[str] = open(
-                template_Name + ".xyz", "r").readlines()
+            templateLines: list[str] = open(f"{template_Name}.xyz", "r").readlines()  # nopep8
             for idy, y in enumerate(templateLines):
-                if re.search(r"Coordinates from ORCA-job "+template_Name, y) and get_energy:
+                if re.search(rf"Coordinates from ORCA-job {template_Name}", y) and get_energy:
                     # get_comment_template = idy
                     templateLines[idy] = str(
                         orca_lines[get_energy].split()[4] + "\n")
-            open(template_Name + ".xyz", "w").writelines(templateLines)
+            open(f"{template_Name}.xyz", "w").writelines(templateLines)
 
-            subprocess.call("cat " + template_Name +
-                            ".xyz >> " + args.out, shell=True)
-            subprocess.call("mv -f " + template_Name +
-                            ".xyz " + idx1_str + ".xyz", shell=True)
+            subprocess.call(
+                f"cat {template_Name}.xyz >> {args.out}", shell=True)
+            subprocess.call(
+                f"mv -f {template_Name}.xyz {idx1_str}.xyz", shell=True)
         else:
             if get_energy:
                 inGeoXYZs.Sts[idx1 - 1].comment_energy = float(orca_lines[get_energy].split()[4])  # nopep8
 
-        subprocess.call("mv -f " + template_Name + ".out " +
-                        idx1_str+".out", shell=True)
-        subprocess.call("mv -f " + template_Name + ".gbw " +
-                        idx1_str+".gbw", shell=True)
+        subprocess.call(f"mv -f {template_Name}.out {idx1_str}.out", shell=True)  # nopep8
+        subprocess.call(f"mv -f {template_Name}.gbw {idx1_str}.gbw", shell=True)  # nopep8
 
     if templateFileIsExists:
         out_File: GeometryXYZs = GeometryXYZs(args.out)
@@ -199,10 +195,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(f" Saved to  {args.out} \n All is done !!!")
 
     if args.remove:
-        subprocess.call("rm -rf "+template_Name+".cpcm "+template_Name+".densities "+template_Name+".engrad "+template_Name +
-                        ".out "+template_Name+"_property.txt "+template_Name+"_trj.xyz "+template_Name+".opt ", shell=True)
-        subprocess.call("rm -rf "+template_Name+".cpcm_corr "+template_Name+".densitiesinfo "+template_Name+".property.txt "+template_Name +
-                        ".bibtex ", shell=True)
+        subprocess.call(f"rm -rf {template_Name}.cpcm {template_Name}.densities {template_Name}.engrad "
+                        "{template_Name}.out {template_Name}_property.txt {template_Name}_trj.xyz {template_Name}.opt", shell=True)
+        subprocess.call(f"rm -rf {template_Name}.cpcm_corr {template_Name}.densitiesinfo "
+                        "{template_Name}.property.txt {template_Name}.bibtex ", shell=True)
         delete_all_files(solo_xyz, template_inp)
 
 

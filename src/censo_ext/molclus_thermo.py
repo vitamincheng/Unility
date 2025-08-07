@@ -161,8 +161,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     for idx in range(1, len(infile)+1, 1):
         infile.set_filename(Path(single_xyz_name))
         infile.method_save_xyz([idx])
-        print("                          *** Configuration         {str(idx)}  ****")  # nopep8
-        print(" Loading geometry	 {str(idx)}  from the inputted geometry file")      # nopep8
+        print(f"                          *** Configuration         {str(idx)}  ****")  # nopep8
+        print(f" Loading geometry	 {str(idx)}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
         subprocess.call(xtb_cmd, shell=True)
         print(f" Running:  {xtb_cmd}")

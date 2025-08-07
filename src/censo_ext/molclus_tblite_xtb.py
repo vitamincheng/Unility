@@ -143,8 +143,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # idx_str : str = f"{[idx]:05d}"
         infile.set_filename(Path(single_traj_Name))
         infile.method_save_xyz([idx])
-        print("                          *** Configuration         {str(idx)}  ****")  # nopep8
-        print(" Loading geometry	 {str(idx)}  from the inputted geometry file")      # nopep8
+        print(f"                          *** Configuration         {str(idx)}  ****")  # nopep8
+        print(f" Loading geometry	 {str(idx)}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
 
         optimizer = Berny(geomlib.readfile(single_traj_Name))

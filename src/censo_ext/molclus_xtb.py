@@ -118,7 +118,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml(descr)
 
     single_traj_Name = ".traj.xyz"
-    temp_isomer_Name = ".isomers_tmp.xyz"
+    temp_isomer_Name = "._isomers.xyz"
     xtb_cmd: str = ""
     infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
@@ -127,7 +127,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     program_IsExist(xtb_name)
     xtb_cmd += xtb_name
 
-    print(" Inputted geometry file: "+str(args.file))
+    print(f" Inputted geometry file: {str(args.file)}")
     xtb_cmd += " " + single_traj_Name
     print(" Loading basic information from the inputted geometry file ...")
     print(f" There are totally       {str(len(infile))} geometries in the inputted geometry file\n")  # nopep8
@@ -154,7 +154,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.opt:
         xtb_cmd += " --opt"
 
-    xtb_cmd += " > xtb.out"
+    # xtb_cmd += " > xtb.out"
 
     for idx in range(1, len(infile)+1, 1):
         # idx_str : str = f"{[idx]:05d}"
@@ -163,13 +163,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(f"                          *** Configuration         {str(idx)}  ****")  # nopep8
         print(f" Loading geometry	 {str(idx)}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
-        subprocess.call(xtb_cmd, shell=True)
-        print(f" Running:  {xtb_cmd}")
+        subprocess.call(f"{xtb_cmd} > xtb.out", shell=True)
+        idx1_str = ("{:05d}".format(idx))
+        print(f" Running:  {xtb_cmd} > {idx1_str}.out")
 
         get_energy: int | None = None
         if args.opt:
-            subprocess.call("cat xtbopt.xyz >> " +
-                            temp_isomer_Name, shell=True)
+            subprocess.call(
+                f"cat xtbopt.xyz >> {temp_isomer_Name}", shell=True)
 
         else:
             # print("singe point")
@@ -197,7 +198,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         infile.method_save_xyz([])
 
     subprocess.call(
-        "rm -rf " + " charges wbo xtb.out xtbrestart xtbtopo.mol xtbopt* .xtboptok ", shell=True)
+        "rm -rf charges wbo xtb.out xtbrestart xtbtopo.mol xtbopt* .xtboptok", shell=True)
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(temp_isomer_Name, single_traj_Name)
 
