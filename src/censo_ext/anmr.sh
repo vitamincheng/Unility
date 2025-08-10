@@ -8,3 +8,4 @@ awk '($2 > 0.001){print $0}' anmr.dat >> ~anmr.dat
 tail -1 anmr.dat >> ~anmr.dat
 rm anmr.dat
 mv -f ~anmr.dat anmr.dat
+rm tmpanmr*
