@@ -133,7 +133,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         ic(np_data)
         from censo_ext.Tools.spectra import find_nearest
 
-        app_list = []
+        app_list: list[float] = []
         peaks_list = [x[1] for x in np_data]
         for x in peaks_list:
             value, _ = find_nearest(list(peaks_np), x)
@@ -143,3 +143,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
 if __name__ == "__main__":
     main()
+
+#
+#
+#

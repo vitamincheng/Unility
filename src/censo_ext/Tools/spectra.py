@@ -52,4 +52,4 @@ def find_nearest(x_in: list[float], value) -> tuple[float, int]:
     """
     array: npt.NDArray[np.float64] = np.asarray(x_in)
     idx0: int = (np.abs(array - value)).argmin()
-    return array[idx0], idx0
+    return float(array[idx0]), idx0
