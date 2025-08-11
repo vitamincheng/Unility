@@ -8,6 +8,11 @@ inSample: npt.NDArray[np.float64] = np.array(
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 22, 39, 78, 12, 4, 4, 9, -10, -12])
 
 
+def test_spectra_basic():
+    assert inSample.ndim == 1
+    assert inSample.shape == (28,)
+
+
 def test_spectra_numpy_thr():
 
     assert numpy_thr(inSample, 10.0) == 246.31578947368422

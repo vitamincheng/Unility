@@ -11,7 +11,7 @@ neighbors: dict[int, npt.NDArray[np.int64]]
 
 
 def test_m4nmr_miss_args():
-    FileName = Path("tests/data/crest_conformers0000.xyz")
+    FileName: Path = Path("tests/data/crest_conformers0000.xyz")
     with pytest.raises(FileNotFoundError) as e:
         mol, neighbors = read_mol_neighbors(
             FileName)
@@ -29,8 +29,8 @@ def test_m4nmr_read_mol_neighbors():
         Path("tests/data/crest_conformers.xyz"))
     mol, neighbors, bond_order = read_mol_neighbors_bond_order(
         Path("tests/data/crest_conformers.xyz"))
-    atoms_nums = (len([atom for atom in mol]))
-    assert atoms_nums == 73
+    nAtoms: int = (len([atom for atom in mol]))
+    assert nAtoms == 73
     assert [atom.number for atom in mol] == [6, 6, 6, 1, 1, 6, 6, 6, 1, 1, 1, 1, 8, 1, 6, 6, 1, 1, 6, 1, 6, 1, 6, 6, 1, 1, 6, 1, 1, 6, 1, 1, 6, 1,
                                              6, 1, 6, 1, 1, 6, 1, 1, 1, 6, 6, 1, 1, 1, 1, 6, 6, 6, 1, 1, 6, 6, 6, 1, 1, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     _, len_neighbors, bond_order = (mol, len(neighbors), bond_order)
@@ -44,8 +44,8 @@ def test_m4nmr_read_mol_neighbors():
     ic(mol, neighbors)
     mol, neighbors, bond_order = read_mol_neighbors_bond_order(
         Path("tests/data/isomers.xyz"))
-    atoms_nums = (len([atom for atom in mol]))
-    assert atoms_nums == 17
+    nAtoms = (len([atom for atom in mol]))
+    assert nAtoms == 17
     assert [atom.number for atom in mol] == [
         6, 6, 6, 1, 1, 6, 1, 1, 6, 6, 1, 1, 1, 1, 1, 1, 8]
 

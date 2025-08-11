@@ -6,7 +6,7 @@ import numpy.typing as npt
 from censo_ext.Tools.qm import qm_partial, qm_full
 
 
-def test_qm_miss_args():
+def test_qm_miss_args() -> None:
     x = {"out": "output.dat", "start": -
          0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False}
     v: list[float] = [964, 2775.76, 2768.20, 928, 120000]
@@ -22,7 +22,7 @@ def test_qm_miss_args():
     assert str(e.value) == "Your JCoup is Error"
 
 
-def test_qm_partial_full():
+def test_qm_partial_full() -> None:
 
     x = {"out": "output.dat", "start": -
          0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False}

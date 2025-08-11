@@ -8,7 +8,7 @@ from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 
 def test_calculate_rmsd_miss_args():
 
-    xyzfile = GeometryXYZs()
+    xyzfile: GeometryXYZs = GeometryXYZs()
 
     with pytest.raises(FileNotFoundError) as e:
         xyzfile.method_read_xyz()
@@ -17,7 +17,7 @@ def test_calculate_rmsd_miss_args():
 
 def test_calculate_rmsd():
     # for crest_conformers.xyz
-    xyzfile = GeometryXYZs(
+    xyzfile: GeometryXYZs = GeometryXYZs(
         Path("tests/data/crest_conformers.xyz"))
     xyzfile.method_read_xyz()
     x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,

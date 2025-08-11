@@ -7,10 +7,9 @@ import os
 import filecmp
 
 
-def test_anmrfile_miss_args():
+def test_anmrfile_miss_args() -> None:
 
     Missing: OrcaSJ = OrcaSJ()
-
     with pytest.raises(FileNotFoundError) as e:
         Missing.method_read_orcaJ()
     assert str(e.value) == "orcaJ.out The file is not Exist ..."
@@ -20,7 +19,7 @@ def test_anmrfile_miss_args():
     assert str(e.value) == "orcaS.out The file is not Exist ..."
 
 
-def test_anmrfile_read_OrcaSJ():
+def test_anmrfile_read_OrcaSJ() -> None:
     Hydrogen: OrcaSJ = OrcaSJ()
     assert Hydrogen.method_read_orcaJ(
         Path("tests/data/06.EthylAcetate/03.Censo/CONF1/NMR/orcaJ.out"))
@@ -28,87 +27,87 @@ def test_anmrfile_read_OrcaSJ():
         Path("tests/data/06.EthylAcetate/03.Censo/CONF1/NMR/orcaS.out"))
 
 
-def test_anmrfile_anmrrc():
+def test_anmrfile_anmrrc() -> None:
     # For Hydrogen
-    file = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
+    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
     file.method_read_anmrrc()
-    filename = "tests/compare/.anmrrc"
+    filename: str = "tests/compare/.anmrrc"
     with open(filename, "w") as f:
         sys.stdout = f
         file.method_print_anmrrc()
     sys.stdout = sys.__stdout__
 
-    source = "tests/data/34.Ergocalciferol/04.Hydrogen/.anmrrc"
+    source: str = "tests/data/34.Ergocalciferol/04.Hydrogen/.anmrrc"
     assert filecmp.cmp(filename, source)
     os.remove(filename)
     assert file.get_Directory() == Path("tests/data/34.Ergocalciferol/04.Hydrogen")
     assert file.get_Anmr_Active() == ['H']
 
     # For Carbon
-    file = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
+    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
     file.method_read_anmrrc()
-    filename = "tests/compare/.anmrrctest"
+    filename: str = "tests/compare/.anmrrctest"
     with open(filename, "w") as f:
         sys.stdout = f
         file.method_print_anmrrc()
     sys.stdout = sys.__stdout__
 
-    source = "tests/data/34.Ergocalciferol/07.Carbon/.anmrrc"
+    source: str = "tests/data/34.Ergocalciferol/07.Carbon/.anmrrc"
     assert filecmp.cmp(filename, source)
     os.remove(filename)
     assert file.get_Directory() == Path("tests/data/34.Ergocalciferol/07.Carbon")
     assert file.get_Anmr_Active() == ['C']
 
 
-def test_anmrfile_get_avg_orcaSJ_Exist():
+def test_anmrfile_get_avg_orcaSJ_Exist() -> None:
     # For Hydrogen
-    file = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
+    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
     assert file.get_avg_orcaSJ_Exist()
     # for Carbon
-    file = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
+    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
     assert file.get_avg_orcaSJ_Exist()
 
 
-def test_anmrfile_read_enso_miss_args():
+def test_anmrfile_read_enso_miss_args() -> None:
     # For Hydrogen
-    Dir = Path("tests/data/34.Ergocalciferol/04.Hydrogen")
-    File = Path("anmr_enso_error")
-    anmr = Anmr(Dir)
+    Dir: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen")
+    File: Path = Path("anmr_enso_error")
+    anmr: Anmr = Anmr(Dir)
     with pytest.raises(FileNotFoundError) as e:
         anmr.method_read_enso(File)
     assert str(e.value) == f"{Dir/File} The file is not Exist ..."
 
 
-def test_anmrfile_read_enso():
+def test_anmrfile_read_enso() -> None:
     # For Hydrogen
-    file = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
+    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
     file.method_read_enso()
 
-    filename = "tests/compare/ensotest"
+    filename: str = "tests/compare/ensotest"
     with open(filename, "w") as f:
         sys.stdout = f
         file.method_print_enso()
     sys.stdout = sys.__stdout__
 
-    source = "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso"
+    source: str = "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso"
     assert filecmp.cmp(filename, source)
     os.remove(filename)
 
     # for Carbon
-    file = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
+    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
     file.method_read_enso()
 
-    filename = "tests/compare/ensotest"
+    filename: str = "tests/compare/ensotest"
     with open(filename, "w") as f:
         sys.stdout = f
         file.method_print_enso()
     sys.stdout = sys.__stdout__
-    source = "tests/data/34.Ergocalciferol/07.Carbon/anmr_enso"
+    source: str = "tests/data/34.Ergocalciferol/07.Carbon/anmr_enso"
     assert filecmp.cmp(filename, source)
     os.remove(filename)
 
 
-def test_anmrfile_Censo():
+def test_anmrfile_Censo() -> None:
     from censo_ext.Tools.anmrfile import CensoDat
     infile: CensoDat = CensoDat(
         Path("tests/data/34.Ergocalciferol/04.Hydrogen/anmr.dat"))
@@ -125,8 +124,8 @@ def test_anmrfile_Censo():
     os.remove(outfile)
 
 
-def test_anmrfile_read_anmrSJ_H():
-    file = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
+def test_anmrfile_read_anmrSJ_H() -> None:
+    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
     file.method_read_anmrSJ(Path("anmrh0.out"))
     assert len(file.anmrS) == 33
     assert file.anmrS[0] == [1, 4, 1, 2.317]
@@ -136,8 +135,8 @@ def test_anmrfile_read_anmrSJ_H():
     assert file.anmrJ[-1][-2] == -0.00107
 
 
-def test_anmrfile_read_anmrSJ_C():
-    file = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
+def test_anmrfile_read_anmrSJ_C() -> None:
+    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
     file.method_read_anmrSJ(Path("anmrc.out"))
     assert len(file.anmrS) == 28
     assert file.anmrS[0] == [1, 1, 1, 125.371]

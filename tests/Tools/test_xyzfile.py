@@ -18,7 +18,7 @@ def test_xyzfile_read_xyz_miss_args():
                                     (Path("tests/data/isomers.xyz"), 3,
                                      -309.820981116391, -309.815154391997)])
 def test_xyzfile_read_xyz(input_Path: Path, len_Sts_file: int, energy1: float, energy2: float):
-    file = GeometryXYZs(input_Path)
+    file: GeometryXYZs = GeometryXYZs(input_Path)
     assert len(file) == 0
     file.method_read_xyz()
     assert len(file) == len_Sts_file
@@ -37,7 +37,7 @@ def test_xyzfile_read_xyz(input_Path: Path, len_Sts_file: int, energy1: float, e
                                      " Energy =        -309.8209811164 Eh        #Cluster:     1",
                                      " Energy =        -309.8151543920 Eh        #Cluster:     3")])
 def test_xyzfile_rewrite_comment(input_Path: Path, compare_str1: str, compare_str2: str):
-    file = GeometryXYZs(input_Path)
+    file: GeometryXYZs = GeometryXYZs(input_Path)
     file.method_read_xyz()
     file.method_rewrite_comment()
     assert file.Sts[0].comment == compare_str1
@@ -52,7 +52,7 @@ def test_xyzfile_rewrite_comment(input_Path: Path, compare_str1: str, compare_st
                                      " Energy =        -309.8209811164 Eh        #Cluster:     1",
                                      " Energy =        -309.8151543920 Eh        #Cluster:     3")])
 def test_xyzfile_comment_new(input_Path: Path, compare_str1: str, compare_str2: str):
-    file = GeometryXYZs(input_Path)
+    file: GeometryXYZs = GeometryXYZs(input_Path)
     file.method_read_xyz()
     file.method_comment_new()
     assert file.Sts[0].comment == compare_str1
@@ -67,7 +67,7 @@ def test_xyzfile_comment_new(input_Path: Path, compare_str1: str, compare_str2: 
                                      " Energy =        -309.8209811164 Eh        #Cluster:     1",
                                      " Energy =        -309.8151543920 Eh        #Cluster:     3")])
 def test_xyzfile_comment_keep(input_Path: Path, compare_str1: str, compare_str2: str):
-    file = GeometryXYZs(input_Path)
+    file: GeometryXYZs = GeometryXYZs(input_Path)
     file.method_read_xyz()
     file.method_comment_keep()
     assert file.Sts[0].comment == compare_str1
@@ -80,7 +80,7 @@ def test_xyzfile_comment_keep(input_Path: Path, compare_str1: str, compare_str2:
                                      "tests/compare/xyzfile-2.xyz"),
                                     (False, Path("tests/data/isomers.xyz"), "tests/compare/xyzfile-1.xyz")])
 def test_xyzfile_save_xyz(input_bool: bool, input_Path: Path, compare_filename: str):
-    file = GeometryXYZs(input_Path)
+    file: GeometryXYZs = GeometryXYZs(input_Path)
     file.method_read_xyz()
     file.method_comment_new()
     outfile = Path("tests/compare/output.xyz")
