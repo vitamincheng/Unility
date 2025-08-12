@@ -48,7 +48,7 @@ def test_ensoAnalysis_Hydrogen_new_read():
     with open(out_print, "w") as f:
         sys.stdout = f
         x: dict = {"file": file_anmr, "new": None, "switch": [*range(1, 55)],
-                   "temp": 298.15, "weights": False, "complete": False}
+                   "temp": 298.15, "weights": False, "verbose": False}
         args = argparse.Namespace(**x)
         ensoAnalysis.main(args)
     sys.stdout = sys.__stdout__
@@ -79,7 +79,7 @@ def test_ensoAnalysis_Hydrogen_new_read_miss_args():
     with open(out_print, "w") as f:
         sys.stdout = f
         x: dict = {"file": file_anmr, "new": None, "switch": None,
-                   "temp": None, "weights": False, "complete": False}
+                   "temp": None, "weights": False, "verbose": False}
         args = argparse.Namespace(**x)
         ensoAnalysis.main(args)
     sys.stdout = sys.__stdout__
@@ -110,7 +110,7 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
     with open(out_print, "w") as f:
         sys.stdout = f
         x: dict = {"file": file_anmr, "new": None, "switch": None,
-                   "temp": None, "weights": False, "complete": True}
+                   "temp": None, "weights": False, "verbose": True}
         args = argparse.Namespace(**x)
         ensoAnalysis.main(args)
     sys.stdout = sys.__stdout__
@@ -138,7 +138,7 @@ def test_ensoAnalysis_Hydrogen_new_read_weights():
     assert e.value.code == 0  # for argparse error
 
     x: dict = {"file": file_anmr_weights, "new": None, "switch": None,
-               "temp": None, "weights": True, "complete": True}
+               "temp": None, "weights": True, "verbose": True}
     args = argparse.Namespace(**x)
 
     with pytest.raises(SystemExit) as e:
