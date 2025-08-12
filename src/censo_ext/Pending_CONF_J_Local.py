@@ -38,7 +38,6 @@ def cml():
         "--recover",
         dest="recover",
         action="store_true",
-        required=False,
         help="COPY the orcaJ.out.backup to orca.out ",
     )
 

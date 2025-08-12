@@ -61,8 +61,6 @@ def cml(descr) -> argparse.Namespace:
         "--manual",
         dest="manual",
         action="store_true",
-        required=False,
-        default=False,
         help="Assign the splitting position of Atoms [static Atoms, rotation Atoms] [default False]",
     )
     parser.add_argument(

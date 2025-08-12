@@ -50,7 +50,6 @@ def cml(descr) -> argparse.Namespace:
         "--new",
         dest="new",
         action="store_true",
-        required=False,
         help="New file and cpoy input_file to input_file.backup for reference Energy",
     )
     parser.add_argument(
@@ -67,8 +66,6 @@ def cml(descr) -> argparse.Namespace:
         "--weights",
         dest="weights",
         action="store_true",
-        required=False,
-        default=False,
         help="Calculated and Saved the percentage of weight of CONFS to original file",
     )
 
@@ -77,7 +74,6 @@ def cml(descr) -> argparse.Namespace:
         "--complete",
         dest="complete",
         action="store_true",
-        required=False,
         help="Complete mode and show the detail of Calculation",
     )
 

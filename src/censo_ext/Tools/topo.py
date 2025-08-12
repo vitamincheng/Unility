@@ -142,7 +142,7 @@ class Topo():
             print(" Bonding : ", idx_p, " @ ", Neighbors_Atoms)
         return Neighbors_Atoms
 
-    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray], list[list[int]], list[list[int]]]:
+    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray], list[list[int]], list[list[np.int64]]]:
         """ 
         Analyzes the molecular structure to classify it into circular and residual molecules.
 
@@ -151,7 +151,7 @@ class Topo():
                 mol(ml4nmr.Atoms|list[ml4nmr.Atoms]): The original molecular structure(s).
                 neighbors(dict[int,npt.NDArray]): Updated dictionary of atom indices and their respective neighbors (excluding H atoms).
                 circle_Mols(list[list[int]]): A list of circular molecules identified in the structure.
-                residual_Mols (list[list[int]]): A list of residual molecules identified in the structure.
+                residual_Mols (list[list[np.int64]]): A list of residual molecules identified in the structure.
         """
 
         mol: ml4nmr.Atoms | list[ml4nmr.Atoms] = self.__mol
@@ -222,9 +222,9 @@ class Topo():
         g_straight: Graph = g.copy()
 
         # residual_Mols is use graph : is_connected to find the connect node and append
-        residual_Mols: list[list[int]] = []
+        residual_Mols: list[list[np.int64]] = []
         for atom in residual_atoms:
-            Molecules: list[int] = []
+            Molecules: list[np.int64] = []
             for node in list(g_straight.nodes()):  # type: ignore
                 if g_straight.is_connected(atom, node):
                     Molecules.append(node)

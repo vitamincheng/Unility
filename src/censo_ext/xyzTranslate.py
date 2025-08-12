@@ -128,6 +128,6 @@ if __name__ == "__main__":
     main()
 
     # For test
-    # python3 xyzTranslate.py -i ../tests/crest_conformers.xyz -m 5 0 0
-    # python3 xyzTranslate.py -i ../tests/crest_conformers.xyz -m 5 0 0 -c 10
-    # python3 xyzTranslate.py -i output.xyz -m 0 0 5 -c 10 -o output2.xyz
+    # xyzTranslate.py -i tests/data/crest_conformers.xyz -m 5 0 0
+    # xyzTranslate.py -i tests/data/crest_conformers.xyz -m 5 0 0 -c 10
+    # xyzTranslate.py -i output.xyz -m 0 0 5 -c 10 -o output2.xyz

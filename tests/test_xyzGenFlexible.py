@@ -6,7 +6,7 @@ import argparse
 import censo_ext.xyzGenFlexible as xyzGenFlexible
 import filecmp
 
-inFile: Path = Path("tests/data/crest_conformers.xyz")
+inFile: Path = Path("tests/data/crest_conformers1.xyz")
 outFile: Path = Path("tests/compare/xyzGen_isomers.xyz")
 
 

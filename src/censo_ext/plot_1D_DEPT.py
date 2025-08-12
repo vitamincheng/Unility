@@ -81,7 +81,6 @@ def cml(descr) -> argparse.Namespace:
         "--save",
         dest="save",
         action="store_true",
-        default=False,
         help="Saved the report of carbon [default False]",
     )
 
@@ -90,7 +89,6 @@ def cml(descr) -> argparse.Namespace:
         "--hidden",
         dest="hidden",
         action="store_true",
-        default=False,
         help="Show the plot [default False]",
     )
 

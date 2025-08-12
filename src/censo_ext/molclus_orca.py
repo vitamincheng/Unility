@@ -68,8 +68,6 @@ def cml(descr) -> argparse.Namespace:
         "--remove",
         dest="remove",
         action="store_true",
-        required=False,
-        default=True,
         help="Only reserve .gbw .out .xyz files, others will be reomved [default True]",
     )
 

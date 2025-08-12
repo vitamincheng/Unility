@@ -176,7 +176,6 @@ def cml(descr) -> argparse.Namespace:
         "--average",
         dest="average",
         action="store_true",
-        default=False,
         help="Load the averager foler data to plot spectra when use auto argument",
     )
 
@@ -185,7 +184,6 @@ def cml(descr) -> argparse.Namespace:
         "--show",
         dest="show",
         action="store_true",
-        default=False,
         help="Show the spectra",
     )
 
@@ -224,7 +222,6 @@ def cml(descr) -> argparse.Namespace:
         "--auto",
         dest="auto",
         action="store_true",
-        default=False,
         help="Automated to adjust the threshold of AB quartet [defalut False]",
     )
 

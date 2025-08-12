@@ -65,7 +65,6 @@ def cml(descr):
         "--print",
         dest="print",
         action="store_true",
-        default=False,
         help="Print the final result of calculation on screen",
     )
 
@@ -74,7 +73,6 @@ def cml(descr):
         "--debug",
         dest="debug",
         action="store_true",
-        default=False,
         help="Debug mode or show the detail of calculation",
     )
 

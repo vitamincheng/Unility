@@ -159,8 +159,6 @@ def cml(descr):
         "--keybox",
         dest="keybox",
         action="store_true",
-        required=False,
-        default=False,
         help="Set Frame around key.",
     )
     parser.add_argument(
@@ -168,8 +166,6 @@ def cml(descr):
         "--ontop",
         dest="ontop",
         action="store_true",
-        required=False,
-        default=False,
         help="Plot all spectra ontop of each other.",
     )
     parser.add_argument(
@@ -177,8 +173,6 @@ def cml(descr):
         "--stacked",
         dest="stacked",
         action="store_true",
-        required=False,
-        default=False,
         help="Plot all spectra stacked over each other.",
     )
     parser.add_argument(
@@ -235,8 +229,6 @@ def cml(descr):
         "--debug",
         dest="debug",
         action="store_true",
-        required=False,
-        default=False,
         help=argparse.SUPPRESS,
     )
     parser.add_argument(

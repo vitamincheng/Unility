@@ -121,7 +121,6 @@ def cml(descr) -> argparse.Namespace:
         "--no-Hydrogen",
         dest="ignore_Hydrogen",
         action="store_true",
-        default=False,
         help="Ignore Hydrogen in calculated standard deviation [default: False]",
     )
 

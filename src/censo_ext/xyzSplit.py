@@ -85,7 +85,6 @@ def cml(descr) -> argparse.Namespace:
         "--print",
         dest="print",
         action="store_true",
-        default=False,
         help="Print output to screen",
     )
 
@@ -170,5 +169,5 @@ if __name__ == "__main__":
     main()
 
     # For example
-    #   python3 xyzSplit.py -i ../tests/crest_conformers1.xyz -a 52 55 -c 3
-    #   python3 xyzSplit.py -i ../tests/crest_conformers1.xyz -a 52 55 -c 3 -p
+    #   xyzSplit.py -i tests/data/crest_conformers1.xyz -a 52 55 -c 3
+    #   xyzSplit.py -i tests/data/crest_conformers1.xyz -a 52 55 -c 3 -p

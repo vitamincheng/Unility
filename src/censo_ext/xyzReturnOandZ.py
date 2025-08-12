@@ -76,7 +76,6 @@ def cml(descr) -> argparse.Namespace:
         "--replace",
         dest="replace",
         action="store_true",
-        default=False,
         help="Replace the original input file",
     )
 
@@ -85,7 +84,6 @@ def cml(descr) -> argparse.Namespace:
         "--print",
         dest="print",
         action="store_true",
-        default=False,
         help="Print the final data on stdout (on screen)",
     )
 
@@ -93,7 +91,6 @@ def cml(descr) -> argparse.Namespace:
         "--auto",
         dest="auto",
         action="store_true",
-        default=False,
         help="Automatically search for the minimum deviation setting origin of all atoms [default False]",
     )
 

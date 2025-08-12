@@ -147,8 +147,6 @@ def cml(descr):
         "--findpeaks",
         dest="findpeaks",
         action="store_true",
-        default=False,
-        required=False,
         help=" [False defaults] if [True] displays ppm.",
     )
     parser.add_argument(
@@ -156,8 +154,6 @@ def cml(descr):
         "--assign",
         dest="assign",
         action="store_true",
-        default=False,
-        required=False,
         help=" [default False], if [True] show the peaks for assign peaks."
              "Only for 2 spectras of input file and -orientation 1 -1 argument",
     )
@@ -191,8 +187,6 @@ def cml(descr):
         "--keybox",
         dest="keybox",
         action="store_true",
-        required=False,
-        default=False,
         help="Set Frame around key.",
     )
     parser.add_argument(
@@ -200,8 +194,6 @@ def cml(descr):
         "--ontop",
         dest="ontop",
         action="store_true",
-        required=False,
-        default=False,
         help="Plot all spectra ontop of each other.",
     )
     parser.add_argument(
@@ -209,8 +201,6 @@ def cml(descr):
         "--stacked",
         dest="stacked",
         action="store_true",
-        required=False,
-        default=False,
         help="Plot all spectra stacked over each other.",
     )
     parser.add_argument(
@@ -267,8 +257,6 @@ def cml(descr):
         "--debug",
         dest="debug",
         action="store_true",
-        required=False,
-        default=False,
         help=argparse.SUPPRESS,
     )
     parser.add_argument(

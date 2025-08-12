@@ -57,7 +57,6 @@ def cml(descr) -> argparse.Namespace:
         "--print",
         dest="print",
         action="store_true",
-        default=False,
         help="Print the final data on screen (stdout)",
     )
 
@@ -68,7 +67,6 @@ def cml(descr) -> argparse.Namespace:
         "--keep",
         dest="keep",
         action="store_true",
-        required=False,
         help="To keep the Serial No. in #Clusters",
     )
 
@@ -77,7 +75,6 @@ def cml(descr) -> argparse.Namespace:
         "--new",
         dest="new",
         action="store_true",
-        required=False,
         help="To reorganize the Serial No. from No. 1",
     )
 

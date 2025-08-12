@@ -3,9 +3,9 @@ import argparse
 import os
 import sys
 # from graph import Graph
-# import numpy as np
+import numpy as np
 import numpy.typing as npt
-# from icecream import ic
+from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 from pathlib import Path
@@ -60,8 +60,6 @@ def cml(descr) -> argparse.Namespace:
         "--manual",
         dest="manual",
         action="store_true",
-        required=False,
-        default=False,
         help="Assign the splitting position of Atoms [static Atoms, rotation Atoms] [default False]",
     )
 
@@ -69,7 +67,7 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def read_data(args) -> tuple[dict[int, npt.NDArray], list[list[int]], list[list[int]], dict[int, int], dict[int, int]]:
+def read_data(args) -> tuple[dict[int, npt.NDArray], list[list[int]], list[list[np.int64]], dict[int, int], dict[int, int]]:
     from censo_ext.Tools.topo import Topo
     Sts_topo: Topo = Topo(args.file)
     _, neighbor, circleMols, residualMols = Sts_topo.topology()
@@ -84,9 +82,10 @@ def read_data(args) -> tuple[dict[int, npt.NDArray], list[list[int]], list[list[
     return neighbor, circleMols, residualMols, Bond_order, atomsCN
 
 
-def get_xyzSplitList(neighbor: dict[int, npt.NDArray], circleMols: list[list[int]], residualMols: list[list[int]], Bond_order: dict[int, int], atomsCN: dict[int, int], flattenCircleMols: list[int]) -> dict[int, int]:
+def get_xyzSplitList(neighbor: dict[int, npt.NDArray], circleMols: list[list[int]], residualMols: list[list[np.int64]], Bond_order: dict[int, int], atomsCN: dict[int, int], flattenCircleMols: list[int]) -> dict[int, int]:
     xyzSplitDict: dict[int, int] = {}
     for mol in residualMols:
+        mol = list(map(int, mol))
         # ic(mol)
         flexibleMols: list[int] = [
             a for a in mol if a not in flattenCircleMols]
@@ -129,8 +128,8 @@ def get_xyzSplitList(neighbor: dict[int, npt.NDArray], circleMols: list[list[int
 
 def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> None:
 
-    print(" xyzSplitDict :", xyzSplitDict)
-    if args.manual is True:
+    ic(xyzSplitDict)
+    if args.manual:
         print("Assign the first number of list : ", end="")
         for key, value in xyzSplitDict.items():
             print(key, " ", end="")
@@ -175,7 +174,7 @@ def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> 
         move_file(file_Out, file_In)
 
     move_file(file_In, args.out)
-    print(f" The data is saved to {args.out} !")
+    print(f" The data is saved to {args.out} !!!")
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
@@ -200,5 +199,5 @@ if __name__ == "__main__":
     main()
 
     # test
-    # python3 xyzGenFlexible.py -i ../tests/data/crest_conformers.xyz
-    # python3 xyzGenFlexible.py -i ../tests/data/crest_conformers.xyz -m
+    # python3 xyzGenFlexible.py -i tests/data/crest_conformers.xyz
+    # python3 xyzGenFlexible.py -i tests/data/crest_conformers.xyz -m

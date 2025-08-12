@@ -104,7 +104,6 @@ def cml(descr) -> argparse.Namespace:
         "--opt",
         dest="opt",
         action="store_true",
-        default=False,
         help="Optimize energy",
     )
 
