@@ -22,7 +22,6 @@ def test_xtb_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
-@pytest.mark.skipif(_system == "Darwin", reason="xtb have some bugs under Darwin")
 def test_xtb_alpb_opt():
     x: dict = {"file": inFile, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
                "method": "gfn2", "out": outFile}
@@ -44,7 +43,6 @@ def test_xtb_alpb_opt():
         os.remove(args.out)
 
 
-@pytest.mark.skipif(_system == "Darwin", reason="xtb have some bugs under Darwin")
 def test_xtb_gbsa_opt():
     x: dict = {"file": inFile, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
                "method": "gfn2", "out": outFile}

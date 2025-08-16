@@ -30,7 +30,7 @@ def test_tblite_xtb_alpb_opt():
 
     compare = ""
     if _system == "Darwin":
-        compare = "tests/compare/molclus_xtb_1_Darwin.xyz"
+        compare = "tests/compare/molclus_tblite_xtb_1_Darwin.xyz"
     elif _system == "Linux":
         compare = "tests/compare/molclus_tblite_xtb_1.xyz"
     else:

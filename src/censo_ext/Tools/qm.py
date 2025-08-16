@@ -194,9 +194,8 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     # ic(peaklist)
     # ic(iv[:, 1])
     from nmrsim.math import normalize_peaklist
-    Normal_plist: list[tuple[float, float]
-                       ] = normalize_peaklist(peaklist, nIntergals)
-    # ic(normalized_plist)
+    Normal_plist: list[tuple[float, float]] = np.array(normalize_peaklist(
+        peaklist, nIntergals)).tolist()
     return Normal_plist
 
 
@@ -328,7 +327,8 @@ def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins,
         plist = qm_partial(v=v, J=J, idx0_nspins=idx0_nspins,
                            nIntergals=nIntergals, args=args)
     elif len(v) == 1:
-        plist = [(np.fabs(v[0]), float(1.00000))]
+        import math
+        plist = [(math.fabs(v[0]), float(1.00000))]
     else:
         print("something wrong in your qm_Base cal.")
     return plist

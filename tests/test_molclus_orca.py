@@ -20,7 +20,6 @@ def test_orca_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
-@pytest.mark.skipif(_system == "Darwin", reason="")
 def test_orca_opt():
     x: dict = {"file": inFile, "template": "template.inp",
                "remove": True, "out": outFile}
@@ -32,7 +31,7 @@ def test_orca_opt():
     if _system == "Linux":  # Need 2 min
         compare = "tests/compare/orca_isomers.xyz"
 
-    elif _system == "Darwin":
+    elif _system == "Darwin":  # Need 5 min
         compare = "tests/compare/orca_isomers_Darwin.xyz"
 
     assert filecmp.cmp(args.out, compare)
