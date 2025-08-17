@@ -48,6 +48,6 @@ def test_factor_opt():
 
     a0, a1, a2 = method_factor_opt(
         args, idx1_minor_factor, Table_S)  # type: ignore
-    assert a0 is True
+    assert a0
     assert a1 == [52, 55]
     assert a2 == pytest.approx(0.9863091021443952)

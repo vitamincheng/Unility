@@ -173,7 +173,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     fileName: str = p.name
     Dir: Path = p.parents[0]
 
-    if args.manual is True:
+    if args.manual:
         choice_xtb: str = input(
             " Geometry optimization use xtb : Yes or No ").lower().split()[0]
         if choice_xtb == "y" or choice_xtb == "yes":

@@ -15,7 +15,7 @@ def test_xyzSerial_new():
     xyzSerial.main(args)
 
     compare = "tests/compare/xyzSerial-new.xyz"
-    assert filecmp.cmp(args.out, compare) is True
+    assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
 
 

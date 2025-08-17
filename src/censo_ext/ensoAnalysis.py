@@ -235,7 +235,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     backup_enso = Boltzmann_enso(backup_enso, TEMP)
 
     names_anmr: list = list()
-    if args.weights is True:
+    if args.weights:
         # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'), ('Energy', '<f8'),
         # ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8'), ('Total', '<f8'), ('Gibbs', '<f8'),
         # ('Qi', '<f8'), ('NEW_BW', '<f8')])
@@ -245,7 +245,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         result_enso = np.copy(anmr_enso)
 
         # for normal condition, the ONOFF is 1(on) at all
-        if result_enso.dtype.names is not None:
+        if result_enso.dtype.names:
             names_anmr = list(result_enso.dtype.names)
         result_enso['ONOFF'].fill(1)
         np.savetxt(args.file, result_enso[names_anmr[:8]], comments="", header="ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi",
@@ -388,7 +388,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             if (anmr_enso['ONOFF'][i]) == 1 and (Gibbs_Eh[i]) == 0.0:
                 insert_zero = True
         Gibbs_Eh = Gibbs_Eh[Gibbs_Eh != 0]
-        if insert_zero is True:
+        if insert_zero:
             Gibbs_Eh = np.insert(Gibbs_Eh, 0, 0)
         avg_Gibbs_Eh: float = np.average(Gibbs_Eh).astype(float)
 
@@ -403,7 +403,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         result_enso['mRRHO'] = result_enso['mRRHO'] + \
             Reduced_energy_Eh*result_enso['ONOFF']
         result_enso['BW'] = avg_fraction
-        if result_enso.dtype.names is not None:
+        if result_enso.dtype.names:
             names_anmr = list(result_enso.dtype.names)
         np.savetxt("average_enso", result_enso[names_anmr[:8]], comments="", header="ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi",
                    fmt='%-6d %-4d %-4d %6.4f %11.7f %10.7f %10.7f %2.3f')

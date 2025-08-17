@@ -246,12 +246,8 @@ def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
         if args.ignore_Hydrogen:
             xyzfile.set_filename(xyz_tmp)
             xyzfile.method_save_xyz([idx_p])
-            args_x: dict = {
-                "file": xyz_tmp,
-                "bond_broken": [*args.bond_broken],
-                # "bond_broken": [*args.bond_broken[0], args.bond_broken[1]],
-                "print": False,
-                "debug": False}
+            args_x: dict = {"file": xyz_tmp, "bond_broken": [*args.bond_broken],
+                            "print": False, "debug": False}
             from censo_ext.Tools.topo import Topo
             Sts_topo: Topo = Topo(args_x["file"])
             idx_atom1 = np.array(Sts_topo.method_broken_bond(
@@ -268,9 +264,7 @@ def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     # Handle index removal
     if args.remove_idx:
-        if args.ignore_Hydrogen:
-            pass
-        else:
+        if not args.ignore_Hydrogen:
             idx_atom1 = np.arange(1, len(p_all_atoms)+1)
 
         idx_atom1 = np.setdiff1d(idx_atom1, args.remove_idx)
@@ -308,7 +302,7 @@ def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     q_coord -= q_cent
 
     # Final index handling
-    if (args.add_idx is None) and (args.remove_idx is None) and (args.ignore_Hydrogen is False):
+    if (args.add_idx is None) and (args.remove_idx is None) and (not args.ignore_Hydrogen):
         idx_atom1 = np.arange(
             1, len(p_all_atoms)+1)
 

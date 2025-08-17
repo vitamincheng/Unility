@@ -105,7 +105,7 @@ def rosenbrock(x0) -> float:
     np.savetxt(Directory/FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
     orcaS_Table = np.delete(orcaS_Table, 2, axis=1)
 
-    if prog is True:
+    if prog:
         ic("External")
         import sys
         cwd: Path = Path(os.getcwd())
@@ -310,7 +310,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         ic("orcaS.out is exist")
         if IsExist_return_bool(Directory / FileName_BOBYQA):            # type: ignore # nopep8
             ic("orcaS-BOBYQA.out is exist")
-            if prog is True:
+            if prog:
                 # ic("External")
                 cwd: Path = Path(os.getcwd())
                 os.chdir(Directory)  # type: ignore
@@ -326,7 +326,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 os.chdir(cwd)
             Scan_single_Peak()
             Scan_group_Peaks()
-            if prog is True:
+            if prog:
                 cwd: Path = Path(os.getcwd())
                 os.chdir(Directory)  # type: ignore
                 # print(" Recover the data from backup directory")

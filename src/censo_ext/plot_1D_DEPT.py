@@ -282,7 +282,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(f"{n+1:6d} {ppm:>15.5f}        {StAtoms[n+1]:>3d}")
 
     # save to file
-    if args.save is True:
+    if args.save:
         with open(peaks_fileName, "w") as f:
             sys.stdout = f
             print("#   ID             ppm    nHydrogens")

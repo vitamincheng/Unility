@@ -233,7 +233,7 @@ def main(args=argparse.Namespace()) -> None:
         maximum = xslice.max()
         # x_sum = xslice.sum()
         xright = uc_1h.ppm(xslice.size)
-        if not args.hidden and ax is not None:
+        if not args.hidden and ax:
             # ax.plot(uc_1h.ppm_scale(), -xslice/maximum *
             #        5 + uc_13c.ppm(y_idx), linewidth=0.5)
             ax.plot(uc_1h.ppm_scale(), -xslice/x_grobal_maximum *

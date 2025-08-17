@@ -95,7 +95,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    if args.file is not None:
+    if args.file:
         from censo_ext.Tools.utility import IsExist
         IsExist(args.file)
         from censo_ext.Tools.anmrfile import CensoDat

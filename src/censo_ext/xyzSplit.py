@@ -158,7 +158,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 infile.method_save_xyz_append([idx0_St+1])
 
     if not args.print:
-        if Delete_work is True:
+        if Delete_work:
             print(f"   {args.out} is here, it will be removed.")
             print(f"    Overwrite the file : {args.out}")
         else:

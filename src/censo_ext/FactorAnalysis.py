@@ -253,7 +253,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    if args.Analysis is True:
+    if args.Analysis:
         if args.factor is None:
             args.factor = 0.50
         minor_list: list[int]
@@ -264,7 +264,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             method_factor_opt(
                 args=args, low_factor=minor_list, Table_S=Table_S)
 
-    if args.Filter is True:
+    if args.Filter:
         if args.factor is None:
             args.factor = 0.20
         if args.thr is None:

@@ -529,7 +529,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     print(" Wait a minutes ...")
     args.out = str(inAnmr.get_Directory()/Path(args.out))
 
-    if dpi is not None and Active_range is not None:
+    if dpi and Active_range:
         np_dat: npt.NDArray[np.float64] = qm.print_plot(
             Final_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range, hidden=not args.show)
     else:
