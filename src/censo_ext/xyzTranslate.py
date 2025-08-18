@@ -110,12 +110,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         infile: GeometryXYZs = read_xyz_file(args.file)
 
         outfile = GeometryXYZs()
-        if args.cut is None:
-            outfile: GeometryXYZs = infile.method_translate_xyzs(
-                np.array(args.move))
-        elif args.cut:
+        if args.cut:
             outfile: GeometryXYZs = infile.method_translate_cut_xyzs(
                 delta=np.array(args.move), cut=args.cut+1)
+        else:
+            outfile: GeometryXYZs = infile.method_translate_xyzs(
+                np.array(args.move))
 
         write_xyz_file(outfile, args.out)
 

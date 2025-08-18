@@ -224,9 +224,9 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
     Normal_plist: list[tuple[float, float]
                        ] = normalize_peaklist(plist, nIntergals)
     # ic(normalized_plist)
-    if args.start is None:
+    if not args.start:
         args.start = (plist.T)[0].min() - Active_range * 0.1
-    if args.end is None:
+    if not args.end:
         args.end = (plist.T)[0].max() + Active_range * 0.1
 
     Normal_y_max: float = np.array(Normal_plist).max()*2

@@ -22,7 +22,7 @@ class Anmrrc():
         """
         Singleton Pattern
         """
-        if cls._instance is None:
+        if not cls._instance:
             cls._instance = super().__new__(cls)
         return cls._instance
 
@@ -136,7 +136,7 @@ class Anmrrc():
             if x[3] == 1:
                 reference = x[1]
 
-        if reference is None:
+        if not reference:
 
             print("No reference in your .anmrrc file")
             ic()
@@ -151,7 +151,7 @@ class Anmr():
 
     def __new__(cls, *args, **kwargs) -> Self:
         '''Singleton Pattern'''
-        if cls._instance is None:
+        if not cls._instance:
             cls._instance = super().__new__(cls)
         return cls._instance
 

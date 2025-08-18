@@ -161,7 +161,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(descr)  # Program description
         print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    if args.atom is None and not args.auto:
+    if not args.atom and not args.auto:
         print(" No any sepific atom in your provided arguments ")
         ic()
         raise ValueError(" No any sepific atom in your provided arguments ")
@@ -169,7 +169,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     p_idx: int
     q_idx: int
     r_idx: int
-    if args.atom is None and args.auto:
+    if not args.atom and args.auto:
         print("\n Automated to set the 3 atoms to return origin and lay on XZ plane")
         print(" First FactorAnalysis.py will executive and second continue the RetrunOandZ.py ")
         p_idx, q_idx, r_idx = idx_3atom_opt(args)

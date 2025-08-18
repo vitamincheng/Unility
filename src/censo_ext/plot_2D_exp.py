@@ -202,7 +202,7 @@ def main(args=argparse.Namespace()) -> None:
     # Important
     # Remember to fix the pipe.py in ng.pipe.make_uc to remark   171 lines: size = size / 2
     ###
-    if args.path is None:
+    if not args.path:
         args.path = "../../bmse000510/nmr/set01/1H_13C_HSQC/pdata/1/"
         # args.path = "../../bmse000510/nmr/set01/1H_13C_HMBC/pdata/1/"
         # args.path = "../../bmse000405/nmr/set01/HH_TOCSY/pdata/1/"

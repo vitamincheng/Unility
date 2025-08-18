@@ -274,7 +274,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 inHydrogen = [value+1 for value in bond_order.values()]
                 Active_range = 200
                 dpi = 500
-                if args.lw is None:
+                if not args.lw:
                     args.lw = 20
                 if not args.thr:
                     args.thr = args.lw * 0.3
@@ -291,9 +291,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 inHydrogen = [value for value in inHydrogenDict.values()]
                 Active_range = 10
                 dpi = 10000
-                if args.lw is None:
+                if not args.lw:
                     args.lw = 1
-                if args.thr is None:
+                if not args.thr:
                     args.thr = args.lw * 0.3
             else:
                 print("Other Active Nuclear element, waiting to build")
@@ -306,7 +306,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     idx0_ab_group_sets: list[set[int]] = []
     mat_filter_multi: npt.NDArray[np.int64] = np.array([])
 
-    if args.json is None:
+    if not args.json:
         inJCoups_origin: npt.NDArray[np.float64] = copy.deepcopy(inJCoups)
 
         while (1):
@@ -455,7 +455,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     import censo_ext.Tools.qm as qm
     idx0_peaks_range: list[int] = []
 
-    if args.json is None:
+    if not args.json:
         print("")
         print(" ===== Processing =====")
         print(" the group of calculate spectra :", len(idx0_ab_group_sets))

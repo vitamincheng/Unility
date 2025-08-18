@@ -30,4 +30,4 @@ def test_FactorCompare():
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    assert Res is None
+    assert not Res

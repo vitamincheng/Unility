@@ -114,7 +114,7 @@ def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> 
 
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
     ppm = np.linspace(ppm_1h_0, ppm_1h_1, data.shape[0])
-    if args.start is None or args.end is None:
+    if not args.start or not args.end:
         args.end, args.start = uc_1h.ppm_limits()
 
     # output = np.vstack((ppm, np.real(data))).T[::-1]
@@ -249,7 +249,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
     ppm: npt.NDArray[np.float64] = np.linspace(
         ppm_1h_0, ppm_1h_1, data.shape[0])
-    if args.start is None or args.end is None:
+    if not args.start or not args.end:
         args.end, args.start = uc_1h.ppm_limits()
 
     output: npt.NDArray[np.float64] = np.vstack((ppm, np.real(data))).T[::-1]

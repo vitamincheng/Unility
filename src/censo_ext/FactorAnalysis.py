@@ -93,7 +93,7 @@ def cml(descr) -> argparse.Namespace:
         default=None,
         required=False,
         type=float,
-        help="Factor of threshold limit of std [default 0.50]",
+        help="Factor of threshold limit of std [default 0.50 for analysis 0.20 for Filter]",
     )
 
     parser.add_argument(
@@ -254,7 +254,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
     if args.Analysis:
-        if args.factor is None:
+        if not args.factor:
             args.factor = 0.50
         minor_list: list[int]
         Table_S: dict[int, float]
@@ -265,9 +265,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 args=args, low_factor=minor_list, Table_S=Table_S)
 
     if args.Filter:
-        if args.factor is None:
+        if not args.factor:
             args.factor = 0.20
-        if args.thr is None:
+        if not args.thr:
             args.thr = 2
         FactorFilter(args)
 

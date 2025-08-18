@@ -186,7 +186,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
-    if args.path is None:
+    if not args.path:
         # args.path = "FAD/2/pdata/1/"
         # args.path = "../../bmse000510/nmr/set01/1H/pdata/1"
         # args.path = "../../bmse000510/nmr/set01/13C/pdata/1"
