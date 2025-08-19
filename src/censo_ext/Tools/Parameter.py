@@ -238,19 +238,21 @@ ELEMENT_NAMES: dict[int, str] = {
     116: "Uuh",
 }
 
+# {"H":1;"He":2;....}
 NAMES_ELEMENT: dict[str, int] = {
     value: key for key, value in ELEMENT_NAMES.items()}
 
-masses: dict = {}
+# {"H",1.00797;He,4.00360;...}
+NAMES_WEIGHTS: dict[str, float] = {}
 for x, y in (ELEMENT_WEIGHTS.items()):
-    masses.update({ELEMENT_NAMES[x].lower(): y})
+    NAMES_WEIGHTS.update({ELEMENT_NAMES[x].lower(): y})
 
 
 PI: float = constants.pi
 # GRAVITY = 9.8
 
 Eh: float = constants.physical_constants["hartree-joule relationship"][0] * \
-    constants.Avogadro/constants.calorie/1000        # 1Eh=627.503 kcal/mol
+    constants.Avogadro/constants.calorie/1000        # 1 Eh = 627.503 kcal/mol
 RJ: float = constants.R                              # R constant  J/mol.K
 Rcal: float = constants.R/constants.calorie          # R constant  cal/mol.K
 FACTOR: float = Rcal/1000

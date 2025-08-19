@@ -71,19 +71,19 @@ def read_data(args) -> tuple[dict[int, npt.NDArray], list[list[int]], list[list[
     from censo_ext.Tools.topo import Topo
     Sts_topo: Topo = Topo(args.file)
     _, neighbor, circleMols, residualMols = Sts_topo.topology()
-    atomsCN: dict[int, int] = Sts_topo.get_cn()
+    idx_atomsCN: dict[int, int] = Sts_topo.get_cn()
     # ic(neighbor, circleMols, residualMols)
     # ic(atomsCN)
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
-    _, _, Bond_order = read_mol_neighbors_bond_order(
+    _, _, idx_Bond_order = read_mol_neighbors_bond_order(
         args.file)
     # ic(Bond_order)
     # ic(residualMols)
-    return neighbor, circleMols, residualMols, Bond_order, atomsCN
+    return neighbor, circleMols, residualMols, idx_Bond_order, idx_atomsCN
 
 
-def get_xyzSplitList(neighbor: dict[int, npt.NDArray], circleMols: list[list[int]], residualMols: list[list[np.int64]], Bond_order: dict[int, int], atomsCN: dict[int, int], flattenCircleMols: list[int]) -> dict[int, int]:
-    xyzSplitDict: dict[int, int] = {}
+def get_xyzSplit(neighbor: dict[int, npt.NDArray], circleMols: list[list[int]], residualMols: list[list[np.int64]], Bond_order: dict[int, int], atomsCN: dict[int, int], flattenCircleMols: list[int]) -> dict[int, int]:
+    xyzSplit: dict[int, int] = {}
     for mol in residualMols:
         mol = list(map(int, mol))
         # ic(mol)
@@ -109,10 +109,10 @@ def get_xyzSplitList(neighbor: dict[int, npt.NDArray], circleMols: list[list[int
                             num: int = 1
                             while (Bond_order[mol[arg-num]] == 3):
                                 num += 1
-                            xyzSplitDict[mol[arg-num]] = mol[arg+1]
+                            xyzSplit[mol[arg-num]] = mol[arg+1]
                             # ic(mol[arg-num], mol[arg+1])
                         else:
-                            xyzSplitDict[mol[arg]] = mol[arg+1]
+                            xyzSplit[mol[arg]] = mol[arg+1]
                             # ic(mol[arg], mol[arg+1])
                     else:
                         # Bond_order[mol[arg+1]] == 3
@@ -123,7 +123,7 @@ def get_xyzSplitList(neighbor: dict[int, npt.NDArray], circleMols: list[list[int
                     # if it have two nodes, second node is set as end point.
                     # and it must be in flexibleMolCNis4 list
                     pass
-    return xyzSplitDict
+    return xyzSplit
 
 
 def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> None:
@@ -190,9 +190,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     for mol in circleMols:
         flattenCircleMols += mol
 
-    xyzSplitDict: dict[int, int] = get_xyzSplitList(neighbor, circleMols, residualMols,
-                                                    Bond_order, atomsCN, flattenCircleMols)
-    gen_GeometryXYZs(xyzSplitDict, args)
+    xyzSplit: dict[int, int] = get_xyzSplit(neighbor, circleMols, residualMols,
+                                            Bond_order, atomsCN, flattenCircleMols)
+    gen_GeometryXYZs(xyzSplit, args)
 
 
 if __name__ == "__main__":

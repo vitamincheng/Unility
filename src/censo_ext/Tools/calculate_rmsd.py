@@ -20,7 +20,7 @@ from censo_ext.Tools.xyzfile import GeometryXYZs
 NAMES_ELEMENT = {value: key for key, value in Parameter.ELEMENT_NAMES.items()}
 
 
-def str_atom(atom: int) -> str:
+def atom2str(atom: int) -> str:
     """
     Convert atom type from integer to string.
 
@@ -33,7 +33,7 @@ def str_atom(atom: int) -> str:
     return Parameter.ELEMENT_NAMES[atom]
 
 
-def int_atom(atom: str) -> int:
+def atom2int(atom: str) -> int:
     """
     Convert atom type from string to integer.
 
@@ -60,7 +60,7 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[
         tuple[dict[int,float],float]: Tuple of atom-wise squared differences and RMSD value.
     """
     diff: npt.NDArray[np.float64] = P - Q
-    atom_square: dict[int, float] = {}
+    idx_atomSquare: dict[int, float] = {}
     coord_square_total: float = 0
     for idx0, x in enumerate(idx_atom):
         coord_square: float = float((diff[idx0]*diff[idx0]).sum())
@@ -68,9 +68,9 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[
         if __name__ == "__main__":
             print(f"{x:>5}", end=" ")
             print(f"{coord_square:>10.5f}")
-        atom_square[x] = coord_square
+        idx_atomSquare[x] = coord_square
         coord_square_total += coord_square
-    return atom_square, float(np.sqrt(coord_square_total / P.shape[0]))
+    return idx_atomSquare, float(np.sqrt(coord_square_total / P.shape[0]))
 
 
 def kabsch_rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom1: list[int],
@@ -186,9 +186,9 @@ def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
     Returns:
         tuple[npt.NDArray[np.int64],npt.NDArray[np.float64]]: Tuple of atom types and coordinates.
     '''
-    Names: dict[int, str] = xyzfile.Sts[idx0].names
+    idx_Names: dict[int, str] = xyzfile.Sts[idx0].names
     element: npt.NDArray[np.int64] = np.array(
-        [int_atom(atom) for atom in Names.values()])
+        [atom2int(atom) for atom in idx_Names.values()])
     V: npt.NDArray[np.float64] = np.array(
         xyzfile.Sts[idx0].coord, dtype=np.float64)
     return element, V
@@ -303,13 +303,11 @@ def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     # Final index handling
     if (args.add_idx is None) and (args.remove_idx is None) and (not args.ignore_Hydrogen):
-        idx_atom1 = np.arange(
-            1, len(p_all_atoms)+1)
+        idx_atom1 = np.arange(1, len(p_all_atoms)+1)
 
-    coord_square: dict[int, float]
+    idx_coordSquare: dict[int, float]
     res_rmsd: float
-    coord_square, res_rmsd = kabsch_rmsd(
-        p_coord, q_coord, list(idx_atom1))
+    idx_coordSquare, res_rmsd = kabsch_rmsd(p_coord, q_coord, list(idx_atom1))
 
     if __name__ == "__main__":
         print(f"{" RMSD":>5s}", end=" ")
@@ -320,7 +318,7 @@ def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     if len(idx_atom1) == 0:
         raise ValueError(str("The value of idx_atom1 is error"))
-    elif len(coord_square) == 0:
+    elif len(idx_coordSquare) == 0:
         raise ValueError(str("The value of coord_square is error"))
     else:
-        return coord_square, res_rmsd
+        return idx_coordSquare, res_rmsd

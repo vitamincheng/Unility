@@ -36,7 +36,7 @@ class Anmrrc():
         lines: list[str] = open(DirFileName, "r").readlines()
 
         # Dict of Atomic Numbers and Atomic label
-        self.element: dict[int, str] = {
+        self.Nums_element: dict[int, str] = {
             1: 'H', 6: 'C', 9: 'F', 14: 'Si', 15: 'P'}
         # List of Acid Atom (like NH OH) No show in spectra
         self.acid_atoms_NoShow: list[int] = []
@@ -68,7 +68,7 @@ class Anmrrc():
         # Set the active species based on anmrrc entries
         for idx, x in enumerate(self.anmrrc):
             if x[3] == 1:
-                self.Active.append(self.element[int(x[0])])
+                self.Active.append(self.Nums_element[int(x[0])])
 
     def __repr__(self) -> str:
         """
@@ -136,12 +136,12 @@ class Anmrrc():
             if x[3] == 1:
                 reference = x[1]
 
-        if not reference:
-
+        if reference:
+            return reference
+        else:
             print("No reference in your .anmrrc file")
             ic()
             raise ValueError("No reference in your .anmrrc file")
-        return reference
 
 
 class Anmr():
@@ -232,14 +232,14 @@ class Anmr():
             idx1_CONF: npt.NDArray[np.int64] = self.enso['CONF'].astype(
                 np.int64)
 
-            if (np.sum(switch) == 0):
+            if np.sum(switch) == 0:
                 print(" anmr_enso: Table - ONOFF is Zero ")
                 ic()
                 raise ValueError(" anmr_enso: Table - ONOFF is Zero ")
 
             weight = weight*switch
             weight = weight / np.sum(weight)
-            normal_weight: dict[np.int64, np.float64] = dict(
+            normal_idx_weight: dict[np.int64, np.float64] = dict(
                 zip(np.atleast_1d(idx1_CONF), np.atleast_1d(weight)))
 
             Active_orcaSJ: list[int] = []
@@ -262,7 +262,7 @@ class Anmr():
                 # np.float64 to float64 use item()
                 idy0: list[int] = list(map(int, x.SParams.keys()))
                 y: list[float] = list(map(float, x.SParams.values()))
-                for idz, z in zip(idy0, np.array(y) * normal_weight[x.CONFSerialNums]):
+                for idz, z in zip(idy0, np.array(y) * normal_idx_weight[x.CONFSerialNums]):
                     self.avg_orcaSJ.SParams[idz] += z.item()
 
             for key, value in self.avg_orcaSJ.SParams.items():
@@ -275,7 +275,7 @@ class Anmr():
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
                 y = x.JCoups
                 self.avg_orcaSJ.JCoups += np.array(y) * \
-                    normal_weight[x.CONFSerialNums]
+                    normal_idx_weight[x.CONFSerialNums]
 
             ic(self.avg_orcaSJ.SParams)
             ic(self.avg_orcaSJ.JCoups)
@@ -300,10 +300,10 @@ class Anmr():
         else:
             print("===== Update the equivalent of SParams and JCoups =====")
 
-            element: list[int] = []
+            Atoms: list[int] = []
             for idx, x in self.orcaSJ[0].idxAtoms.items():
-                element.append(idx)
-            AtomsKeep: npt.NDArray[np.int64] = np.array(element)
+                Atoms.append(idx)
+            AtomsKeep: npt.NDArray[np.int64] = np.array(Atoms)
             AtomsEqvKeep: npt.NDArray[np.int64] = AtomsKeep.copy()
 
             ic(AtomsEqvKeep)
@@ -801,7 +801,6 @@ class OrcaSJ():
                     nNuclei = int(line.split()[-1])
                     import math
                     nLines = (math.ceil(nNuclei/6))*(nNuclei+1)
-                    # end_idx = idx-2
 
                 if re.search(r"SUMMARY OF ISOTROPIC COUPLING CONSTANTS", line):
                     start_idx = idx + 2

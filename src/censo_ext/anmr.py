@@ -280,15 +280,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     args.thr = args.lw * 0.3
                 inJCoups = np.zeros_like(inJCoups)
             elif x == 'H':
-                inHydrogenDict: dict[int, int] = {}
+                idx_nMagEqvHydrogens: dict[int, int] = {}
                 for key in inAnmr.avg_orcaSJ.idxAtoms.keys():
-                    inHydrogenDict[key] = len(inAnmr.nucinfo[1][key-1][2])
+                    idx_nMagEqvHydrogens[key] = len(
+                        inAnmr.nucinfo[1][key-1][2])
                 for x in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
                         inAnmr.get_Directory()/inFile):
-                    if x in inHydrogenDict.keys():
-                        del inHydrogenDict[x]
+                    if x in idx_nMagEqvHydrogens.keys():
+                        del idx_nMagEqvHydrogens[x]
                         del in_idxAtoms[x]
-                inHydrogen = [value for value in inHydrogenDict.values()]
+                inHydrogen = [value for value in idx_nMagEqvHydrogens.values()]
                 Active_range = 10
                 dpi = 10000
                 if not args.lw:

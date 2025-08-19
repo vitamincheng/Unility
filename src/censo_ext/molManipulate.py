@@ -99,5 +99,5 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 if __name__ == "__main__":
     main()
 
-    # python3 molManipulate.py -s tests/data/crest_conformers3.xyz
-    # python3 molManipulate.py -m tests/data/Separation/1.xyz tests/data/Separation/2.xyz
+    # molManipulate.py -s tests/data/crest_conformers3.xyz
+    # molManipulate.py -m tests/data/Separation/1.xyz tests/data/Separation/2.xyz

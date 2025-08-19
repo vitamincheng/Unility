@@ -93,8 +93,8 @@ def xtb(args):
 
     cwd: Path = Path(os.getcwd())
     xtb_folder.mkdir()
-    x: dict = {"file": inFile, "method": "gfn2",
-               "chrg": 0, "uhf": 1, "out": outFile, "alpb": "CHCl3", "gbsa": None, "opt": True}
+    x: dict = {"file": inFile, "method": "gfn2", "chrg": 0, "uhf": 1,
+               "out": outFile, "alpb": "CHCl3", "gbsa": None, "opt": True}
     import censo_ext.molclus_xtb as molclus_xtb
     molclus_xtb.main(argparse.Namespace(**x))
     os.chdir(cwd)
@@ -137,8 +137,8 @@ def thermo(args) -> list:
 
     cwd: Path = Path(os.getcwd())
     os.chdir(thermo_folder)
-    args_x: dict = {"file": inFile,
-                    "method": "gfn2", "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1}
+    args_x: dict = {"file": inFile, "method": "gfn2",
+                    "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1}
     thermo: list = molclus_thermo.main(argparse.Namespace(**args_x))
     os.chdir(cwd)
     shutil.rmtree(thermo_folder, ignore_errors=True)

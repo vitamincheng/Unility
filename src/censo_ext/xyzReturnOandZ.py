@@ -102,16 +102,15 @@ def idx_3atom_opt(args) -> tuple[int, int, int]:
     from censo_ext.Tools.factor import method_factor_analysis
     args_x: dict = {"file": args.file,
                     "factor": 0.5, "debug": False, "opt": False}
-    minor_idx: list[int]
-    TableSTD: dict[int, float]
-    minor_idx, TableSTD = method_factor_analysis(
+    idx1_LowFactor: list[int]
+    idx_STD: dict[int, float]
+    idx1_LowFactor, idx_STD = method_factor_analysis(
         args=argparse.Namespace(**args_x))
-    idx1_Low_Factor: list[int] = list(minor_idx)
-    idx1_Atom: list[int] = list(TableSTD.keys())
-    AtomSTD: list[float] = list(map(float, TableSTD.values()))
+    idx1_Atoms: list[int] = list(idx_STD.keys())
+    STD_Atoms: list[float] = list(map(float, idx_STD.values()))
 
     idx1_Bonding: list[list[int]] = []
-    for idx, x in enumerate(idx1_Low_Factor):
+    for idx, x in enumerate(idx1_LowFactor):
         from censo_ext.Tools.topo import Topo
         args_x: dict = {"file": args.file, "bonding": x,
                         "print": False, "debug": False}
@@ -120,7 +119,7 @@ def idx_3atom_opt(args) -> tuple[int, int, int]:
             args=argparse.Namespace(**args_x)))
 
     idx1_3atom: list[list[int]] = []
-    for idx, x in enumerate(idx1_Low_Factor):
+    for idx, x in enumerate(idx1_LowFactor):
         # total numbers >=3 or >2 (one of total numbers is )
         if len(idx1_Bonding[idx]) > 1:
             tmp: list[int] = []
@@ -130,26 +129,26 @@ def idx_3atom_opt(args) -> tuple[int, int, int]:
             idx1_3atom.append(tmp)
 
     from itertools import combinations
-    idx1_Combine_3atom: list[tuple[int, int, int]] = []
+    idx1_Combine3atom: list[tuple[int, int, int]] = []
     for idx, x in enumerate(idx1_3atom):
         for y in list(combinations(x, 3)):
-            idx1_Combine_3atom.append(y)
+            idx1_Combine3atom.append(y)
 
-    idx_min_Total_Dev = 0
-    min_Total_Dev = 100
-    for idx, x in enumerate(idx1_Combine_3atom):
-        Total_Dev_Atom = 0
+    idx_minTotalDev: int = 0
+    minTotalDev: float = 100
+    for idx, x in enumerate(idx1_Combine3atom):
+        TotalDevAtoms: float = 0.0
         for y in x:
-            Total_Dev_Atom += (AtomSTD[idx1_Atom.index(y)])
-        if min_Total_Dev > Total_Dev_Atom:
-            min_Total_Dev = Total_Dev_Atom
-            idx_min_Total_Dev: int = idx
+            TotalDevAtoms += (STD_Atoms[idx1_Atoms.index(y)])
+        if minTotalDev > TotalDevAtoms:
+            minTotalDev = TotalDevAtoms
+            idx_minTotalDev: int = idx
 
     print("")
     print(" 3 atom idx of lowest total factor : "
-          f"{idx1_Combine_3atom[idx_min_Total_Dev]}")
+          f"{idx1_Combine3atom[idx_minTotalDev]}")
     print("")
-    return (idx1_Combine_3atom[idx_min_Total_Dev])
+    return (idx1_Combine3atom[idx_minTotalDev])
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
@@ -180,31 +179,31 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     infile.method_read_xyz()
 
     # Process xyz file
-    for idx_st in range(len(infile)):
+    for idx_St in range(len(infile)):
 
-        dxyz: npt.NDArray[np.float64] = infile.Sts[idx_st].coord[p_idx-1].copy()
-        infile.Sts[idx_st].coord -= dxyz  # type: ignore
+        dxyz: npt.NDArray[np.float64] = infile.Sts[idx_St].coord[p_idx-1].copy()
+        infile.Sts[idx_St].coord -= dxyz  # type: ignore
         import math
         z_axis = (0, 0, math.sqrt(
-            np.sum(np.square(infile.Sts[idx_st].coord[q_idx-1]))))
+            np.sum(np.square(infile.Sts[idx_St].coord[q_idx-1]))))
 
-        rotation_axis = infile.Sts[idx_st].coord[q_idx-1]+z_axis
+        rotation_axis = infile.Sts[idx_St].coord[q_idx-1]+z_axis
         if np.linalg.norm(rotation_axis) == 0:
-            Normalized_rotation_axis: npt.NDArray[np.float64] = np.array([
-                                                                         0, 1, 0])
+            Normalized_RotationAxis: npt.NDArray[np.float64] = np.array([
+                0, 1, 0])
         else:
-            Normalized_rotation_axis = rotation_axis / \
+            Normalized_RotationAxis = rotation_axis / \
                 np.linalg.norm(rotation_axis)
 
-        R_pq = R.from_rotvec(np.pi*Normalized_rotation_axis)
-        infile.Sts[idx_st].coord = R_pq.apply(
-            infile.Sts[idx_st].coord)  # type: ignore
+        R_pq = R.from_rotvec(np.pi*Normalized_RotationAxis)
+        infile.Sts[idx_St].coord = R_pq.apply(
+            infile.Sts[idx_St].coord)  # type: ignore
 
-        Angle_qr = np.angle(complex(infile.Sts[idx_st].coord[r_idx-1][0], complex(
-            infile.Sts[idx_st].coord[r_idx-1][1])))
+        Angle_qr = np.angle(complex(infile.Sts[idx_St].coord[r_idx-1][0], complex(
+            infile.Sts[idx_St].coord[r_idx-1][1])))
         R_qr = R.from_euler('z', -Angle_qr)
-        infile.Sts[idx_st].coord = R_qr.apply(
-            infile.Sts[idx_st].coord)  # type: ignore
+        infile.Sts[idx_St].coord = R_qr.apply(
+            infile.Sts[idx_St].coord)  # type: ignore
 
     # Save or print result
     if args.print:

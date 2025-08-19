@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# |                                       [08.18.2024] vitamin.cheng@gmail.com
+#                                        [08.18.2024] vitamin.cheng@gmail.com
 #  Need ASE Library
 ########## GLOBAL DECLARATIONS ##########
 
@@ -44,81 +44,6 @@ covalent_rad_2009: npt.NDArray[np.float64] = np.array([
 # D3 covalent radii used to construct the coordianation number
 covalent_rad_d3 = 4.0 / 3.0 * covalent_rad_2009
 
-########## END GLOBAL DECLARATIONS ##########
-
-
-# def get_number_nmr(outlist: list) -> int:
-#    """Get number of calculated NMR nuclei (not necessarily only 1H and 13C).
-#
-#    outlist: list of lines read from a calculation output file
-#    """
-#
-#    n_nmr: int = 0
-#    for line in outlist[outlist.index('                            *     ORCA property calculations      *\n'):]:
-#        if 'Number of nuclei for epr/nmr' in line:
-#            n_nmr = int(line.split()[-1])
-#    if n_nmr == 0:
-#        print("ERROR: Number of calculated NMR nuclei was not found in ORCA output!")
-#        exit()
-#
-#    return n_nmr
-#
-#
-# def read_orca(filename: Path = Path("orcaS.out")) -> tuple:
-#    """Read the DFT output from ORCA calculations."""
-#
-#    data: list[str] = open(filename, 'r').readlines()
-#
-#    # get number of calculated NMR nuclei
-#    n_nmr: int = get_number_nmr(data)
-#
-#    # get the range in which the shieldings are listed
-#    start: int = data.index('CHEMICAL SHIELDING SUMMARY (ppm)\n') + 6
-#    end: int = start + n_nmr
-#
-#    shieldings: list = []
-#    for line in data[start:end]:
-#        tmp: list[str] = line.split()
-#        shieldings.append({
-#            # ORCA starts at 0 counting the nuc numbers
-#            'idx_nuclei': int(tmp[0]) + 1,
-#            'element': tmp[1].upper(),
-#            'Shielding': float(tmp[2])
-#        })
-#
-#    # make sure the shieldings are ordered according to the atom numbering (store as tuple)
-#    return tuple(sorted(shieldings, key=lambda s: s['idx_nuclei']))
-#
-#
-# def getref_orca(filename: Path = Path("orcaS.out")) -> tuple[list, list]:
-#    """Get the reference shieldings from the DFT output (ORCA).
-#
-#    ATTENTION: all Hs and all Cs are averaged, works e.g. for TMS and CH4.
-#    """
-#    data: list[str] = open(filename, 'r').readlines()
-#
-#    # get number of calculated NMR nuclei
-#    n_nmr: int = get_number_nmr(data)
-#
-#    # get the range in which the shieldings are listed
-#    start: int = data.index('CHEMICAL SHIELDING SUMMARY (ppm)\n') + 6
-#    end: int = start + n_nmr
-#
-#    list_h: list = []
-#    list_c: list = []
-#    idx_h, idx_c = 0, 0
-#
-#    for line in data[start:end]:
-#        tmp: list = line.split()
-#        if tmp[1].upper() == 'H':
-#            list_h.append(float(tmp[2]))
-#            idx_h += 1
-#        if tmp[1].upper() == 'C':
-#            list_c.append(float(tmp[2]))
-#            idx_c += 1
-#
-#    return list_h, list_c
-
 
 def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]]]:
     """
@@ -147,21 +72,21 @@ def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int
     # build neighbor list and write list of neighboring atoms to the dict neighbors
     nl = neighborlist.build_neighbor_list(
         mol, cutoffs, self_interaction=False, bothways=True)
-    neighbors: dict[int, npt.NDArray[np.int64]] = {}
+    idx_neighbors: dict[int, npt.NDArray[np.int64]] = {}
 
     for idx in range(len(mol)):
         # nl.get_neighbors(i) returns [0]: indices and [1]: offsets
         indices: npt.NDArray[np.int64] = nl.get_neighbors(idx)[0]
         # add 1 to key and to value to start counting of atoms at 1
-        neighbors[idx+1] = indices+1
+        idx_neighbors[idx+1] = indices+1
 
         # exit if an H atom has not exactly 1 neighbor
-        if mol.get_atomic_numbers()[idx] == 1 and len(neighbors[idx+1]) != 1:  # type: ignore # nopep8
+        if mol.get_atomic_numbers()[idx] == 1 and len(idx_neighbors[idx+1]) != 1:  # type: ignore # nopep8
             print(f"ERROR: H atom {idx+1} has not exactly one neighbor! File in: {DirFileName}")  # nopep8
             ic()
             raise ValueError(" Error H atom has not exactly one neighbor ! ")
 
-    return mol, neighbors
+    return mol, idx_neighbors
 
 
 def read_mol_neighbors_bond_order(DirfileName: Path = Path("crest_conformers.xyz")) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]], dict[int, int]]:
@@ -180,18 +105,18 @@ def read_mol_neighbors_bond_order(DirfileName: Path = Path("crest_conformers.xyz
     """
     # read the .xyz coordinates from the molecular structures
     mol: Atoms | list[Atoms]
-    neighbors: dict[int, npt.NDArray[np.int64]]
-    mol, neighbors = read_mol_neighbors(DirfileName)
+    idx_neighbors: dict[int, npt.NDArray[np.int64]]
+    mol, idx_neighbors = read_mol_neighbors(DirfileName)
 
     idx_H_atoms: list[int] = [idx+1 for idx, i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
     idx_C_atoms: list[int] = [idx+1 for idx, i in enumerate(mol) if i.symbol == "C"]  # type: ignore # nopep8
-    bond_order: dict[int, int] = {}
-    for idx in neighbors.keys():
+    idx_BondOrder: dict[int, int] = {}
+    for idx in idx_neighbors.keys():
         count: int = 0
-        for idy in neighbors[idx]:
+        for idy in idx_neighbors[idx]:
             if idy in idx_H_atoms:
                 count = count + 1
         if idx in idx_C_atoms:
-            bond_order[idx] = count
+            idx_BondOrder[idx] = count
 
-    return mol, neighbors, bond_order
+    return mol, idx_neighbors, idx_BondOrder

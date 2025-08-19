@@ -152,20 +152,20 @@ def cal_RMSD_coord(args, xyzfile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDAr
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
     x = {"remove_idx": args.remove_idx, "add_idx": args.add_idx,
          "bond_broken": args.bond_broken, "ignore_Hydrogen": args.ignore_Hydrogen, "debug": False}
-    coord: list[list[float]] = []
+    coordSquare: list[list[float]] = []
     for idx0 in (idx0_cal):
-        coord_square, _ = cal_RMSD_xyz(
+        idx_coordSquare, _ = cal_RMSD_xyz(
             xyzfile, idx0_cal[0]+1, idx0+1, args=argparse.Namespace(**x))
-        A: list[float] = list(coord_square.values())
-        coord.append(A)
-    return np.array(coord, dtype=np.float64)
+        A: list[float] = list(idx_coordSquare.values())
+        coordSquare.append(A)
+    return np.array(coordSquare, dtype=np.float64)
 
 
 def FactorFilter(args) -> None:
     xyzfile: GeometryXYZs = GeometryXYZs(args.file)
     xyzfile.method_read_xyz()
     # start from 1 to num
-    idx1_cal: list[int] = [x+1 for x in [*range(len(xyzfile))]]
+    idx1_xyz: list[int] = [x+1 for x in [*range(len(xyzfile))]]
 
     nConfs: int = len(xyzfile)
 
@@ -186,29 +186,29 @@ def FactorFilter(args) -> None:
 
     while (nConfs > args.thr):
         print(" ========== Processing ", idx1_separate, " ==========")
-        np_S: npt.NDArray[np.float64] = cal_RMSD_coord(
-            args, xyzfile, idx1_cal).T
-        S_STD: npt.NDArray[np.float64] = np.std(np_S, axis=0)
-        S_avg_STD: np.float64 = np.float64(np.average(S_STD))
-        print(" Average of STD       : ", f"{S_avg_STD:10.5f}")
+        coord_STD: npt.NDArray[np.float64] = cal_RMSD_coord(
+            args, xyzfile, idx1_xyz).T
+        Column_STD: npt.NDArray[np.float64] = np.std(coord_STD, axis=0)
+        Average_STD: np.float64 = np.float64(np.average(Column_STD))
+        print(" Average of STD       : ", f"{Average_STD:10.5f}")
         print(" Factor of STD ranges : ", f"{args.factor:10.5f}")
-        print(" Limits of STD        : ", f"{S_avg_STD*args.factor: 10.5f}", "\n")  # nopep8
+        print(" Limits of STD        : ", f"{Average_STD*args.factor: 10.5f}", "\n")  # nopep8
 
         counter_major, counter_minor = 0, 0
         major_idx, minor_idx = [], []
         print(" CONF        STD  in major.xyz      idx     in minor.xyz    idx")
         import copy
-        idx1_cal_CONF: list[int] = copy.deepcopy(idx1_cal)
+        idx1_calc: list[int] = copy.deepcopy(idx1_xyz)
 
-        for idx in range(len(S_STD)):
-            if (S_STD[idx] >= S_avg_STD*args.factor):
-                print(f"{idx1_cal_CONF[idx]:>5d} {S_STD[idx]: > 10.5f}  major factor    {(counter_major+1): > 5d}")  # nopep8
-                major_idx.append(idx1_cal_CONF[idx])
+        for idx in range(len(Column_STD)):
+            if (Column_STD[idx] >= Average_STD*args.factor):
+                print(f"{idx1_calc[idx]:>5d} {Column_STD[idx]: > 10.5f}  major factor    {(counter_major+1): > 5d}")  # nopep8
+                major_idx.append(idx1_calc[idx])
                 counter_major += 1
             else:
-                print(f"{idx1_cal_CONF[idx]:>5d} {S_STD[idx]: > 10.5f}", " "*26, f"minor factor  {(counter_minor+1): > 5d}")  # nopep8
-                minor_idx.append(idx1_cal_CONF[idx])
-                idx1_cal.remove(idx1_cal_CONF[idx])
+                print(f"{idx1_calc[idx]:>5d} {Column_STD[idx]: > 10.5f}", " "*26, f"minor factor  {(counter_minor+1): > 5d}")  # nopep8
+                minor_idx.append(idx1_calc[idx])
+                idx1_xyz.remove(idx1_calc[idx])
                 counter_minor += 1
 
         print("")
@@ -217,7 +217,7 @@ def FactorFilter(args) -> None:
         print(""*2)
         idx1_minor.append(minor_idx)
         idx1_separate += 1
-        nConfs = len(idx1_cal)
+        nConfs = len(idx1_xyz)
 
     Dir_Res: Path = Path("Final_Result")
     isExist: bool = os.path.exists(Dir_Res)
@@ -232,13 +232,13 @@ def FactorFilter(args) -> None:
         xyzfile.method_save_xyz(x)
         print(f" minor{str(idx+1)}.xyz  : {x}")
         nMinor.append(len(x))
+    np_nMinor: npt.NDArray[np.float64] = np.array(nMinor)
 
     residue_file: Path = Path("residue.xyz")
     xyzfile.set_filename(Dir_Res / residue_file)
     xyzfile.method_save_xyz(major_idx)
     print(f" {residue_file} : {major_idx}")
 
-    np_nMinor: npt.NDArray[np.float64] = np.array(nMinor)
     print(" Coefficient of variation : ", np_nMinor.std()/np_nMinor.mean())
 
     import subprocess
@@ -256,13 +256,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.Analysis:
         if not args.factor:
             args.factor = 0.50
-        minor_list: list[int]
-        Table_S: dict[int, float]
+        idx_minor: list[int]
+        idx_dev: dict[int, float]
         from censo_ext.Tools.factor import method_factor_analysis, method_factor_opt
-        minor_list, Table_S = method_factor_analysis(args)
+        idx_minor, idx_dev = method_factor_analysis(args)
         if args.opt:
             method_factor_opt(
-                args=args, low_factor=minor_list, Table_S=Table_S)
+                args=args, low_factor=idx_minor, Table_S=idx_dev)
 
     if args.Filter:
         if not args.factor:
@@ -276,5 +276,5 @@ if __name__ == "__main__":
     main()
 
 #   test
-#   python3 FactorAnalysis.py -A -i tests/data/crest_conformers.xyz --opt
-#   python3 FactorAnalysis.py -F -i tests/data/crest_conformers.xyz --bb 40 44 -nh
+#   FactorAnalysis.py -A -i tests/data/crest_conformers.xyz --opt
+#   FactorAnalysis.py -F -i tests/data/crest_conformers.xyz --bb 40 44 -nh

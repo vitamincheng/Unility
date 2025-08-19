@@ -25,21 +25,19 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
     args_x: dict = {"remove_idx": None, "add_idx": None,
                     "bond_broken": None, "ignore_Hydrogen": True, "debug": False, }
     coord: list[list[float]] = []
-    idx_element: list[int] = []
+    idxElement: list[int] = []
     for idx0 in range(len(xyzfile)):
         coord_square, _ = cal_RMSD_xyz(
             xyzfile, 1, idx0+1, args=argparse.Namespace(**args_x))
         var: list[float] = list(coord_square.values())
         if idx0 == 0:
-            idx_element = list(coord_square.keys())
+            idxElement = list(coord_square.keys())
         coord.append(var)
 
-    idx_STD: list[int] = idx_element
-
-    dict_idx_STD: dict[int, float] = dict(
-        zip(idx_STD, np.std(np.array(coord).T, axis=1).astype(float)))
+    idx_dev: dict[int, float] = dict(
+        zip(idxElement, np.std(np.array(coord).T, axis=1).astype(float)))
     avSTD: np.float64 = np.float64(
-        np.average(np.array(list(dict_idx_STD.values()))))
+        np.average(np.array(list(idx_dev.values()))))
 
     print(" ========== Factor Analysis Processing ========== ")
     print("\n Average of STD      : ", end="")
@@ -50,7 +48,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
     idx1_MajorFactor: list[int] = []
     idx1_MinorFactor: list[int] = []
 
-    for idx, x in dict_idx_STD.items():
+    for idx, x in idx_dev.items():
         if (x >= avSTD):
             print(f"{int(idx):>5d} {x:>10.5f}     Major factor")
             idx1_MajorFactor.append(int(idx))
@@ -62,7 +60,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
 
     print("\n Major Factor List: ", idx1_MajorFactor)
     print(" ========== Finished ==========")
-    return idx1_MinorFactor, dict_idx_STD
+    return idx1_MinorFactor, idx_dev
 
 
 def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:

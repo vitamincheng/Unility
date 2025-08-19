@@ -203,8 +203,9 @@ class Geometry():
 
         self.mass = np.array([])
         for _, x in self.names.items():
-            from censo_ext.Tools.Parameter import masses
-            self.mass = np.append(self.mass, masses[x.lower()], axis=None)
+            from censo_ext.Tools.Parameter import NAMES_WEIGHTS
+            self.mass = np.append(
+                self.mass, NAMES_WEIGHTS[x.lower()], axis=None)
 
     def method_rewrite_comment(self) -> None:
         """

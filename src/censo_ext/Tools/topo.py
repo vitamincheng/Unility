@@ -44,10 +44,10 @@ class Topo():
         Returns: 
             dict[int,int]: A dict of atom indice and coordination number for each atom.  
         """
-        cn: dict[int, int] = {}
+        idx_cn: dict[int, int] = {}
         for key, value in self.__neighbors.items():
-            cn[key] = len(value)
-        return cn
+            idx_cn[key] = len(value)
+        return idx_cn
 
     def method_broken_bond_H(self, args: argparse.Namespace) -> list[int]:
         """ 
@@ -62,11 +62,11 @@ class Topo():
             list[int]: A list of atom indices involved in the broken bond (including H atoms).
         """
         Res: list[int] = self.method_broken_bond(args)
-        neighbors: dict[int, npt.NDArray] = self.__neighbors
+        idx_neighbors: dict[int, npt.NDArray] = self.__neighbors
         idx1_H_atoms: list[int] = self.idx1_Hydrogen_atom
         NeighborsAtoms_H_atoms: dict[int, int] = {}  # {H:C}
         for idx in idx1_H_atoms:
-            NeighborsAtoms_H_atoms[idx] = neighbors[idx][0]
+            NeighborsAtoms_H_atoms[idx] = idx_neighbors[idx][0]
         addition: list[int] = []
         for idx in Res:
             for key, value in NeighborsAtoms_H_atoms.items():
@@ -92,14 +92,14 @@ class Topo():
         """
         idx_p, idx_q = args.bond_broken
 
-        neighbors: dict[int, npt.NDArray] = self.__neighbors
+        idx_neighbors: dict[int, npt.NDArray] = self.__neighbors
         idx1_Hydrogen_atoms: list[int] = self.idx1_Hydrogen_atom
         idx1_Hydrogen_atoms.append(idx_q)
         NeighborsAtoms_not_H: dict[int, npt.NDArray] = {}
-        for idx in neighbors.keys():
+        for idx in idx_neighbors.keys():
             import numpy as np
             NeighborsAtoms_not_H[idx] = np.array(
-                [i for i in neighbors[idx] if int(i) not in idx1_Hydrogen_atoms])
+                [i for i in idx_neighbors[idx] if int(i) not in idx1_Hydrogen_atoms])
         del NeighborsAtoms_not_H[idx_q]
         Terminal_Atoms: list[int] = [idx_p]
         Complete_Atoms: bool = False
@@ -132,9 +132,9 @@ class Topo():
         """
         idx_p: int = args.bonding
         # ic(args.file)
-        neighbors: dict[int, npt.NDArray] = self.__neighbors
+        idx_neighbors: dict[int, npt.NDArray] = self.__neighbors
         idx1_Hydrogen_atoms: list[int] = self.idx1_Hydrogen_atom
-        Neighbors_Atoms: list[int] = neighbors[idx_p].tolist()
+        Neighbors_Atoms: list[int] = idx_neighbors[idx_p].tolist()
         Neighbors_Atoms = [
             i for i in Neighbors_Atoms if i not in idx1_Hydrogen_atoms]
         Neighbors_Atoms.sort()
@@ -155,19 +155,19 @@ class Topo():
         """
 
         mol: ml4nmr.Atoms | list[ml4nmr.Atoms] = self.__mol
-        neighbors: dict[int, npt.NDArray] = self.__neighbors.copy()
+        idx_neighbors: dict[int, npt.NDArray] = self.__neighbors.copy()
         # neighbors is removed all H-atoms
         idx1_Hydorgen_atoms: list[int] = self.idx1_Hydrogen_atom
-        for key, value in neighbors.copy().items():
+        for key, value in idx_neighbors.copy().items():
             if key in idx1_Hydorgen_atoms:
-                del neighbors[key]
-        for key, value in neighbors.copy().items():
-            neighbors[key] = np.array(
+                del idx_neighbors[key]
+        for key, value in idx_neighbors.copy().items():
+            idx_neighbors[key] = np.array(
                 [a for a in value if a not in idx1_Hydorgen_atoms])
 
         # Tranfer neighbors to Graph
         graph_in: list[tuple[int, npt.NDArray]] = list()
-        for key, value in neighbors.items():
+        for key, value in idx_neighbors.items():
             for x in value:
                 graph_in.append((key, x))
         g = Graph(from_list=graph_in)
@@ -182,7 +182,7 @@ class Topo():
         # use Graph Theory to collect the circle sturcutres and not repeated
         circle_Mols: list[list[int]] = list()
         for atom in circle_Atoms:
-            for neighbors_atoms in neighbors[atom]:
+            for neighbors_atoms in idx_neighbors[atom]:
                 start: int = atom
                 end = neighbors_atoms
                 g = Graph(from_list=graph_in)
@@ -208,7 +208,7 @@ class Topo():
 
         # Get residual atoms of circule molecules by use difference set
         residual_atoms: list[int] = list(
-            set(neighbors.keys()).difference(set(flat_circle_Mols)))
+            set(idx_neighbors.keys()).difference(set(flat_circle_Mols)))
         residual_atoms.sort()
 
         # g_straight is the Graph and delete the edge of every circle_Mol
@@ -234,4 +234,4 @@ class Topo():
                     the_same = True
             if not the_same:
                 residual_Mols.append(Molecules)
-        return mol, neighbors, circle_Mols, residual_Mols
+        return mol, idx_neighbors, circle_Mols, residual_Mols
