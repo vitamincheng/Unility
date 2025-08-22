@@ -6,10 +6,10 @@ import censo_ext.molclus_orca as orca
 import filecmp
 import platform
 
-inFile = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz"
-inTemplate_sp_File = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/template_sp.inp"
-inTemplate_opt_File = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/template_opt.inp"
-outFile = "isomers.xyz"
+inFile: str = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz"
+inTemplate_sp_File: str = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/template_sp.inp"
+inTemplate_opt_File: str = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/template_opt.inp"
+outFile: str = "isomers.xyz"
 _system = platform.system()
 
 
