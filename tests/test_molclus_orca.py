@@ -7,6 +7,8 @@ import filecmp
 import platform
 
 inFile = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz"
+inTemplate_sp_File = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/template_sp.inp"
+inTemplate_opt_File = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/template_opt.inp"
 outFile = "isomers.xyz"
 _system = platform.system()
 
@@ -20,7 +22,47 @@ def test_orca_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
+def test_orca_sp():
+    x: dict = {"file": inFile, "template": inTemplate_sp_File,
+               "remove": True, "out": outFile}
+
+    args = argparse.Namespace(**x)
+    orca.main(args)
+
+    compare = ""
+    if _system == "Linux":  # Need 2 min
+        compare = "tests/compare/orca_isomers_sp.xyz"
+
+    elif _system == "Darwin":  # Need 5 min
+        compare = "tests/compare/orca_isomers_sp_Darwin.xyz"
+
+    assert filecmp.cmp(args.out, compare)
+    os.remove(args.out)
+    import subprocess
+    subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
+
+
 def test_orca_opt():
+    x: dict = {"file": inFile, "template": inTemplate_opt_File,
+               "remove": True, "out": outFile}
+
+    args = argparse.Namespace(**x)
+    orca.main(args)
+
+    compare = ""
+    if _system == "Linux":  # Need 2 min
+        compare = "tests/compare/orca_isomers.xyz"
+
+    elif _system == "Darwin":  # Need 5 min
+        compare = "tests/compare/orca_isomers_Darwin.xyz"
+
+    assert filecmp.cmp(args.out, compare)
+    os.remove(args.out)
+    import subprocess
+    subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
+
+
+def test_orca_opt_default():
     x: dict = {"file": inFile, "template": "template.inp",
                "remove": True, "out": outFile}
 

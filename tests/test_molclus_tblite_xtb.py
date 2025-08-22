@@ -89,7 +89,7 @@ def test_tblite_xtb_alpb():
 @pytest.mark.skipif(_system == "Darwin" or _system == "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_gbsa():
     x: dict = {"file": inFile, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
-               "method": "gfn2", "out": outFile}
+               "method": "GFN2-xTB", "out": outFile}
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
