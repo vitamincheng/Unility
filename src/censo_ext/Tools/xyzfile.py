@@ -169,11 +169,20 @@ class Geometry():
         return molecules
 
     def method_computeCOM(self) -> npt.NDArray:
-        """
-        Calculate the center of mass (COM) of the molecule.
+        """Calculate the center of mass (COM) of the molecule.
+
+        This method computes the center of mass coordinates using the atomic masses
+        and coordinates of all atoms in the molecule. If the center of mass has
+        already been calculated and stored in self.com, it will be returned directly.
+        Otherwise, it will compute the COM using the formula:
+        COM = Σ(mass_i * coord_i) / Σ(mass_i)
+
+        The method first updates the masses using method_update_masses() to ensure
+        accurate calculations.
 
         Returns:
-            npt.NDArray: COM coordinates.
+            npt.NDArray: An array of three floats representing the x, y, z coordinates
+                of the center of mass in the same units as the atomic coordinates.
         """
 
         self.method_update_masses()
@@ -184,11 +193,23 @@ class Geometry():
             return self.com
 
     def method_computeInertia(self) -> npt.NDArray:
-        """
-        Calculate the moment of inertia tensor.
+        """Calculate the moment of inertia tensor.
+
+        The moment of inertia tensor is computed using the standard formula:
+        I_ij = -∑(m_k * (r_k,i * r_k,j - δ_ij * |r_k|^2))
+
+        where:
+        - m_k is the mass of atom k
+        - r_k is the position vector of atom k relative to the center of mass
+        - δ_ij is the Kronecker delta
+
+        This implementation uses numpy's einsum for efficient computation.
 
         Returns:
-            npt.NDArray: 3x3 inertia tensor.
+            npt.NDArray: 3x3 inertia tensor representing the moment of inertia
+                of the molecular system about the center of mass.
+                The tensor is symmetric and represents the resistance to rotational motion
+                around different axes.
         """
 
         data = self.coord - self.method_computeCOM()
@@ -199,6 +220,25 @@ class Geometry():
     def method_update_masses(self) -> None:
         """
         Update atomic masses based on element names.
+
+        This method iterates through the atomic names stored in `self.names` and 
+        retrieves the corresponding atomic weights from the `NAMES_WEIGHTS` 
+        parameter dictionary. The weights are then appended to the `self.mass` array.
+
+        Note:
+            The element names in `self.names` should be in lowercase for proper 
+            matching with the keys in `NAMES_WEIGHTS`.
+
+        Example:
+            >>> xyz = XYZFile()
+            >>> xyz.names = {'atom1': 'C', 'atom2': 'H'}
+            >>> xyz.method_update_masses()
+            >>> print(xyz.mass)
+            [12.011 1.008]
+
+        Raises:
+            KeyError: If an element name in `self.names` is not found in 
+                      `NAMES_WEIGHTS`.
         """
 
         self.mass = np.array([])
@@ -209,7 +249,23 @@ class Geometry():
 
     def method_rewrite_comment(self) -> None:
         """
-        Format and update the comment field with energy and cluster info.
+        Format and update the comment field with energy and cluster information.
+
+        This method updates the object's comment field to include the energy value
+        and cluster count in a standardized format. The energy is displayed with
+        10 decimal places in Hartrees (Eh), and the cluster information is formatted
+        as "#Cluster: {count}".
+
+        The formatted comment follows this structure:
+            " Energy =           {energy_value} Eh           #Cluster:     {cluster_count}"
+
+        Example:
+            If comment_energy = -76.45321 and comment_nClusters = 3,
+            the result will be:
+            " Energy =           -76.4532100000 Eh           #Cluster:     3"
+
+        Note:
+            This method modifies the object's comment field in-place.
         """
 
         self.comment = " Energy = "+" "*7 + \
@@ -219,6 +275,26 @@ class Geometry():
     def method_update_comment(self) -> None:
         """
         Parse and extract energy and cluster information from the comment field.
+
+        This method processes the comment line of an XYZ file to extract energy and 
+        cluster information. It handles various formats of comment strings that may 
+        contain energy values and cluster counts, and updates the object's 
+        comment_energy and comment_nClusters attributes accordingly.
+
+        The method expects comment strings in formats like:
+        - "Energies= -76.432 #Cluster: 3"
+        - "Energy= -76.432 #Cluster: 3"
+        - "-76.432 #Cluster: 3"
+        - "Eh -76.432 #Cluster: 3"
+
+        If no valid energy or cluster information is found, default values of 0 
+        are set for both attributes.
+
+        Note:
+            This method automatically calls method_rewrite_comment() after processing.
+
+        Raises:
+            ValueError: If the comment line cannot be parsed and contains invalid data.
         """
 
         comments: list[str] = self.comment.replace("a.u.", "").replace("Eh", "").replace("Energy=", "").replace("Energy =", "").replace(
@@ -404,8 +480,42 @@ class GeometryXYZs():
         # self.Sts.append(St)
 
     def method_read_xyz(self) -> None:
-        """
-        Read XYZ file and populate the GeometryXYZs collection.
+        """Read XYZ file and populate the GeometryXYZs collection.
+
+        This method reads a molecular geometry file in XYZ format and populates
+        the collection with Geometry objects. Each frame in the XYZ file is
+        converted to a Geometry object containing atomic names, coordinates,
+        comment line, and any additional data fields.
+
+        The XYZ file format expected is:
+        - First line: number of atoms (nAtoms)
+        - Second line: comment line
+        - Next nAtoms lines: atom name and 3D coordinates (x, y, z)
+        - Additional optional columns after coordinates are treated as extra data
+
+        After reading all frames, the method calls method_comment_keep() to
+        process the comment information.
+
+        Note:
+            The file must exist and be readable. The method uses IsExists_DirFileName
+            to validate the file path before processing.
+
+        Raises:
+            FileNotFoundError: If the specified file does not exist.
+            ValueError: If the file format is invalid or contains parsing errors.
+            IOError: If there are issues reading the file.
+
+        Example:
+            Given an XYZ file with content:
+            2
+            Water molecule
+            O   0.000000   0.000000   0.000000
+            H   0.757000   0.586000   0.000000
+
+            The method will create a Geometry object with:
+            - names: {1: 'O', 2: 'H'}
+            - coords: [[0.0, 0.0, 0.0], [0.757, 0.586, 0.0]]
+            - comment: "Water molecule"
         """
 
         from censo_ext.Tools.utility import IsExists_DirFileName
@@ -439,12 +549,22 @@ class GeometryXYZs():
         self.method_comment_keep()
 
     def method_save_xyz(self, idx1_list: list[int]) -> None:
-        """
-        Save selected Geometry instances to an XYZ file.
+        """Save selected Geometry instances to an XYZ file.
 
         Args:
-            idx1_list (list[int]): List of indices to save.
+            idx1_list (list[int]): List of indices to save. Each index corresponds to a
+                Geometry instance that will be written to the output file.
+
+        Example:
+            >>> xyz_tool = XYZFileTool()
+            >>> xyz_tool.method_save_xyz([0, 1, 2])
+            # Saves the first three Geometry instances to the file
+
+        Note:
+            This method temporarily redirects sys.stdout to the output file during
+            the printing process. The original stdout is restored after writing.
         """
+
         # Do't use sys.stdout = sys.__stdout__ to replace it, test function need use it
         original_stdout = sys.stdout
         with open(self.__filename, "w") as f:
@@ -453,11 +573,11 @@ class GeometryXYZs():
         sys.stdout = original_stdout
 
     def method_save_xyz_append(self, idx1_list: list) -> None:  # append to old xyz file
-        """
-        Append selected Geometry instances to an existing XYZ file.
+        """Append selected Geometry instances to an existing XYZ file.
 
         Args:
-            idx1_list (list): List of indices to append.
+            idx1_list (list): List of indices to append. Each index corresponds to a 
+                Geometry instance that will be written to the XYZ file.
         """
 
         # Do't use sys.stdout = sys.__stdout__ to replace it, test function need use it
@@ -514,8 +634,16 @@ class GeometryXYZs():
         """
         Retrieve energy values from all Geometry instances.
 
+        This method iterates through all Geometry instances stored in self.Sts and
+        collects their energy values. Each Geometry instance's get_comment_energy()
+        method is called, and if it returns a valid energy value (not None), that
+        value is added to the result list.
+
+        The returned energies are in atomic units (Eh - Hartree).
+
         Returns:
-            list [float]: List of energy values in Eh units.
+            list[float]: A list of energy values in Hartree (Eh) units. 
+                         Returns an empty list if no valid energies are found.
         """
 
         Res: list = []
@@ -525,15 +653,34 @@ class GeometryXYZs():
         return Res
 
     def method_ensoGenFlexible(self, args, thermo_list) -> npt.NDArray:
-        """
-        Generate thermodynamic data for all Geometry instances.
+        """Generate thermodynamic data for all Geometry instances.
+
+        This method calculates various thermodynamic properties for a set of geometries
+        including energies, Gibbs free energies, partition functions, and population
+        distributions based on Boltzmann statistics.
 
         Args:
-            args: Command-line arguments.
-            thermo_list: Thermodynamic data list.
+            args: Command-line arguments containing temperature information.
+            thermo_list: List of thermodynamic data values for each geometry.
 
         Returns:
-            npt.NDArray: Structured array with thermodynamic properties.
+            npt.NDArray: Structured array with the following fields:
+                - ONOFF: Flag indicating active status (int64)
+                - NMR: NMR index (int64)
+                - CONF: Conformer index (int64)
+                - BW: Boltzmann weight (float64)
+                - Energy: Electronic energy (float64)
+                - Gsolv: Solvation free energy (float64)
+                - mRRHO: Molecular RRHO correction (float64)
+                - gi: Degeneracy factor (float64)
+
+        The method performs the following calculations:
+        1. Calculates total Gibbs free energy (Energy + mRRHO)
+        2. Determines the minimum Gibbs free energy
+        3. Computes delta Gibbs free energies relative to minimum
+        4. Calculates partition functions (Qi) using Boltzmann distribution
+        5. Computes population weights based on partition functions
+        6. Normalizes weights to obtain final Boltzmann weights (BW)
         """
 
         import numpy.lib.recfunctions as rfn

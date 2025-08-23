@@ -24,8 +24,22 @@ class CensoDat():
         Initialize the CensoDat object.
 
         Args:
-            file (Path, optional): Path to the dat file. Defaults to Path("anmr.dat").
+            file (Path): Path to the dat file. Defaults to Path("anmr.dat").
+
+        Raises:
+            FileNotFoundError: If the specified file does not exist.
+            ValueError: If the file is empty or contains invalid data.
+
+        Example:
+            >>> from censo_ext.Tools.datfile import CensoDat
+            >>> dat = CensoDat()
+            >>> dat = CensoDat(Path("custom_file.dat"))
+
+        Note:
+            The dat file should contain two columns: chemical_shift and amplitude.
+            The data is loaded using numpy's genfromtxt function.
         """
+
         IsExist(file)
         self.__fileName: Path = Path(file)
         self.__dat: npt.NDArray[np.float64] = np.genfromtxt(file)
@@ -73,11 +87,21 @@ class CensoDat():
         return Res
 
     def method_save_dat(self) -> None:
-        """
-        Save the data to file.
+        """Save the data to file.
 
         Writes the current data to the file specified in __fileName.
+
+        Args:
+            self: The instance of the class containing the data to be saved.
+
+        Returns:
+            None: This method does not return any value.
+
+        Raises:
+            IOError: If there is an issue opening or writing to the file.
+            FileNotFoundError: If the specified file path does not exist.
         """
+
         with open(self.__fileName, "w") as f:
             sys.stdout = f
             print(self, end="")

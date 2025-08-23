@@ -34,8 +34,35 @@ class Anmrrc():
         Initialize the Anmrrc object by reading and parsing a .anmrrc file.
 
         Args:
-            DirFileName (Path): The path to the .anmrrc file.
+            DirFileName (Path): The path to the .anmrrc file to be parsed.
+                This file contains NMR reference data including atomic numbers,
+                calculated shielding values, experimental shifts, and active status.
+
+        Attributes:
+            Nums_element (dict[int, str]): Mapping of atomic numbers to their
+                corresponding chemical symbols.
+            acid_atoms_NoShow (list[int]): List of atomic numbers representing
+                acid atoms (like NH, OH) that should not be shown in spectra.
+            anmrrc (list[list[float]]): List of NMR parameters for each atom,
+                where each entry contains [atomic_number, calculated_shielding,
+                experimental_shift, active_status].
+            Active (list[str]): List of chemical symbols for atoms marked as active.
+            third_line (str): The content of the third line from the .anmrrc file.
+
+        Example:
+            >>> anmrrc_obj = Anmrrc(Path("data/anmrrc_file.anmrrc"))
+            >>> print(anmrrc_obj.Active)
+            ['H', 'C', 'F', 'Si', 'P']
+
+        Note:
+            The .anmrrc file format is expected to have:
+            - First line: Acid atom identifiers (with "XH" as delimiter)
+            - Second line: NMR parameters including frequency, linewidth, temperature,
+              and flags for J-couplings and spin parameters
+            - Third line: Additional metadata
+            - Remaining lines: Atom-specific NMR data entries
         """
+
         lines: list[str] = open(DirFileName, "r").readlines()
 
         # Dict of Atomic Numbers and Atomic label
@@ -97,14 +124,38 @@ class Anmrrc():
 
     def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFileName: Path) -> list[int]:
         """
-        Return the list of hydrogen atoms to be removed based on acid atom settings.
+        Get the list of hydrogen atom indices to be removed based on acid atom settings.
+
+        This function identifies hydrogen atoms that should be removed from the molecular 
+        structure based on the acid atom configuration. It first determines which atoms 
+        are considered "acid atoms" according to the instance's acid_atoms_NoShow setting, 
+        then finds all hydrogen atoms connected to these acid atoms and returns their indices.
 
         Args:
-            DirFileName (Path): The path to the XYZ file containing molecular structure.
+            DirFileName (Path): The path to the XYZ file containing the molecular structure.
+                This file should contain the atomic coordinates and symbols for the molecule.
 
         Returns:
-            list[int]: List of hydrogen atom indices to remove.
+            list[int]: A list of hydrogen atom indices (1-based) that should be removed 
+                from the molecular structure. These are hydrogen atoms connected to the 
+                acid atoms specified in acid_atoms_NoShow.
+
+        Example:
+            >>> remover = MoleculeRemover()
+            >>> remover.acid_atoms_NoShow = [6, 8]  # Carbon and Oxygen
+            >>> indices = remover.get_idx1_acid_atoms_NoShow_RemoveH(file_path)
+            >>> print(indices)
+            [5, 12, 18]  # Example hydrogen atom indices to remove
+
+        Note:
+            - The function uses 1-based indexing for atom indices as per standard molecular 
+              file conventions
+            - The returned indices are filtered to only include actual hydrogen atoms 
+              present in the molecule
+            - This function relies on the read_mol_neighbors utility to determine atomic 
+              connectivity
         """
+
         from censo_ext.Tools.Parameter import ELEMENT_NAMES
         acid_atoms_NoShow: list[str] = [ELEMENT_NAMES[i]
                                         for i in self.acid_atoms_NoShow]
@@ -125,15 +176,21 @@ class Anmrrc():
         return [i for i in NoShow_Remove_Group if i in idx_H_atom]
 
     def get_Reference_anmrrc(self) -> float:
-        """
-        Retrieve the reference shielding value from the .anmrrc file.
+        """Retrieve the reference shielding value from the .anmrrc file.
+
+        This method searches through the internal anmrrc data structure to find
+        the reference shielding value. The reference is identified by looking
+        for entries where the fourth element (index 3) equals 1.
 
         Returns:
-            float: The reference shielding value.
+            float: The reference shielding value found in the .anmrrc file.
 
         Raises:
-            ValueError: If no active species is found in the .anmrrc file.
+            ValueError: If no active species (where x[3] == 1) is found in the
+                .anmrrc file. This indicates that there is no valid reference
+                shielding value available for processing.
         """
+
         reference: float | None = None
         for x in self.anmrrc:
             if x[3] == 1:
@@ -188,24 +245,48 @@ class Anmr():
         return self.__Directory
 
     def get_Anmr_Active(self) -> list[str]:
-        """
-        Get the list of active species from the .anmrrc file.
+        """Get the list of active species from the .anmrrc file.
+
+        This method retrieves the active atomic species that are currently
+        configured in the anmrrc file. These species are typically used in
+        ANMR calculations and simulations.
 
         Returns:
-            list[str]: List of active atomic symbols.
+            list[str]: A list of atomic symbols (as strings) representing the
+                active species defined in the .anmrrc configuration file.
         """
         return self.__AnmrParams.Active
 
     def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFileName=Path("crest_conformers.xyz")) -> list[int]:
         """
-        Get indices of hydrogen atoms to remove based on acid atom settings.
+        Get the list of hydrogen atom indices to be removed based on acid atom settings.
+
+        This function identifies hydrogen atoms that should be removed from the molecular 
+        structure based on the acid atom configuration. It first finds all acid atoms 
+        specified by the acid_atoms_NoShow attribute, then determines which hydrogen 
+        atoms are bonded to these acid atoms and returns their indices.
 
         Args:
-            DirFileName (Path, optional): Path to the XYZ file. Defaults to Path("crest_conformers.xyz").
+            DirFileName (Path): The path to the XYZ file containing the molecular structure.
+                This file should contain the atomic coordinates and bonding information.
 
         Returns:
-            list[int]: List of hydrogen atom indices to remove.
+            list[int]: A list of hydrogen atom indices (1-based) that should be removed 
+                from the molecular structure. These are hydrogen atoms bonded to the 
+                acid atoms specified in self.acid_atoms_NoShow.
+
+        Example:
+            >>> remover = AtomRemover()
+            >>> remover.acid_atoms_NoShow = [6, 8]  # Carbon and Oxygen
+            >>> h_indices = remover.get_idx1_acid_atoms_NoShow_RemoveH("molecule.xyz")
+            >>> print(h_indices)
+            [5, 12, 18]
+
+        Note:
+            The function uses the molecular neighbors information from read_mol_neighbors 
+            to determine which hydrogen atoms are bonded to the specified acid atoms.
         """
+
         return self.__AnmrParams.get_idx1_acid_atoms_NoShow_RemoveH(DirFileName)
 
     def method_read_anmrrc(self, fileName=Path(".anmrrc")) -> None:
@@ -801,21 +882,51 @@ class Anmr():
                     DataJ_triangle[idx0].split()[idy0])
 
     def method_print_anmrS(self) -> None:
-        """
-        Print the anmr shielding data.
+        """Print the anmr shielding data.
 
-        Displays the nucleus indices, coordination numbers, and chemical shift values.
+        This method displays the nucleus indices, coordination numbers, and chemical shift values
+        in a formatted table. The output includes:
+        - Nucleus index (5-digit right-aligned)
+        - Coordination number (9-digit right-aligned)
+        - Nucleus type (9-digit right-aligned)
+        - Chemical shift value in ppm (13-digit right-aligned with 3 decimal places)
+
+        Example output format:
+            #  in coord file  # nucs   delta(ppm)
+               1           6           8        123.456
+               2           7           9        234.567
+
+        Args:
+            self: The instance of the class containing the anmrS data.
+
+        Returns:
+            None: This method prints directly to stdout and does not return any value.
         """
+
         print("    #  in coord file  # nucs   delta(ppm)")
         for idx, x in enumerate(self.anmrS):
             print(f"{x[0]:>5d} {x[1]:>9d} {x[2]:>9d} {x[3]:>13.3f}")
 
     def method_print_anmrJ(self) -> None:
-        """
-        Print the anmr coupling constants matrix.
+        """Print the anmr coupling constants matrix.
 
         Displays the JCoups matrix in a formatted manner.
+
+        The output format is a grid where each element is right-aligned in a
+        field of width 10 with 5 decimal places. The matrix is printed row by
+        row, with each row on a separate line.
+
+        Example:
+            If self.anmrJ is a 3x3 matrix, the output will look like:
+            1.23456  2.34567  3.45678
+            4.56789  5.67890  6.78901
+            7.89012  8.90123  9.01234
+
+        Note:
+            This method modifies the standard output by printing directly to
+            stdout without returning any value.
         """
+
         for idx0 in range(self.anmrJ[0].size):
             for idy0 in range(self.anmrJ[0].size):
                 print(f'{self.anmrJ[idx0][idy0]:>10.5f}', end="")
@@ -825,8 +936,30 @@ class Anmr():
         """
         Print nuclear information data.
 
-        Displays atom indices, nucleus counts, and equivalent atom groups.
+        This method outputs the nuclear information stored in `self.nucinfo` to the console.
+        The output includes:
+        - The total number of atoms (first line)
+        - For each atom group, the atom index and nucleus count
+        - The equivalent atom groups for each atom
+
+        The format is as follows:
+        - First line: Total number of atoms (right-aligned, 12 digits)
+        - Subsequent lines:
+            - Atom index (3 digits) and nucleus count (3 digits)
+            - List of equivalent atom indices (space-separated)
+
+        Example output:
+            123456789012
+               1    2
+             1 2 3 4
+               5    1
+             5
+
+        Note:
+            The data is read from `self.nucinfo` which should contain atom information
+            structured as a list of lists, where each inner list represents an atom group.
         """
+
         nAtoms: int = len(self.nucinfo[0])
         print(f"{nAtoms:>12d}")
 
@@ -890,28 +1023,64 @@ class Anmr():
                 page = []
 
     def method_create_enso(self, in_np: npt.NDArray) -> None:
-        """
-        Create enso data structure from input numpy array.
+        """Create enso data structure from input numpy array.
 
         Args:
-            in_np (npt.NDArray): Input numpy array containing enso data.
+            in_np (npt.NDArray): Input numpy array containing enso data. The array
+                should have exactly 8 fields in its dtype.
+
+        Raises:
+            FileNotFoundError: If the input numpy array does not have the expected
+                dtype structure with exactly 8 fields.
+
+        Example:
+            >>> import numpy as np
+            >>> data = np.array([(1, 2, 3, 4, 5, 6, 7, 8)], 
+            ...                 dtype=[('field1', 'i4'), ('field2', 'i4'), 
+            ...                        ('field3', 'i4'), ('field4', 'i4'),
+            ...                        ('field5', 'i4'), ('field6', 'i4'),
+            ...                        ('field7', 'i4'), ('field8', 'i4')])
+            >>> obj.method_create_enso(data)
         """
+
         if len(in_np.dtype) != 8:                                           # type:ignore
             print("something wrong in your anmr_enso file")
             ic()
             raise FileNotFoundError("something wrong in your anmr_enso file")
 
     def method_read_enso(self, file: Path = Path("anmr_enso")) -> None:
-        """
-        Read enso data from file.
+        """Read ENSO data from file.
+
+        This method reads ENSO data from a specified file
+        and stores it in the instance variable `self.enso`. The file is expected to contain
+        8 columns of data with specific meanings.
 
         Args:
-            file (Path, optional): Name of the enso file. Defaults to Path("anmr_enso").
+            file (Path, optional): Name of the ENSO file to read. Defaults to Path("anmr_enso").
+                The file is expected to be located in the directory specified by 
+                `self.__Directory`.
+
+        Raises:
+            FileNotFoundError: If the specified file does not exist or if the file does not
+                contain exactly 8 columns of data as expected.
+            Exception: If there are issues with reading the file or parsing the data.
+
+        Note:
+            The expected column structure is:
+            - ONOFF: On/Off flag
+            - NMR: Nuclear Magnetic Resonance values
+            - CONF: Configuration identifier
+            - BW: Bandwidth
+            - Energy: Energy values
+            - Gsolv: Solvation free energy
+            - mRRHO: Modified Reduced Rigid Rotor Harmonic Oscillator
+            - gi: General index or identifier
+
+        Example:
+            >>> reader = AnmrFile()
+            >>> reader.method_read_enso("my_enso_file")
+            >>> print(reader.enso)
         """
-        #
-        # anmr_enso :  8 columns
-        # ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi
-        #
 
         file = self.__Directory / Path(file)
         IsExist(file)
@@ -923,22 +1092,57 @@ class Anmr():
             raise FileNotFoundError("something wrong in your anmr_enso file")
 
     def method_print_enso(self) -> None:
-        """
-        Print enso data.
+        """Print ENSO data in a formatted table.
 
-        Displays the enso data table with columns: ONOFF, NMR, CONF, BW, Energy, Gsolv, mRRHO, gi.
+        This method displays the ENSO (Electronic Nuclear Spin Orbits) data table
+        containing various molecular properties. The table includes the following columns:
+
+        - ONOFF: On/off flag (1 for on, 0 for off)
+        - NMR: Nuclear Magnetic Resonance value
+        - CONF: Configuration number
+        - BW: Bandwidth value
+        - Energy: Molecular energy value
+        - Gsolv: Solvation free energy
+        - mRRHO: Modified Reduced Rigid Rotor Harmonic Oscillator
+        - gi: Partition function value
+
+        The output is formatted with specific column widths and decimal precision
+        for optimal readability.
+
+        Example:
+            >>> anmr_file.method_print_enso()
+            ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi     
+            1      1234   5678   0.1234     12345.6789012    12345.6789012    12345.6789012    1.234
+
+        Note:
+            The data is printed to standard output and formatted according to
+            the internal data structure of self.enso.
         """
+
         print("ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi     ")
         for Enso in self.enso:
             print(f'{int(Enso[0]):<1d}      {int(Enso[1]):<4d} {int(Enso[2]):<4d} {Enso[3]:>6.4f} {Enso[4]: > 11.7f} {Enso[5]: > 10.7f} {Enso[6]: > 10.7f} {Enso[7]:>4.3f}')  # nopep8
 
     def method_save_enso(self, file: Path = Path("anmr_enso.new")) -> None:
-        """
-        Save enso data to file.
+        """Save ENSO data to a file.
+
+        This method writes the ENSO data to a specified file.
+        The output is formatted using the print method for ENSO data.
 
         Args:
-            file (Path, optional): Name of the output file. Defaults to Path("anmr_enso.new").
+            file (Path, optional): The path to the output file. If not provided, 
+                defaults to "anmr_enso.new" in the current directory.
+
+        Example:
+            >>> anmr = AnmrFile()
+            >>> anmr.method_save_enso(Path("output_enso.txt"))
+            >>> anmr.method_save_enso()  # Uses default filename
+
+        Note:
+            The method temporarily redirects stdout to the file during execution
+            and then restores the original stdout.
         """
+
         DirFileName: Path = self.__Directory / Path(file)
         with open(DirFileName, "w") as f:
             sys.stdout = f
@@ -1190,11 +1394,26 @@ class OrcaSJ():
         #    exit(0)
 
     def method_print_orcaS(self) -> None:
-        """
-        Print orcaS data.
+        """Print ORCA-S data.
 
-        Displays nucleus indices, elements, and chemical shielding values.
+        This method displays the nucleus indices, element symbols, and chemical
+        shielding values from the ORCA-S calculation results.
+
+        The output format is:
+        - Nucleus: atom index (5-digit right-aligned)
+        - Element: element symbol (8-character right-aligned)
+        - Anisotropy: chemical shielding value (15-character right-aligned, 3 decimal places)
+
+        Raises:
+            ValueError: If the number of atoms does not match the number of shielding parameters,
+                       indicating a mismatch between ORCA-J and ORCA-S data.
+            ic: If a mismatch is detected, the program will exit with an error message.
+
+        Note:
+            This method requires self.idxAtoms and self.SParams to be properly initialized
+            with matching lengths for correct operation.
         """
+
         if len(self.idxAtoms) == len(self.SParams):
             print("Nucleus  Element   Anisotropy")
             for idx, Atom in self.idxAtoms.items():
@@ -1207,11 +1426,26 @@ class OrcaSJ():
             raise ValueError("your orcaJ and orcaS is not fit each other")
 
     def method_print_orcaJ(self) -> None:
-        """
-        Print orcaJ data.
+        """Print orcaJ data.
 
         Displays the JCoups matrix in a formatted manner.
+
+        The output format is a table where each row represents a nucleus and each
+        column represents the coupling constant between that nucleus and all other
+        nuclei. The values are printed with 3 decimal places in a fixed-width
+        format.
+
+        Example:
+            If JCoups is a 3x3 matrix, the output will look like:
+            10.500  2.300  0.800
+             2.300 15.200  1.100
+             0.800  1.100  8.700
+
+        Note:
+            This method modifies the standard output stream directly.
+            The matrix is assumed to be square and symmetric (for coupling constants).
         """
+
         for idx0 in range(self.JCoups[0].size):
             for idy0 in range(self.JCoups[0].size):
                 print(f'{(self.JCoups[idx0][idy0]):>8.3f}', end="")
