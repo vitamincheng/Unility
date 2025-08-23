@@ -238,36 +238,45 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     if args.dir:
         Directory = Path(args.dir)
 
+    # Import necessary modules for processing
     from censo_ext.Tools.anmrfile import Anmr
+
+    # Create an Anmr object and read required files
     inAnmr: Anmr = Anmr(Directory)
     inAnmr.method_read_anmrrc()
     inAnmr.method_read_nucinfo()
 
+    # Handle average data loading if specified
     if inAnmr.get_avg_orcaSJ_Exist() and args.average:
         inAnmr.method_load_avg_orcaSJ(args=args)
     else:
+        # Process all ORCA files and generate average data
         inAnmr.method_read_enso()
         inAnmr.method_read_folder_orcaSJ()
         inAnmr.method_update_equiv_orcaSJ()
         inAnmr.method_avg_orcaSJ()
         inAnmr.method_save_avg_orcaSJ()
 
+    # Extract spin parameters and coupling constants
     inSParams: npt.NDArray[np.float64] = np.array(
         list(inAnmr.avg_orcaSJ.SParams.values()))*args.mf
 
-    # idxinSParams:npt.NDArray[np.float64]  = np.array(list(inAnmr.Average_orcaSJ.orcaSParams.keys()))
-    # np.savetxt("inSParams.out",np.array(np.stack([idxinSParams,inSParams]).T), fmt=' %4.0f   %10.6f')
-
+    # Get coupling constants and atom information
     inJCoups: npt.NDArray[np.float64] = np.array(inAnmr.avg_orcaSJ.JCoups)
     in_idxAtoms: dict[int, str] = inAnmr.avg_orcaSJ.idxAtoms
+
+    # Initialize variables for processing based on active nuclear element
     dpi: int | None = None
     Active_range: int | None = None
     inHydrogen: list[int] = []
     inFile: Path = Path("crest_conformers.xyz")
     # ic(inAnmr.Directory)
+
+    # Process different nuclear elements (C or H)
     for idx, x in enumerate(inAnmr.get_Anmr_Active()):
         if idx == 0:
             if x == 'C':
+                # Carbon processing - read molecular structure
                 from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
                 mol, neighbors, bond_order = read_mol_neighbors_bond_order(
                     inAnmr.get_Directory() / inFile)
@@ -280,6 +289,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     args.thr = args.lw * 0.3
                 inJCoups = np.zeros_like(inJCoups)
             elif x == 'H':
+                # Hydrogen processing - identify equivalent hydrogens
                 idx_nMagEqvHydrogens: dict[int, int] = {}
                 for key in inAnmr.avg_orcaSJ.idxAtoms.keys():
                     idx_nMagEqvHydrogens[key] = len(
@@ -304,13 +314,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             print("only for ONE Active Nuclear element, waiting to build")
             ic()
             exit(0)
+
+    # Initialize variables for AB quartet detection and processing
     idx0_ab_group_sets: list[set[int]] = []
     mat_filter_multi: npt.NDArray[np.int64] = np.array([])
 
+    # Main processing loop for identifying and categorizing spin systems
     if not args.json:
         inJCoups_origin: npt.NDArray[np.float64] = copy.deepcopy(inJCoups)
 
         while (1):
+            # Step 1: Filter out small coupling constants based on threshold
             # Delete Too Small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
             # 1: keep and 0: neglect
             mat_filter_low_factor: npt.NDArray[np.int64] = np.zeros(
@@ -321,6 +335,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             mat_filter_ab_quartet: npt.NDArray[np.int64] = np.zeros(
                 (inSParams.size, inSParams.size), dtype=np.int64)
 
+            # Step 2: Identify potential AB quartet systems
             # np.fill_diagonal(mat_filter_ab_quartet, 0)
             import math
             for idx, x in enumerate(inSParams):
@@ -328,6 +343,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     if idx == idy:
                         mat_filter_ab_quartet[idx][idy] = 0
                     else:
+                        # Check if two chemical shifts are close (AB quartet condition)
+                        # If J coupling is negative, prioritize normal QM calculation
                         # if two chemical shift is very close , will perform AB quartet
                         # if x-y == 0 the Ratio_J_Hz will crash
                         # if the JCoups is negative number, will first priority to use normal QM cal.
@@ -355,16 +372,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                                         idx + x + idy + y + " was not found or is a directory")
 
             # ic(mat_filter_ab_quartet)
-
+            # Calculate which couplings are NOT part of AB quartets (multiplets)
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
             idx0_ab_connect: list[list[int | set[int]]] = []
             for idx, x in enumerate(mat_filter_ab_quartet):
                 np_nonzero: npt.NDArray[np.int64] = (x*(idx+1)).nonzero()[0]
                 group: set[int] = set(np_nonzero.tolist())
-                # group = set(((x*(idx+1)).nonzero()[0]))
                 group.add(idx)
                 idx0_ab_connect.append([idx, group])
 
+            # Merge overlapping spin system groups
             idx0_ab_group_sets = []
             for _, x in idx0_ab_connect:
                 if len(x) == 1:                     # type: ignore
@@ -386,7 +403,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     ic()
                     raise ValueError("idx0_ab_group_sets is bugs !!!")
 
-            # CH3 Equivalent is manually control by symmetry
+            # Handle CH3 equivalent groups manually (symmetry considerations)
             # So if chemical shift in AB quartet region need to move to multiplet
             list_Equivalent3: list[int] = []
             for idx, x in enumerate(inAnmr.nucinfo[1]):
@@ -396,6 +413,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                             list_Equivalent3.append(idy)
             set_Equivalent3: set[int] = set(list_Equivalent3)
 
+            # Adjust groups to account for equivalent protons
             # Equivalent3 is idx0 numbers
             for idx, x in enumerate(idx0_ab_group_sets):
                 set_move: set[int] = x.intersection(set_Equivalent3)
@@ -417,6 +435,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     a+1 for a in [y*idy for idy, y in enumerate(mat_filter_multi[idx].tolist()) if y != 0]).difference({a+1 for a in x}))
                 if len(x) > max_len_AB:
                     max_len_AB = len(x)
+
+            # Adjust thresholds automatically if maximum spin system exceeds limit
             if (max_len_AB > args.mss):
                 if args.auto:
                     args.thrab = args.thrab + 0.0025
@@ -427,7 +447,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             else:
                 # print(" Use this parameter to calculate the Full Spectra")
                 break
-        #
+
+        # Additional processing for AB quartets with identical chemical shifts
         # AB quartet if more than two peaks of AB quartet, added closed peaks (not in AB quartet)
         print(" ===== Modification AB quartet =====")
         for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):

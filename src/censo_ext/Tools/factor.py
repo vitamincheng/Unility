@@ -79,11 +79,12 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
 
 
 def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
-    """ 
-    Optimizes the location of a broken bond based on factor analysis results to find the best cleavage point.
+    """
+    Optimizes the location of a broken bond based on factor analysis results.
 
-    This function analyzes pairs of atoms that show low structural variability and determines which
-    bond breaking configuration yields the most balanced distribution of structural deviations across conformations.
+    This function analyzes pairs of atoms that show low structural variability and
+    determines which bond breaking configuration yields the most balanced distribution
+    of structural deviations across conformations.
 
     Args:
         args: Command-line arguments containing file path.
@@ -107,6 +108,12 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
         >>> if success:
         ...     print(f"Optimal bond location: {bond_location}")
         ...     print(f"Ratio: {ratio}")
+
+    Note:
+        The function prints detailed information about the optimization process,
+        including atom indices, deviation sizes, and standard deviation ratios.
+        If the maximum ratio is below 0.60, it returns False indicating
+        the configuration is not recommended for use.
     """
 
     print(" ")

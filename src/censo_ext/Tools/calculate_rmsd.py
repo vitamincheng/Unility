@@ -49,16 +49,29 @@ def atom2int(atom: str) -> int:
 
 def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[int], **kwargs) -> tuple[dict[int, float], float]:
     """
-    Calculate RMSD between two coordinate matrices P and Q.
+    Calculate Root-mean-square deviation from two sets of vectors.
 
     Args:
-        P (npt.NDArray[np.float64]): Coordinate matrix P.
-        Q (npt.NDArray[np.float64]): Coordinate matrix Q.
-        idx_atom (list[int]): List of atom indices to consider.
+        P(ndarray): (N,D) matrix, where N is points and D is dimension.
+        Q(ndarray): (N,D) matrix, where N is points and D is dimension.
+        idx_atom(list): List of atom indices to consider in the calculation.
+        **kwargs: Additional keyword arguments (not used in current implementation).
 
     Returns:
-        tuple[dict[int,float],float]: Tuple of atom-wise squared differences and RMSD value.
+        Tuple[dict,float]: A tuple containing:
+            - atom_square (dict): Dictionary mapping atom indices to their squared
+              coordinate differences.
+            - rmsd (float): Root-mean-square deviation between the two vectors.
+
+    Example:
+        >>> P = np.array([[1, 2], [3, 4]])
+        >>> Q = np.array([[2, 3], [4, 5]])
+        >>> idx_atom = [0, 1]
+        >>> atom_square, rmsd_value = rmsd(P, Q, idx_atom)
+        >>> print(f"Atom square differences: {atom_square}")
+        >>> print(f"RMSD: {rmsd_value}")
     """
+
     diff: npt.NDArray[np.float64] = P - Q
     idx_atomSquare: dict[int, float] = {}
     coord_square_total: float = 0
@@ -175,17 +188,29 @@ def centroid(X: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
 
 
 def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.float64]]:
-    '''
-    Read xyz file to data 
-    idx is Serial No. (from 0) in xyz file
+    """Read xyz file to extract atom types and coordinates.
 
     Args:
-        xyzfile: GeometryXYZs object.
-        idx0 (int): Index of structure in xyzfile.
+        xyzfile: GeometryXYZs object containing molecular structures.
+        idx0(int): Index of the structure in xyzfile (zero-based indexing).
 
     Returns:
-        tuple[npt.NDArray[np.int64],npt.NDArray[np.float64]]: Tuple of atom types and coordinates.
-    '''
+        tuple[npt.NDArray[np.int64],npt.NDArray[np.float64]]: 
+        A tuple containing:
+        - element: Array of atom types as integers
+        - V: Array of atomic coordinates as floats
+
+    Example:
+        >>> element, coordinates = get_Coordinates(xyzfile, 0)
+        >>> print(element)
+        [6 8 1 1]
+        >>> print(coordinates)
+        [[ 0.0  0.0  0.0]
+         [ 0.0  0.0  1.0]
+         [ 1.0  0.0  0.0]
+         [ 0.0  1.0  0.0]]
+    """
+
     idx_Names: dict[int, str] = xyzfile.Sts[idx0].names
     element: npt.NDArray[np.int64] = np.array(
         [atom2int(atom) for atom in idx_Names.values()])
@@ -195,18 +220,28 @@ def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
 
 
 def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> tuple[dict[int, float], float]:
-    '''
-    Read xyz file and calculate rmsd
+    """
+    Read xyz file and calculate RMSD between two structures.
+
+    This function reads two structures from an XYZ file, processes them according
+    to the provided arguments (such as ignoring hydrogen atoms, removing or adding 
+    specific atom indices, breaking bonds), and calculates the RMSD using the Kabsch algorithm.
 
     Args:
-        xyzfile (GeometryXYZs): GeometryXYZs object.
-        idx_p (int): Index of first structure (1-based).
-        idx_q (int): Index of second structure (1-based).
-        args (argparse.Namespace): Command-line arguments.
+        xyzfile(GeometryXYZs): The XYZ file object containing molecular structures.
+        idx_p(int): Index of the first structure (1-based indexing).
+        idx_q(int): Index of the second structure (1-based indexing).
+        args(argparse.Namespace): Command-line arguments controlling the RMSD calculation.
 
     Returns:
-        tuple[dict[int,float],float]: Tuple of atom-wise squared differences and RMSD value.
-    '''
+        tuple[dict[int,float],float]: A tuple containing:
+            - dict[int,float]: Dictionary mapping atom indices to their squared differences.
+            - float: The final RMSD value.
+
+    Raises:
+        ValueError: If structures have different sizes or if idx_atom1 is empty after processing.
+    """
+
     xyz_tmp: Path = Path(".tmp.xyz")
     idx_p -= 1
     idx_q -= 1

@@ -84,15 +84,29 @@ class CensoDat():
         sys.stdout = sys.__stdout__
 
     def method_normalize_dat(self, start: float = -5.0, end: float = 15.0, dpi: int = 10000, highest: int = 10000) -> None:
-        """
-        Normalize the data to a specific range.
+        """Normalize the data to a specific range.
+
+        This method normalizes the spectral data to a specified range by:
+        1. Adjusting the range parameters based on the maximum ppm value
+        2. Adding boundary points to the data
+        3. Interpolating the data to the specified resolution
+        4. Normalizing the y-values to the specified maximum
 
         Args:
-            start (float, optional): Start of the range. Defaults to -5.0.
-            end (float, optional): End of the range. Defaults to 15.0.
-            dpi (int, optional): Data points per unit. Defaults to 10000.
-            highest (int, optional): Maximum value for normalization. Defaults to 10000.
+            start: The start of the normalization range in ppm. Defaults to -5.0.
+            end: The end of the normalization range in ppm. Defaults to 15.0.
+            dpi: Data points per unit. Defaults to 10000.
+            highest: Maximum value for normalization. Defaults to 10000.
+
+        Example:
+            >>> datfile.method_normalize_dat(start=-10, end=20, dpi=5000, highest=5000)
+            Normalizes data from -10 to 20 ppm with 5000 dpi and maximum value of 5000
+
+        Note:
+            If the maximum ppm value exceeds 50 and end is less than 50,
+            the method automatically adjusts parameters to -20 to 240 ppm with 500 dpi.
         """
+
         ppm_least: float = self.__dat[:, 0][-1]
         if ppm_least > 50 and end < 50:
             start, end, dpi = -20, 240, 500

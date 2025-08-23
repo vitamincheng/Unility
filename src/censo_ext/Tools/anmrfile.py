@@ -210,21 +210,65 @@ class Anmr():
 
     def method_read_anmrrc(self, fileName=Path(".anmrrc")) -> None:
         """Read .anmrrc setting file from censo.
-
         Args:
             fileName (Path, optional): Name of the .anmrrc file. Defaults to Path(".anmrrc").
+
+        Raises:
+            FileNotFoundError: If the specified .anmrrc file does not exist.
+            Exception: If there are issues parsing the .anmrrc file.
+
+        Example:
+            >>> reader = AnmrFile()
+            >>> reader.method_read_anmrrc(Path(".anmrrc"))
+            >>> # File is read and parsed into self.__AnmrParams
+
+        Note:
+            The method sets the internal parameter `self.__AnmrParams` to an
+            `Anmrrc` object created from the parsed file.
         """
+
         DirFileName: Path = self.__Directory / fileName
         IsExist(DirFileName)
         self.__AnmrParams: Anmrrc = Anmrrc(DirFileName)
         # self.__AnmrParams: Anmrrc = Anmrrc(lines)
 
     def method_print_anmrrc(self) -> None:
-        """Print the contents of the .anmrrc file."""
+        """Print the contents of the .anmrrc file.
+
+        This method outputs the contents of the internal AnmrParams attribute
+        to the standard output stream. The output includes all parameters
+        stored in the .anmrrc configuration file.
+
+        Args:
+            self: The instance of the class containing this method.
+
+        Returns:
+            None: This method does not return any value.
+        """
+
         print(self.__AnmrParams, end="")
 
     def method_avg_orcaSJ(self) -> None:
-        """Average of orcaJ.out and orcaS.out in /NMR/CONFXX folder."""
+        """Average of orcaJ.out and orcaS.out in /NMR/CONFXX folder.
+
+        This method computes the weighted average of NMR parameters (shielding constants
+        and J-couplings) from multiple ORCA calculation folders. The averaging is
+        performed using weights derived from the 'BW' column in the enso table, 
+        adjusted by the 'ONOFF' flag to only include active configurations.
+
+        The method populates the `avg_orcaSJ` attribute with the computed averages.
+        It also subtracts a reference value from the shielding parameters using
+        `get_Reference_anmrrc()`.
+
+        Raises:
+            FileNotFoundError: If nucinfo or enso data is not loaded.
+            ValueError: If all entries in the 'ONOFF' column are zero.
+
+        Note:
+            The method assumes that self.orcaSJ contains valid OrcaSJ objects
+            with properly initialized SParams and JCoups attributes.
+        """
+
         print(" ===== Average of all folder orcaS.out and orcaJ.out =====")
         if len(self.nucinfo) == 0 or self.enso.size == 0:
             print(" Need to read the anmr_nucinfo and anmr_enso enso ")
@@ -291,11 +335,32 @@ class Anmr():
 
     def method_update_equiv_orcaSJ(self) -> None:
         """
-        Update equivalent atoms in SParams and JCoups.
+        Update equivalent atoms in SParams and JCoups according to nuclear information.
 
-        This method handles equivalent atom replacement in both shielding parameters
-        and coupling constants to ensure proper averaging across equivalent atoms.
+        This method handles the replacement of equivalent atoms in both shielding parameters
+        and coupling constants to ensure proper averaging across equivalent atoms. It processes
+        the nuclear information to identify equivalent atoms and updates the corresponding
+        SParams and JCoups values accordingly.
+
+        The method performs the following operations:
+        1. Validates that nucinfo and enso data are available
+        2. Identifies equivalent atoms from the nuclear information
+        3. Calculates average values for equivalent shielding parameters
+        4. Calculates average values for equivalent coupling constants
+        5. Removes duplicate equivalent atoms from the data structures
+        6. Cleans up acid atoms from the final results
+
+        Args:
+            self: The instance of the class containing orcaSJ, nucinfo, and other relevant data
+
+        Raises:
+            FileNotFoundError: If nucinfo or enso data is not available
+
+        Note:
+            This method modifies the orcaSJ objects in-place by updating SParams and JCoups
+            and removing equivalent atoms from idxAtoms, SParams, and JCoups.
         """
+
         print(" Replace the equivalent of Sparams and JCoups")
 
         if len(self.nucinfo) == 0 or self.enso.size == 0:
@@ -414,12 +479,32 @@ class Anmr():
             print(" ===== Finished the equivalent of SParams and JCoups ===== ")
 
     def method_read_folder_orcaSJ(self) -> None:
-        """
-        Read orcaS.out and orcaJ.out files from all CONFXX directories.
+        """Read orcaS.out and orcaJ.out files from all CONFXX directories.
 
         This method scans through all directories in the working directory that match
         the CONFXX pattern and reads NMR data from orcaS.out and orcaJ.out files.
+        For each CONFXX directory, it attempts to read both orcaS.out and orcaJ.out files
+        located in the NMR subdirectory. If both files exist, it processes them using
+        OrcaSJ class methods and appends the results to self.orcaSJ list.
+
+        Args:
+            self: The instance of the class containing this method
+
+        Returns:
+            None: This method modifies the instance's orcaSJ attribute in-place
+
+        Example:
+            >>> analyzer = NMRAnalyzer()
+            >>> analyzer.method_read_folder_orcaSJ()
+            # Reads all orcaS.out and orcaJ.out files from CONF* directories
+            # and populates analyzer.orcaSJ with parsed data
+
+        Note:
+            - Only directories matching the CONFXX pattern are processed
+            - Files must exist in the NMR subdirectory of each CONFXX directory
+            - Parsing errors in individual files will print error messages but won't stop processing
         """
+
         Dir: Path = self.__Directory
         print("Files and directories in ", Dir, " : ")
 
@@ -454,9 +539,20 @@ class Anmr():
         """
         Check if average orcaSJ files exist in the Average/NMR directory.
 
+        This method verifies the existence of three specific ORCA output files
+        in the Average/NMR subdirectory:
+        - orcaS.out (structure file)
+        - orcaJ.out (J-coupling file) 
+        - orcaA.out (atom information file)
+
+        The method performs a logical AND operation on all three file existence checks,
+        returning True only if ALL files exist, False otherwise.
+
         Returns:
-            bool: True if all average orcaSJ files exist, False otherwise.
+            bool: True if all average orcaSJ files exist in the Average/NMR directory,
+                  False if any of the files are missing.
         """
+
         fileName_Av_orcaS: Path = self.__Directory / \
             Path("Average/NMR/orcaS.out")
         fileName_Av_orcaJ: Path = self.__Directory / \
@@ -473,12 +569,39 @@ class Anmr():
         """
         Load average orcaSJ data from files.
 
+        This method reads and loads NMR data from ORCA calculation output files,
+        including atom indices, scalar coupling constants (SParams), and J-couplings (JCoups).
+        The method handles both BOBYQA and non-BOBYQA versions of the ORCA output files.
+
         Args:
             args: Command-line arguments containing BOBYQA flag.
+                - args.bobyqa (bool): Flag indicating whether to use BOBYQA version
+                    of the ORCA output files.
 
         Returns:
             bool: True if successful, False otherwise.
+                - Returns False if average orcaSJ data does not exist.
+                - Returns True after successfully loading all data from files.
+
+        Note:
+            This method modifies the instance attributes:
+            - self.avg_orcaSJ.idxAtoms: Dictionary of atom indices
+            - self.avg_orcaSJ.SParams: Scalar coupling parameters
+            - self.avg_orcaSJ.JCoups: J-coupling values
+
+        Example:
+            >>> args = argparse.Namespace(bobyqa=True)
+            >>> success = self.method_load_avg_orcaSJ(args)
+            >>> print(success)
+            True
+
+        Files accessed:
+            - Average/NMR/orcaS-BOBYQA.out (if args.bobyqa is True)
+            - Average/NMR/orcaS.out (if args.bobyqa is False)
+            - Average/NMR/orcaJ.out
+            - Average/NMR/orcaA.out
         """
+
         from censo_ext.Tools.utility import jsonKeys2int
         if self.get_avg_orcaSJ_Exist():
             if args.bobyqa:
@@ -524,7 +647,25 @@ class Anmr():
 
         This method saves the averaged shielding parameters, coupling constants, and
         atom indices to respective files for future use.
+
+        Args:
+            self: The instance of the class containing this method.
+
+        Returns:
+            None: This method does not return any value.
+
+        Example:
+            >>> instance.method_save_avg_orcaSJ()
+            # Saves data to Average/NMR/orcaS.out, Average/NMR/orcaJ.out, and Average/NMR/orcaA.out
+
+        Note:
+            The method creates the necessary directory structure (Average/NMR) if it doesn't exist.
+            The saved files contain:
+            - orcaS.out: Averaged shielding parameters
+            - orcaJ.out: Coupling constants
+            - orcaA.out: Atom indices
         """
+
         avg_orcaS: Path = self.__Directory / Path("Average/NMR/orcaS.out")      # nopep8
         avg_orcaJ: Path = self.__Directory / Path("Average/NMR/orcaJ.out")      # nopep8
         avg_orcaAtoms: Path = self.__Directory / Path("Average/NMR/orcaA.out")  # nopep8
@@ -551,9 +692,33 @@ class Anmr():
         """
         Read the file anmr.out from anmr program.
 
+        This method parses the anmr.out file to extract shielding constants and coupling
+        constants (J-couplings) from the ANMR program output. It processes the matrix
+        data to construct a symmetric J-coupling matrix and extracts resonance frequencies.
+
         Args:
             fileName (Path, optional): Name of the anmr.out file. Defaults to Path("anmr.out").
+
+        Raises:
+            ValueError: If the anmr.out file format is invalid or cannot be parsed correctly.
+            FileNotFoundError: If the specified file does not exist.
+
+        Note:
+            The method expects specific formatting in the anmr.out file, including
+            "MATRIX PRINTED:" markers and "+/-" lines for shielding data.
+
+        Example:
+            >>> reader = AnmrFile()
+            >>> reader.method_read_anmrSJ("anmr.out")
+            >>> print(reader.anmrS)  # Prints shielding constants
+            >>> print(reader.anmrJ)  # Prints J-coupling matrix
+
+        Side effects:
+            - Populates self.anmrS with shielding data
+            - Populates self.anmrJ with J-coupling matrix
+            - Sets self.frq with resonance frequency
         """
+
         fileName = self.__Directory / Path(fileName)
         IsExist(fileName)
 
@@ -674,11 +839,33 @@ class Anmr():
 
     def method_read_nucinfo(self, file: Path = Path("anmr_nucinfo")) -> None:
         """
-        Read nuclear information from file.
+        Read nuclear information from a specified file.
+
+        This method reads nuclear information from a file located in the object's directory.
+        The file is expected to contain atomic data in a specific format where each atom's
+        information is represented by two lines: first line contains atomic number and mass,
+        second line contains additional integer values.
 
         Args:
-            file (Path, optional): Name of the nucinfo file. Defaults to Path("anmr_nucinfo").
+            file (Path, optional): Name of the nucinfo file to read. Defaults to Path("anmr_nucinfo").
+                The file is expected to be located in the object's directory.
+
+        Raises:
+            FileNotFoundError: If the specified file does not exist.
+            ValueError: If the file format is incorrect or contains invalid data.
+            IOError: If there are issues reading the file.
+
+        Example:
+            >>> obj.method_read_nucinfo("my_nucinfo_file")
+            # Reads nuclear information from 'my_nucinfo_file' in the object's directory
+
+        Note:
+            The method expects the file to have a specific structure where:
+            - First line contains number of atoms (nAtoms)
+            - Subsequent lines contain atom data in pairs of lines
+            - Each pair represents one atom with its properties
         """
+
         file = self.__Directory / Path(file)
         IsExist(file)
 
@@ -780,14 +967,31 @@ class OrcaSJ():
 
     def method_read_orcaJ(self, file: Path = Path("orcaJ.out")) -> bool:
         """
-        Read the file orcaJ.out in censo program.
+        Read the ORCA J-coupling output file for the censo program.
+
+        This method parses the orcaJ.out file to extract isotropic coupling constants
+        and stores them in the object's JCoups attribute.
 
         Args:
             file (Path, optional): Path to the orcaJ.out file. Defaults to Path("orcaJ.out").
 
         Returns:
             bool: True if successful, False otherwise.
+
+        Raises:
+            ValueError: If the data in the file is corrupted or incompatible with the expected format.
+            FileNotFoundError: If the specified file does not exist.
+
+        Note:
+            This method supports ORCA versions 5.0 and 6.0. For other versions,
+            a warning message will be printed and the program will exit.
+
+        Example:
+            >>> reader = AnmrFile()
+            >>> success = reader.method_read_orcaJ("path/to/orcaJ.out")
+            >>> print(reader.JCoups)
         """
+
         print(" method_read_orcaJ", file)
         IsExist(file)
 
@@ -859,15 +1063,33 @@ class OrcaSJ():
 
     def method_read_orcaS(self, file: Path = Path("orcaS.out")) -> bool:
         """
-        Read the file orcaS.out in censo program.
+        Read the ORCA S (NMR shielding) output file for the censo program.
+
+        This method parses the ORCA S output file to extract NMR shielding data,
+        including isotropic shielding constants and anisotropy values for each nucleus.
 
         Args:
             file (Path, optional): Path to the orcaS.out file. Defaults to Path("orcaS.out").
 
         Returns:
             bool: True if successful, False otherwise.
+
+        Raises:
+            ValueError: If the ORCA version is not supported (must be version 5.0 or higher).
+
+        Example:
+            >>> reader = NMRFileReader()
+            >>> success = reader.method_read_orcaS(Path("orcaS.out"))
+            >>> print(success)
+            True
+
+        Note:
+            This method populates the following instance attributes:
+            - self.idxAtoms: Dictionary mapping atom indices to atom symbols
+            - self.SParams: Dictionary mapping atom indices to shielding constants
+            - self.Anisotropy: Dictionary mapping atom indices to anisotropy values
         """
-        ''' Read the file orcaS.out in censo program '''
+
         print(" method_read_orcaS", file)
         IsExist(file)
 

@@ -24,11 +24,15 @@ class Topo():
         Initializes a new instance of the Topo class with the provided file path.
 
         Args:
-            __fileName(Path): The path to the input file containing molecular data.
-            __mol(Atoms|list[Atoms]): The molecular structure(s) read from the input file.
-            __neighbors(dict[int,npt.NDArray[np.int64]]): A dictionary of atom indices and their respective neighbors.
-            idx1_Hydrogen_atom(list[int]): A list of indices for hydrogen atoms in the molecule.
+            file (Path): The path to the input file containing molecular data.
+
+        Attributes:
+            __fileName (Path): The path to the input file containing molecular data.
+            __mol (Atoms | list[Atoms]): The molecular structure(s) read from the input file.
+            __neighbors (dict[int, npt.NDArray[np.int64]]): A dictionary of atom indices and their respective neighbors.
+            idx1_Hydrogen_atom (list[int]): A list of indices for hydrogen atoms in the molecule (1-indexed).
         """
+
         self.__fileName: Path = Path(file)
         self.__mol: Atoms | list[Atoms]
         self.__neighbors: dict[int, npt.NDArray[np.int64]]
@@ -38,12 +42,24 @@ class Topo():
                            i in enumerate(self.__mol) if i.symbol == "H"]  # type: ignore # nopep8
 
     def get_cn(self) -> dict[int, int]:
-        """ 
-        Computes and returns the coordination number (CN) for each atom in the molecular structure.
+        """Computes and returns the coordination number (CN) for each atom in the molecular structure.
 
-        Returns: 
-            dict[int,int]: A dict of atom indice and coordination number for each atom.  
+        The coordination number represents the number of nearest neighbors for each atom.
+
+        Returns:
+            dict[int,int]: A dictionary mapping atom indices to their respective coordination numbers.
+                - Key: Atom index (int)
+                - Value: Coordination number (int), representing the count of nearest neighbors
+
+        Example:
+            >>> topology.get_cn()
+            {0: 4, 1: 2, 2: 4, 3: 2}
+
+        Note:
+            This method relies on the internal `self.__neighbors` attribute which should be 
+            pre-computed and contain the neighbor information for each atom.
         """
+
         idx_cn: dict[int, int] = {}
         for key, value in self.__neighbors.items():
             idx_cn[key] = len(value)
@@ -54,13 +70,21 @@ class Topo():
         Identifies terminal atoms involved in a broken bond, including hydrogen atoms.
 
         Args:
-            args[argparse.Namespace]: Command-line arguments containing information about the broken bond and whether to print results.
-            args.bond_broken[int,int]: atom's index of broken-bond[include 1's atom , not include 2's atom]
-            args.print[bool]: print the final data on screen   
+            args (argparse.Namespace): Command-line arguments containing information about 
+                the broken bond and whether to print results.
+            args.bond_broken (tuple[int, int]): atom's index of broken-bond[include 1's atom , not include 2's atom]
+            args.print (bool): print the final data on screen   
 
         Returns:
             list[int]: A list of atom indices involved in the broken bond (including H atoms).
+
+        Example:
+            >>> args = argparse.Namespace(bond_broken=(5, 10), print=True)
+            >>> result = method_broken_bond_H(args)
+            >>> print(result)
+            [5, 6, 7, 10, 11]
         """
+
         Res: list[int] = self.method_broken_bond(args)
         idx_neighbors: dict[int, npt.NDArray] = self.__neighbors
         idx1_H_atoms: list[int] = self.idx1_Hydrogen_atom
@@ -143,15 +167,31 @@ class Topo():
         return Neighbors_Atoms
 
     def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray], list[list[int]], list[list[np.int64]]]:
-        """ 
-        Analyzes the molecular structure to classify it into circular and residual molecules.
+        """Analyzes the molecular structure to classify it into circular and residual molecules.
+
+        This method identifies circular (ring) structures and residual (non-ring) fragments
+        within a molecular system. It processes the molecular graph by removing hydrogen atoms
+        and then applies graph theory algorithms to detect ring systems and connected components
+        of non-ring atoms.
+
+        The algorithm:
+        1. Removes hydrogen atoms from neighbor lists
+        2. Constructs a molecular graph from remaining bonds
+        3. Identifies potential ring atoms (degree 3-6)
+        4. Finds complete ring structures by removing edges and finding paths
+        5. Classifies remaining atoms as residual fragments
 
         Returns:
-            tuple: A tuple containing the following elements:
-                mol(ml4nmr.Atoms|list[ml4nmr.Atoms]): The original molecular structure(s).
-                neighbors(dict[int,npt.NDArray]): Updated dictionary of atom indices and their respective neighbors (excluding H atoms).
-                circle_Mols(list[list[int]]): A list of circular molecules identified in the structure.
+            tuple: A tuple containing:
+                mol (ml4nmr.Atoms | list[ml4nmr.Atoms]): The original molecular structure(s).
+                neighbors (dict[int, npt.NDArray]): Updated dictionary of atom indices and their respective neighbors (excluding H atoms).
+                circle_Mols (list[list[int]]): A list of circular molecules identified in the structure.
                 residual_Mols (list[list[np.int64]]): A list of residual molecules identified in the structure.
+
+        Note:
+            - Ring detection is performed by identifying atoms with degrees 3-6
+            - Duplicate ring structures are automatically removed
+            - Residual fragments are connected components of non-ring atoms
         """
 
         mol: ml4nmr.Atoms | list[ml4nmr.Atoms] = self.__mol
