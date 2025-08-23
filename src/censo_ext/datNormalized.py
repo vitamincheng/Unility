@@ -98,7 +98,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.file:
         from censo_ext.Tools.utility import IsExist
         IsExist(args.file)
-        from censo_ext.Tools.anmrfile import CensoDat
+        from censo_ext.Tools.datfile import CensoDat
         inDat: CensoDat = CensoDat(args.file)
         inDat.method_normalize_dat(
             start=args.start, end=args.end, dpi=args.dpi)

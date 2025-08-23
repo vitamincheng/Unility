@@ -108,7 +108,7 @@ def test_anmrfile_read_enso() -> None:
 
 
 def test_anmrfile_Censo() -> None:
-    from censo_ext.Tools.anmrfile import CensoDat
+    from censo_ext.Tools.datfile import CensoDat
     infile: CensoDat = CensoDat(
         Path("tests/data/34.Ergocalciferol/04.Hydrogen/anmr.dat"))
     assert len(infile) == 77868

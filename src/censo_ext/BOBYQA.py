@@ -88,7 +88,7 @@ def rosenbrock(x0) -> float:
     # Average/NMR/orcaS.out        for anmr.py   (internal)
     # CONF1/NMR/orcaS.out          for anmr      (external)
     #
-    from censo_ext.Tools.anmrfile import CensoDat
+    from censo_ext.Tools.datfile import CensoDat
     orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileName_BOBYQA)
 

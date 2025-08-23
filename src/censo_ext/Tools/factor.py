@@ -10,14 +10,29 @@ from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 
 def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
     """ 
-    Performs factor analysis on a set of geometries.
+    Performs factor analysis on a set of geometries to identify atoms with high and low structural variability.
+
+    This function calculates the standard deviation of atomic positions across multiple conformations
+    to determine which atoms exhibit significant structural variation (major factors) versus those with
+    minimal variation (minor factors).
 
     Args:
-        args(argparse.Namespace): Command-line arguments.
+        args: Command-line arguments containing file path and factor threshold.
+            Expected attributes:
+            - file: Path to the XYZ file containing geometries
+            - factor: Threshold multiplier for determining major vs minor factors
 
     Returns:
-        tuple[list[int],dict[int,float]]: A tuple containing a list of minor factor atom indices
-        and a dictionary of atom indices and their standard deviations.
+        tuple[list[int],dict[int,float]]: 
+            A tuple containing:
+            - a list of atom indices identified as having low structural variability (minor factors)
+            - and a dictionary mapping atom indices to their corresponding standard deviations
+
+    Example:
+        >>> args = argparse.Namespace(file="geometries.xyz", factor=1.5)
+        >>> minor_factors, std_dict = method_factor_analysis(args)
+        >>> print(f"Minor factors: {minor_factors}")
+        >>> print(f"Standard deviations: {std_dict}")
     """
 
     xyzfile: GeometryXYZs = GeometryXYZs(args.file)
@@ -65,17 +80,33 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
 
 def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
     """ 
-    Optimizes the location of a broken bond based on factor analysis results.
+    Optimizes the location of a broken bond based on factor analysis results to find the best cleavage point.
+
+    This function analyzes pairs of atoms that show low structural variability and determines which
+    bond breaking configuration yields the most balanced distribution of structural deviations across conformations.
 
     Args:
-        args(argparse.Namespace): Command-line arguments.
-        low_factor(list[int]): List of atom indices with low factor values.
-        Table_S(dict[int,float]): Dictionary of atom indices and their standard deviations.
+        args: Command-line arguments containing file path.
+            Expected attributes:
+            - file: Path to the XYZ file containing geometries
+            - low_factor: List of atom indices with low structural variability (from factor analysis)
+            - Table_S: Dictionary mapping atom indices to their standard deviations from factor analysis
 
     Returns:
-        tuple[Literal[True],list[int],float]|Literal[False]: A tuple containing a boolean indicating success,
-        the optimized broken bond location as a list of two atom indices, and the corresponding ratio.
-        Returns False if the ratio is below a certain threshold.
+        tuple[Literal[True],list[int],float]|Literal[False]:
+            A tuple containing:
+            - Boolean indicating success (True if ratio > 0.60, False otherwise)
+            - List of two atom indices representing the optimized broken bond location
+            - The calculated ratio value for the optimal configuration
+
+    Example:
+        >>> args = argparse.Namespace(file="geometries.xyz")
+        >>> low_factors = [1, 2, 3]
+        >>> std_dict = {1: 0.5, 2: 0.3, 3: 0.7}
+        >>> success, bond_location, ratio = method_factor_opt(args, low_factors, std_dict)
+        >>> if success:
+        ...     print(f"Optimal bond location: {bond_location}")
+        ...     print(f"Ratio: {ratio}")
     """
 
     print(" ")

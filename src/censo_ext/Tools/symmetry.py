@@ -8,16 +8,28 @@ from censo_ext.Tools.xyzfile import Geometry
 
 def method_get_point_group(Sts: list[Geometry], idx: int, Hydrogen: bool) -> str:
     """
-    Calculate the point group symmetry of a given xyz file.
+    Determine the point group symmetry for a specified molecular geometry.
+
+    This function calculates the point group of a molecule by analyzing the 
+    atomic coordinates and symbols, with optional exclusion of hydrogen atoms.
 
     Args:
-        Sts(list[Geometry]): A list of Geometry objects.
-        idx(int): The index of the xyz file to process.
-        Hydrogen(bool): Whether to include hydrogen atoms in the calculation.
+        Sts(list[Geometry]): List of molecular geometry objects containing 
+                             atomic coordinates and element names
+        idx(int): Index specifying which geometry in the list to analyze
+        Hydrogen(bool): Flag indicating whether to include hydrogen atoms 
+                         in the symmetry calculation (True = include, False = exclude)
 
     Returns:
-        str: The point group symmetry as a string.
+        str: Point group symbol (e.g., 'C2v', 'D3h', 'Oh') representing the 
+             molecular symmetry
+
+    Example:
+        >>> Sts = [geometry1, geometry2, ...]
+        >>> point_group = method_get_point_group(Sts, 0, False)
+        >>> print(f"Molecular point group: {point_group}")
     """
+
     # Sts : the list of xyz files
     # idx : the number of xyz file
     pos: npt.NDArray[np.float64]
