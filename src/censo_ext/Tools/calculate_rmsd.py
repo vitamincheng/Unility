@@ -195,7 +195,7 @@ def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
         idx0(int): Index of the structure in xyzfile (zero-based indexing).
 
     Returns:
-        tuple[npt.NDArray[np.int64],npt.NDArray[np.float64]]: 
+        tuple[npt.NDArray[npt.NDArray[np.int64]],npt.NDArray[np.float64]]: 
         A tuple containing:
         - element: Array of atom types as integers
         - V: Array of atomic coordinates as floats

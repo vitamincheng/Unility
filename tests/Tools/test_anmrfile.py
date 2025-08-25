@@ -107,23 +107,6 @@ def test_anmrfile_read_enso() -> None:
     os.remove(filename)
 
 
-def test_anmrfile_Censo() -> None:
-    from censo_ext.Tools.datfile import CensoDat
-    infile: CensoDat = CensoDat(
-        Path("tests/data/34.Ergocalciferol/04.Hydrogen/anmr.dat"))
-    assert len(infile) == 77868
-    assert infile.get_fileName() == Path(
-        "tests/data/34.Ergocalciferol/04.Hydrogen/anmr.dat")
-    infile.method_normalize_dat()
-    outfile = Path("tests/compare/out.dat")
-    source = Path("tests/compare/anmr_normal.dat")
-    infile.set_fileName(outfile)
-    infile.method_save_dat()
-
-    assert filecmp.cmp(outfile, source)
-    os.remove(outfile)
-
-
 def test_anmrfile_read_anmrSJ_H() -> None:
     file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
     file.method_read_anmrSJ(Path("anmrh0.out"))

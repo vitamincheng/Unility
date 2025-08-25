@@ -14,16 +14,17 @@ def test_spectra_basic():
 
 
 def test_spectra_numpy_thr():
-
-    assert numpy_thr(inSample, 10.0) == 246.31578947368422
-    assert numpy_thr(inSample, 3.0) == 73.89473684210526
+    excepted_10 = 246.31578947368422
+    excepted_3 = 73.89473684210526
+    assert numpy_thr(inSample, 10.0) == excepted_10
+    assert numpy_thr(inSample, 3.0) == excepted_3
 
 
 def test_spectra_numpy_thr_mean_3():
-
-    assert numpy_thr_mean_3(inSample) == 36
+    excepted = 36
+    assert numpy_thr_mean_3(inSample) == excepted
 
 
 def test_spectra_find_nearest():
-
-    assert (find_nearest(list(inSample), 24)) == (22, 19)
+    excepted = (22, 19)
+    assert (find_nearest(list(inSample), 24)) == excepted

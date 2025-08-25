@@ -21,20 +21,6 @@ def test_unility_IsExists_DirFileName():
     assert b == "anmr.dat"
 
 
-def test_unility_file():
-    from censo_ext.Tools.utility import move_file, copy_file, delete_all_files, delete_file_bool
-    copy_file(Path("tests/data/crest_conformers.xyz"),
-              Path("tests/data/temp.xyz"))
-    move_file(Path("tests/data/temp.xyz"), Path("tests/data/temp1.xyz"))
-    copy_file(Path("tests/data/temp1.xyz"), Path("tests/data/temp2.xyz"))
-    delete_all_files(Path("tests/data/temp1.xyz"),
-                     Path("tests/data/temp2.xyz"))
-    copy_file(Path("tests/data/crest_conformers.xyz"),
-              Path("tests/data/temp.xyz"))
-    assert not delete_file_bool(Path("tests/data/temp1.xyz"))
-    assert delete_file_bool(Path("tests/data/temp.xyz"))
-
-
 @pytest.mark.parametrize(argnames="input_bool,input_str",
                          argvalues=[(True, "123.5678"), (True, " 123.5678"),
                                     (True, "123.5678 "), (True, " 123.5678 "),
@@ -75,3 +61,95 @@ def test_unility_unilityIsExist():
     with pytest.raises(FileNotFoundError) as e:
         IsExist(Path("kkk.xyz"))
     assert str(e.value) == "kkk.xyz The file is not Exist ..."
+
+
+def test_unility_move_file():
+    from censo_ext.Tools.utility import move_file
+    import os
+    source = Path("/tmp/test_source.txt")
+    destination = Path("/tmp/test_destination.txt")
+
+    with open(source, 'w') as f:
+        f.write("Hello World!")
+
+    move_file(source, destination)
+    assert os.path.exists(destination)
+
+
+def test_unility_copy_file():
+    from censo_ext.Tools.utility import copy_file
+    import os
+    source = Path("/tmp/test_source.txt")
+    destination = Path("/tmp/test_destination.txt")
+
+    with open(source, 'w') as f:
+        f.write("Hello World!")
+
+    copy_file(source, destination)
+    assert os.path.exists(destination)
+
+
+def test_unility_delete_all_files():
+    from censo_ext.Tools.utility import delete_all_files
+    import os
+    files_to_delete = [Path("/tmp/file1.txt"), Path("/tmp/file2.txt")]
+
+    for file in files_to_delete:
+        with open(file, 'w') as f:
+            f.write("Hello World!")
+
+    delete_all_files(*files_to_delete)
+    for file in files_to_delete:
+        assert not os.path.exists(file)
+
+
+def test_unility_delete_file_bool():
+    from censo_ext.Tools.utility import delete_file_bool
+    import os
+    file = Path("/tmp/test_file.txt")
+
+    with open(file, 'w') as f:
+        f.write("Hello World!")
+
+    assert delete_file_bool(file) is True
+
+    assert not os.path.exists(file)
+
+
+def test_unlity_save_dict():
+    from censo_ext.Tools.utility import save_dict
+    data = {1: 2.3456789, 2: 3.4567890}
+
+    save_dict(Path("/tmp/test_dict.txt"), data)
+
+    with open(Path("/tmp/test_dict.txt")) as f:
+        lines = f.readlines()
+
+        assert len(lines) == 2
+        assert lines[0].strip() == "1.00000  2.34568e+00"
+        assert lines[1].strip() == "2.00000  3.45679e+00"
+
+
+def test_unility_save_dict_orcaS():
+    from censo_ext.Tools.utility import save_dict_orcaS
+    data = {1: 2.3456789}
+
+    save_dict_orcaS(Path("/tmp/test_dict.txt"), data)
+
+    with open(Path("/tmp/test_dict.txt")) as f:
+        lines = f.readlines()
+
+        assert len(lines) == 1
+        assert lines[0].strip() == "1      2.34568"
+
+
+def test_unility_load_dict_orcaS():
+    from censo_ext.Tools.utility import load_dict_orcaS
+    data = {1: 2.3456789}
+
+    with open(Path("/tmp/test_dict.txt"), 'w') as f:
+        f.write('1      2.3456789\n')
+
+    loaded_data = load_dict_orcaS(Path("/tmp/test_dict.txt"))
+
+    assert loaded_data == data
