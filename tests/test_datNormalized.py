@@ -9,9 +9,8 @@ from censo_ext.Tools.utility import delete_all_files
 
 def test_datNormalized_miss_args():
     x: dict = {}
-    args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
-        datNormalized.main(args)
+        datNormalized.main(argparse.Namespace(**x))
     assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
@@ -23,7 +22,6 @@ def test_datNormalized():
 
     x: dict = {"file": inFile, "start": -5.0, "end": 15.0, "dpi": 10000,
                "out": outFile}
-    args = argparse.Namespace(**x)
-    datNormalized.main(args)
+    datNormalized.main(argparse.Namespace(**x))
     assert filecmp.cmp(outFile, compare_file)
     delete_all_files(outFile)

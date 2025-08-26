@@ -44,16 +44,14 @@ def BOBYQA_final_remove_files():
 
 def test_BOBYQA_miss_all_args():
     args_x: dict = {}
-    args = argparse.Namespace(**args_x)
     with pytest.raises(SystemExit) as e:
-        anmr.main(args)
+        anmr.main(argparse.Namespace(**args_x))
     assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
     args_x: dict = {}
-    args = argparse.Namespace(**args_x)
     with pytest.raises(SystemExit) as e:
-        BOBYQA.main(args)
+        BOBYQA.main(argparse.Namespace(**args_x))
     assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
@@ -61,11 +59,9 @@ def test_BOBYQA_miss_all_args():
 def test_BOBYQA_miss_orcaS_file():
     #
     # not run anmr_BOBYQA_init() and directly run BOBYQA.py
-    import argparse
-    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
-    args2 = argparse.Namespace(**args_y)
+    args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     with pytest.raises(FileNotFoundError) as e:
-        BOBYQA.main(args2)
+        BOBYQA.main(argparse.Namespace(**args_x))
     assert str(e.value) == str(
         DirName/Path("Average/NMR/orcaS.out")) + " is not exist !!!"
 
@@ -86,9 +82,8 @@ def test_BOBYQA_single():
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
-    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
-    args2 = argparse.Namespace(**args_y)
-    BOBYQA.main(args2)
+    args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
+    BOBYQA.main(argparse.Namespace(**args_x))
     assert filecmp.cmp(DirName / Path("output.dat"),
                        DirName / Path("orcaS-BOBYQA-anmrpy.dat"))
     BOBYQA_final_remove_files()
@@ -102,11 +97,10 @@ def test_BOBYQA_single_external_prog(monkeypatch):
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
 
-    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
+    args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
     from io import StringIO
     monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
-    args2 = argparse.Namespace(**args_y)
-    BOBYQA.main(args2)
+    BOBYQA.main(argparse.Namespace(**args_x))
     assert filecmp.cmp(DirName / Path("anmr.dat"),
                        DirName / Path("orcaS-BOBYQA-anmr.dat"))
     BOBYQA_final_remove_files()
@@ -124,9 +118,8 @@ def test_BOBYQA_group():
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA-group.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
-    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
-    args2 = argparse.Namespace(**args_y)
-    BOBYQA.main(args2)
+    args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
+    BOBYQA.main(argparse.Namespace(**args_x))
     assert filecmp.cmp(DirName / Path("output.dat"),
                        DirName / Path("orcaS-BOBYQA-group-anmrpy.dat"))
     BOBYQA_final_remove_files()
@@ -139,11 +132,10 @@ def test_BOBYQA_group_external_prog(monkeypatch):
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA-group.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
-    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
+    args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
     from io import StringIO
     monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
-    args2 = argparse.Namespace(**args_y)
-    BOBYQA.main(args2)
+    BOBYQA.main(argparse.Namespace(**args_x))
     assert filecmp.cmp(DirName / Path("anmr.dat"),
                        DirName / Path("orcaS-BOBYQA-group-anmr.dat"))
     from censo_ext.Tools.utility import delete_all_files

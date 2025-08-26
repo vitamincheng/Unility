@@ -48,18 +48,16 @@ def test_xyzTranslate_cut_move():
 
 def test_xyzTranslate_miss_args():
     x: dict = {}
-    args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
-        xyzTranslate.main(args)
+        xyzTranslate.main(argparse.Namespace(**x))
     assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
 
 def test_xyzTranslate_without_move():
     x: dict = {"file": inFile, "out": outFile, "cut": 10}
-    args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
-        xyzTranslate.main(args)
+        xyzTranslate.main(argparse.Namespace(**x))
     assert e.type is SystemExit
     assert e.value.code == 1    # try and exception
 
@@ -67,9 +65,8 @@ def test_xyzTranslate_without_move():
 def test_xyzTranslate_miss_file():
     x: dict = {"file": Path("tests/data/crest_conformers000.xyz"),
                "out": outFile, "cut": 10}
-    args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
-        xyzTranslate.main(args)
+        xyzTranslate.main(argparse.Namespace(**x))
     assert e.type is SystemExit
     assert e.value.code == 1    # try and exception
 

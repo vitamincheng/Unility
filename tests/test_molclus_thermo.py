@@ -18,9 +18,8 @@ def test_molclus_thermo_miss_args():
 def test_molclus_thermo_alpb():
     x: dict = {"file": inFile, "alpb": "CHCl3", "gbsa": None, "chrg": 0,
                "uhf": 1, "opt": True, "method": "gfn2"}
-    args = argparse.Namespace(**x)
 
-    Res: list[str] = thermo.main(args)
+    Res: list[str] = thermo.main(argparse.Namespace(**x))
 
     assert float(Res[0]) == pytest.approx(0.083147421, abs=0.0000002)
     assert float(Res[1]) == pytest.approx(0.082439908, abs=0.0000002)

@@ -8,8 +8,7 @@ import censo_ext.molManipulate as molManipulate
 def test_molManipulate():
     x: dict = {"separate": "tests/data/crest_conformers3.xyz",
                "merge": None, "out": "tests/compare/output.xyz"}
-    args = argparse.Namespace(**x)
-    molManipulate.main(args)
+    molManipulate.main(argparse.Namespace(**x))
 
     import os
     Dir: Path = Path("Separation")
@@ -39,18 +38,16 @@ def test_molManipulate():
 def test_molManipulate_multi():
     x: dict = {"separate": "tests/data/crest_conformers.xyz",
                "merge": None, "out": "tests/compare/output.xyz"}
-    args = argparse.Namespace(**x)
 
     with pytest.raises(SystemExit) as e:
-        molManipulate.main(args)
+        molManipulate.main(argparse.Namespace(**x))
     assert e.type is SystemExit
     assert e.value.code == 0   # for argprarse wrong
 
 
 def test_molManipulate_miss_args():
     x: dict = {}
-    args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
-        molManipulate.main(args)
+        molManipulate.main(argparse.Namespace(**x))
     assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error

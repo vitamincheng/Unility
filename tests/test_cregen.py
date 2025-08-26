@@ -12,9 +12,8 @@ _system = platform.system()
 
 def test_cregen_miss_args():
     x: dict = {}
-    args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
-        cregen.main(args)
+        cregen.main(argparse.Namespace(**x))
     assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 

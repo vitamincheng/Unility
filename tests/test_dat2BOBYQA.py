@@ -55,6 +55,5 @@ def test_dat2BOBYQA_Full():
     BOBYQA_init()
     x: dict = {"dir": DirName, "file": DirName /
                RefDat, "start": -5.0, "end": 15.0, "dpi": 100, "thr": 10}
-    args = argparse.Namespace(**x)
-    dat2BOBYQA.main(args)
+    dat2BOBYQA.main(argparse.Namespace(**x))
     BOBYQA_final_remove_files()

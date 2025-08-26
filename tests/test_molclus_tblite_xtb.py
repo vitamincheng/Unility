@@ -20,11 +20,17 @@ def test_tblite_xtb_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
+x: dict = {"file": inFile, "chrg": 0, "uhf": 1,
+           "method": "GFN2-xTB", "out": outFile}
+
+
 @pytest.mark.skipif(_system == "Darwin" or _system == "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_alpb_opt():
 
-    x: dict = {"file": inFile, "alpb": "chloroform", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
-               "method": "GFN2-xTB", "out": outFile}
+    x["alpb"] = "chloroform"
+    x["gbsa"] = None
+    x["opt"] = True
+
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
@@ -42,8 +48,11 @@ def test_tblite_xtb_alpb_opt():
 
 @pytest.mark.skipif(_system == "Darwin" or _system == "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_gbsa_opt():
-    x: dict = {"file": inFile, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
-               "method": "GFN2-xTB", "out": outFile}
+
+    x["alpb"] = None
+    x["gbsa"] = "CHCl3"
+    x["opt"] = True
+
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
@@ -64,8 +73,11 @@ def test_tblite_xtb_gbsa_opt():
 
 
 def test_tblite_xtb_alpb():
-    x: dict = {"file": inFile, "alpb": "chloroform", "gbsa": None, "chrg": 0, "uhf": 1, "opt": False,
-               "method": "GFN2-xTB", "out": outFile}
+
+    x["alpb"] = "chloroform"
+    x["gbsa"] = None
+    x["opt"] = False
+
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
@@ -88,8 +100,11 @@ def test_tblite_xtb_alpb():
 
 @pytest.mark.skipif(_system == "Darwin" or _system == "Linux", reason="tblite xtb have some bugs under Darwin and Linux")
 def test_tblite_xtb_gbsa():
-    x: dict = {"file": inFile, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
-               "method": "GFN2-xTB", "out": outFile}
+
+    x["alpb"] = None
+    x["gbsa"] = "CHCl3"
+    x["opt"] = False
+
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 

@@ -10,9 +10,8 @@ _system = platform.system()
 
 def test_FactorCompare_miss_args():
     x: dict = {}
-    args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
-        FactorCompare.main(args)
+        FactorCompare.main(argparse.Namespace(**x))
     assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
@@ -20,8 +19,7 @@ def test_FactorCompare_miss_args():
 @pytest.mark.skipif(_system == "Darwin", reason="Crest only work under Linux")
 def test_FactorCompare():
     x: dict = {"file": [inFile, inFile]}
-    args = argparse.Namespace(**x)
-    Res = FactorCompare.main(args)
+    Res = FactorCompare.main(argparse.Namespace(**x))
 
     if _system == "Darwin":
         compare = ""

@@ -132,16 +132,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(f" There are totally       {str(len(infile))} geometries in the inputted geometry file\n")  # nopep8
     print(f" Setting method :  {args.method}")
     cmd_solvent = "vacuum"
-    if args.alpb:
+    if args.alpb and (not args.gbsa):
         cmd_solvent = args.alpb
     elif args.gbsa:
         cmd_solvent = args.gbsa
     print(f" Setting solvent :  {cmd_solvent}")
     print(" Loading setting data ...")
     xtb_cmd += " --" + args.method
-    if args.alpb:
+    if args.alpb and (not args.gbsa):
         xtb_cmd += " --alpb " + args.alpb
-    if args.gbsa:
+    elif args.gbsa:
         xtb_cmd += " --gbsa " + args.gbsa
 
     xtb_cmd += " --chrg " + \

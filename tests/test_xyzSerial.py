@@ -20,7 +20,7 @@ def test_xyzSerial_new():
 
 
 def test_xyzSerial_keep():
-    x: dict = {"file": "tests/data/crest_conformers_xyzSerial.xyz", "new": False,
+    x: dict = {"file": "tests/data/crest_conformers4.xyz", "new": False,
                "keep": True, "out": outFile, "print": False}
     args = argparse.Namespace(**x)
     xyzSerial.main(args)

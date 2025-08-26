@@ -22,9 +22,16 @@ def test_xtb_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
+x: dict = {"file": inFile, "chrg": 0,
+           "uhf": 1, "method": "gfn2", "out": outFile}
+
+
 def test_xtb_alpb_opt():
-    x: dict = {"file": inFile, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": True,
-               "method": "gfn2", "out": outFile}
+
+    x["alpb"] = "CHCl3"
+    x["gbsa"] = None
+    x["opt"] = True
+
     args = argparse.Namespace(**x)
 
     compare = ""
@@ -44,8 +51,11 @@ def test_xtb_alpb_opt():
 
 
 def test_xtb_gbsa_opt():
-    x: dict = {"file": inFile, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": True,
-               "method": "gfn2", "out": outFile}
+
+    x["alpb"] = None
+    x["gbsa"] = "CHCl3"
+    x["opt"] = True
+
     args = argparse.Namespace(**x)
 
     compare = ""
@@ -65,11 +75,14 @@ def test_xtb_gbsa_opt():
 
 
 def test_xtb_alpb():
-    x: dict = {"file": inFile, "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1, "opt": False,
-               "method": "gfn2", "out": outFile}
-    args = argparse.Namespace(**x)
 
+    x["alpb"] = "CHCl3"
+    x["gbsa"] = None
+    x["opt"] = False
+
+    args = argparse.Namespace(**x)
     xtb.main(args)
+
     compare = ""
     if _system == "Darwin":
         compare = "tests/compare/molclus_xtb_3_Darwin.xyz"
@@ -83,10 +96,14 @@ def test_xtb_alpb():
 
 
 def test_xtb_gbsa():
-    x: dict = {"file": inFile, "alpb": None, "gbsa": "CHCl3", "chrg": 0, "uhf": 1, "opt": False,
-               "method": "gfn2", "out": outFile}
+
+    x["alpb"] = None
+    x["gbsa"] = "CHCl3"
+    x["opt"] = False
+
     args = argparse.Namespace(**x)
     xtb.main(args)
+
     compare = ""
     if _system == "Darwin":
         compare = "tests/compare/molclus_xtb_4_Darwin.xyz"
