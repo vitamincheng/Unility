@@ -99,3 +99,8 @@ def test_gxtb_gbsa():
 
     assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
+
+#   pytest -v -s --pdb tests/test_molclus_gxtb.py::test_gxtb_alpb_opt
+#   pytest -v -s --pdb tests/test_molclus_gxtb.py::test_gxtb_gbsa_opt
+#   pytest -v -s --pdb tests/test_molclus_gxtb.py::test_gxtb_alpb
+#   pytest -v -s --pdb tests/test_molclus_gxtb.py::test_gxtb_gbsa

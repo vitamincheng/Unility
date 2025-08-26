@@ -1,0 +1,4 @@
+! r2SCAN-3c opt miniprint PAL8 CPCM(chloroform) noautostart 
+%maxcore 6000
+
+* xyzfile 0 1 [xyzfile]

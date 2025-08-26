@@ -51,10 +51,10 @@ def test_orca_opt():
 
     compare = ""
     if _system == "Linux":  # Need 2 min
-        compare = "tests/compare/orca_isomers.xyz"
+        compare = "tests/compare/orca_isomers_opt.xyz"
 
     elif _system == "Darwin":  # Need 5 min
-        compare = "tests/compare/orca_isomers_Darwin.xyz"
+        compare = "tests/compare/orca_isomers_opt_Darwin.xyz"
 
     assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
@@ -71,12 +71,15 @@ def test_orca_opt_default():
 
     compare = ""
     if _system == "Linux":  # Need 2 min
-        compare = "tests/compare/orca_isomers.xyz"
+        compare = "tests/compare/orca_isomers_opt.xyz"
 
     elif _system == "Darwin":  # Need 5 min
-        compare = "tests/compare/orca_isomers_Darwin.xyz"
+        compare = "tests/compare/orca_isomers_opt_Darwin.xyz"
 
     assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
     import subprocess
     subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
+
+#   pytest -v -s --pdb tests/test_molclus_orca.py::test_orca_opt
+#   pytest -v -s --pdb tests/test_molclus_orca.py::test_orca_opt_default
