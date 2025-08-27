@@ -171,9 +171,9 @@ class Anmrrc():
         for idx, x in enumerate(acid_atoms_NoShowRemove):
             NoShow_Remove_Group = np.concatenate(
                 (NoShow_Remove_Group, neighbors[x]), axis=None)
-        idx_H_atom: list[int] = [idx+1 for idx,
+        idx1_H_atom: list[int] = [idx+1 for idx,
                                  i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
-        return [i for i in NoShow_Remove_Group if i in idx_H_atom]
+        return [i for i in NoShow_Remove_Group if i in idx1_H_atom]
 
     def get_Reference_anmrrc(self) -> float:
         """Retrieve the reference shielding value from the .anmrrc file.
@@ -227,13 +227,23 @@ class Anmr():
             Directory (Path, optional): The directory containing NMR data files. Defaults to Path(".").
         """
         self.__Directory: Path = Directory
-        self.enso: npt.NDArray                      # anmr_enso
-        self.anmrJ: npt.NDArray[np.float64]         # JCoup of anmr.out generated from anmr # nopep8
-        self.anmrS: list[list[float]] = []          # Shielding of anmr.out generated from anmr # nopep8
-        self.orcaSJ: list[OrcaSJ] = []              # directory of orcaSJ
-        self.avg_orcaSJ = OrcaSJ()                  #
-        self.nucinfo: list[list[list[list[int]]]] = [
-        ]                                           # anmr_nucinfo
+        self.enso: npt.NDArray                              # anmr_enso
+        self.anmrJ: npt.NDArray[np.float64]                 # JCoup of anmr.out generated from anmr # nopep8
+        self.anmrS: list[list[float]] = []                  # Shielding of anmr.out generated from anmr # nopep8
+        # directory of orcaSJ
+        self.orcaSJ: list[OrcaSJ] = []
+        self.avg_orcaSJ = OrcaSJ()
+        # self.nucinfo: list[list[list[list[int]]]] = []
+
+        # anmr_nucinfo
+        # idx1 and numbers of Chemical Equivalent
+        self.nChemEqvs: dict[int, int] = {}
+        # idx1 and neighbors index of Chemical Equivalent
+        self.NeighborChemEqvs: dict[int, list[int]] = {}
+        # idx1 and numbers of Magnetic Equivalent
+        self.nMagnetEqvs: dict[int, int] = {}
+        # idx1 and neighbors index of Magnetic Equivalent
+        self.NeighborMangetEqvs: dict[int, list[int]] = {}
 
     def get_Directory(self) -> Path:
         """
@@ -351,7 +361,7 @@ class Anmr():
         """
 
         print(" ===== Average of all folder orcaS.out and orcaJ.out =====")
-        if len(self.nucinfo) == 0 or self.enso.size == 0:
+        if len(self.nChemEqvs) == 0 or len(self.nMagnetEqvs) == 0 or self.enso.size == 0:
             print(" Need to read the anmr_nucinfo and anmr_enso enso ")
             print(" Exit the program !!! ")
             ic()
@@ -382,7 +392,7 @@ class Anmr():
             # orcaSParams and orcaJCoups using weighting to calculate and
             # save to Average_orcaSJ
             self.avg_orcaSJ: OrcaSJ = OrcaSJ()
-            self.avg_orcaSJ.idxAtoms = self.orcaSJ[0].idxAtoms
+            self.avg_orcaSJ.idx1Atoms = self.orcaSJ[0].idx1Atoms
 
             for idx in self.orcaSJ[0].SParams.keys():
                 self.avg_orcaSJ.SParams[idx] = 0.0
@@ -439,12 +449,13 @@ class Anmr():
 
         Note:
             This method modifies the orcaSJ objects in-place by updating SParams and JCoups
-            and removing equivalent atoms from idxAtoms, SParams, and JCoups.
+            and removing equivalent atoms from idx1Atoms, SParams, and JCoups.
         """
 
         print(" Replace the equivalent of Sparams and JCoups")
 
-        if len(self.nucinfo) == 0 or self.enso.size == 0:
+        # if len(self.nucinfo) == 0 or self.enso.size == 0:
+        if len(self.nChemEqvs) == 0 or len(self.nMagnetEqvs) == 0 or self.enso.size == 0:
             print(" Need to read the anmr_nucinfo and anmr_enso enso ")
             print(" Exit the program !!! ")
             ic()
@@ -454,52 +465,64 @@ class Anmr():
             print("===== Update the equivalent of SParams and JCoups =====")
 
             Atoms: list[int] = []
-            for idx, x in self.orcaSJ[0].idxAtoms.items():
+            for idx, x in self.orcaSJ[0].idx1Atoms.items():
                 Atoms.append(idx)
             AtomsKeep: npt.NDArray[np.int64] = np.array(Atoms)
             AtomsEqvKeep: npt.NDArray[np.int64] = AtomsKeep.copy()
 
             ic(AtomsEqvKeep)
-            ic(self.nucinfo)
 
             for idx, x in enumerate(AtomsEqvKeep):
-                if (self.nucinfo[1][x-1][1]) != 1:
-                    if x != min(self.nucinfo[1][x-1][2]):
+                if (self.nMagnetEqvs[x]) != 1:
+                    if x != min(self.NeighborMangetEqvs[x]):
                         AtomsEqvKeep[idx] = 0
+            # for idx, x in enumerate(AtomsEqvKeep):
+            #    if (self.nucinfo[1][x-1][1]) != 1:
+            #        if x != min(self.nucinfo[1][x-1][2]):
+            #            AtomsEqvKeep[idx] = 0
             AtomsEqvKeep = AtomsEqvKeep[np.nonzero(AtomsEqvKeep)]
 
             # Calculation the average ppm of Equivalent Atom and Replace the old ppm
             for orcaSJ in self.orcaSJ:
                 for idx, x in enumerate(AtomsEqvKeep):
-                    if (self.nucinfo[0][x-1][1] != 1):
+                    if (self.nChemEqvs[x] != 1):
+                        # if (self.nucinfo[0][x-1][1] != 1):
                         ppm: list[float] = []
-                        for y in self.nucinfo[0][x-1][2]:
+                        # for y in self.nucinfo[0][x-1][2]:
+                        for y in self.NeighborChemEqvs[x]:
                             ppm.append(orcaSJ.SParams[y])
                         average: float = sum(ppm)/len(ppm)
-                        for y in self.nucinfo[0][x-1][2]:
+                        # for y in self.nucinfo[0][x-1][2]:
+                        for y in self.NeighborChemEqvs[x]:
                             orcaSJ.SParams[y] = average
             # for Equivalent Atom  of orcaJCoups
             # Calculation the average JCoups of Equivalent JCoups and Replace the old JCoups
             for orcaSJ in self.orcaSJ:
                 for idx, x in enumerate(AtomsEqvKeep):
-                    if (self.nucinfo[1][x-1][1] != 1):
+                    # if (self.nucinfo[1][x-1][1] != 1):
+                    if (self.nMagnetEqvs[x] != 1):
                         for y in AtomsKeep:
                             JCoups: list[float] = []
                             average: float = 0
-                            for z in (self.nucinfo[1][x-1][2]):
+                            for z in (self.NeighborMangetEqvs[x]):
+                                # for z in (self.nucinfo[1][x-1][2]):
                                 JCoups.append(orcaSJ.JCoups[list(
                                     AtomsKeep).index(y)][list(AtomsKeep).index(z)])
                                 average: float = sum(JCoups)/len(JCoups)
 
-                            for z in (self.nucinfo[1][x-1][2]):
+                            for z in (self.NeighborMangetEqvs[x]):
+                                # for z in (self.nucinfo[1][x-1][2]):
                                 orcaSJ.JCoups[list(AtomsKeep).index(
                                     y)][list(AtomsKeep).index(z)] = average
                                 orcaSJ.JCoups[list(AtomsKeep).index(
                                     z)][list(AtomsKeep).index(y)] = average
 
-                    if (self.nucinfo[1][x-1][1] > 2):
-                        for k in (self.nucinfo[1][x-1][2]):
-                            for ll in (self.nucinfo[1][x-1][2]):
+                    # if (self.nucinfo[1][x-1][1] > 2):
+                    if (self.nMagnetEqvs[x] > 2):
+                        # for k in (self.nucinfo[1][x-1][2]):
+                        for k in (self.NeighborMangetEqvs[x]):
+                            # for ll in (self.nucinfo[1][x-1][2]):
+                            for ll in (self.NeighborMangetEqvs[x]):
                                 orcaSJ.JCoups[list(AtomsKeep).index(
                                     k)][list(AtomsKeep).index(ll)] = 0
                                 orcaSJ.JCoups[list(AtomsKeep).index(
@@ -511,10 +534,10 @@ class Anmr():
                 map(int, set(AtomsKeep).difference(set(list(AtomsEqvKeep)))))
             AtomsDelete.sort()
 
-            # Delete Equivalent Atoms of idxAtoms
+            # Delete Equivalent Atoms of idx1Atoms
             for orcaSJ in self.orcaSJ:
                 for x in AtomsDelete:
-                    del orcaSJ.idxAtoms[x]
+                    del orcaSJ.idx1Atoms[x]
 
             # Delete Equivalent Atoms of orcaSParams
             for orcaSJ in self.orcaSJ:
@@ -666,7 +689,7 @@ class Anmr():
 
         Note:
             This method modifies the instance attributes:
-            - self.avg_orcaSJ.idxAtoms: Dictionary of atom indices
+            - self.avg_orcaSJ.idx1Atoms: Dictionary of atom indices
             - self.avg_orcaSJ.SParams: Scalar coupling parameters
             - self.avg_orcaSJ.JCoups: J-coupling values
 
@@ -698,7 +721,7 @@ class Anmr():
 
             import json
             with open(file_avg_orcaAtoms) as f:
-                self.avg_orcaSJ.idxAtoms = json.loads(
+                self.avg_orcaSJ.idx1Atoms = json.loads(
                     f.read(), object_pairs_hook=jsonKeys2int)
 
             from censo_ext.Tools.utility import load_dict_orcaS
@@ -758,7 +781,7 @@ class Anmr():
         save_dict_orcaS(avg_orcaS, self.avg_orcaSJ.SParams)
         import json
         with open(avg_orcaAtoms, 'w') as f:
-            f.write(json.dumps(self.avg_orcaSJ.idxAtoms))
+            f.write(json.dumps(self.avg_orcaSJ.idx1Atoms))
         np.savetxt(avg_orcaJ, self.avg_orcaSJ.JCoups, fmt="%10.5f")
 
     def method_save_folder_orcaSJ(self) -> None:
@@ -960,15 +983,33 @@ class Anmr():
             structured as a list of lists, where each inner list represents an atom group.
         """
 
-        nAtoms: int = len(self.nucinfo[0])
+        # nAtoms: int = len(self.nucinfo[0])
+        nAtoms: int = len(self.nChemEqvs.keys())
         print(f"{nAtoms:>12d}")
 
-        for lines in self.nucinfo:
-            for x in lines:
-                print(f"   {x[0]:d}   {x[1]:d}")
-                for y in x[2]:
-                    print(f" {y:d}", end="")
-                print("")
+        # for idx, lines in enumerate(self.nucinfo):
+        #    if idx == 0:
+        #        for x in lines:
+        #            print(f"   {x[0]:d}   {x[1]:d}")
+        #            for y in x[2]:
+        #                print(f" {y:d}", end="")
+        #            print("")
+        #    if idx == 1:
+        #        for x in lines:
+        #            print(f"   {x[0]:9d}   {x[1]:9d}")
+        #            for y in x[2]:
+        #                print(f" {y:4d}", end="")
+        #            print("")
+        for idx1 in self.nChemEqvs.keys():
+            print(f"   {idx1:d}   {self.nChemEqvs[idx1]:d}")
+            for y in self.NeighborChemEqvs[idx1]:
+                print(f" {y:d}", end="")
+            print("")
+        for idx1 in self.nChemEqvs.keys():
+            print(f"   {idx1:9d}   {self.nMagnetEqvs[idx1]:9d}")
+            for y in self.NeighborMangetEqvs[idx1]:
+                print(f" {y:4d}", end="")
+            print("")
 
     def method_read_nucinfo(self, file: Path = Path("anmr_nucinfo")) -> None:
         """
@@ -1003,24 +1044,46 @@ class Anmr():
         IsExist(file)
 
         lines: list[str] = open(file, "r").readlines()
-        nAtoms: int = int(lines[0].split()[0])
         del lines[0]
-        page: list = []
-        for idx, x in enumerate(lines):
+        # nAtoms: int = int(lines[0].split()[0])
+        # page: list = []
+        # for idx, x in enumerate(lines):
+        #    x: str = x.rstrip()
+        #    if (idx % 2) == 0:
+        #        tmp: list[int | list[int]] = []
+        #        tmp.append(int(x.split()[0]))
+        #        tmp.append(int(x.split()[1]))
+        #    else:
+        #        int_tmp: list[int] = []
+        #        for y in x.split():
+        #            int_tmp.append(int(y))
+        #        tmp.append(int_tmp)         # type: ignore
+        #        page.append(tmp)            # type: ignore
+        #    if ((idx+1) % (nAtoms*2)) == 0:
+        #        self.nucinfo.append(page)
+        #        page = []
+
+        Chemlines = lines[0:int(len(lines)/2)]
+        for idx, x in enumerate(Chemlines):
             x: str = x.rstrip()
             if (idx % 2) == 0:
-                tmp: list[int | list[int]] = []
-                tmp.append(int(x.split()[0]))
-                tmp.append(int(x.split()[1]))
+                self.nChemEqvs[int(x.split()[0])] = int(x.split()[1])
             else:
                 int_tmp: list[int] = []
                 for y in x.split():
                     int_tmp.append(int(y))
-                tmp.append(int_tmp)         # type: ignore
-                page.append(tmp)            # type: ignore
-            if ((idx+1) % (nAtoms*2)) == 0:
-                self.nucinfo.append(page)
-                page = []
+                self.NeighborChemEqvs[int(x.split()[0])] = int_tmp
+
+        Magnetlines = lines[int(len(lines)/2):len(lines)]
+        for idx, x in enumerate(Magnetlines):
+            x: str = x.rstrip()
+            if (idx % 2) == 0:
+                self.nMagnetEqvs[int(x.split()[0])] = int(x.split()[1])
+            else:
+                int_tmp: list[int] = []
+                for y in x.split():
+                    int_tmp.append(int(y))
+                self.NeighborMangetEqvs[int(x.split()[0])] = int_tmp
 
     def method_create_enso(self, in_np: npt.NDArray) -> None:
         """Create enso data structure from input numpy array.
@@ -1167,7 +1230,7 @@ class OrcaSJ():
         self.SParams: dict[int, float] = {}
         self.Anisotropy: dict[int, float] = {}
         self.CONFSerialNums: int
-        self.idxAtoms: dict[int, str] = {}
+        self.idx1Atoms: dict[int, str] = {}
 
     def method_read_orcaJ(self, file: Path = Path("orcaJ.out")) -> bool:
         """
@@ -1289,7 +1352,7 @@ class OrcaSJ():
 
         Note:
             This method populates the following instance attributes:
-            - self.idxAtoms: Dictionary mapping atom indices to atom symbols
+            - self.idx1Atoms: Dictionary mapping atom indices to atom symbols
             - self.SParams: Dictionary mapping atom indices to shielding constants
             - self.Anisotropy: Dictionary mapping atom indices to anisotropy values
         """
@@ -1333,9 +1396,9 @@ class OrcaSJ():
         for idx0, line in enumerate(lines):
             if idx0 >= start_idx and idx0 <= end_idx:
                 DataS.append(line.rstrip())
-        self.idxAtoms, self.Anisotropy, self.SParams = {}, {}, {}
+        self.idx1Atoms, self.Anisotropy, self.SParams = {}, {}, {}
         for x in DataS:
-            self.idxAtoms[int(x.split()[0])+1] = str(x.split()[1])
+            self.idx1Atoms[int(x.split()[0])+1] = str(x.split()[1])
             self.SParams[int(x.split()[0])+1] = float(x.split()[2])
             self.Anisotropy[int(x.split()[0])+1] = float(x.split()[3])
         return True
@@ -1347,12 +1410,12 @@ class OrcaSJ():
         Note: This method is currently not implemented.
         """
         raise NotImplementedError("Under Construct")
-        # if len(self.idxAtoms) == len(self.SParams):
+        # if len(self.idx1Atoms) == len(self.SParams):
         #    lines: list = []
         #    lines.append("  Nucleus  Element    Isotropic     Anisotropy\n")
         #    lines.append("  -------  -------  ------------   ------------\n")
         #
-        #    for key, value in self.idxAtoms.items():
+        #    for key, value in self.idx1Atoms.items():
         #        str1: str = f"  \
         #            {key-1: > 5d}{value: > 8s}{self.SParams[key]: > 15.3f}{self.Anisotropy[key]: > 15.3f}\n"
         #        lines.append(str1)
@@ -1371,15 +1434,15 @@ class OrcaSJ():
         Note: This method is currently not implemented.
         """
         raise NotImplementedError("Under Construct")
-        # if len(self.idxAtoms) == len(self.JCoups[0]):
+        # if len(self.idx1Atoms) == len(self.JCoups[0]):
         #    lines: list = []
-        #    list_idxAtoms: list = list(self.idxAtoms.keys())
+        #    list_idx1Atoms: list = list(self.idx1Atoms.keys())
         #
-        #    for idx in range(len(self.idxAtoms)):
-        #        for idy in range(idx+1, len(self.idxAtoms), 1):
+        #    for idx in range(len(self.idx1Atoms)):
+        #        for idy in range(idx+1, len(self.idx1Atoms), 1):
         #            # print(idx, idy)
-        #            str1: str = f" NUCLEUS A = {(self.idxAtoms[list_idxAtoms[idx]]): > s}\
-        #                {(list_idxAtoms[idx]-1): > 5d} NUCLEUS B = {self.idxAtoms[list_idxAtoms[idy]]: > s}{list_idxAtoms[idy]-1: > 5d}"
+        #            str1: str = f" NUCLEUS A = {(self.idx1Atoms[list_idx1Atoms[idx]]): > s}\
+        #                {(list_idx1Atoms[idx]-1): > 5d} NUCLEUS B = {self.idx1Atoms[list_idx1Atoms[idy]]: > s}{list_idx1Atoms[idy]-1: > 5d}"
         #            # " NUCLEUS A = H    4 NUCLEUS B = H    5"
         #            str2: str = f" Total            0.000            0.000            0.000  iso = \
         #                {self.JCoups[idx][idy]: > 13.5f}"
@@ -1410,13 +1473,13 @@ class OrcaSJ():
             ic: If a mismatch is detected, the program will exit with an error message.
 
         Note:
-            This method requires self.idxAtoms and self.SParams to be properly initialized
+            This method requires self.idx1Atoms and self.SParams to be properly initialized
             with matching lengths for correct operation.
         """
 
-        if len(self.idxAtoms) == len(self.SParams):
+        if len(self.idx1Atoms) == len(self.SParams):
             print("Nucleus  Element   Anisotropy")
-            for idx, Atom in self.idxAtoms.items():
+            for idx, Atom in self.idx1Atoms.items():
                 print(f'{idx:>5d}', f'{Atom:>8s}', end="")
                 print(f'{self.SParams[idx]:>15.3f}')
         else:

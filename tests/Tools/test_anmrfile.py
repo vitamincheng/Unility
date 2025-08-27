@@ -78,7 +78,7 @@ def test_anmrfile_read_enso_miss_args() -> None:
     assert str(e.value) == f"{Dir/File} The file is not Exist ..."
 
 
-def test_anmrfile_read_enso() -> None:
+def test_anmrfile_read_print_enso() -> None:
     # For Hydrogen
     file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
     file.method_read_enso()
@@ -103,6 +103,21 @@ def test_anmrfile_read_enso() -> None:
         file.method_print_enso()
     sys.stdout = sys.__stdout__
     source: str = "tests/data/34.Ergocalciferol/07.Carbon/anmr_enso"
+    assert filecmp.cmp(filename, source)
+    os.remove(filename)
+
+
+def test_anmrfile_read_print_nucinfo() -> None:
+    # For Hydrogen
+    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
+    file.method_read_nucinfo()
+    filename: str = "tests/compare/nucinfotest"
+    with open(filename, "w") as f:
+        sys.stdout = f
+        file.method_print_nucinfo()
+    sys.stdout = sys.__stdout__
+
+    source: str = "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_nucinfo"
     assert filecmp.cmp(filename, source)
     os.remove(filename)
 

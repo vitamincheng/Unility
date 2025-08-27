@@ -263,7 +263,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
     # Get coupling constants and atom information
     inJCoups: npt.NDArray[np.float64] = np.array(inAnmr.avg_orcaSJ.JCoups)
-    in_idxAtoms: dict[int, str] = inAnmr.avg_orcaSJ.idxAtoms
+    in_idx1Atoms: dict[int, str] = inAnmr.avg_orcaSJ.idx1Atoms
 
     # Initialize variables for processing based on active nuclear element
     dpi: int | None = None
@@ -280,7 +280,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
                 mol, neighbors, bond_order = read_mol_neighbors_bond_order(
                     inAnmr.get_Directory() / inFile)
+
+                # For C/CH/CH2/CH3 from 0 1 2 3 to 1 2 3 4 for Carbon spectra
                 inHydrogen = [value+1 for value in bond_order.values()]
+
                 Active_range = 200
                 dpi = 500
                 if not args.lw:
@@ -290,16 +293,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 inJCoups = np.zeros_like(inJCoups)
             elif x == 'H':
                 # Hydrogen processing - identify equivalent hydrogens
-                idx_nMagEqvHydrogens: dict[int, int] = {}
-                for key in inAnmr.avg_orcaSJ.idxAtoms.keys():
-                    idx_nMagEqvHydrogens[key] = len(
-                        inAnmr.nucinfo[1][key-1][2])
+                idx1_nMagEqvHydrogens: dict[int, int] = {}
+                for key in inAnmr.avg_orcaSJ.idx1Atoms.keys():
+                    # idx_nMagEqvHydrogens[key] = len(
+                    #    inAnmr.nucinfo[1][key-1][2])
+                    idx1_nMagEqvHydrogens[key] = inAnmr.nMagnetEqvs[key]
                 for x in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
                         inAnmr.get_Directory()/inFile):
-                    if x in idx_nMagEqvHydrogens.keys():
-                        del idx_nMagEqvHydrogens[x]
-                        del in_idxAtoms[x]
-                inHydrogen = [value for value in idx_nMagEqvHydrogens.values()]
+                    if x in idx1_nMagEqvHydrogens.keys():
+                        del idx1_nMagEqvHydrogens[x]
+                        del in_idx1Atoms[x]
+
+                inHydrogen = [
+                    value for value in idx1_nMagEqvHydrogens.values()]
+
                 Active_range = 10
                 dpi = 10000
                 if not args.lw:
@@ -406,10 +413,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             # Handle CH3 equivalent groups manually (symmetry considerations)
             # So if chemical shift in AB quartet region need to move to multiplet
             list_Equivalent3: list[int] = []
-            for idx, x in enumerate(inAnmr.nucinfo[1]):
-                if x[1] == 3:
-                    for idy, y in enumerate(in_idxAtoms):
-                        if y == min(x[2]):
+            # for idx, x in enumerate(inAnmr.nucinfo[1]):
+            #    if x[1] == 3:
+            #        for idy, y in enumerate(in_idx1Atoms):
+            #            if y == min(x[2]):
+            #                list_Equivalent3.append(idy)
+
+            for x in (inAnmr.nMagnetEqvs.keys()):
+                if inAnmr.nMagnetEqvs[x] == 3:
+                    for idy, y in enumerate(in_idx1Atoms):
+                        if y == min(inAnmr.NeighborMangetEqvs[x]):
                             list_Equivalent3.append(idy)
             set_Equivalent3: set[int] = set(list_Equivalent3)
 

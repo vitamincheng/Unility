@@ -53,7 +53,8 @@ def Atom_Equivalent(file: Path = Path("anmrh.out")) -> list:
     anmr.method_read_nucinfo()
     AtomEqv: list = []
     for x in ([a[1] for a in DataJ]):
-        AtomEqv.append(anmr.nucinfo[1][x-1][2])
+        # AtomEqv.append(anmr.nucinfo[1][x-1][2])
+        AtomEqv.append(anmr.NeighborMangetEqvs[x])
     return AtomEqv
 
 

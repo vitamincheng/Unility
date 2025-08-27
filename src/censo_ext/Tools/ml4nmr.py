@@ -83,21 +83,21 @@ def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int
     # build neighbor list and write list of neighboring atoms to the dict neighbors
     nl = neighborlist.build_neighbor_list(
         mol, cutoffs, self_interaction=False, bothways=True)
-    idx_neighbors: dict[int, npt.NDArray[np.int64]] = {}
+    idx1_neighbors: dict[int, npt.NDArray[np.int64]] = {}
 
     for idx in range(len(mol)):
         # nl.get_neighbors(i) returns [0]: indices and [1]: offsets
         indices: npt.NDArray[np.int64] = nl.get_neighbors(idx)[0]
         # add 1 to key and to value to start counting of atoms at 1
-        idx_neighbors[idx+1] = indices+1
+        idx1_neighbors[idx+1] = indices+1
 
         # exit if an H atom has not exactly 1 neighbor
-        if mol.get_atomic_numbers()[idx] == 1 and len(idx_neighbors[idx+1]) != 1:  # type: ignore # nopep8
+        if mol.get_atomic_numbers()[idx] == 1 and len(idx1_neighbors[idx+1]) != 1:  # type: ignore # nopep8
             print(f"ERROR: H atom {idx+1} has not exactly one neighbor! File in: {DirFileName}")  # nopep8
             ic()
             raise ValueError(" Error H atom has not exactly one neighbor ! ")
 
-    return mol, idx_neighbors
+    return mol, idx1_neighbors
 
 
 def read_mol_neighbors_bond_order(DirfileName: Path = Path("crest_conformers.xyz")) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]], dict[int, int]]:
@@ -115,23 +115,23 @@ def read_mol_neighbors_bond_order(DirfileName: Path = Path("crest_conformers.xyz
         A tuple containing:
         - mol: ASE Atoms object representing the molecule
         - idx_neighbors: Dictionary mapping atom indices to arrays of neighboring atom indices
-        - idx_BondOrder: Dictionary mapping carbon atom indices to their bond orders
+        - idx1_BondOrder: Dictionary mapping carbon atom indices to their bond orders
     """
 
     # read the .xyz coordinates from the molecular structures
     mol: Atoms | list[Atoms]
-    idx_neighbors: dict[int, npt.NDArray[np.int64]]
-    mol, idx_neighbors = read_mol_neighbors(DirfileName)
+    idx1_neighbors: dict[int, npt.NDArray[np.int64]]
+    mol, idx1_neighbors = read_mol_neighbors(DirfileName)
 
     idx_H_atoms: list[int] = [idx+1 for idx, i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
     idx_C_atoms: list[int] = [idx+1 for idx, i in enumerate(mol) if i.symbol == "C"]  # type: ignore # nopep8
-    idx_BondOrder: dict[int, int] = {}
-    for idx in idx_neighbors.keys():
+    idx1_BondOrder: dict[int, int] = {}
+    for idx in idx1_neighbors.keys():
         count: int = 0
-        for idy in idx_neighbors[idx]:
+        for idy in idx1_neighbors[idx]:
             if idy in idx_H_atoms:
                 count = count + 1
         if idx in idx_C_atoms:
-            idx_BondOrder[idx] = count
+            idx1_BondOrder[idx] = count
 
-    return mol, idx_neighbors, idx_BondOrder
+    return mol, idx1_neighbors, idx1_BondOrder
