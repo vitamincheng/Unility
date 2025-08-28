@@ -462,7 +462,7 @@ class Anmr():
             raise FileNotFoundError(
                 " Need to read the anmr_nucinfo and anmr_enso enso ")
         else:
-            print("===== Update the equivalent of SParams and JCoups =====")
+            print(" ===== Update the equivalent of SParams and JCoups =====")
 
             Atoms: list[int] = []
             for idx, x in self.orcaSJ[0].idx1Atoms.items():

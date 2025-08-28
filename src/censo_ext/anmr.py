@@ -444,8 +444,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
             max_len_AB: int = 0
             for idx, x in enumerate(idx0_ab_group_sets):
+                mat_multi_x_idx: list[int] = [
+                    idx0_set*x for x, idx0_set in enumerate(mat_filter_multi[idx].tolist())if idx0_set != 0]
                 print(f'{(idx+1):>5d}{len(x):>5d}', {a+1 for a in x}, set(
-                    a+1 for a in [y*idy for idy, y in enumerate(mat_filter_multi[idx].tolist()) if y != 0]).difference({a+1 for a in x}))
+                    a+1 for a in mat_multi_x_idx).difference({a+1 for a in x}))
                 if len(x) > max_len_AB:
                     max_len_AB = len(x)
 
@@ -479,9 +481,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 # print(set(list(inSParams[list(idx0_set_origin)])))
         for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
             idx0_ab_group: list[int] = list(idx0_ab_group_set)
+            mat_multi_x_idx0: list[int] = [
+                idx0_set*x for x, idx0_set in enumerate(mat_filter_multi[idx0].tolist())if idx0_set != 0]
             print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', {a+1 for a in idx0_ab_group}, set(
-                a+1 for a in [idx0_set*x for x, idx0_set in enumerate(mat_filter_multi[idx0].tolist())
-                              if idx0_set != 0]).difference({a+1 for a in idx0_ab_group}))
+                a+1 for a in mat_multi_x_idx0).difference({a+1 for a in idx0_ab_group}))
         print(" Use this parameter to calculate the Full Spectra")
 
     # Low level QM model
@@ -497,10 +500,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
         Res_peaks: list[list[tuple[float, float]]] = []
         for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
+            mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
+                int).tolist()
             idx0_ab_group: list[int] = list(idx0_ab_group_set)
-            print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', {a+1 for a in idx0_ab_group}, set(
-                a+1 for a in [idx0_set*x for x, idx0_set in enumerate(mat_filter_multi[idx0].tolist())
-                              if idx0_set != 0]).difference({a+1 for a in idx0_ab_group}))
+            idx1_ab_group: set[int] = {a+1 for a in idx0_ab_group_set}
+            mat_multi_x_idx0: list[int] = [
+                idx0_set*x for x, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
+            print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
+                a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
 
             v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
             J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
@@ -510,8 +517,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
             QM_Multiplet: list[tuple[float, float]] = []
             for z in QM_Base:
-                multiplicity: list[npt.NDArray[np.int64]] = list(set([x*idx for idx, x in enumerate(
-                    mat_filter_multi[idx0]) if x != 0]).difference({a for a in idx0_ab_group}))
+                multiplicity: list[int] = list(
+                    set(mat_multi_x_idx0).difference(idx0_ab_group_set))
                 inJ: list[tuple[float, int]] = []
                 for a in multiplicity:
                     if np.fabs(inSParams[idx0]-inSParams[a]) > 0.1:
