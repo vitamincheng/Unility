@@ -160,10 +160,19 @@ def rosenbrock(x0) -> float:
         ic()
         raise ValueError("Something wrong in your argument")
 
-    Dat_Ref: CensoDat = CensoDat(file=Path(Directory/Dat_fileName))
     Dat_Cal.method_normalize_dat()
-    Dat_Ref.method_normalize_dat()
-    Diff: CensoDat = Dat_Cal - Dat_Ref
+    global Dat_Ref
+    try:
+        Diff: CensoDat = Dat_Cal - Dat_Ref
+    except NameError:
+        Dat_Ref = CensoDat(file=Path(Directory/Dat_fileName))
+        Dat_Ref.method_normalize_dat()
+        Diff: CensoDat = Dat_Cal - Dat_Ref
+
+    # Dat_Ref = CensoDat(file=Path(Directory/Dat_fileName))
+    # Dat_Ref.method_normalize_dat()
+    # Dat_Cal.method_normalize_dat()
+    # Diff: CensoDat = Dat_Cal - Dat_Ref
 
     res = np.sum(np.square(Diff.get_Dat()))
 
