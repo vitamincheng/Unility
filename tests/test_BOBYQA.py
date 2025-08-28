@@ -76,6 +76,7 @@ def test_BOBYQA_blank_file_final_remove_files():
     BOBYQA_final_remove_files()
 
 
+@pytest.mark.slow
 def test_BOBYQA_single():
     anmr_init()
     BOBYQA_init()
@@ -89,6 +90,7 @@ def test_BOBYQA_single():
     BOBYQA_final_remove_files()
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(_system == "Darwin", reason="anmr only work under linux CLI")
 def test_BOBYQA_single_external_prog(monkeypatch):
     anmr_init()
@@ -112,6 +114,7 @@ def test_BOBYQA_single_external_prog(monkeypatch):
                      DirName / "tmpanmr_full.av")
 
 
+@pytest.mark.slow
 def test_BOBYQA_group():
     anmr_init()
     BOBYQA_init()
@@ -125,6 +128,7 @@ def test_BOBYQA_group():
     BOBYQA_final_remove_files()
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(_system == "Darwin", reason="anmr only work under linux CLI")
 def test_BOBYQA_group_external_prog(monkeypatch):
     anmr_init()
@@ -159,12 +163,19 @@ if __name__ == "__main__":
     stats = Stats(pr)
     stats.sort_stats('cumtime').print_stats(50)
 
-    # import cProfile
-    # cProfile.run("test_BOBYQA_init()", sort="cumtime")
-    # cProfile.run("test_BOBYQA_single()", sort="cumtime")
+# if __name__ == "__main__":
+# import cProfile
+# cProfile.run("test_BOBYQA_init()", sort="cumtime")
+# cProfile.run("test_BOBYQA_single()", sort="cumtime")
 
-#
-#   (--pdb is debug, -s display print)
+
+# For all test_fuction
+#   pytest -v -s tests -m "not slow"
+#   pytest -v -s tests -m slow
+
+# For slow test_function
+#  (--pdb is debug,-v verbose, -s display print)
+#   pytest -v -s --pdb tests/test_BOBYQA.py::test_BOBYQA_single_prog
 #   pytest -v -s --pdb tests/test_BOBYQA.py::test_BOBYQA_single_external_prog
+#   pytest -v -s --pdb tests/test_BOBYQA.py::test_BOBYQA_group_prog
 #   pytest -v -s --pdb tests/test_BOBYQA.py::test_BOBYQA_group_external_prog
-#

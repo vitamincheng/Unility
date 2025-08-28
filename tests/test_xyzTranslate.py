@@ -71,6 +71,6 @@ def test_xyzTranslate_miss_file():
     assert e.value.code == 1    # try and exception
 
 
-if __name__ == "__main__":
-    import cProfile
-    cProfile.run("test_xyzTranslate_move()", sort="cumtime")
+# if __name__ == "__main__":
+#    import cProfile
+#    cProfile.run("test_xyzTranslate_move()", sort="cumtime")

@@ -42,6 +42,7 @@ def test_orca_sp():
     subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
 
 
+@pytest.mark.slow
 def test_orca_opt():
     x: dict = {"file": inFile, "template": inTemplate_opt_File,
                "remove": True, "out": outFile}
@@ -62,6 +63,7 @@ def test_orca_opt():
     subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
 
 
+@pytest.mark.slow
 def test_orca_opt_default():
     x: dict = {"file": inFile, "template": "template.inp",
                "remove": True, "out": outFile}
@@ -81,5 +83,10 @@ def test_orca_opt_default():
     import subprocess
     subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
 
+# For all test_fuction
+#   pytest -v -s tests -m "not slow"
+#   pytest -v -s tests -m slow
+#
+# For slow test_function
 #   pytest -v -s --pdb tests/test_molclus_orca.py::test_orca_opt
 #   pytest -v -s --pdb tests/test_molclus_orca.py::test_orca_opt_default
