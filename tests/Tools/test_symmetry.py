@@ -12,7 +12,7 @@ def test_symmetry_crest_conformers_miss_args():
 
     with pytest.raises(FileNotFoundError) as e:
         xyz.method_read_xyz()
-    assert str(e.value) == f"{FileName} The file is not Exist ..."
+    assert str(e.value) == f"  The file {FileName} is not Exist ..."
 
 
 def test_symmetry_crest_conformers():

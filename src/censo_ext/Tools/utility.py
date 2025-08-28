@@ -241,10 +241,10 @@ def IsExist(fileName: Path) -> None:
 
     IsExists: bool = Path(fileName).exists()
     if not IsExists:
-        print(f"{fileName} the file is not exist ...")
+        print(f"  The file {fileName} is not exist ...")
         print("    Exit and close the program !!! ")
         ic()
-        raise FileNotFoundError(f"{fileName} The file is not Exist ...")
+        raise FileNotFoundError(f"  The file {fileName} is not Exist ...")
 
 
 def IsExist_return_bool(fileName: Path) -> bool:

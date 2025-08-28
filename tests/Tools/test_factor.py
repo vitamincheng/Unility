@@ -13,7 +13,7 @@ def test_factor_analysis_miss_args():
     with pytest.raises(FileNotFoundError) as e:
         method_factor_analysis(args)
     # for argparse error
-    assert str(e.value) == f"{x["file"]} The file is not Exist ..."
+    assert str(e.value) == f"  The file {x["file"]} is not Exist ..."
 
 
 def test_factor_analysis():

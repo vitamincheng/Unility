@@ -14,7 +14,7 @@ def test_topo_FileName_miss_args():
 
     with pytest.raises(FileNotFoundError) as e:
         Topo(Path(args.file))
-    assert str(e.value) == f"{x["file"]} The file is not Exist ..."
+    assert str(e.value) == f"  The file {x["file"]} is not Exist ..."
 
 
 @pytest.mark.parametrize(argnames="input_Path,bonding,CN_Dict",

@@ -1,3 +1,4 @@
+from fileinput import filename
 from pathlib import Path
 import pytest
 from censo_ext.Tools.anmrfile import Anmr
@@ -10,13 +11,15 @@ import filecmp
 def test_anmrfile_miss_args() -> None:
 
     Missing: OrcaSJ = OrcaSJ()
+    fileName: str = "orcaJ.out"
     with pytest.raises(FileNotFoundError) as e:
         Missing.method_read_orcaJ()
-    assert str(e.value) == "orcaJ.out The file is not Exist ..."
+    assert str(e.value) == f"  The file {fileName} is not Exist ..."
 
+    fileName: str = "orcaS.out"
     with pytest.raises(FileNotFoundError) as e:
         Missing.method_read_orcaS()
-    assert str(e.value) == "orcaS.out The file is not Exist ..."
+    assert str(e.value) == f"  The file {fileName} is not Exist ..."
 
 
 def test_anmrfile_read_OrcaSJ() -> None:
@@ -75,7 +78,7 @@ def test_anmrfile_read_enso_miss_args() -> None:
     anmr: Anmr = Anmr(Dir)
     with pytest.raises(FileNotFoundError) as e:
         anmr.method_read_enso(File)
-    assert str(e.value) == f"{Dir/File} The file is not Exist ..."
+    assert str(e.value) == f"  The file {Dir/File} is not Exist ..."
 
 
 def test_anmrfile_read_print_enso() -> None:

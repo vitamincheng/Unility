@@ -15,12 +15,12 @@ def test_m4nmr_miss_args():
     with pytest.raises(FileNotFoundError) as e:
         mol, idx_neighbors = read_mol_neighbors(
             FileName)
-    assert str(e.value) == f"{FileName} The file is not Exist ..."
+    assert str(e.value) == f"  The file {FileName} is not Exist ..."
 
     with pytest.raises(FileNotFoundError) as e:
         mol, idx_neighbors, bond_order = read_mol_neighbors_bond_order(
             FileName)
-    assert str(e.value) == f"{FileName} The file is not Exist ..."
+    assert str(e.value) == f"  The file {FileName} is not Exist ..."
 
 
 def test_m4nmr_read_mol_neighbors():

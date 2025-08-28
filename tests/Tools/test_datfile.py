@@ -7,9 +7,10 @@ from censo_ext.Tools.datfile import CensoDat
 
 def test_anmrfile_miss_args() -> None:
     Missing: CensoDat
+    fileName: str = "anmr.dat"  # default FileName
     with pytest.raises(FileNotFoundError) as e:
         Missing = CensoDat()                    # noqa: F841
-    assert str(e.value) == "anmr.dat The file is not Exist ..."
+    assert str(e.value) == f"  The file {fileName} is not Exist ..."
 
 
 def test_anmrfile_Censo() -> None:
