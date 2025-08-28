@@ -320,11 +320,11 @@ class Geometry():
             else:
                 self.comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
         else:
-            print("something wrong in your xyz file !!!")
+            print("Something wrong in your xyz file !!!")
             print(comments)
-            print(" Quit the program !!!")
+            print("  Exit and Close the program !!!")
             ic()
-            raise ValueError(" something wrong in your xyz file !!! ")
+            raise ValueError("  Something wrong in your xyz file !!! ")
 
         self.method_rewrite_comment()
         return
@@ -455,8 +455,8 @@ class GeometryXYZs():
             if self.Sts[idx1+idx].method_molecules_separation_xyz(x):
                 pass
             else:
-                print(" Something wrong in your Molecule Separation xyz file")
-                print(" Exit to the program !!!")
+                print("  Something wrong in your Molecule Separation xyz file")
+                print("  Exit and Close the program !!!")
                 ic()
                 raise ValueError(
                     " Something wrong in your Molecule Separation xyz file")

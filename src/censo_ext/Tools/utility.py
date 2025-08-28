@@ -72,7 +72,7 @@ def IsExists_DirFileName(DirFileName: Path):
         Dir = DirFileName.parents[0]
     else:
         print(DirFileName, " the DirFileName is not exist ...")
-        print(" Exit and close the program !!! ")
+        print("  Exit and Close the program !!!")
         ic()
         raise FileNotFoundError(
             str(DirFileName) + " was not found or is a directory")
@@ -195,7 +195,7 @@ def save_dict(fileName: Path, Data: dict) -> None:
 #            Data[int(x.split()[0])] = [float(x.split()[1]), int(x.split()[2])]
 #        else:
 #            print("something wrong in your orcaS.out")
-#            print("Exit to the program")
+#            print("  Exit and Close the program !!!")
 #            ic()
 #    return Data
 
@@ -242,7 +242,7 @@ def IsExist(fileName: Path) -> None:
     IsExists: bool = Path(fileName).exists()
     if not IsExists:
         print(f"  The file {fileName} is not exist ...")
-        print("    Exit and close the program !!! ")
+        print("    Exit and Close the program !!!")
         ic()
         raise FileNotFoundError(f"  The file {fileName} is not Exist ...")
 
@@ -305,7 +305,7 @@ def program_IsExist(ProgramName: str) -> bool:
         True
         >>> program_IsExist("nonexistent_program")
         nonexistent_program  the program is not exist ...
-        Exit and close the program !!!
+        Exit and Close the program !!!
         ValueError: the program is not Exist ...
 
     Note:
@@ -318,7 +318,7 @@ def program_IsExist(ProgramName: str) -> bool:
         return True
     else:
         print(ProgramName, " the program is not exist ...")
-        print(" Exit and close the program !!! ")
+        print("  Exit and Close the program !!!")
         ic()
         raise ValueError(" the program is not Exist ...")
 

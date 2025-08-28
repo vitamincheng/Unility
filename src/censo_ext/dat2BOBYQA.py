@@ -124,13 +124,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         thr: float = numpy_thr(x.T[1], args.thr)
         peaks, _ = find_peaks(x.T[1], thr)
         peaks_np: npt.NDArray[np.float64] = x.T[0][peaks]*(-1)
-        ic(peaks_np)
+        # ic(peaks_np)
 
         DirFileName: Path = args.dir / Path("Average/NMR/orcaS.out")
         from censo_ext.Tools.utility import IsExists_DirFileName
         IsExists_DirFileName(DirFileName)
         np_data = np.genfromtxt(DirFileName)
-        ic(np_data)
+        # ic(np_data)
         from censo_ext.Tools.spectra import find_nearest
 
         app_list: list[float] = []
@@ -138,7 +138,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         for x in peaks_list:
             value, _ = find_nearest(list(peaks_np), x)
             app_list.append(value)
-        ic(app_list)
+        # ic(app_list)
 
 
 if __name__ == "__main__":

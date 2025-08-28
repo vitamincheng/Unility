@@ -128,7 +128,7 @@ def get_xyzSplit(neighbor: dict[int, npt.NDArray], circleMols: list[list[int]], 
 
 def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> None:
 
-    ic(xyzSplitDict)
+    # ic(xyzSplitDict)
     if args.manual:
         print("Assign the first number of list : ", end="")
         for key, value in xyzSplitDict.items():

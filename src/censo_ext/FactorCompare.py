@@ -79,9 +79,10 @@ def Factor_xyzCompare(args) -> None:
     result = result.reshape(nSts_P, nSts_Q).T
 
     import shutil
-    if not shutil.which("crest"):
-        print(" Need the crest program !!!!")
-        print(" Exit the program ")
+    prog: str = "crest"
+    if not shutil.which(prog):
+        print(f"  Need the {prog} program !!!")
+        print("  Exit and Close the program !!!")
         exit(1)
 
     Dir_str: Path = Path("CREST_P")
@@ -97,7 +98,7 @@ def Factor_xyzCompare(args) -> None:
     shutil.copyfile(workDir / fileName_Dir / FileName, New_cwd / FileName)
 
     os.chdir(New_cwd)
-    subprocess.call("crest " + str(FileName) + " --cregen " + str(FileName) +
+    subprocess.call(prog + " " + str(FileName) + " --cregen " + str(FileName) +
                     " --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > " + str(Compare_Res), shell=True)
     os.chdir(workDir)
     shutil.copyfile(New_cwd / Compare_Res, workDir / Compare_Res)
@@ -141,8 +142,8 @@ def Factor_xyzCompare(args) -> None:
     sort_Res.sort()
     if sort_Res[-1] <= 1e-14:
         print("")
-        print("In your input two files are the same")
-        print("Exit the program !!")
+        print("  In your input two files are the same")
+        print("  Exit and Close the program !!!")
         exit(0)
 
     diff2_Res: npt.NDArray[np.float64] = np.diff(np.diff(sort_Res))
@@ -190,8 +191,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
     if args.file is None or len(args.file) != 2:
-        print(" Your input files are wrong (two input file) !!!")
-        print(" Exit to quit the program ")
+        print("  Your input files are wrong (two input file) !!!")
+        print("  Exit and Close the program !!!")
         exit(1)
 
     Factor_xyzCompare(args)

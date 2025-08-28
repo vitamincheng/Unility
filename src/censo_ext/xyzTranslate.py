@@ -121,6 +121,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     except Exception as e:
         print(f"An error occurred: {e}")
+        print("  Exit and Close the program !!!")
         exit(1)
 
 

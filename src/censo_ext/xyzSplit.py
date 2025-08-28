@@ -105,8 +105,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("    provided arguments: {}".format(" ".join(sysargv)))
 
     if not args.cuts or not args.atoms:
-        print(" Please input your atoms that you want to split ")
-        print(" Exit to this program !!!")
+        print("  Please input your atoms that you want to split ")
+        print("  Exit and Close the program !!!")
         from icecream import ic
         ic()
         raise ValueError(" Please input your atoms that you want to split ")

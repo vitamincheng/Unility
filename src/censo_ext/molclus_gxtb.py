@@ -117,16 +117,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml(descr)
 
     single_traj_Name = ".single_traj.xyz"
-    temp_isomer_Name = ".isomers_tmp.xyz"
+    temp_isomer_Name = ".isomers.xyz"
     xtb_cmd: str = ""
     infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
     from censo_ext.Tools.utility import program_IsExist
-    xtb_name = "xtb"
-    program_IsExist(xtb_name)
-    xtb_cmd += xtb_name
+    prog = "xtb"
+    program_IsExist(prog)
+    xtb_cmd += prog
 
-    print(" Inputted geometry file: "+args.file)
+    print(f" Inputted geometry file: {args.file}")
     xtb_cmd += " " + single_traj_Name
     print(" Loading basic information from the inputted geometry file ...")
     print(f" There are totally       {str(len(infile))} geometries in the inputted geometry file\n")  # nopep8
@@ -138,14 +138,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         cmd_solvent = args.gbsa
     print(f" Setting solvent :  {cmd_solvent}")
     print(" Loading setting data ...")
-    xtb_cmd += " --" + args.method
+    xtb_cmd += f" --{args.method}"
     if args.alpb:
-        xtb_cmd += " --alpb " + args.alpb
+        xtb_cmd += f" --alpb {args.alpb}"
     if args.gbsa:
-        xtb_cmd += " --gbsa " + args.gbsa
+        xtb_cmd += f" --gbsa {args.gbsa}"
 
-    xtb_cmd += " --chrg " + \
-        str(args.chrg) + "  --uhf " + str(args.uhf)
+    xtb_cmd += f" --chrg {str(args.chrg)}  --uhf {str(args.uhf)}"
 
     print(" All conformer in the inputted geometry file will be processed")
     print(" Cleaning old input and temporary files ...")
@@ -172,8 +171,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         get_energy: int | None = None
         if args.opt:
-            subprocess.call("cat xtbopt.xyz >> " +
-                            temp_isomer_Name, shell=True)
+            subprocess.call(
+                f"cat xtbopt.xyz >> {temp_isomer_Name}", shell=True)
 
         else:
             # print("singe point")

@@ -106,7 +106,7 @@ def rosenbrock(x0) -> float:
     orcaS_Table = np.delete(orcaS_Table, 2, axis=1)
 
     if prog:
-        ic("External")
+        ic("External program: anmr")
         import sys
         cwd: Path = Path(os.getcwd())
         os.chdir(Directory)
@@ -178,13 +178,13 @@ def Scan_single_Peak() -> None:
     in_set = {x for x in in_set if x < 1000 and x >= 1}
     # in_set.discard(0)
     for nSerial in in_set:
-        ic(nSerial)
+        # ic(nSerial)
         intp: npt.NDArray[np.int64] = np.argwhere(
             OrcaS_Table.T[2] == nSerial).flatten()
         Data_Chemical_Shift: list[float] = list(
             map(float, np.atleast_1d(OrcaS_Table.T[1][intp[0]])))
-        ic(Data_Chemical_Shift)
-        ic(intp)
+        # ic(Data_Chemical_Shift)
+        # ic(intp)
 
         global idx_keys
         idx_keys = list(intp)
@@ -221,7 +221,7 @@ def Scan_group_Peaks() -> None:
         Data.append(
             [nSerial, OrcaS_Table.T[1][intp[0]], intp])
 
-    ic(Data)
+    # ic(Data)
     nNumbers: int = len(Data)
     from itertools import permutations
     Permutations: list[tuple] = list(permutations(
@@ -234,7 +234,7 @@ def Scan_group_Peaks() -> None:
         x0: npt.NDArray[np.float64] = np.array([x[1] for x in Data])[
             list(Permutation)]
         idx_keys = [x[2] for x in Data]
-        ic(idx_keys)
+        # ic(idx_keys)
         lower = x0 - limit_border
         upper = x0 + limit_border
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
@@ -295,10 +295,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml("")
     if args.dir:                            # default .
         Directory = Path(args.dir)
-        ic(Directory)
+        # ic(Directory)
     if args.ref:                            # default 1r.dat
         Dat_fileName = args.ref
-        ic(Dat_fileName)
+        # ic(Dat_fileName)
     if args.limit:                          # default 0.20 ppm
         limit_border = args.limit
     if args.prog:

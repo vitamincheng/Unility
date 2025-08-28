@@ -20,7 +20,7 @@ def test_ensoAnalysis_Hydrogen_miss():
     x: dict = {"file": file_anmr, "new": None}
     with pytest.raises(ValueError) as e:
         ensoAnalysis.main(argparse.Namespace(**x))
-    assert str(e.value) == " Input file is exists but backup file is not exist. "
+    assert str(e.value) == "  Input file is exists but backup file is not exist. "
 
 
 def test_ensoAnalysis_Hydrogen_miss_file():

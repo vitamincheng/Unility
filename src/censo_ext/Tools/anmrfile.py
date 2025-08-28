@@ -68,15 +68,24 @@ class Anmrrc():
         # Dict of Atomic Numbers and Atomic label
         self.Nums_element: dict[int, str] = {
             1: 'H', 6: 'C', 9: 'F', 14: 'Si', 15: 'P'}
-        # List of Acid Atom (like NH OH) No show in spectra
+        # List of Acid Atom (like NH OH) No show in spectra and the list of the number is atomic number
+        # NH OH is 7 and 8
         self.acid_atoms_NoShow: list[int] = []
+        # the 4 line of .anmrrc
         # [atomic number] [calculated shielding valule of the reference molecule] [experimental shift] [active or not]
         self.anmrrc: list[list[float]] = []
+        # the active element if self.anmrrc that last number is 1 not 0
         self.Active: list[str] = []
         self.third_line: str = lines[2].rstrip()
+
         for idx, x in enumerate(lines[0].split()):
             if x != "XH":
-                self.acid_atoms_NoShow.append(int(x))
+                from censo_ext.Tools.utility import function_is_int
+                if function_is_int(x):
+                    self.acid_atoms_NoShow.append(int(x))
+                else:
+                    raise ValueError(
+                        " Your .anmrrc file about 'XH acid atoms' havesomething wrong !!!")
             else:
                 break
 
@@ -88,8 +97,6 @@ class Anmrrc():
         self.SParams: bool = bool(_2nd_line[10])         # Sparams : bool of SParams ONOFF   # nopep8
 
         # 3 lines of .anmrrc Parameters
-        # self.third_line: str = lines[2].rstrip()
-
         for idx, x in enumerate(lines):
             if idx >= 3:
                 self.anmrrc.append([int(x.split()[0]), float(
@@ -233,7 +240,6 @@ class Anmr():
         # directory of orcaSJ
         self.orcaSJ: list[OrcaSJ] = []
         self.avg_orcaSJ = OrcaSJ()
-        # self.nucinfo: list[list[list[list[int]]]] = []
 
         # anmr_nucinfo
         # idx1 and numbers of Chemical Equivalent
@@ -321,7 +327,6 @@ class Anmr():
         DirFileName: Path = self.__Directory / fileName
         IsExist(DirFileName)
         self.__AnmrParams: Anmrrc = Anmrrc(DirFileName)
-        # self.__AnmrParams: Anmrrc = Anmrrc(lines)
 
     def method_print_anmrrc(self) -> None:
         """Print the contents of the .anmrrc file.
@@ -362,8 +367,8 @@ class Anmr():
 
         print(" ===== Average of all folder orcaS.out and orcaJ.out =====")
         if len(self.nChemEqvs) == 0 or len(self.nMagnetEqvs) == 0 or self.enso.size == 0:
-            print(" Need to read the anmr_nucinfo and anmr_enso enso ")
-            print(" Exit the program !!! ")
+            print("  Need to read the anmr_nucinfo and anmr_enso enso ")
+            print("  Exit and Close the program !!!")
             ic()
             raise FileNotFoundError(
                 " Need to read the anmr_nucinfo and anmr_enso enso ")
@@ -398,10 +403,6 @@ class Anmr():
                 self.avg_orcaSJ.SParams[idx] = 0.0
 
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
-                # y_idx = list(x.SParams.keys())
-                # y = list(x.SParams.values())
-                # list[np.float64] to list[float64] use map()
-                # np.float64 to float64 use item()
                 idy0: list[int] = list(map(int, x.SParams.keys()))
                 y: list[float] = list(map(float, x.SParams.values()))
                 for idz, z in zip(idy0, np.array(y) * normal_idx_weight[x.CONFSerialNums]):
@@ -454,10 +455,9 @@ class Anmr():
 
         print(" Replace the equivalent of Sparams and JCoups")
 
-        # if len(self.nucinfo) == 0 or self.enso.size == 0:
         if len(self.nChemEqvs) == 0 or len(self.nMagnetEqvs) == 0 or self.enso.size == 0:
-            print(" Need to read the anmr_nucinfo and anmr_enso enso ")
-            print(" Exit the program !!! ")
+            print("  Need to read the anmr_nucinfo and anmr_enso enso ")
+            print("  Exit and Close the program !!!")
             ic()
             raise FileNotFoundError(
                 " Need to read the anmr_nucinfo and anmr_enso enso ")
@@ -476,52 +476,40 @@ class Anmr():
                 if (self.nMagnetEqvs[x]) != 1:
                     if x != min(self.NeighborMangetEqvs[x]):
                         AtomsEqvKeep[idx] = 0
-            # for idx, x in enumerate(AtomsEqvKeep):
-            #    if (self.nucinfo[1][x-1][1]) != 1:
-            #        if x != min(self.nucinfo[1][x-1][2]):
-            #            AtomsEqvKeep[idx] = 0
             AtomsEqvKeep = AtomsEqvKeep[np.nonzero(AtomsEqvKeep)]
 
             # Calculation the average ppm of Equivalent Atom and Replace the old ppm
             for orcaSJ in self.orcaSJ:
                 for idx, x in enumerate(AtomsEqvKeep):
                     if (self.nChemEqvs[x] != 1):
-                        # if (self.nucinfo[0][x-1][1] != 1):
                         ppm: list[float] = []
-                        # for y in self.nucinfo[0][x-1][2]:
                         for y in self.NeighborChemEqvs[x]:
                             ppm.append(orcaSJ.SParams[y])
                         average: float = sum(ppm)/len(ppm)
-                        # for y in self.nucinfo[0][x-1][2]:
                         for y in self.NeighborChemEqvs[x]:
                             orcaSJ.SParams[y] = average
+
             # for Equivalent Atom  of orcaJCoups
             # Calculation the average JCoups of Equivalent JCoups and Replace the old JCoups
             for orcaSJ in self.orcaSJ:
                 for idx, x in enumerate(AtomsEqvKeep):
-                    # if (self.nucinfo[1][x-1][1] != 1):
                     if (self.nMagnetEqvs[x] != 1):
                         for y in AtomsKeep:
                             JCoups: list[float] = []
                             average: float = 0
                             for z in (self.NeighborMangetEqvs[x]):
-                                # for z in (self.nucinfo[1][x-1][2]):
                                 JCoups.append(orcaSJ.JCoups[list(
                                     AtomsKeep).index(y)][list(AtomsKeep).index(z)])
                                 average: float = sum(JCoups)/len(JCoups)
 
                             for z in (self.NeighborMangetEqvs[x]):
-                                # for z in (self.nucinfo[1][x-1][2]):
                                 orcaSJ.JCoups[list(AtomsKeep).index(
                                     y)][list(AtomsKeep).index(z)] = average
                                 orcaSJ.JCoups[list(AtomsKeep).index(
                                     z)][list(AtomsKeep).index(y)] = average
 
-                    # if (self.nucinfo[1][x-1][1] > 2):
                     if (self.nMagnetEqvs[x] > 2):
-                        # for k in (self.nucinfo[1][x-1][2]):
                         for k in (self.NeighborMangetEqvs[x]):
-                            # for ll in (self.nucinfo[1][x-1][2]):
                             for ll in (self.NeighborMangetEqvs[x]):
                                 orcaSJ.JCoups[list(AtomsKeep).index(
                                     k)][list(AtomsKeep).index(ll)] = 0
@@ -739,11 +727,6 @@ class Anmr():
         Note: This method is currently not implemented.
         """
         raise NotImplementedError("Under Construct")
-        # fileName_Average_orcaS = str(
-        #    self.__Directory / Path("Average/NMR/orcaS.out"))
-        # from censo_ext.Tools.utility import Save_Dict_orcaS
-        # Save_Dict_orcaS(fileName_Average_orcaS,
-        #                self.Average_orcaSJ.orcaSParams)
 
     def method_save_avg_orcaSJ(self) -> None:
         """
@@ -983,23 +966,9 @@ class Anmr():
             structured as a list of lists, where each inner list represents an atom group.
         """
 
-        # nAtoms: int = len(self.nucinfo[0])
         nAtoms: int = len(self.nChemEqvs.keys())
         print(f"{nAtoms:>12d}")
 
-        # for idx, lines in enumerate(self.nucinfo):
-        #    if idx == 0:
-        #        for x in lines:
-        #            print(f"   {x[0]:d}   {x[1]:d}")
-        #            for y in x[2]:
-        #                print(f" {y:d}", end="")
-        #            print("")
-        #    if idx == 1:
-        #        for x in lines:
-        #            print(f"   {x[0]:9d}   {x[1]:9d}")
-        #            for y in x[2]:
-        #                print(f" {y:4d}", end="")
-        #            print("")
         for idx1 in self.nChemEqvs.keys():
             print(f"   {idx1:d}   {self.nChemEqvs[idx1]:d}")
             for y in self.NeighborChemEqvs[idx1]:
@@ -1045,25 +1014,8 @@ class Anmr():
 
         lines: list[str] = open(file, "r").readlines()
         del lines[0]
-        # nAtoms: int = int(lines[0].split()[0])
-        # page: list = []
-        # for idx, x in enumerate(lines):
-        #    x: str = x.rstrip()
-        #    if (idx % 2) == 0:
-        #        tmp: list[int | list[int]] = []
-        #        tmp.append(int(x.split()[0]))
-        #        tmp.append(int(x.split()[1]))
-        #    else:
-        #        int_tmp: list[int] = []
-        #        for y in x.split():
-        #            int_tmp.append(int(y))
-        #        tmp.append(int_tmp)         # type: ignore
-        #        page.append(tmp)            # type: ignore
-        #    if ((idx+1) % (nAtoms*2)) == 0:
-        #        self.nucinfo.append(page)
-        #        page = []
 
-        Chemlines = lines[0:int(len(lines)/2)]
+        Chemlines: list[str] = lines[0:int(len(lines)/2)]
         for idx, x in enumerate(Chemlines):
             x: str = x.rstrip()
             if (idx % 2) == 0:
@@ -1074,7 +1026,7 @@ class Anmr():
                     int_tmp.append(int(y))
                 self.NeighborChemEqvs[int(x.split()[0])] = int_tmp
 
-        Magnetlines = lines[int(len(lines)/2):len(lines)]
+        Magnetlines: list[str] = lines[int(len(lines)/2):len(lines)]
         for idx, x in enumerate(Magnetlines):
             x: str = x.rstrip()
             if (idx % 2) == 0:
@@ -1301,7 +1253,7 @@ class OrcaSJ():
 
         if start_idx == 0 or end_idx == 0:
             print(file, " the data of the file is some error ...")
-            print("    exit and close the program !!! ")
+            print("  Exit and Close the program !!!")
             ic()
             raise ValueError(" the data of the file is some error ...")
 
@@ -1410,22 +1362,6 @@ class OrcaSJ():
         Note: This method is currently not implemented.
         """
         raise NotImplementedError("Under Construct")
-        # if len(self.idx1Atoms) == len(self.SParams):
-        #    lines: list = []
-        #    lines.append("  Nucleus  Element    Isotropic     Anisotropy\n")
-        #    lines.append("  -------  -------  ------------   ------------\n")
-        #
-        #    for key, value in self.idx1Atoms.items():
-        #        str1: str = f"  \
-        #            {key-1: > 5d}{value: > 8s}{self.SParams[key]: > 15.3f}{self.Anisotropy[key]: > 15.3f}\n"
-        #        lines.append(str1)
-        #    return lines
-        #
-        # else:
-        #    print("your orcaJ and orcaS is not fit each other")
-        #    print("    exit and close the program !!! ")
-        #    ic()
-        #    exit(0)
 
     def method_save_orcaJ(self) -> list:
         """
@@ -1434,27 +1370,6 @@ class OrcaSJ():
         Note: This method is currently not implemented.
         """
         raise NotImplementedError("Under Construct")
-        # if len(self.idx1Atoms) == len(self.JCoups[0]):
-        #    lines: list = []
-        #    list_idx1Atoms: list = list(self.idx1Atoms.keys())
-        #
-        #    for idx in range(len(self.idx1Atoms)):
-        #        for idy in range(idx+1, len(self.idx1Atoms), 1):
-        #            # print(idx, idy)
-        #            str1: str = f" NUCLEUS A = {(self.idx1Atoms[list_idx1Atoms[idx]]): > s}\
-        #                {(list_idx1Atoms[idx]-1): > 5d} NUCLEUS B = {self.idx1Atoms[list_idx1Atoms[idy]]: > s}{list_idx1Atoms[idy]-1: > 5d}"
-        #            # " NUCLEUS A = H    4 NUCLEUS B = H    5"
-        #            str2: str = f" Total            0.000            0.000            0.000  iso = \
-        #                {self.JCoups[idx][idy]: > 13.5f}"
-        #            # " Total            4.506            4.506            4.506  iso=       4.506"
-        #            lines.append(str1)
-        #            lines.append(str2)
-        #    return lines
-        # else:
-        #    print("your orcaJ and orcaS is not fit each other")
-        #    print("    exit and close the program !!! ")
-        #    ic()
-        #    exit(0)
 
     def method_print_orcaS(self) -> None:
         """Print ORCA-S data.
@@ -1484,7 +1399,7 @@ class OrcaSJ():
                 print(f'{self.SParams[idx]:>15.3f}')
         else:
             print("your orcaJ and orcaS is not fit each other")
-            print("    exit and close the program !!! ")
+            print("  Exit and Close the program !!!")
             ic()
             raise ValueError("your orcaJ and orcaS is not fit each other")
 

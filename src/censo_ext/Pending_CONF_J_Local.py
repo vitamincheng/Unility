@@ -64,8 +64,8 @@ def function_read_orcaJ(file: Path = Path("orcaJ.out")) -> npt.NDArray[np.float6
     if single_orcaSJ.method_read_orcaJ(file):
         return single_orcaSJ.JCoups
     else:
-        print(" Someting wrong in your orcaJ.out file")
-        print(" Exit to the program !!!")
+        print("  Someting wrong in your orcaJ.out file")
+        print("  Exit and Close the program !!!")
         ic()
         exit(1)
 
@@ -100,12 +100,13 @@ if __name__ == "__main__":
             else:
                 print(" Something wrong in your orcaJ.out folder")
                 print("", PathBackup)
-                print(" Exit to the program !!!")
+                print("  Exit and Close the program !!!")
                 ic()
                 exit(1)
 
-        print(" Copy orcaJ.out.backup to orcaJ.out in every NMR folder")
-        print(" Recover the orcaJ.out file in your CONF folder")
+        print("  Copy orcaJ.out.backup to orcaJ.out in every NMR folder")
+        print("  Recover the orcaJ.out file in your CONF folder")
+        print("  Exit and Close the program !!!")
         exit(0)
 
     else:
@@ -126,7 +127,7 @@ if __name__ == "__main__":
         file_exists: bool = exists(file)
         if not file_exists:
             print(file, " the file is not exist ...")
-            print("    exit and close the program !!! ")
+            print("  Exit and Close the program !!!")
             ic()
             exit(1)
 

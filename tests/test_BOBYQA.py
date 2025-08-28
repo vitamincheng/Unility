@@ -59,6 +59,7 @@ def test_BOBYQA_miss_all_args():
 def test_BOBYQA_miss_orcaS_file():
     #
     # not run anmr_BOBYQA_init() and directly run BOBYQA.py
+    BOBYQA_final_remove_files()
     args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     with pytest.raises(FileNotFoundError) as e:
         BOBYQA.main(argparse.Namespace(**args_x))

@@ -117,17 +117,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml(descr)
 
     single_traj_Name = ".traj.xyz"
-    temp_isomer_Name = "._isomers.xyz"
+    temp_isomer_Name = ".isomers.xyz"
     xtb_cmd: str = ""
     infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
     from censo_ext.Tools.utility import program_IsExist
-    xtb_name = "xtb"
-    program_IsExist(xtb_name)
-    xtb_cmd += xtb_name
+    prog = "xtb"
+    program_IsExist(prog)
+    xtb_cmd += prog
 
     print(f" Inputted geometry file: {str(args.file)}")
-    xtb_cmd += " " + single_traj_Name
+    xtb_cmd += f" {single_traj_Name}"
     print(" Loading basic information from the inputted geometry file ...")
     print(f" There are totally       {str(len(infile))} geometries in the inputted geometry file\n")  # nopep8
     print(f" Setting method :  {args.method}")
@@ -138,14 +138,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         cmd_solvent = args.gbsa
     print(f" Setting solvent :  {cmd_solvent}")
     print(" Loading setting data ...")
-    xtb_cmd += " --" + args.method
+    xtb_cmd += f" --{args.method}"
     if args.alpb and (not args.gbsa):
-        xtb_cmd += " --alpb " + args.alpb
+        xtb_cmd += f" --alpb {args.alpb}"
     elif args.gbsa:
-        xtb_cmd += " --gbsa " + args.gbsa
+        xtb_cmd += f" --gbsa {args.gbsa}"
 
-    xtb_cmd += " --chrg " + \
-        str(args.chrg) + "  --uhf " + str(args.uhf)
+    xtb_cmd += f" --chrg {str(args.chrg)}  --uhf {str(args.uhf)}"
 
     print(" All conformer in the inputted geometry file will be processed")
     print(" Cleaning old input and temporary files ...")
@@ -153,10 +152,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.opt:
         xtb_cmd += " --opt"
 
-    # xtb_cmd += " > xtb.out"
-
     for idx in range(1, len(infile)+1, 1):
-        # idx_str : str = f"{[idx]:05d}"
         infile.set_filename(Path(single_traj_Name))
         infile.method_save_xyz([idx])
         print(f"                          *** Configuration         {str(idx)}  ****")  # nopep8

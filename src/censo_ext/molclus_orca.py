@@ -102,15 +102,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # Find orca executable path
     str_env: list[str] = os.environ['PATH'].split(":")
-    match: list[str] = [x for x in str_env if "orca" in x]
+    prog: str = "orca"
+    match: list[str] = [x for x in str_env if prog in x]
     if len(match) == 0:
-        print(" Need the orca program !!!!")
-        print(" Exit the program ")
+        print(f"  Need the {prog} program !!!!")
+        print("  Exit and Close the program !!!")
         from icecream import ic
         ic()
-        raise ValueError(" Need the orca Program !!!")
+        raise ValueError(f" Need the {prog} Program !!!")
 
-    orca_path = match[0]+"/orca"
+    orca_path = match[0]+f"/{prog}"
 #    orca_path="~/orca_5_0_4_linux_x86-64_shared_openmpi411/orca"
 #    orca_path="~/orca_6_0_0_linux_x86-64_avx2_shared_openmpi416/orca"
     if template_Exist:

@@ -170,17 +170,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 shutil.copyfile(args.file, args.file + ".backup")
 
             else:
-                print(" Something is Wrong !!!")
-                print(" Input file is exists but backup file is not exist. ")
+                print("  Something is Wrong !!!")
+                print("  Input file is exists but backup file is not exist. ")
                 print(
-                    " IF you want to Create a New project, please Add -n or --new in arugment.")
-                print(" Exit and Close the program !!!")
+                    "  IF you want to Create a New project, please Add -n or --new in arugment.")
+                print("  Exit and Close the program !!!")
                 raise ValueError(
-                    " Input file is exists but backup file is not exist. ")
+                    "  Input file is exists but backup file is not exist. ")
 
     else:
-        print(" the file is not exist.", args.file)
-        print(" Exit and Close the program !!! ")
+        print("  the file is not exist.", args.file)
+        print("  Exit and Close the program !!!")
         ic()
         raise FileNotFoundError(
             str(args.file) + " was not found or is a directory")
@@ -188,7 +188,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if (not fileExists) or (not backupfileExists):
         print("    " + args.file + " or " +
               str(backupfile) + " , the file is not exist ...")
-        print("    exit and close the program !!! ")
+        print("  Exit and Close the program !!!")
+        ic()
         exit(0)
 
     np.set_printoptions(precision=4, linewidth=75, suppress=True)

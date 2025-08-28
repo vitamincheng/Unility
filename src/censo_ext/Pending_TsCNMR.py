@@ -116,7 +116,7 @@ def main():
     file_exists = exists(args.file)
     if not file_exists:
         print("    " + args.file + " , the file is not exist ...")
-        print("    exit and close the program !!! ")
+        print("  Exit and Close the program !!!")
         ic()
         exit(0)
 

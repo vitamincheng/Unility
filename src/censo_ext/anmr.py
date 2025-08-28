@@ -270,7 +270,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     Active_range: int | None = None
     inHydrogen: list[int] = []
     inFile: Path = Path("crest_conformers.xyz")
-    # ic(inAnmr.Directory)
 
     # Process different nuclear elements (C or H)
     for idx, x in enumerate(inAnmr.get_Anmr_Active()):
@@ -314,11 +313,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 if not args.thr:
                     args.thr = args.lw * 0.3
             else:
-                print("Other Active Nuclear element, waiting to build")
+                print("  Other Active Nuclear element, waiting to build")
+                print("  Exit and Close the program !!!")
                 ic()
                 exit(0)
         elif idx >= 1:
-            print("only for ONE Active Nuclear element, waiting to build")
+            print("  Only for ONE Active Nuclear element, waiting to build")
+            print("  Exit and Close the program !!!")
             ic()
             exit(0)
 
@@ -373,7 +374,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                                     pass
                                 else:
                                     ic(idx, x, idy, y)
-                                    print("Something wrong in your SParams !!!")
+                                    ic("Something wrong in your SParams !!!")
                                     ic()
                                     raise ValueError(
                                         idx + x + idy + y + " was not found or is a directory")
@@ -457,7 +458,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     args.thrab = args.thrab + 0.0025
                     args.thr = args.thr + 0.030
                 else:
-                    print(" Need to tidy the nspins of AB quartet and use cmd -thrab ")
+                    print("  Need to tidy the nspins of AB quartet and use cmd -thrab ")
+                    print("  Exit and Close the program !!!")
                     exit(0)
             else:
                 # print(" Use this parameter to calculate the Full Spectra")
@@ -533,6 +535,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     QM_Multiplet = QM_Base
                 else:
                     print("Something wrong")
+                    print("  Exit and Close the program !!!")
                     ic()
                     exit(1)
             from nmrsim.math import normalize_peaklist
@@ -575,7 +578,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         np_dat: npt.NDArray[np.float64] = qm.print_plot(
             Final_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range, hidden=not args.show)
     else:
-        print("dpi and Active_range is wrong")
+        print("  dpi and Active_range is wrong")
+        print("  Exit and Close the program !!!")
         ic()
         exit(0)
 
