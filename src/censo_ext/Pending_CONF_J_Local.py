@@ -73,7 +73,7 @@ def function_read_orcaJ(file: Path = Path("orcaJ.out")) -> npt.NDArray[np.float6
 if __name__ == "__main__":
 
     args: argparse.Namespace = cml()
-    print("    provided arguments: {}".format(" ".join(sysargv)))
+    print(f"    provided arguments: {" ".join(sysargv)}")
     print(descr)
 
     if args.recover:
@@ -178,8 +178,8 @@ if __name__ == "__main__":
                 for i in range(0, len(np_idx_h_lines)):
                     for j in range(i+1, len(np_idx_h_lines)):
                         outfile.write(
-                            " NUCLEUS A = H "+str(int(np_idx_h_lines[i]))+" NUCLEUS B = H "+str(int(np_idx_h_lines[j]))+"\n")
-                        outfile.write(" Total            0.000            0.000            0.000  iso= "+str(
-                            format(JCoup[i][j], '.5f'))+"\n")
+                            f" NUCLEUS A = H {int(np_idx_h_lines[i])} NUCLEUS B = H {int(np_idx_h_lines[j])}\n")
+                        outfile.write(
+                            f" Total            0.000            0.000            0.000  iso= {str(JCoup[i][j]):.5f}\n")
 
             print(" Directory of saved file: ", dirName + '/NMR/orcaJ.out')

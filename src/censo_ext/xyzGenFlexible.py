@@ -182,7 +182,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
     print(descr)  # Program description
-    print("    provided arguments: {}".format(" ".join(sysargv)))
+    print(f"    provided arguments: {" ".join(sysargv)}")
 
     neighbor, circleMols, residualMols, Bond_order, atomsCN = read_data(
         args)

@@ -102,7 +102,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if not args.print:
         print(descr)  # Program description
-        print("    provided arguments: {}".format(" ".join(sysargv)))
+        print(f"    provided arguments: {" ".join(sysargv)}")
 
     if not args.cuts or not args.atoms:
         print("  Please input your atoms that you want to split ")

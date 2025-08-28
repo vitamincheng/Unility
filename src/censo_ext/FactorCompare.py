@@ -188,7 +188,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
     print(descr)  # Program description
-    print("    provided arguments: {}".format(" ".join(sysargv)))
+    print(f"    provided arguments: {" ".join(sysargv)}")
 
     if args.file is None or len(args.file) != 2:
         print("  Your input files are wrong (two input file) !!!")

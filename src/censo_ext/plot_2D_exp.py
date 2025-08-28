@@ -197,7 +197,7 @@ def main(args=argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
     print(descr)  # Program description
-    print("    provided arguments: {}".format(" ".join(sysargv)))
+    print(f"    provided arguments: {" ".join(sysargv)}")
 
     # Important
     # Remember to fix the pipe.py in ng.pipe.make_uc to remark   171 lines: size = size / 2

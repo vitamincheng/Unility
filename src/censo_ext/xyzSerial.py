@@ -88,7 +88,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml(descr)
     if not args.print:
         print(descr)  # Program description
-        print("    provided arguments: {}".format(" ".join(sysargv)))
+        print(f"    provided arguments: {" ".join(sysargv)}")
 
     xyzfile: GeometryXYZs = GeometryXYZs(Path(args.file))
     xyzfile.method_read_xyz()

@@ -110,7 +110,7 @@ def main():
     args = cml(descr)
     if not args.print:
         print(descr)  # Program description
-        print("    provided arguments: {}".format(" ".join(sysargv)))
+        print(f"    provided arguments: {" ".join(sysargv)}")
 
     from os.path import exists
     file_exists = exists(args.file)

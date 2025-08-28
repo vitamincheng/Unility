@@ -102,7 +102,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml(descr)
     # if not args.print :
     print(descr)  # Program description
-    print("  provided arguments: {}".format(" ".join(sysargv)))
+    print(f"    provided arguments: {" ".join(sysargv)}")
 
     from censo_ext.Tools.utility import IsExist
     IsExist(args.file)

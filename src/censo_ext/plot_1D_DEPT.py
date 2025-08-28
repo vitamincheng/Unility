@@ -169,7 +169,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml(descr)
     if not args.hidden:
         print(descr)  # Program description
-        print("    provided arguments: {}".format(" ".join(sysargv)))
+        print(f"    provided arguments: {" ".join(sysargv)}")
 
     path: dict[Path, Path] = {}
 
@@ -308,7 +308,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                         "CH", ha="center", va="center", rotation=90)
             else:
                 ax.text(ppm.tolist(), height*1.10,
-                        "CH"+r'$_{}$'.format(str(StAtoms[n+1])), ha="center", va="center", rotation=90)
+                        "CH"+rf'$_{str(StAtoms[n+1])}$', ha="center", va="center", rotation=90)
 
             # ax.text(ppm.tolist(), height*1.05,
             #        str(n+1), ha="center", va="center")

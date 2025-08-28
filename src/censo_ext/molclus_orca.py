@@ -137,7 +137,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     templateFileIsExists: bool = False
 
     for idx1 in range(1, len(inGeoXYZs)+1, 1):
-        idx1_str = ("{:05d}".format(idx1))
+        idx1_str = (f"{idx1:05d}")
         inGeoXYZs.set_filename(solo_xyz)
         inGeoXYZs.method_save_xyz([idx1])
 

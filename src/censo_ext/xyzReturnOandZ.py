@@ -158,7 +158,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if not args.print:
         print(descr)  # Program description
-        print("    provided arguments: {}".format(" ".join(sysargv)))
+        print(f"    provided arguments: {" ".join(sysargv)}")
 
     if not args.atom and not args.auto:
         print(" No any sepific atom in your provided arguments ")

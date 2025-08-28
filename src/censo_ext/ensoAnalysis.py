@@ -142,7 +142,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
         print(descr)  # Program description
-        print("    provided arguments: {}".format(" ".join(sysargv)))
+        print(f"    provided arguments: {" ".join(sysargv)}")
 
     from censo_ext.Tools.utility import IsExist_return_bool
     from os.path import exists
@@ -255,7 +255,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("")
         print("args.weights is ON and will only executive the percentage of each CONFS")
         print("Calculated and Weights of each CONFS from (Energy + mRRHO) ")
-        print("And Save to the original file : " + args.file)
+        print(f"And Save to the original file : {args.file}")
         print("Finished ...")
         print("")
         exit(0)
@@ -265,9 +265,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     avg_nums = int(np.sum(anmr_enso['ONOFF']))
     avg_fraction = 1/avg_nums
 
-    print(" the name of input file          : " + args.file)
-    print(" the name of input file energy   : ", backupfile)
-    print(" number of CONFS                 : {:d}".format(avg_nums))
+    print(f" the name of input file          : {args.file}")
+    print(f" the name of input file energy   : {backupfile}")
+    print(f" number of CONFS                 : {avg_nums:d}")
     print("")
     print(" ----- Average CONFS -----")
 
@@ -275,23 +275,18 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("")
         print(" (1) Gibbs Free Energy of ensemble of average CONFS from Entropy ")
         print("")
-        print("     Weight of every CONFS           : {: .4f}".format(
-            avg_fraction))
+        print(f"     Weight of every CONFS           : {avg_fraction: .4f}")
     avg_wlnw = math.log(avg_fraction)*(avg_fraction)
 
     if args.verbose:
-        print(
-            "     Weight*ln(weight) for one CONF  : {: .4f}".format(avg_wlnw))
-        print(
-            "     Entropy of one CONF (cal/mol.K) : {: .4f}".format(avg_wlnw*(-Rcal)))
-        print("     Temperature (K)                 : {: .2f}".format(TEMP))
+        print(f"     Weight*ln(weight) for one CONF  : {avg_wlnw: .4f}")
+        print(f"     Entropy of one CONF (cal/mol.K) : {avg_wlnw*(-Rcal): .4f}")  # nopep8
+        print(f"     Temperature (K)                 : {TEMP: .2f}")
     Reduced_energy = avg_wlnw*(-Rcal)*TEMP/(-1000)
 
     if args.verbose:
-        print(
-            "     Gibbs Free Energy  of one CONF  (kcal/mol)    : {: .4f}".format(Reduced_energy))
-        print("     Gibbs Free Energy  of all CONFS (kcal/mol)    : {: .4f}".format(
-            Reduced_energy*avg_nums))
+        print(f"     Gibbs Free Energy  of one CONF  (kcal/mol)    : {Reduced_energy: .4f}")  # nopep8
+        print(f"     Gibbs Free Energy  of all CONFS (kcal/mol)    : {Reduced_energy*avg_nums: .4f}")  # nopep8
         print("")
         print("")
 
@@ -299,10 +294,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(" (2) Gibbs Free Energy of ensemble of average CONFS from Average Energy ")
     if args.verbose:
         print("")
-        print("     ON/OFF of CONFS                 : " +
-              str(anmr_enso['ONOFF']))
-        print("     Eref of every CONFS (kcal/mol)  : " +
-              str(anmr_enso['Gibbs']))
+        print(f"     ON/OFF of CONFS                 : {anmr_enso['ONOFF']}")
+        print(f"     Eref of every CONFS (kcal/mol)  : {anmr_enso['Gibbs']}")
 
     insert_zero = False
     # enso_min_list = np.copy(anmr_enso['Gibbs']*anmr_enso['ONOFF'])
@@ -316,13 +309,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         anmr_enso['ONOFF']*(1/avg_nums)
 
     if args.verbose:
-        print("     Weight of every CONFS           : "+str(1/avg_nums))
-        print("     Eref*weight of every CONFS      : "+str(avg_Gibbs))
+        print(f"     Weight of every CONFS           : {1/avg_nums}")
+        print(f"     Eref*weight of every CONFS      : {avg_Gibbs}")
     Lift_energy: float = np.sum(avg_Gibbs)
 
     if args.verbose:
-        print(
-            "     Gibbs Free Energy (kcal/mol)    : {: .4f}\n".format(Lift_energy))
+        print(f"     Gibbs Free Energy (kcal/mol)    : {Lift_energy: .4f}\n")  # nopep8
 
     # Boltzmann of CONFS
     if args.verbose:
@@ -335,31 +327,25 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # For Before degeneracy and lift the Gibbs free energy of ensemble
     if args.verbose:
         print("\n     Lift Gibbs Free Energy of ensemble using Boltzmann distribution ")
-        print("     ON/OFF of CONFS                 : " +
-              str(anmr_enso['ONOFF']))
-        print("     Eref of every CONFS (kcal/mol)  : " +
-              str(backup_enso['Gibbs']))
-        print("     Weighting of each CONFS         : " +
-              str(anmr_enso['NEW_BW']))
+        print(f"     ON/OFF of CONFS                 : {anmr_enso['ONOFF']}")
+        print(f"     Eref of every CONFS (kcal/mol)  : {backup_enso['Gibbs']}")
+        print(f"     Weighting of each CONFS         : {anmr_enso['NEW_BW']}")
 
     Boltzmann_lift_energy: npt.NDArray[np.float64] = boltzmann_enso * \
         backup_enso['Gibbs']
 
     if args.verbose:
-        print("     Eref*weight of every CONFS      : " +
-              str(Boltzmann_lift_energy))
+        print(
+            f"     Eref*weight of every CONFS      : {Boltzmann_lift_energy}")
     Lift_boltzmann_energy: float = np.sum(Boltzmann_lift_energy)
     if args.verbose:
         print(
-            "     Gibbs Free Energy  kcal/mol)    : {: .4f}".format(Lift_boltzmann_energy))
+            f"     Gibbs Free Energy  kcal/mol)    : {Lift_boltzmann_energy: .4f}")
         print("")
 
-    print(" (1) Gibbs Free Energy from Entropy (kcal/mol)                   : {: .4f}".format(
-        Reduced_energy*avg_nums))
-    print(
-        " (2) Gibbs Free Energy from Average energy (kcal/mol)            : {: .4f}".format(Lift_energy))
-    print(
-        " (3) Gibbs Free Energy using Boltzmann distribution (kcal/mol)   : {: .4f}".format(Lift_boltzmann_energy))
+    print(f" (1) Gibbs Free Energy from Entropy (kcal/mol)                   : {Reduced_energy*avg_nums: .4f}")  # nopep8
+    print(f" (2) Gibbs Free Energy from Average energy (kcal/mol)            : {Lift_energy: .4f}")  # nopep8
+    print(f" (3) Gibbs Free Energy using Boltzmann distribution (kcal/mol)   : {Lift_boltzmann_energy: .4f}")  # nopep8
     print("")
 
     Gibbs_Free_Energy: float = Lift_energy - \
@@ -372,10 +358,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.verbose:
         print(" Total Gibbs Free Energy = G(Average energy) - G(Boltzmann distribution) + G(From Entropy)")
         print("                         = (2) - (3) + (1)                                                ")
-    print(" Total Gibbs Free Energy of ensemble of all CONFS (kcal/mol) : {: .4f}".format(
-        Gibbs_Free_Energy) + "        ")
-    print(" Total Gibbs Free Energy of ensemble of all CONFS (Eh)       : {: .8f}".format(
-        Gibbs_Free_Energy/Eh) + " "*4 + str(rule))
+    print(f" Total Gibbs Free Energy of ensemble of all CONFS (kcal/mol) : {Gibbs_Free_Energy: .4f}        ")  # nopep8
+    print(f" Total Gibbs Free Energy of ensemble of all CONFS (Eh)       : {Gibbs_Free_Energy/Eh: .8f}    {rule}")  # nopep8
 
     if (Gibbs_Free_Energy <= 0):
 

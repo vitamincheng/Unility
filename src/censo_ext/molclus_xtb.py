@@ -159,7 +159,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(f" Loading geometry	 {str(idx)}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
         subprocess.call(f"{xtb_cmd} > xtb.out", shell=True)
-        idx1_str = ("{:05d}".format(idx))
+        idx1_str = (f"{idx:05d}")
         print(f" Running:  {xtb_cmd} > {idx1_str}.out")
 
         get_energy: int | None = None

@@ -247,7 +247,7 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
         else:
             x, y = mpl_plot(Normal_plist, w=lw, y_max=Normal_y_max, y_min=-
                             Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points, hidden=True)
-        print("    Plot is saved to {} !".format(args.out))
+        print(f"    Plot is saved to {args.out} !")
         np.savetxt(args.out, np.vstack((x, y)).T, fmt='%2.5f %12.5e')
         print("    All Done!")
         return np.vstack((x, y))
