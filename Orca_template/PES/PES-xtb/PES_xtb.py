@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import argparse
-import os
-from sys import argv as sysargv
+# from sys import argv as sysargv
 import subprocess
 from icecream import ic
-from Tools.xyzfile import ClassGeometryXYZs
+from censo_ext.Tools.xyzfile import GeometryXYZs
+from pathlib import Path
 
 descr = """
 ________________________________________________________________________________
@@ -27,10 +27,9 @@ def cml(descr):
         Needs argparse module."""
     parser = argparse.ArgumentParser(
         description="",
-        #        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
-    )  # argparse.RawDescriptionHelpFormatter) #,
+    )
 
     parser.add_argument(
         "-i",
@@ -124,11 +123,11 @@ if __name__ == "__main__":
 
     subprocess.call("bash 1Atom.sh", shell=True)
 
-    infile = ClassGeometryXYZs("xtbscan.xyz")
+    infile = GeometryXYZs(Path("xtbscan.xyz"))
     infile.method_read_xyz()
+    for idx in range(1, len(infile)+1, 1):
+        infile.set_filename(Path("xtbscan_single.xyz"))
 
-    for idx in range(1, infile.get_nSt()+1, 1):
-        infile.set_filename("xtbscan_single.xyz")
         infile.method_save_xyz([idx])
 
         with open("scan.inp", "w") as f:
@@ -139,7 +138,7 @@ if __name__ == "__main__":
             f.write("   distance: "+str(args.center_atom[1])+", "
                     + str(args.center_atom[2])+", "+str(args.bond2_distance[0])+"\n")
             f.write("   distance: "+str(args.center_atom[1])+", "
-                    + str(args.center_atom[0])+", "+str(abs(args.bond1_distance[0]-args.bond1_distance[1])*(idx-1)/infile.get_nSt()+args.bond1_distance[0])+"\n")
+                    + str(args.center_atom[0])+", "+str(abs(args.bond1_distance[0]-args.bond1_distance[1])*(idx-1)/len(infile)+args.bond1_distance[0])+"\n")
             f.write("$scan\n")
             f.write("   1: "+str(args.bond2_distance[0])+", "+str(args.bond2_distance[1])
                     + ", "+str(args.cut_distance[1])+"\n")

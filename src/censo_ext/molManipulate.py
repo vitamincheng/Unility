@@ -27,10 +27,9 @@ def cml(descr) -> argparse.Namespace:
         Needs argparse module."""
     parser = argparse.ArgumentParser(
         description="",
-        #        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
-    )  # argparse.RawDescriptionHelpFormatter) #,
+    )
 
     index_group = parser.add_mutually_exclusive_group()
     index_group.add_argument(

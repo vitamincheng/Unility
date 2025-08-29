@@ -32,10 +32,9 @@ def cml(descr) -> argparse.Namespace:
         Needs argparse module."""
     parser = argparse.ArgumentParser(
         description="",
-        #        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
-    )  # argparse.RawDescriptionHelpFormatter) #,
+    )
 
     parser.add_argument(
         "-i",
