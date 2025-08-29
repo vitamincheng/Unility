@@ -28,7 +28,7 @@ ________________________________________________________________________________
 | End      : -end end ppm of plotting spectra
 | ref      : reference standard - see .anmrrc file
 | BOBYQA   : -b --bobyqa BOBYQA mode (only use numpy) [default False]
-| JSON     : -j --json Read the raw data of every single peak [if is -1(All)]
+| JSON     : -j --json Read the raw data of every single peak 
 | ascal    : -ascal chemical shift scaling a if the reference is absent [pending]
 | bscal    : -bcsal chemical shift scaling b if the reference is absent [pending]
 | Package  : Tools / nmrsim Library
@@ -202,7 +202,7 @@ def cml(descr) -> argparse.Namespace:
         type=int,
         nargs="+",
         required=False,
-        help="Read the jason file of raw single peak [if is -1(All)]",
+        help="Read the jason file of raw single peak",
     )
 
     parser.add_argument(
@@ -269,7 +269,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     Active_range: int | None = None
     inHydrogen: list[int] = []
     inFile: Path = Path("crest_conformers.xyz")
-
     # Process different nuclear elements (C or H)
     for idx, x in enumerate(inAnmr.get_Anmr_Active()):
         if idx == 0:
@@ -293,6 +292,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 # Hydrogen processing - identify equivalent hydrogens
                 idx1_nMagEqvHydrogens: dict[int, int] = {}
                 for key in inAnmr.avg_orcaSJ.idx1Atoms.keys():
+                    # idx_nMagEqvHydrogens[key] = len(
+                    #    inAnmr.nucinfo[1][key-1][2])
                     idx1_nMagEqvHydrogens[key] = inAnmr.nMagnetEqvs[key]
                 for x in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
                         inAnmr.get_Directory()/inFile):
@@ -320,6 +321,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             ic()
             exit(0)
 
+    ic(inSParams)
+    ic(in_idx1Atoms)
+    ic(len(inSParams))
+    ic(inJCoups.shape)
+    ic(len(in_idx1Atoms))
+    np.savetxt("J_0.out", inJCoups, fmt=" %6.2f")
+
     # Initialize variables for AB quartet detection and processing
     idx0_ab_group_sets: list[set[int]] = []
     mat_filter_multi: npt.NDArray[np.int64] = np.array([])
@@ -329,80 +337,65 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         inJCoups_origin: npt.NDArray[np.float64] = copy.deepcopy(inJCoups)
 
         while (1):
+            # Step 1: Filter out small coupling constants based on threshold
+            # Delete Too Small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
+            # 1: keep and 0: neglect
+            mat_filter_low_factor: npt.NDArray[np.int64] = np.zeros(
+                (inSParams.size, inSParams.size), dtype=np.int64)
+            inJCoups = copy.deepcopy(inJCoups_origin)
+            mask = np.abs(inJCoups) < args.thr
+            mat_filter_low_factor = (~mask).astype(np.int64)
+            inJCoups[mask] = 0
+            np.savetxt("J_1.out", inJCoups, fmt=" %6.2f")
+            exit(0)
 
-            # the numbers of mss is low, it will computeration as AB quartet
-            if len(inSParams*inHydrogen) <= args.mss:
-                inJCoups = copy.deepcopy(inJCoups_origin)
-                idx_repeat = (np.array(inHydrogen)-1).nonzero()[0]
-                for idx in idx_repeat[::-1]:
-                    for idy in range(1, inHydrogen[idx], 1):
-                        inSParams = np.insert(inSParams, idx, inSParams[idx])
-                        inJCoups = np.insert(inJCoups, idx, inJCoups[idx], axis=1)  # nopep8
-                        inJCoups = np.insert(inJCoups, idx, inJCoups[idx], axis=0)  # nopep8
-                inHydrogen = [1]*len(inSParams)
-                mat_filter_low_factor: npt.NDArray[np.int64] = np.ones(
-                    (inSParams.size, inSParams.size), dtype=np.int64)
-                np.fill_diagonal(mat_filter_low_factor, 0)
-                mat_filter_ab_quartet: npt.NDArray[np.int64] = copy.deepcopy(
-                    mat_filter_low_factor)
-            else:
-                # Step 1: Filter out small coupling constants based on threshold
-                # Delete Too Small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
-                # 1: keep and 0: neglect
-                mat_filter_low_factor: npt.NDArray[np.int64] = np.zeros(
-                    (inSParams.size, inSParams.size), dtype=np.int64)
-                inJCoups = copy.deepcopy(inJCoups_origin)
-                mat_filter_low_factor = (
-                    np.abs(inJCoups) > args.thr).astype(np.int64)
-                inJCoups[~mat_filter_low_factor] = 0
-                # mat_filter_low_factor = (np.abs(inJCoups_origin) > args.thr)*1
-                # inJCoups = copy.deepcopy(inJCoups_origin)
-                # inJCoups *= mat_filter_low_factor
-
-                # Step 2: Identify potential AB quartet systems
-                # np.fill_diagonal(mat_filter_ab_quartet, 0)
-                mat_filter_ab_quartet: npt.NDArray[np.int64] = np.zeros(
-                    (inSParams.size, inSParams.size), dtype=np.int64)
-                import math
-                for idx, x in enumerate(inSParams):
-                    for idy, y in enumerate(inSParams):
-                        if idx == idy:
-                            mat_filter_ab_quartet[idx][idy] = 0
+            # Step 2: Identify potential AB quartet systems
+            # np.fill_diagonal(mat_filter_ab_quartet, 0)
+            mat_filter_ab_quartet: npt.NDArray[np.int64] = np.zeros(
+                (inSParams.size, inSParams.size), dtype=np.int64)
+            import math
+            for idx, x in enumerate(inSParams):
+                for idy, y in enumerate(inSParams):
+                    if idx == idy:
+                        mat_filter_ab_quartet[idx][idy] = 0
+                    else:
+                        # Check if two chemical shifts are close (AB quartet condition)
+                        # If J coupling is negative, prioritize normal QM calculation
+                        # if two chemical shift is very close , will perform AB quartet
+                        # if x-y == 0 the Ratio_J_Hz will crash
+                        # if the JCoups is negative number, will first priority to use normal QM cal.
+                        # if not in AB Quartet and negative nubmers will use Multiplet (nmrsim)
+                        if (math.fabs(x-y) < 0.0005 and mat_filter_low_factor[idx][idy] == 1) or (inJCoups[idx][idy] <= -args.thr):
+                            mat_filter_ab_quartet[idx][idy] = 1
                         else:
-                            # Check if two chemical shifts are very close (AB quartet condition)
-                            # If the JCoups is negative, the pwaks will prioritize to normal QM calculation
-                            # if two chemical shift is very close, will perform AB quartet
-                            # if x-y == 0 the Ratio_J_Hz will crash
-                            # if the JCoups is negative, will prioritize to use normal QM calculation.
-                            # if the peaks which is not AB Quartet and have positive nubmers will use Multiplet (nmrsim)
-                            if (math.fabs(x-y) < 0.0005 and mat_filter_low_factor[idx][idy] == 1) or (inJCoups[idx][idy] <= -args.thr):
+                            if math.fabs(x-y) < 0.0005:
+                                Ratio_J_Hz = 10000
+                            else:
+                                Ratio_J_Hz = math.fabs(
+                                    inJCoups[idx][idy]/(math.fabs(x-y)))
+                            if Ratio_J_Hz < args.thrab:
+                                mat_filter_ab_quartet[idx][idy] = 0
+                            elif Ratio_J_Hz >= args.thrab and mat_filter_low_factor[idx][idy] == 1:
                                 mat_filter_ab_quartet[idx][idy] = 1
                             else:
-                                if math.fabs(x-y) < 0.0005:
-                                    Ratio_J_Hz = 10000
+                                if mat_filter_low_factor[idx][idy] == 0:
+                                    pass
                                 else:
-                                    Ratio_J_Hz = math.fabs(
-                                        inJCoups[idx][idy]/(math.fabs(x-y)))
-                                if Ratio_J_Hz < args.thrab:
-                                    mat_filter_ab_quartet[idx][idy] = 0
-                                elif Ratio_J_Hz >= args.thrab and mat_filter_low_factor[idx][idy] == 1:
-                                    mat_filter_ab_quartet[idx][idy] = 1
-                                else:
-                                    if mat_filter_low_factor[idx][idy] == 1:
-                                        ic(idx, x, idy, y,
-                                           "  Something wrong in your SParams !!!")
-                                        ic()
-                                        raise ValueError(
-                                            idx + x + idy + y + " was not found or is a directory")
+                                    ic(idx, x, idy, y)
+                                    ic("Something wrong in your SParams !!!")
+                                    ic()
+                                    raise ValueError(
+                                        idx + x + idy + y + " was not found or is a directory")
 
             # ic(mat_filter_ab_quartet)
             # Calculate which couplings are NOT part of AB quartets (multiplets)
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
             idx0_ab_connect: list[list[int | set[int]]] = []
-            for idx0, x in enumerate(mat_filter_ab_quartet):
-                group: set[int] = set((x*(idx0+1)).nonzero()[0].tolist())  # return arg # nopep8 #idx0+1 is only for nozero
-                group.add(idx0)
-                idx0_ab_connect.append([idx0, group])
+            for idx, x in enumerate(mat_filter_ab_quartet):
+                np_nonzero: npt.NDArray[np.int64] = (x*(idx+1)).nonzero()[0]
+                group: set[int] = set(np_nonzero.tolist())
+                group.add(idx)
+                idx0_ab_connect.append([idx, group])
 
             # Merge overlapping spin system groups
             idx0_ab_group_sets = []
@@ -411,45 +404,48 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     idx0_ab_group_sets.append(x)     # type: ignore
                 elif len(x) > 1:                    # type: ignore
                     group: set[int] = x             # type: ignore
-                    loop: bool = True
+                    jump: bool = False
                     bond_penetration: int = 1
-                    while loop:
-                        loop = False
+                    while not jump:
+                        jump = True
                         for idy, y in enumerate(group):
                             if (not group.issuperset(idx0_ab_connect[y][1])) and bond_penetration <= args.tb:  # type: ignore # nopep8
-                                loop = True
+                                jump = False
                                 group = group.union(idx0_ab_connect[y][1])  # type: ignore # nopep8
                             bond_penetration += 1
                     idx0_ab_group_sets.append(group)
                 else:
-                    print("  Something wrong in ab_group_set")
+                    print("Something wrong in ab_group_set")
                     ic()
-                    raise ValueError("  idx0_ab_group_sets is bugs !!!")
+                    raise ValueError("idx0_ab_group_sets is bugs !!!")
 
-            if len(inSParams*inHydrogen) <= args.mss:
-                pass
-            else:
-                # Handle CH3 equivalent groups manually (symmetry considerations)
-                # So if chemical shift in AB quartet region need to move to multiplet
-                list_Equivalent3: list[int] = []
-                for x in (inAnmr.nMagnetEqvs.keys()):
-                    if inAnmr.nMagnetEqvs[x] == 3:
-                        for idy, y in enumerate(in_idx1Atoms):
-                            if y == min(inAnmr.NeighborMangetEqvs[x]):
-                                list_Equivalent3.append(idy)
-                set_Equivalent3: set[int] = set(list_Equivalent3)
+            # Handle CH3 equivalent groups manually (symmetry considerations)
+            # So if chemical shift in AB quartet region need to move to multiplet
+            list_Equivalent3: list[int] = []
+            # for idx, x in enumerate(inAnmr.nucinfo[1]):
+            #    if x[1] == 3:
+            #        for idy, y in enumerate(in_idx1Atoms):
+            #            if y == min(x[2]):
+            #                list_Equivalent3.append(idy)
 
-                # Adjust groups to account for equivalent protons
-                # Equivalent3 is idx0 numbers
-                for idx, x in enumerate(idx0_ab_group_sets):
-                    set_move: set[int] = x.intersection(set_Equivalent3)
-                    if not len(set_move) == 0:
-                        idx0_ab_group_sets[idx] = set(x).difference(
-                            set_move).union(set([idx]))
-                        set_move = set_move.difference(set([idx]))
-                    for idy, y in enumerate(set_move):
-                        mat_filter_multi[idx][y] = 1
-            # ic(idx0_ab_group_sets)
+            for x in (inAnmr.nMagnetEqvs.keys()):
+                if inAnmr.nMagnetEqvs[x] == 3:
+                    for idy, y in enumerate(in_idx1Atoms):
+                        if y == min(inAnmr.NeighborMangetEqvs[x]):
+                            list_Equivalent3.append(idy)
+            set_Equivalent3: set[int] = set(list_Equivalent3)
+
+            # Adjust groups to account for equivalent protons
+            # Equivalent3 is idx0 numbers
+            for idx, x in enumerate(idx0_ab_group_sets):
+                set_move: set[int] = x.intersection(set_Equivalent3)
+                if not len(set_move) == 0:
+                    idx0_ab_group_sets[idx] = set(x).difference(
+                        set_move).union(set([idx]))
+                    set_move = set_move.difference(set([idx]))
+                for idy, y in enumerate(set_move):
+                    mat_filter_multi[idx][y] = 1
+
             print(" ===== Processing =====")
             print(" threshold of JCoupling  : ", f'{args.thr:>3.5f}')
             print(" threshold of AB quartet : ", f'{args.thrab:>3.5f}')
@@ -474,6 +470,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     print("  Exit and Close the program !!!")
                     exit(0)
             else:
+                # print(" Use this parameter to calculate the Full Spectra")
                 break
 
         # Additional processing for AB quartets with identical chemical shifts
@@ -481,16 +478,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         print(" ===== Modification AB quartet =====")
         for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
             idx0_ab_group: list[int] = list(idx0_ab_group_set)
+            # print(set(inSParams[list(idx0_set_origin)]))
             if len(set(list(inSParams[idx0_ab_group]))) == 1:
                 from censo_ext.Tools.spectra import find_nearest
+                # ic(inSParams[list(idx0_set_origin)])
                 _, Move_idx0 = find_nearest(list(inSParams[idx0_ab_group]),
                                             inSParams[idx0_ab_group[0]])
                 a = np.argwhere(
                     inSParams[:] == inSParams[int(Move_idx0)])
                 idx0_ab_group_sets[idx0] = idx0_ab_group_set.union(
                     set(int(idx) for idx in a[0]))
-
-        # Display the parameter of Full Spectra
+                # print(set(list(inSParams[list(idx0_set_origin)])))
         for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
             idx0_ab_group: list[int] = list(idx0_ab_group_set)
             mat_multi_x_idx0: list[int] = [
@@ -511,62 +509,50 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         print(" the group of calculate spectra :", len(idx0_ab_group_sets))
         print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
         Res_peaks: list[list[tuple[float, float]]] = []
-        if len(inSParams*inHydrogen) <= args.mss:
-            idx0_ab_group = list(idx0_ab_group_sets[0])
+        for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
+            mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
+                int).tolist()
+            idx0_ab_group: list[int] = list(idx0_ab_group_set)
+            idx1_ab_group: set[int] = {a+1 for a in idx0_ab_group_set}
+            mat_multi_x_idx0: list[int] = [
+                idx0_set*x for x, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
+            print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
+                a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
+
             v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
             J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
-            QM_Base: list[tuple[float, float]] = qm.qm_full(v=list(
-                v), J=J, nIntergals=len(inHydrogen), args=args)
-            from nmrsim.math import normalize_peaklist
-            QM_Multiplet = normalize_peaklist(QM_Base, len(inHydrogen))
-            Res_peaks.append(QM_Multiplet)
 
-        else:
-            for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
-                mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
-                    int).tolist()
-                idx0_ab_group: list[int] = list(idx0_ab_group_set)
-                idx1_ab_group: set[int] = {a+1 for a in idx0_ab_group_set}
-                mat_multi_x_idx0: list[int] = [
-                    idx0_set*x for x, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
-                print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
-                    a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
+            QM_Base: list[tuple[float, float]] = qm.qm_base(v=list(
+                v), J=J, nIntergals=inHydrogen[idx0_ab_group.index(idx0)], idx0_nspins=idx0_ab_group.index(idx0), args=args)
 
-                v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
-                J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
+            QM_Multiplet: list[tuple[float, float]] = []
+            for z in QM_Base:
+                multiplicity: list[int] = list(
+                    set(mat_multi_x_idx0).difference(idx0_ab_group_set))
+                inJ: list[tuple[float, int]] = []
+                for a in multiplicity:
+                    if np.fabs(inSParams[idx0]-inSParams[a]) > 0.1:
+                        inJ.append((inJCoups[idx0][a], inHydrogen[a]))
 
-                QM_Base: list[tuple[float, float]] = qm.qm_base(v=list(
-                    v), J=J, nIntergals=inHydrogen[idx0_ab_group.index(idx0)], idx0_nspins=idx0_ab_group.index(idx0), args=args)
-
-                QM_Multiplet: list[tuple[float, float]] = []
-                for z in QM_Base:
-                    multiplicity: list[int] = list(
-                        set(mat_multi_x_idx0).difference(idx0_ab_group_set))
-                    inJ: list[tuple[float, int]] = []
-                    for a in multiplicity:
-                        if np.fabs(inSParams[idx0]-inSParams[a]) > 0.1:
-                            inJ.append((inJCoups[idx0][a], inHydrogen[a]))
-
-                    if len(inJ) >= 1:
-                        tmp: npt.NDArray[np.float64] = np.array(
-                            qm.qm_multiplet(z[0], nIntergals=1, J=inJ))
-                        tmp.T[1] *= z[1]
-                        QM_Multiplet += tmp.tolist()
-                    elif len(inJ) == 0:
-                        QM_Multiplet = QM_Base
-                    else:
-                        print("Something wrong")
-                        print("  Exit and Close the program !!!")
-                        ic()
-                        exit(1)
-                from nmrsim.math import normalize_peaklist
-                QM_Multiplet = normalize_peaklist(
-                    QM_Multiplet, inHydrogen[idx0])
-
-                if len(Res_peaks) == 0 and len(QM_Multiplet) == 0:
-                    pass
+                if len(inJ) >= 1:
+                    tmp: npt.NDArray[np.float64] = np.array(
+                        qm.qm_multiplet(z[0], nIntergals=1, J=inJ))
+                    tmp.T[1] *= z[1]
+                    QM_Multiplet += tmp.tolist()
+                elif len(inJ) == 0:
+                    QM_Multiplet = QM_Base
                 else:
-                    Res_peaks.append(QM_Multiplet)
+                    print("Something wrong")
+                    print("  Exit and Close the program !!!")
+                    ic()
+                    exit(1)
+            from nmrsim.math import normalize_peaklist
+            QM_Multiplet = normalize_peaklist(QM_Multiplet, inHydrogen[idx0])
+
+            if len(Res_peaks) == 0 and len(QM_Multiplet) == 0:
+                pass
+            else:
+                Res_peaks.append(QM_Multiplet)
 
         import json
         # import pickle
@@ -613,4 +599,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
 
 if __name__ == "__main__":
-    main()
+
+    # main()
+    import argparse
+    Dir = "tests/data/34.Ergocalciferol/04.Hydrogen"
+    outFile = "output.dat"
+    compare = "tests/compare/anmr_peaks.json"
+
+    x: dict = {"auto": True, "dir": Dir, "bobyqa": False, "mf": 500,
+               "lw": None, "thr": None, "thrab": 0.025, "tb": 4, "mss": 9,
+               "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
+
+    x['average'] = False
+    x['json'] = None
+    main(argparse.Namespace(**x))
