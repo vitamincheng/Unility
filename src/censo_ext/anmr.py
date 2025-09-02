@@ -21,7 +21,7 @@ ________________________________________________________________________________
 | thr      : -t -thr threshold of coupling constant (J) [default 0.30]
 | thrtab   : -tab -thrab threshold of AB quartet (J/d chemical shift) [default 0.025]
 | tbpent   : -tb threshold of AB quartet bond pententration distance [default 4]
-| mss      : -mss max of spin numbers [default 9]
+| mss      : -mss max of spin numbers [default 10]
 |            if your computer have slowly CPU, try to use mss 4 or 5. 
 | Cutoff   : --cutoff cutoff limits in quantum chemistry in nmr [default 0.001]
 | Start    : -start start ppm of plotting spectra
@@ -212,8 +212,8 @@ def cml(descr) -> argparse.Namespace:
         action="store",
         type=int,
         required=False,
-        default=9,
-        help="max of spin numbers [default 9]",
+        default=10,
+        help="max of spin numbers [default 10]",
     )
 
     parser.add_argument(
@@ -330,9 +330,23 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
         while (1):
 
-            # the numbers of mss is low, it will computeration as AB quartet
+            # the numbers of mss is low, it will be computated as AB quartet
             if len(inSParams*inHydrogen) <= args.mss:
+
                 inJCoups = copy.deepcopy(inJCoups_origin)
+
+                # Step 1: Filter out small coupling constants based on threshold
+                # Delete Too Small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
+                # 1: keep and 0: neglect
+                # reset all inJCoups
+                mat_filter_low_factor: npt.NDArray[np.int64] = np.zeros(
+                    (inSParams.size, inSParams.size), dtype=np.int64)
+                mat_filter_low_factor = (
+                    np.abs(inJCoups) > args.thr).astype(np.int64)
+                inJCoups[np.logical_not(mat_filter_low_factor)] = 0
+                del mat_filter_low_factor
+
+                # Step 2: add more one hydrogen in the same position as the first hydrogen
                 idx_repeat = (np.array(inHydrogen)-1).nonzero()[0]
                 for idx in idx_repeat[::-1]:
                     for idy in range(1, inHydrogen[idx], 1):
@@ -340,7 +354,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                         inJCoups = np.insert(inJCoups, idx, inJCoups[idx], axis=1)  # nopep8
                         inJCoups = np.insert(inJCoups, idx, inJCoups[idx], axis=0)  # nopep8
                 inHydrogen = [1]*len(inSParams)
-                mat_filter_low_factor: npt.NDArray[np.int64] = np.ones(
+                mat_filter_low_factor = np.ones(
                     (inSParams.size, inSParams.size), dtype=np.int64)
                 np.fill_diagonal(mat_filter_low_factor, 0)
                 mat_filter_ab_quartet: npt.NDArray[np.int64] = copy.deepcopy(
@@ -354,7 +368,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 inJCoups = copy.deepcopy(inJCoups_origin)
                 mat_filter_low_factor = (
                     np.abs(inJCoups) > args.thr).astype(np.int64)
-                inJCoups[~mat_filter_low_factor] = 0
+                inJCoups[np.logical_not(mat_filter_low_factor)] = 0
                 # mat_filter_low_factor = (np.abs(inJCoups_origin) > args.thr)*1
                 # inJCoups = copy.deepcopy(inJCoups_origin)
                 # inJCoups *= mat_filter_low_factor

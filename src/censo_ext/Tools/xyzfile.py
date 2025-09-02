@@ -186,7 +186,7 @@ class Geometry():
         """
 
         self.method_update_masses()
-        if (len(self.com) == 3):
+        if hasattr(self, 'com') and self.com.size == 3:
             return self.com
         else:
             self.com = np.dot(self.mass, self.coord) / np.sum(self.mass)

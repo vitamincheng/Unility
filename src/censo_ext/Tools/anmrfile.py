@@ -1038,30 +1038,29 @@ class Anmr():
                 self.NeighborMangetEqvs[int(x.split()[0])] = int_tmp
 
     def method_create_enso(self, in_np: npt.NDArray) -> None:
-        """Create enso data structure from input numpy array.
+        """Validate the enso data structure from an input numpy array.
 
         Args:
-            in_np (npt.NDArray): Input numpy array containing enso data. The array
-                should have exactly 8 fields in its dtype.
+            in_np (npt.NDArray): Input numpy array containing enso data.
 
         Raises:
-            FileNotFoundError: If the input numpy array does not have the expected
+            ValueError: If the input numpy array does not have the expected
                 dtype structure with exactly 8 fields.
 
         Example:
             >>> import numpy as np
-            >>> data = np.array([(1, 2, 3, 4, 5, 6, 7, 8)], 
-            ...                 dtype=[('field1', 'i4'), ('field2', 'i4'), 
+            >>> data = np.array([(1, 2, 3, 4, 5, 6, 7, 8)],
+            ...                 dtype=[('field1', 'i4'), ('field2', 'i4'),
             ...                        ('field3', 'i4'), ('field4', 'i4'),
             ...                        ('field5', 'i4'), ('field6', 'i4'),
             ...                        ('field7', 'i4'), ('field8', 'i4')])
             >>> obj.method_create_enso(data)
         """
 
-        if len(in_np.dtype) != 8:                                           # type:ignore
+        if len(in_np.dtype) != 8:  # type:ignore
             print("something wrong in your anmr_enso file")
             ic()
-            raise FileNotFoundError("something wrong in your anmr_enso file")
+            raise ValueError("something wrong in your anmr_enso file")
 
     def method_read_enso(self, file: Path = Path("anmr_enso")) -> None:
         """Read ENSO data from file.

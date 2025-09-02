@@ -33,29 +33,26 @@ import shutil
 
 
 def IsExists_DirFileName(DirFileName: Path):
-    """Checks if a directory or file path exists and returns its directory and name components.
+    """Checks if a file or directory path exists and returns its directory and name components.
 
-    This function verifies the existence of a given path (which can be either a file or 
-    directory) and extracts the parent directory and the basename (filename) from it. If 
-    the path doesn't exist, it raises a FileNotFoundError with detailed information.
+    This function verifies the existence of a given path and extracts its parent directory
+    and basename.
 
     Args:
-        DirFileName (pathlib.Path): The full path to check for existence. This should be 
-            a pathlib.Path object representing either a file or directory.
+        DirFileName (pathlib.Path): The full path to check.
 
     Returns:
-        tuple: A tuple containing two elements:
+        tuple[Path, str]: A tuple containing:
             - Dir (pathlib.Path): The parent directory of the provided path.
-            - Name (str): The basename (filename) of the provided path.
+            - Name (str): The basename (filename or directory name) of the provided path.
 
     Raises:
-        FileNotFoundError: If the provided path does not exist or is a directory. 
-            The error message includes the full path that was not found.
+        FileNotFoundError: If the provided path does not exist.
 
     Example:
         >>> from pathlib import Path
-        >>> path = Path("example.txt")
-        >>> dir_path, filename = IsExists_DirFileName(path)
+        >>> # Assuming 'example.txt' exists in the current directory
+        >>> dir_path, filename = IsExists_DirFileName(Path("example.txt"))
         >>> print(f"Directory: {dir_path}, Filename: {filename}")
         Directory: ., Filename: example.txt
 
@@ -80,6 +77,14 @@ def IsExists_DirFileName(DirFileName: Path):
 
 
 def function_is_float(string: str) -> bool:
+    """Check if a string can be converted to a float.
+
+    Args:
+        string (str): The input string to check.
+
+    Returns:
+        bool: True if the string can be converted to a float, False otherwise.
+    """
     try:
         float(string)
         return True
@@ -88,6 +93,14 @@ def function_is_float(string: str) -> bool:
 
 
 def function_is_int(string: str) -> bool:
+    """Check if a string can be converted to an integer.
+
+    Args:
+        string (str): The input string to check.
+
+    Returns:
+        bool: True if the string can be converted to an integer, False otherwise.
+    """
     try:
         int(string)
         return True
@@ -96,11 +109,33 @@ def function_is_int(string: str) -> bool:
 
 
 def move_file(source: Path, destination: Path) -> None:
+    """Move a file from a source path to a destination path.
+
+    This function first checks if the source file exists before attempting to move it.
+
+    Args:
+        source (Path): The path of the file to move.
+        destination (Path): The path to the destination.
+
+    Raises:
+        FileNotFoundError: If the source file does not exist.
+    """
     IsExist(source)
     shutil.move(source, destination)
 
 
 def copy_file(source: Path, destination: Path) -> None:
+    """Copy a file from a source path to a destination path.
+
+    This function first checks if the source file exists before attempting to copy it.
+
+    Args:
+        source (Path): The path of the file to copy.
+        destination (Path): The path to the destination.
+
+    Raises:
+        FileNotFoundError: If the source file does not exist.
+    """
     IsExist(source)
     shutil.copy(source, destination)
 
@@ -164,10 +199,30 @@ def delete_file_bool(fileName: Path) -> bool:
 
 
 def jsonKeys2int(x) -> dict:
+    """Convert dictionary keys to integers.
+
+    This is a helper function typically used as an `object_pairs_hook` for `json.loads`
+    to convert string keys from a JSON object into integers.
+
+    Args:
+        x: A list of (key, value) pairs from a JSON object.
+
+    Returns:
+        dict: A dictionary with integer keys.
+    """
     return {int(k): v for k, v in x}
 
 
 def save_dict(fileName: Path, Data: dict) -> None:
+    """Save a dictionary to a file with specific formatting.
+
+    Each key-value pair is written on a new line, formatted as a float and a number in
+    scientific notation.
+
+    Args:
+        fileName (Path): The path to the output file.
+        Data (dict): The dictionary to save.
+    """
     with open(fileName, 'w') as f:
         for key, value in Data.items():
             f.write('%12.5f %12.5e\n' % (key, value))
@@ -201,12 +256,30 @@ def save_dict(fileName: Path, Data: dict) -> None:
 
 
 def save_dict_orcaS(fileName: Path, Data: dict) -> None:
+    """Save a dictionary to a file in orcaS format.
+
+    Each key-value pair is written on a new line, formatted as an integer key and a float value.
+
+    Args:
+        fileName (Path): The path to the output file.
+        Data (dict): The dictionary to save.
+    """
     with open(fileName, 'w') as f:
         for key, value in Data.items():
             f.write('%10d %12.5f \n' % (key, value))
 
 
 def load_dict_orcaS(fileName: Path) -> dict:
+    """Load a dictionary from a file in orcaS format.
+
+    Each line is expected to contain an integer key and a float value, separated by whitespace.
+
+    Args:
+        fileName (Path): The path to the input file.
+
+    Returns:
+        dict: A dictionary with integer keys and float values.
+    """
     IsExist(fileName)
     lines: list = open(fileName, "r").readlines()
     Data: dict = {}
@@ -324,6 +397,12 @@ def program_IsExist(ProgramName: str) -> bool:
 
 
 def save_figure(fileName="nmrplot") -> None:
+    """Save the current matplotlib figure to PDF and SVG formats.
+
+    Args:
+        fileName (str, optional): The base name for the output files.
+            Defaults to "nmrplot". The extensions ".pdf" and ".svg" will be appended.
+    """
     import matplotlib.pyplot as plt
     plt.savefig(fileName + ".pdf", dpi=300)
     plt.savefig(fileName + ".svg")

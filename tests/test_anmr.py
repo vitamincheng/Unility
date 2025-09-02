@@ -27,21 +27,21 @@ x: dict = {"auto": True, "dir": Dir, "bobyqa": False, "mf": 500,
 def test_anmr_from_raw_data() -> None:
     x['average'] = False
     x['json'] = None
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 77875)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 77868)
     # assert filecmp.cmp(Dir/Path("peaks.json"), compare)
 
 
 def test_anmr_average_on_json_off() -> None:
     x['average'] = True
     x['json'] = None
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 77875)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 77868)
     # delete_all_files("tests/data/34.Ergocalciferol/04.Hydrogen/peaks.json")   # Normal is necessary to remove the peaks.json but next method need this file
 
 
 def test_anmr_average_on_json_on() -> None:
     x['average'] = True
     x['json'] = [-1]
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 77875)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 77868)
     delete_all_files(Dir / Path("peaks.json"), Dir/Path(outFile))
 
 
