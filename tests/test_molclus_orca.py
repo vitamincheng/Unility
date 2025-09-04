@@ -83,10 +83,12 @@ def test_orca_opt_default():
     import subprocess
     subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
 
-# For all test_fuction
+# For all marker_fuction or not marker_function
+# -v verbose;  -s --capture=no; -m MARKEXPR
 #   pytest -v -s tests -m "not slow"
 #   pytest -v -s tests -m slow
 #
-# For slow test_function
+# For specific test function
+# --pdb Start the interactive Python debugger on errors
 #   pytest -v -s --pdb tests/test_molclus_orca.py::test_orca_opt
 #   pytest -v -s --pdb tests/test_molclus_orca.py::test_orca_opt_default

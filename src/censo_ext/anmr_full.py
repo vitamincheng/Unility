@@ -601,15 +601,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 if __name__ == "__main__":
 
     # main()
-    import argparse
-    Dir = "tests/data/34.Ergocalciferol/04.Hydrogen"
-    outFile = "output.dat"
-    compare = "tests/compare/anmr_peaks.json"
+    # import argparse
+    # Dir = "tests/data/34.Ergocalciferol/04.Hydrogen"
+    # outFile = "output.dat"
+    # compare = "tests/compare/anmr_peaks.json"
 
-    x: dict = {"auto": True, "dir": Dir, "bobyqa": False, "mf": 500,
-               "lw": None, "thr": None, "thrab": 0.025, "tb": 4, "mss": 9,
-               "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
+    # x: dict = {"auto": True, "dir": Dir, "bobyqa": False, "mf": 500,
+    #           "lw": None, "thr": None, "thrab": 0.025, "tb": 4, "mss": 9,
+    #           "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
 
-    x['average'] = False
-    x['json'] = None
-    main(argparse.Namespace(**x))
+    # x['average'] = False
+    # x['json'] = None
+    # main(argparse.Namespace(**x))
+
+    import censo_ext.Tools.qm as qm
+    from icecream import ic
+    ic(qm.qm_multiplet(1000, nIntergals=1, J=[(100, 1)]))
+    ic(qm.qm_multiplet(1000, nIntergals=1, J=[(-100, 1)]))

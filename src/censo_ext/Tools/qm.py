@@ -351,7 +351,6 @@ def qm_multiplet(v: float | int, nIntergals, J: list[tuple[float, int]]) -> list
     """
     from nmrsim import Multiplet
     td = Multiplet(v, nIntergals, J)
-    # ic(td.peaklist())
     return td.peaklist()
 
 
