@@ -144,8 +144,7 @@ def idx_3atom_opt(args) -> tuple[int, int, int]:
             idx_minTotalDev: int = idx
 
     print("")
-    print(" 3 atom idx of lowest total factor : "
-          f"{idx1_Combine3atom[idx_minTotalDev]}")
+    print(f" 3 atom idx of lowest total factor {idx1_Combine3atom[idx_minTotalDev]}")  # nopep8
     print("")
     return (idx1_Combine3atom[idx_minTotalDev])
 

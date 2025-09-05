@@ -121,9 +121,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     infile: GeometryXYZs = GeometryXYZs(args.file)
     infile.method_read_xyz()
 
-    print(" Inputted geometry file: "+args.file)
+    print(f" Inputted geometry file: {args.file}")
     print(" Loading basic information from the inputted geometry file ...")
-    print(f" There are totally       {str(len(infile))} geometries in the inputted geometry file\n")  # nopep8
+    print(f" There are totally       {len(infile)} geometries in the inputted geometry file\n")  # nopep8
     print(f" Setting method :  {args.method}")
     cmd_solvent = "vacuum"
     if args.alpb:
@@ -141,8 +141,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # idx_str : str = f"{[idx]:05d}"
         infile.set_filename(Path(single_traj_Name))
         infile.method_save_xyz([idx])
-        print(f"                          *** Configuration         {str(idx)}  ****")  # nopep8
-        print(f" Loading geometry	 {str(idx)}  from the inputted geometry file")      # nopep8
+        print(f"                          *** Configuration         {idx}  ****")  # nopep8
+        print(f" Loading geometry	 {idx}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
 
         optimizer = Berny(geomlib.readfile(single_traj_Name))

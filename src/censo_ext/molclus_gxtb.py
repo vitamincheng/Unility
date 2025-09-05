@@ -128,7 +128,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(f" Inputted geometry file: {args.file}")
     xtb_cmd += " " + single_traj_Name
     print(" Loading basic information from the inputted geometry file ...")
-    print(f" There are totally       {str(len(infile))} geometries in the inputted geometry file\n")  # nopep8
+    print(f" There are totally       {len(infile)} geometries in the inputted geometry file\n")  # nopep8
     print(f" Setting method :  {args.method}")
     cmd_solvent = "vacuum"
     if args.alpb:
@@ -143,7 +143,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.gbsa:
         xtb_cmd += f" --gbsa {args.gbsa}"
 
-    xtb_cmd += f" --chrg {str(args.chrg)}  --uhf {str(args.uhf)}"
+    xtb_cmd += f" --chrg {args.chrg}  --uhf {args.uhf}"
 
     print(" All conformer in the inputted geometry file will be processed")
     print(" Cleaning old input and temporary files ...")
@@ -162,8 +162,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # idx_str : str = f"{[idx]:05d}"
         infile.set_filename(Path(single_traj_Name))
         infile.method_save_xyz([idx])
-        print(f"                          *** Configuration         {str(idx)}  ****")  # nopep8
-        print(f" Loading geometry	 {str(idx)}  from the inputted geometry file")      # nopep8
+        print(f"                          *** Configuration         {idx}  ****")  # nopep8
+        print(f" Loading geometry	 {idx}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
         subprocess.call(xtb_cmd, shell=True)
         print(f" Running:  {xtb_cmd}")

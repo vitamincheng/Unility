@@ -58,7 +58,7 @@ def Factor_xyzCompare(args) -> None:
     import re
     merge_FileName: Path = Path("temp_save.xyz")
     subprocess.call(
-        "cat "+str(args.file[0])+" "+str(args.file[1]) + "> " + str(merge_FileName), shell=True)
+        f"cat {args.file[0]} {args.file[1]} > {merge_FileName}", shell=True)
     xyzfile_P: GeometryXYZs = GeometryXYZs(args.file[0])
     xyzfile_P.method_read_xyz()
     xyzfile_Q: GeometryXYZs = GeometryXYZs(args.file[1])
@@ -97,8 +97,8 @@ def Factor_xyzCompare(args) -> None:
     shutil.copyfile(workDir / fileName_Dir / FileName, New_cwd / FileName)
 
     os.chdir(New_cwd)
-    subprocess.call(prog + " " + str(FileName) + " --cregen " + str(FileName) +
-                    " --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > " + str(Compare_Res), shell=True)
+    subprocess.call(
+        f"{prog} {FileName} --cregen {FileName} --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > {Compare_Res}", shell=True)
     os.chdir(workDir)
     shutil.copyfile(New_cwd / Compare_Res, workDir / Compare_Res)
 
@@ -106,7 +106,7 @@ def Factor_xyzCompare(args) -> None:
     from censo_ext.Tools.utility import IsExist
     IsExist(Path_weight_P)
 
-    print(" Reading the ", Path_weight_P, " file ")
+    print(f" Reading the {Path_weight_P} file ")
 
     lines: list[str] = open(Path_weight_P, "r").readlines()
     start_idx0: int = 0
@@ -177,8 +177,8 @@ def Factor_xyzCompare(args) -> None:
     print("")
     print(" ========== Finished ==========")
     print("")
-    subprocess.call("rm -rf "+str(Dir_str)+" " + str(Compare_Res) +
-                    " " + str(merge_FileName), shell=True)
+    subprocess.call(
+        f"rm -rf {Dir_str} {Compare_Res} {merge_FileName}", shell=True)
     # subprocess.call("rm -rf tmp_save.xyz weight_P ", shell=True)
     print(" Removed the temp file ")
 

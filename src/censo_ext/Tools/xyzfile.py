@@ -320,7 +320,7 @@ class Geometry():
             else:
                 self.comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
         else:
-            print("Something wrong in your xyz file !!!")
+            print(" Something wrong in your xyz file !!!")
             print(comments)
             print("  Exit and Close the program !!!")
             ic()
@@ -426,7 +426,7 @@ class GeometryXYZs():
                     GeoXYZs.Sts[idx] + GeoXYZs.Sts[-1])
             return res
         else:
-            print("Too much xyzs structures in your xyz file")
+            print(" Too much xyzs structures in your xyz file")
             ic()
             raise ValueError("Too much xyzs structures in your xyz file")
 

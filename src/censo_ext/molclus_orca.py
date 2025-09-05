@@ -120,8 +120,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     print(f" Inputted geometry file: {args.file}")
     print(" Loading basic information from the inputted geometry file ...")
-    print(f" There are totally       {str(len(inGeoXYZs))} "
-          "geometries in the inputted geometry file")
+    print(
+        f" There are totally       {len(inGeoXYZs)} geometries in the inputted geometry file")
     if template_Exist:
         print(f" Setting file : {args.template}")
     else:
@@ -141,8 +141,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         inGeoXYZs.method_save_xyz([idx1])
 
         print(f"                          "
-              f"*** Configuration        {str(idx1)} ****")
-        print(f" Loading geometry	{str(idx1)} from the inputted geometry file")
+              f"*** Configuration        {idx1} ****")
+        print(f" Loading geometry	{idx1} from the inputted geometry file")
         print(" Generating  file...")
 
         # Run orca

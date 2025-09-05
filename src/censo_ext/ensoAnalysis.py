@@ -151,8 +151,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     backupfileExists: bool = IsExist_return_bool(backupfile)
 
     print("")
-    print(" Reading the input file  : ", args.file)
-    print(" Reading the backup file : ", backupfile)
+    print(f" Reading the input file  : {args.file}")
+    print(f" Reading the backup file : {backupfile}")
 
     if fileExists:
         if backupfileExists:
@@ -160,8 +160,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             pass
         else:
 
-            print(" The backup file is not exist. ", backupfile)
-            print(" ONOFF args.new : ", args.new)
+            print(f" The backup file is not exist. {backupfile}")
+            print(f" ONOFF args.new : {args.new}")
             if args.new:
                 print(
                     " Copy your input file to backup file for original Energy for reference")
@@ -178,15 +178,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     "  Input file is exists but backup file is not exist. ")
 
     else:
-        print("  the file is not exist.", args.file)
+        print(f"  the file is not exist. {args.file}")
         print("  Exit and Close the program !!!")
         ic()
         raise FileNotFoundError(
             str(args.file) + " was not found or is a directory")
 
     if (not fileExists) or (not backupfileExists):
-        print("    " + args.file + " or " +
-              str(backupfile) + " , the file is not exist ...")
+        print(f"    {args.file} or {backupfile} , the file is not exist ...")
         print("  Exit and Close the program !!!")
         ic()
         exit(0)
@@ -215,15 +214,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(" ON/OFF Switch : OFF")
     else:
         print(" ON/OFF Switch : ON")
-        print(" Assign to # of CONFS            : " + str(args.switch))
+        print(f" Assign to # of CONFS            : {args.switch}")
         anmr_enso['ONOFF'].fill(0)
         for i in range(len(args.switch)):
             anmr_enso['ONOFF'][args.switch[i]-1] = 1
-    print(" ON/OFF CONFS                    : " + str(anmr_enso['ONOFF']))
+    print(f" ON/OFF CONFS                    : {anmr_enso['ONOFF']}")
 
     if args.temp:
         print(" ON/OFF TEMP                     : ON ")
-        print(" TEMP is                         : " + str(args.temp))
+        print(f" TEMP is                         : {args.temp}")
         TEMP = args.temp  # temperature K
     else:
         print(" ON/OFF TEMP                     : OFF ")

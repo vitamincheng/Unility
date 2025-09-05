@@ -73,7 +73,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
         else:
             print(f"{idx:>5d} {x:>10.5f}")
 
-    print("\n Major Factor List: ", idx1_MajorFactor)
+    print(f"\n Major Factor List: {idx1_MajorFactor}")
     print(" ========== Finished ==========")
     return idx1_MinorFactor, idx_dev
 

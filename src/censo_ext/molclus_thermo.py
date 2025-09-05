@@ -114,11 +114,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     from censo_ext.Tools.utility import program_IsExist
     program_IsExist("xtb")
 
-    print(" Inputted geometry file: "+args.file)
-    xtb_cmd = xtb_cmd + " " + single_xyz_name
+    print(f" Inputted geometry file: {args.file}")
+    xtb_cmd = f"{xtb_cmd} {single_xyz_name}"
 
     print(" Loading basic information from the inputted geometry file ...")
-    print(f" There are totally        {str(len(infile))} geometries in the inputted geometry file\n")  # nopep8
+    print(f" There are totally        {len(infile)} geometries in the inputted geometry file\n")  # nopep8
     print(f" Setting method :  {args.method}")
     cmd_solvent = "vacuum"
     if args.alpb:
@@ -126,15 +126,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     elif args.gbsa:
         cmd_solvent: str = args.gbsa
 
-    print(" Setting solvent : " + cmd_solvent)
+    print(f" Setting solvent : {cmd_solvent}")
     print(" Loading setting data ...")
-    xtb_cmd = xtb_cmd + " --" + args.method + " --bhess vtight"
+    xtb_cmd = f"{xtb_cmd} --{args.method} --bhess vtight"
     if args.alpb:
-        xtb_cmd = xtb_cmd + " --alpb " + args.alpb
+        xtb_cmd = f"{xtb_cmd} --alpb {args.alpb}"
     if args.gbsa:
-        xtb_cmd = xtb_cmd + " --gbsa " + args.gbsa
+        xtb_cmd = f"{xtb_cmd} --gbsa {args.gbsa}"
 
-    xtb_cmd = xtb_cmd + " --chrg " + str(args.chrg) + " --uhf " + str(args.uhf)  # nopep8
+    xtb_cmd = f"{xtb_cmd} --chrg {args.chrg} --uhf {args.uhf}"  # nopep8
 
     print(" All conformer in the inputted geometry file will be processed")
     print(" Cleaning old input and temporary files ...")
@@ -160,8 +160,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     for idx in range(1, len(infile)+1, 1):
         infile.set_filename(Path(single_xyz_name))
         infile.method_save_xyz([idx])
-        print(f"                          *** Configuration         {str(idx)}  ****")  # nopep8
-        print(f" Loading geometry	 {str(idx)}  from the inputted geometry file")      # nopep8
+        print(f"                          *** Configuration         {idx}  ****")  # nopep8
+        print(f" Loading geometry	 {idx}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
         subprocess.call(xtb_cmd, shell=True)
         print(f" Running:  {xtb_cmd}")

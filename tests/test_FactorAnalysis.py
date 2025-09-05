@@ -55,4 +55,4 @@ def test_FactorAnalysis_F_bond_broken_incl_H() -> None:
 
     with pytest.raises(ValueError) as e:
         FactorAnalysis.main(argparse.Namespace(**x))
-    assert str(e.value) == "Only support under ignore Hydrogen condition "
+    assert str(e.value) == " Only support under ignore Hydrogen condition "

@@ -69,9 +69,9 @@ class CensoDat():
             Res: Self = copy.deepcopy(self)
             Res.__dat[:, 1] = np.subtract(self.__dat[:, 1], other.__dat[:, 1])
         else:
-            print("two dat file is not the same scale")
+            print(" Two dat file is not the same scale")
             ic()
-            raise ValueError("two dat file is not the same scale")
+            raise ValueError(" Two dat file is not the same scale")
         return Res
 
     def __repr__(self) -> str:

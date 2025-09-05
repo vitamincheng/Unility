@@ -99,7 +99,7 @@ class Topo():
         Res = Res + addition
         Res.sort()
         if args.print:
-            print(" Terminal_Atoms_int (include H) : ", Res)
+            print(f" Terminal_Atoms_int (include H) : {Res}")
         return Res
 
     def method_broken_bond(self, args: argparse.Namespace) -> list[int]:
@@ -140,7 +140,7 @@ class Topo():
             if Is_Terminal_Atoms:
                 Complete_Atoms = True
         if args.print:
-            print(" Terminal_Atoms (not H) : ", Terminal_Atoms)
+            print(f" Terminal_Atoms (not H) : {Terminal_Atoms}")
         return Terminal_Atoms
 
     def method_bonding(self, args: argparse.Namespace) -> list[int]:
@@ -163,7 +163,7 @@ class Topo():
             i for i in Neighbors_Atoms if i not in idx1_Hydrogen_atoms]
         Neighbors_Atoms.sort()
         if args.print:
-            print(" Bonding : ", idx_p, " @ ", Neighbors_Atoms)
+            print(f" Bonding : {idx_p} @ Neighbors_Atoms")
         return Neighbors_Atoms
 
     def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray], list[list[int]], list[list[np.int64]]]:

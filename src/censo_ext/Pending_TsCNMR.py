@@ -114,14 +114,14 @@ def main():
     from os.path import exists
     file_exists = exists(args.file)
     if not file_exists:
-        print("    " + args.file + " , the file is not exist ...")
+        print(f"    {args.file} , the file is not exist ...")
         print("  Exit and Close the program !!!")
         ic()
         exit(0)
 
     if not args.print:
         print("")
-        print(" Reading the " + args.file + " file ")
+        print(f" Reading the {args.file} file ")
 
     import censo_ext.Tools.anmrfile as anmrfile
     anmrSJ = anmrfile.Anmr()
@@ -155,7 +155,7 @@ def main():
 
     if args.out:
         np.savetxt(args.out, outData, fmt=' %2.6f %10.6e')
-        print(" Saved to the " + args.out + " file")
+        print(f" Saved to the {args.out} file")
 
     if args.print:
         print(outData)

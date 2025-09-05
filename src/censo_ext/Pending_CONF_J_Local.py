@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
     if args.recover:
         path = os.getcwd()
-        print("Files and directories in ", path, " : ")
+        print(f"Files and directories in {path} : ")
         dirNames: list[str] = next(os.walk(path))[1]
 
         idx: int = 0
@@ -85,11 +85,11 @@ if __name__ == "__main__":
                 del dirNames[idx]
             else:
                 idx = idx+1
-        print(" Directories = ", dirNames)
+        print(f" Directories = {dirNames}")
 
         for dirName in (dirNames):
-            PathBackup: str = dirName + "/NMR/orcaJ.out.backup"
-            orcaJPath: str = dirName + "/NMR/orcaJ.out"
+            PathBackup: str = f"{dirName}/NMR/orcaJ.out.backup"
+            orcaJPath: str = f"{dirName}/NMR/orcaJ.out"
 
             if os.path.exists(PathBackup):
                 import shutil
@@ -97,7 +97,7 @@ if __name__ == "__main__":
                 os.remove(PathBackup)
             else:
                 print(" Something wrong in your orcaJ.out folder")
-                print("", PathBackup)
+                print(f" {PathBackup}")
                 print("  Exit and Close the program !!!")
                 ic()
                 exit(1)
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     else:
         path: str = os.getcwd()
-        print("Files and directories in ", path, " : ")
+        print(f"Files and directories in {path} : ")
         dirNames: list[str] = next(os.walk(path))[1]
 
         idx = 0
@@ -118,7 +118,7 @@ if __name__ == "__main__":
                 del dirNames[idx]
             else:
                 idx = idx+1
-        print(" Directories = ", dirNames)
+        print(f" Directories = {dirNames}")
 
         from os.path import exists
         file: str = "coord"
@@ -145,8 +145,8 @@ if __name__ == "__main__":
                 idx_Atom_Eqv[idx][idy] = (np_idx_h_lines + 1).tolist().index(y)
 
         for dirName in (dirNames):
-            fileBackup: Path = Path(dirName + "/NMR/orcaJ.out.backup")
-            orcaJfile: Path = Path(dirName + "/NMR/orcaJ.out")
+            fileBackup: Path = Path(f"{dirName}/NMR/orcaJ.out.backup")
+            orcaJfile: Path = Path(f"{dirName}/NMR/orcaJ.out")
             JCoup: npt.NDArray[np.float64]
 
             if os.path.exists(fileBackup):
@@ -180,4 +180,4 @@ if __name__ == "__main__":
                         outfile.write(
                             f" Total            0.000            0.000            0.000  iso= {str(JCoup[i][j]):.5f}\n")
 
-            print(" Directory of saved file: ", dirName + '/NMR/orcaJ.out')
+            print(f" Directory of saved file: {dirName}/NMR/orcaJ.out")

@@ -598,7 +598,7 @@ class Anmr():
         """
 
         Dir: Path = self.__Directory
-        print("Files and directories in ", Dir, " : ")
+        print(f"Files and directories in {Dir} : ")
 
         dirNames: list[str] = next(os.walk(Dir))[1]
         np.set_printoptions(formatter={'float': '{:12.5f}'.format})
@@ -609,7 +609,7 @@ class Anmr():
                 del dirNames[idx]
             else:
                 idx += 1
-        print("Directories = ", dirNames)
+        print(f"Directories = {dirNames}")
         del idx
 
         for idx0 in range(len(dirNames)):
@@ -622,9 +622,9 @@ class Anmr():
                 iter: OrcaSJ = OrcaSJ()
                 iter.CONFSerialNums = int(dirNames[idx0].replace('CONF', ''))
                 if not iter.method_read_orcaS(file=file_orcaS):
-                    print("Something wrong in your orcaS.out")
+                    print(" Something wrong in your orcaS.out")
                 if not iter.method_read_orcaJ(file=file_orcaJ):
-                    print("Something wrong in your orcaJ.out")
+                    print(" Something wrong in your orcaJ.out")
                 self.orcaSJ.append(iter)
 
     def get_avg_orcaSJ_Exist(self) -> bool:
@@ -1058,9 +1058,9 @@ class Anmr():
         """
 
         if len(in_np.dtype) != 8:  # type:ignore
-            print("something wrong in your anmr_enso file")
+            print(" Something wrong in your anmr_enso file")
             ic()
-            raise ValueError("something wrong in your anmr_enso file")
+            raise ValueError(" Something wrong in your anmr_enso file")
 
     def method_read_enso(self, file: Path = Path("anmr_enso")) -> None:
         """Read ENSO data from file.
@@ -1101,7 +1101,7 @@ class Anmr():
 
         self.enso = np.genfromtxt(file, names=True)
         if len(self.enso.dtype) != 8:                                       # type:ignore
-            print("something wrong in your anmr_enso file")
+            print(" Something wrong in your anmr_enso file")
             ic()
             raise FileNotFoundError("something wrong in your anmr_enso file")
 
@@ -1210,7 +1210,7 @@ class OrcaSJ():
             >>> print(reader.JCoups)
         """
 
-        print(" method_read_orcaJ", file)
+        print(f" method_read_orcaJ {file}")
         IsExist(file)
 
         start_idx: int
@@ -1308,7 +1308,7 @@ class OrcaSJ():
             - self.Anisotropy: Dictionary mapping atom indices to anisotropy values
         """
 
-        print(" method_read_orcaS", file)
+        print(f" method_read_orcaS {file}")
         IsExist(file)
 
         start_idx: int
@@ -1397,7 +1397,7 @@ class OrcaSJ():
                 print(f'{idx:>5d}', f'{Atom:>8s}', end="")
                 print(f'{self.SParams[idx]:>15.3f}')
         else:
-            print("your orcaJ and orcaS is not fit each other")
+            print(" your orcaJ and orcaS is not fit each other")
             print("  Exit and Close the program !!!")
             ic()
             raise ValueError("your orcaJ and orcaS is not fit each other")

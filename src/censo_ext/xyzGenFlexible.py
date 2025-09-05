@@ -5,7 +5,7 @@ import sys
 # from graph import Graph
 import numpy as np
 import numpy.typing as npt
-from icecream import ic
+# from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 from pathlib import Path

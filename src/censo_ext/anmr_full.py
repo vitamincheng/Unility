@@ -447,8 +447,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     mat_filter_multi[idx][y] = 1
 
             print(" ===== Processing =====")
-            print(" threshold of JCoupling  : ", f'{args.thr:>3.5f}')
-            print(" threshold of AB quartet : ", f'{args.thrab:>3.5f}')
+            print(f" threshold of JCoupling  : {args.thr:>3.5f}")
+            print(f" threshold of AB quartet : {args.thrab:>3.5f}")
             print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
 
             max_len_AB: int = 0

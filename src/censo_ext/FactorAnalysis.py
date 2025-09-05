@@ -174,8 +174,8 @@ def FactorFilter(args) -> None:
             args.thr = int(nConfs / 10)
 
     print("")
-    print(" Total conformers     : ", nConfs)
-    print(" Threshold conformers : ", args.thr)
+    print(f" Total conformers     : {nConfs}")
+    print(f" Threshold conformers : {args.thr}")
     print("")
 
     idx1_separate: int = 1
@@ -184,14 +184,14 @@ def FactorFilter(args) -> None:
     minor_idx: list[int] = []
 
     while (nConfs > args.thr):
-        print(" ========== Processing ", idx1_separate, " ==========")
+        print(f" ========== Processing {idx1_separate} ==========")
         coord_STD: npt.NDArray[np.float64] = cal_RMSD_coord(
             args, xyzfile, idx1_xyz).T
         Column_STD: npt.NDArray[np.float64] = np.std(coord_STD, axis=0)
         Average_STD: np.float64 = np.float64(np.average(Column_STD))
-        print(" Average of STD       : ", f"{Average_STD:10.5f}")
-        print(" Factor of STD ranges : ", f"{args.factor:10.5f}")
-        print(" Limits of STD        : ", f"{Average_STD*args.factor: 10.5f}", "\n")  # nopep8
+        print(f" Average of STD       : {Average_STD:10.5f}")
+        print(f" Factor of STD ranges : {args.factor:10.5f}")
+        print(f" Limits of STD        : {Average_STD*args.factor: 10.5f} \n")  # nopep8
 
         counter_major, counter_minor = 0, 0
         major_idx, minor_idx = [], []
@@ -227,9 +227,9 @@ def FactorFilter(args) -> None:
 
     nMinor: list[int] = []
     for idx, x in enumerate(idx1_minor):
-        xyzfile.set_filename(Dir_Res / Path(f"minor{str(idx+1)}.xyz"))
+        xyzfile.set_filename(Dir_Res / Path(f"minor{idx+1}.xyz"))
         xyzfile.method_save_xyz(x)
-        print(f" minor{str(idx+1)}.xyz  : {x}")
+        print(f" minor{idx+1}.xyz  : {x}")
         nMinor.append(len(x))
     np_nMinor: npt.NDArray[np.float64] = np.array(nMinor)
 
@@ -238,7 +238,7 @@ def FactorFilter(args) -> None:
     xyzfile.method_save_xyz(major_idx)
     print(f" {residue_file} : {major_idx}")
 
-    print(" Coefficient of variation : ", np_nMinor.std()/np_nMinor.mean())
+    print(f" Coefficient of variation : {np_nMinor.std()/np_nMinor.mean()}")
 
     import subprocess
     subprocess.call("rm -rf *_tmp", shell=True)
