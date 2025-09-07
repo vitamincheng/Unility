@@ -164,9 +164,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             print(f" ONOFF args.new : {args.new}")
             if args.new:
                 print(
-                    " Copy your input file to backup file for original Energy for reference")
+                    f" Copy {args.file} to {backupfile} for original Energy and for reference")
                 import shutil
                 shutil.copyfile(args.file, args.file + ".backup")
+                print("  Run this program again ")
+                print("  Exit and Close the program !!!")
+                exit(0)
 
             else:
                 print("  Something is Wrong !!!")
@@ -174,8 +177,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print(
                     "  IF you want to Create a New project, please Add -n or --new in arugment.")
                 print("  Exit and Close the program !!!")
-                raise ValueError(
-                    "  Input file is exists but backup file is not exist. ")
+                exit(0)
 
     else:
         print(f"  the file is not exist. {args.file}")

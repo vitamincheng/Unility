@@ -16,11 +16,12 @@ def test_ensoAnalysis_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
-def test_ensoAnalysis_Hydrogen_miss():
+def test_ensoAnalysis_enso_Backup_File_miss():
     x: dict = {"file": file_anmr, "new": None}
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(SystemExit) as e:
         ensoAnalysis.main(argparse.Namespace(**x))
-    assert str(e.value) == "  Input file is exists but backup file is not exist. "
+    assert e.type is SystemExit
+    assert e.value.code == 0  # for Normal Exit
 
 
 def test_ensoAnalysis_Hydrogen_miss_file():
