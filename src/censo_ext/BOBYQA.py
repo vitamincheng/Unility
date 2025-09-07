@@ -17,6 +17,7 @@ ________________________________________________________________________________
 | Dir      : -d the directory [default .]
 | Ref      : -r the actual reference file [default 1r.dat]
 | Limit    : -l limit border(ppm) [defalut 0.20]
+| Prog     : -p --prog Use external anmr execute file [default False]
 | Package  : Tools
 | Module   : ??.py
 |______________________________________________________________________________
@@ -68,7 +69,7 @@ def cml(descr) -> argparse.Namespace:
         "--prog",
         dest="prog",
         action="store_true",
-        help="Use external anmr execute file",
+        help="Use external anmr execute file [default False]",
     )
 
     args: argparse.Namespace = parser.parse_args()

@@ -120,7 +120,7 @@ def cml(descr) -> argparse.Namespace:
         "--no-Hydrogen",
         dest="ignore_Hydrogen",
         action="store_true",
-        help="Ignore Hydrogen in calculated standard deviation [default: False]",
+        help="Ignore Hydrogen in calculated standard deviation [default False]",
     )
 
     index_group = parser.add_mutually_exclusive_group()

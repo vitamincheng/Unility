@@ -16,8 +16,8 @@ ________________________________________________________________________________
 | Dir      : -D the directory of input files(CONF) [default .]
 | mf       : -mf magnetic frequency of scan nmr [default 500.0]
 | lw       : -lw line width of scan nmr [1.0 for H, 20 for C]
-| auto     : -auto --auto automated to adjust the threshold of J and AB quartet   
-| average  : -av load the average folder data to plot spectra  
+| auto     : -auto --auto automated to adjust the threshold of J and AB quartet [default False]  
+| average  : -av load the average folder data to plot spectra [default False] 
 | thr      : -t -thr threshold of coupling constant (J) [default 0.30]
 | thrtab   : -tab -thrab threshold of AB quartet (J/d chemical shift) [default 0.025]
 | tbpent   : -tb threshold of AB quartet bond pententration distance [default 4]
@@ -175,7 +175,7 @@ def cml(descr) -> argparse.Namespace:
         "--average",
         dest="average",
         action="store_true",
-        help="Load the averager foler data to plot spectra when use auto argument",
+        help="Load the averager foler data to plot spectra when use auto argument [default False]",
     )
 
     parser.add_argument(
@@ -183,7 +183,7 @@ def cml(descr) -> argparse.Namespace:
         "--show",
         dest="show",
         action="store_true",
-        help="Show the spectra",
+        help="Show the spectra [default False]",
     )
 
     parser.add_argument(
@@ -191,7 +191,7 @@ def cml(descr) -> argparse.Namespace:
         "--bobyqa",
         dest="bobyqa",
         action="store_true",
-        help="BOBYQA mode (only use numpy)",
+        help="BOBYQA mode (only use numpy) [default False]",
     )
 
     parser.add_argument(

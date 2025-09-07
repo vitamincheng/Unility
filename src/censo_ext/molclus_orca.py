@@ -16,7 +16,7 @@ ________________________________________________________________________________
 | Input    : -i input file [default traj.xyz]
 | Output   : -o output file [default isomers.xyz]
 | Template : -t orca template file [default template.inp]
-| Remove   : -r only reserve .gbw .out .xyz three files, others will be removed
+| Reserve  : -r Reserve all files, otherwise will only reserve .gbw .out .xyz three files.
 | Packages : Tools
 | Module   : xyzfile.py / unility.py
 |______________________________________________________________________________
@@ -64,10 +64,10 @@ def cml(descr) -> argparse.Namespace:
 
     parser.add_argument(
         "-r",
-        "--remove",
-        dest="remove",
+        "--reserve",
+        dest="reserve",
         action="store_true",
-        help="Only reserve .gbw .out .xyz files, others will be reomved [default True]",
+        help="Reserve all files, otherwise will Only reserve .gbw .out .xyz files [default False]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -192,11 +192,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         inGeoXYZs.method_save_xyz([])
         print(f" Saved to  {args.out} \n All is done !!!")
 
-    if args.remove:
-        subprocess.call(f"rm -rf {template_Name}.cpcm {template_Name}.densities {template_Name}.engrad "
-                        f"{template_Name}.out {template_Name}_property.txt {template_Name}_trj.xyz {template_Name}.opt", shell=True)
-        subprocess.call(f"rm -rf {template_Name}.cpcm_corr {template_Name}.densitiesinfo "
-                        f"{template_Name}.property.txt {template_Name}.bibtex ", shell=True)
+    if not args.reserve:
+        subprocess.call(
+            f"rm -rf {template_Name}.cpcm {template_Name}.densities {template_Name}.engrad {template_Name}.out {template_Name}_property.txt {template_Name}_trj.xyz {template_Name}.opt", shell=True)
+        subprocess.call(
+            f"rm -rf {template_Name}.cpcm_corr {template_Name}.densitiesinfo {template_Name}.property.txt {template_Name}.bibtex", shell=True)
         delete_all_files(solo_xyz, template_inp)
 
 

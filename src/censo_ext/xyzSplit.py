@@ -19,7 +19,7 @@ ________________________________________________________________________________
 |              2 : Rotation axis atom (360 degrees) 
 | nCut     : -c or cut Number of cut to make 360 degrees around the roation axis 
 | Output   : -o Save xyz file [default output.xyz] 
-| Print    : -p Print output to screen
+| Print    : -p Print output to screen [default False]
 | Packages : Tools 
 | Module   : xyzfile.py / topo.py / unility.py
 |______________________________________________________________________________
@@ -84,7 +84,7 @@ def cml(descr) -> argparse.Namespace:
         "--print",
         dest="print",
         action="store_true",
-        help="Print output to screen",
+        help="Print output to screen [default False]",
     )
 
     args: argparse.Namespace = parser.parse_args()

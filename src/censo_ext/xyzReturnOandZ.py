@@ -75,7 +75,7 @@ def cml(descr) -> argparse.Namespace:
         "--replace",
         dest="replace",
         action="store_true",
-        help="Replace the original input file",
+        help="Replace the original input file [default False]",
     )
 
     parser.add_argument(
@@ -83,7 +83,7 @@ def cml(descr) -> argparse.Namespace:
         "--print",
         dest="print",
         action="store_true",
-        help="Print the final data on stdout (on screen)",
+        help="Print the final data on stdout (on screen) [default False]",
     )
 
     parser.add_argument(

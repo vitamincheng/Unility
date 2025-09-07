@@ -14,7 +14,7 @@ ________________________________________________________________________________
 | Purpose : some JCoup constant is not average in Eqv. atom in anmr program    
 |           So overwrite the orcaJ.out file for average JCoup constant
 | Default : Overwrite orcaJ.out and backup the old data to orcaJ.out.backup           
-| Recover : -r Copy the orcaJ.out.backup to orcaJ.out  
+| Recover : -r Copy the orcaJ.out.backup to orcaJ.out [default False] 
 | Needed  : orcaJ.out in each CONF folder, coord, anmrh.out, anmr_nucinfo   
 | Package : Tools                  
 | Module  : anmrfile.py 
@@ -36,7 +36,7 @@ def cml():
         "--recover",
         dest="recover",
         action="store_true",
-        help="COPY the orcaJ.out.backup to orca.out ",
+        help="COPY the orcaJ.out.backup to orca.out [default False]",
     )
 
     args: argparse.Namespace = parser.parse_args()

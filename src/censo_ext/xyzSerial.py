@@ -56,7 +56,7 @@ def cml(descr) -> argparse.Namespace:
         "--print",
         dest="print",
         action="store_true",
-        help="Print the final data on screen (stdout)",
+        help="Print the final data on screen (stdout) [default False]",
     )
 
     index_group = parser.add_mutually_exclusive_group()
@@ -66,7 +66,7 @@ def cml(descr) -> argparse.Namespace:
         "--keep",
         dest="keep",
         action="store_true",
-        help="To keep the Serial No. in #Clusters",
+        help="To keep the Serial No. in #Clusters [default False]",
     )
 
     index_group.add_argument(
@@ -74,7 +74,7 @@ def cml(descr) -> argparse.Namespace:
         "--new",
         dest="new",
         action="store_true",
-        help="To reorganize the Serial No. from No. 1",
+        help="To reorganize the Serial No. from No. 1 [default False]",
     )
 
     args: argparse.Namespace = parser.parse_args()

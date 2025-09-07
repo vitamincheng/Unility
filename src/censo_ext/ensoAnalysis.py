@@ -49,7 +49,7 @@ def cml(descr) -> argparse.Namespace:
         "--new",
         dest="new",
         action="store_true",
-        help="New file and cpoy input_file to input_file.backup for reference Energy",
+        help="New file and cpoy input_file to input_file.backup for reference Energy [default False]",
     )
     parser.add_argument(
         "-i",
@@ -65,7 +65,7 @@ def cml(descr) -> argparse.Namespace:
         "--weights",
         dest="weights",
         action="store_true",
-        help="Calculated and Saved the percentage of weight of CONFS to original file",
+        help="Calculated and Saved the percentage of weight of CONFS to original file [default False]",
     )
 
     parser.add_argument(
@@ -309,7 +309,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.verbose:
         print(f"     Weight of every CONFS           : {1/avg_nums}")
         print(f"     Eref*weight of every CONFS      : {avg_Gibbs}")
-    Lift_energy: float = np.sum(avg_Gibbs)
+    Lift_energy: float = np.sum(avg_Gibbs).astype(float)
 
     if args.verbose:
         print(f"     Gibbs Free Energy (kcal/mol)    : {Lift_energy: .4f}\n")  # nopep8
@@ -317,9 +317,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Boltzmann of CONFS
     if args.verbose:
         print(" (3) Gibbs Free Energy of ensemble of Boltzmann of CONFS ")
-    boltzmann_enso: npt.NDArray[np.float64] = backup_enso['NEW_BW'] * \
-        anmr_enso['ONOFF']
-    sum_weight: float = np.sum(boltzmann_enso)
+    boltzmann_enso: npt.NDArray[np.float64] = (backup_enso['NEW_BW'] *
+                                               anmr_enso['ONOFF']).astype(np.float64)
+    sum_weight: float = np.sum(boltzmann_enso).astype(float)
     boltzmann_enso = boltzmann_enso/sum_weight
 
     # For Before degeneracy and lift the Gibbs free energy of ensemble
@@ -335,7 +335,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.verbose:
         print(
             f"     Eref*weight of every CONFS      : {Boltzmann_lift_energy}")
-    Lift_boltzmann_energy: float = np.sum(Boltzmann_lift_energy)
+    Lift_boltzmann_energy: float = np.sum(Boltzmann_lift_energy).astype(float)
     if args.verbose:
         print(
             f"     Gibbs Free Energy  kcal/mol)    : {Lift_boltzmann_energy: .4f}")

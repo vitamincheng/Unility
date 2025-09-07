@@ -14,7 +14,7 @@ ________________________________________________________________________________
 | Output   : -o output dat file [default anmrc.dat]    
 | Extra    : --extra xyz file for carbon's height 
 |            (depend on different numbers of C-H and will show in nmrplot.py)  
-| Debug    : -d debug mode and show the detail 
+| Verbose  : -v verbose mode and show the detail 
 | Print    : -p print the final result on screen
 | Packages : Tools
 | Module   : anmrfile.py / ml4nmr.py / ASE library
@@ -64,15 +64,15 @@ def cml(descr):
         "--print",
         dest="print",
         action="store_true",
-        help="Print the final result of calculation on screen",
+        help="Print the final result of calculation on screen [default False]",
     )
 
     parser.add_argument(
-        "-d",
-        "--debug",
-        dest="debug",
+        "-v",
+        "--verbose",
+        dest="berbose",
         action="store_true",
-        help="Debug mode or show the detail of calculation",
+        help="Verbose mode and show the detail of calculation [default False]",
     )
 
     args = parser.parse_args()

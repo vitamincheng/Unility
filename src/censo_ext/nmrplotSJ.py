@@ -147,14 +147,14 @@ def cml(descr):
         "--findpeaks",
         dest="findpeaks",
         action="store_true",
-        help=" [False defaults] if [True] displays ppm.",
+        help="Displays ppm [default False]",
     )
     parser.add_argument(
         "-assign",
         "--assign",
         dest="assign",
         action="store_true",
-        help=" [default False], if [True] show the peaks for assign peaks."
+        help="Show the peaks for assign peaks [default False]"
              "Only for 2 spectras of input file and -orientation 1 -1 argument",
     )
 
