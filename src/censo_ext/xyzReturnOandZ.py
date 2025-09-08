@@ -11,7 +11,6 @@ from pathlib import Path
 
 descr = """
 ________________________________________________________________________________
-|                                          [10.05.2024] vitamin.cheng@gmail.com
 | For Return to origin and lay on the xz plane
 | Usage: xyzReturnOandZ.py <geometry> [options]                  
 | [Options]
@@ -25,8 +24,6 @@ ________________________________________________________________________________
 | Output   : -o Saved xyz file [default output.xyz] 
 | Replace  : -r Replace the input file
 | Print    : -p Print the final data on screen 
-| Packages : Tools  
-| Module   : xyzfile.py / topo.py / factor.py 
 |______________________________________________________________________________
 """
 

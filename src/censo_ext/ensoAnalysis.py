@@ -10,8 +10,7 @@ from pathlib import Path
 
 descr = """
 ________________________________________________________________________________
-|                                          [08.20.2024] vitamin.cheng@gmail.com
-| Usage  : ensoAnalysis.py anmr_enso [Options]
+| Usage  : ensoAnalysis.py <enso file> [Options]
 | [Options]
 | Input  : -i input file [default: anmr_enso]
 |          -n -new copy your inupt file to backup file for new project
@@ -20,8 +19,6 @@ ________________________________________________________________________________
 |          -w For weights(precent) for every CONFS
 |          -v Verbose mode and show the detail of calculation
 | Output : average_enso
-| Package : Tools 
-| Module  : unility.py / Parameter.py
 |______________________________________________________________________________
 """
 

@@ -9,25 +9,22 @@ from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 descr = """
 ________________________________________________________________________________
-|                                          [10.05.2024] vitamin.cheng@gmail.com
-| Usages : FactorAnalysis.py <geometry> [options]
-| 1)
-| Analysis  : -A Find the Factor for atom's index of broken location
-| Input     : -i input file [default traj.xyz]
-| Factor    : -f factor of threshold limit of std [default 0.50]
-| Opt       : -o or --opt To optimize broken-bond location [default False]
-| 2)
-| Filter    : -F Filter the std for atom's index of broken location
-| Input     : -i input file [default traj.xyz]
-| Output    : Under Final_Result folder 
-| Atom      : -bb Location of Bond Broken: 1(included) 2(not included)
-| ignore H  : -nh Ignore hydrogen in calculated standard deviation
-| Add       : --add-idx To add the atom's index
-| Remove    : --remove-idx To remove the atom's index
-| Factor    : -ff factor of threshold limit of std [default 0.20]
-| Threshold : -t the minimum threshold number [default 2]
-| Packages  : Tools 
-| Module    : xyzfile.py calculate_rmsd.py factor.py
+| For Analysis Factor of molecule xyz files 
+| Usages         : FactorAnalysis.py <geometry> [options]
+| [options]
+| 1) Analysis    : -A Find the Factor for atom's index of broken location
+|      Input     : -i input file [default traj.xyz]
+|      Factor    : -f factor of threshold limit of std [default 0.50]
+|      Opt       : -o or --opt To optimize broken-bond location [default False]
+| 2) Filter      : -F Filter the std for atom's index of broken location
+|      Input     : -i input file [default traj.xyz]
+|      Output    : Under Final_Result folder 
+|      Atom      : -bb Location of Bond Broken: 1(included) 2(not included)
+|      ignore H  : -nh Ignore hydrogen in calculated standard deviation [default False]
+|      Add       : --add-idx To add the atom's index
+|      Remove    : --remove-idx To remove the atom's index
+|      Factor    : -ff factor of threshold limit of std [default 0.20]
+|      Threshold : -t the minimum threshold number [default 2]
 |______________________________________________________________________________
 """
 

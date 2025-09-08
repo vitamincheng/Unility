@@ -8,7 +8,6 @@ from pathlib import Path
 
 descr = """
 ________________________________________________________________________________
-|                                          [10.16.2024] vitamin.cheng@gmail.com
 | anmr.py  
 | Usages  : anmr.py [options]
 | [options]
@@ -31,8 +30,6 @@ ________________________________________________________________________________
 | JSON     : -j --json Read the raw data of every single peak [if is -1(All)]
 | ascal    : -ascal chemical shift scaling a if the reference is absent [pending]
 | bscal    : -bcsal chemical shift scaling b if the reference is absent [pending]
-| Package  : Tools / nmrsim Library
-| Module   : anmrfile.py / ml4nmr.py / qm.py
 |______________________________________________________________________________
 """
 

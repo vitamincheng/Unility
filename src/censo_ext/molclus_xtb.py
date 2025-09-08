@@ -5,8 +5,7 @@ import subprocess
 from pathlib import Path
 descr = """
 ________________________________________________________________________________
-|                                          [07.19.2023] vitamin.cheng@gmail.com
-| molclus_xtb.py  
+| For GFN-xTB of molecules of xyz file  
 | Usages   : molclus_xtb.py <geometry> [options]
 | [options]
 | Input    : -i input file [default traj.xyz]
@@ -19,8 +18,6 @@ ________________________________________________________________________________
 |             methanol/CHCl3/DMSO/H2O(water)  
 | Charge   : --chrg to set the charge on the molecule [default 0]
 | UHF      : --uhf to set the number of unpaired electrons [default 1]
-| Packages : Tools 
-| Module   : xyzfile.py / unility.py 
 |______________________________________________________________________________
 """
 

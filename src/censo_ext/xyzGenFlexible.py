@@ -12,15 +12,12 @@ from pathlib import Path
 
 descr = """
 ________________________________________________________________________________
-|                                          [11.08.2024] vitamin.cheng@gmail.com
-| xyzGenFlexible.py
+| For Generation of Flexible xyz molecule 
 | Usages   : xyzGenFlexible.py <geometry> [options]
 | [options]
-| Input    : -i xyz file [default traj.xyz]
+| Input    : -i xyz file (only for 1st xyz file) [default traj.xyz]
 | Output   : -o output xyz file [default output.xyz]
 | Manual   : -m Manually check out the function (xtb/orca/thermo) [defalut False]
-| Packages : Tools  
-| Module   : xyzfile.py / ml4nmr.py / unility.py / anmrfile.py /topo.py 
 |______________________________________________________________________________
 """
 
@@ -156,23 +153,24 @@ def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> 
 
     xyzfile: GeometryXYZs = GeometryXYZs(args.file)
     xyzfile.method_read_xyz()
-    file_In: Path = Path(".in.xyz")
-    file_Out: Path = Path(".out.xyz")
-    xyzfile.set_filename(file_In)
+    inFile: Path = Path(".in.xyz")
+    outFile: Path = Path(".out.xyz")
+    xyzfile.set_filename(inFile)
+    # only read first xyz file
     xyzfile.method_save_xyz([1])
 
     from censo_ext.Tools.utility import move_file
     for key, value in xyzSplitDict.items():
         # ic(key, value)
         import censo_ext.xyzSplit as xyzSplit
-        args_x: dict = {"file": file_In,
-                        "atoms": [key, value], "cuts": 3, "print": False, "out": file_Out}
+        args_x: dict = {"file": inFile,
+                        "atoms": [key, value], "cuts": 3, "print": False, "out": outFile}
         sys.stdout = open(os.devnull, 'w')
         xyzSplit.main(argparse.Namespace(**args_x))
         sys.stdout = sys.__stdout__
-        move_file(file_Out, file_In)
+        move_file(outFile, inFile)
 
-    move_file(file_In, args.out)
+    move_file(inFile, args.out)
     print(f" The data is saved to {args.out} !!!")
 
 

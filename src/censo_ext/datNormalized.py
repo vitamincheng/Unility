@@ -6,9 +6,8 @@ from sys import argv as sysargv
 
 descr = """
 ________________________________________________________________________________
-|                                          [09.16.2024] vitamin.cheng@gmail.com
 | dat_normalized.py  
-| Usages  : dat_normalized.py [options]
+| Usages  : dat_normalized.py <dat file> [options]
 | [options]
 | Input    : -i input file [default anmrh.dat]
 | Output   : -o output file [default output.dat]

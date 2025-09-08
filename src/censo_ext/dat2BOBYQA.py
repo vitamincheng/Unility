@@ -8,17 +8,14 @@ from pathlib import Path
 
 descr = """
 ________________________________________________________________________________
-|                                          [09.16.2024] vitamin.cheng@gmail.com
 | dat2BOBYQA.py  
-| Usages  : dat2BOBYQA.py [options]
+| Usages  : dat2BOBYQA.py <dat file> [options]
 | [options]
 | Input    : -i input file [default anmr.dat]
 | Dir      : -D Directory [default .]
 | Start    : -s --start start point in spectra [default -5]
 | End      : -e --end end point in spectra [default 15]
 | dpi      : --dpi 100 for H 5 for C [defalt 100]
-| Package  : Tools 
-| Module   : anmrfile.py / unility.py
 | If your spectra is below 50 ppm and args.end is below 50 ppm, it will 
 | automatically set the parameter to start=-20ppm end=250ppm and dpi=500
 |______________________________________________________________________________

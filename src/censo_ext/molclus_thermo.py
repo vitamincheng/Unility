@@ -7,8 +7,7 @@ from pathlib import Path
 
 descr = """
 ________________________________________________________________________________
-|                                          [11.07.2024] vitamin.cheng@gmail.com
-| molclus_thermo.py  
+| For thermo calculation by using GFN-xTB method   
 | Usages   : molclus_thermo.py <geometry> [options]
 | [options]
 | Input    : -i input file [default traj.xyz]
@@ -19,8 +18,6 @@ ________________________________________________________________________________
 |             methanol/CHCl3/DMSO/H2O(water)  
 | Charge   : --chrg to set the charge on the molecule [default 0]
 | UHF      : --uhf to set the number of unpaired electrons [default 1]
-| Packages : Tools 
-| Module   : xyzfile.py / unility.py 
 |______________________________________________________________________________
 """
 

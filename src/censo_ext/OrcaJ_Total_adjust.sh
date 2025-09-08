@@ -1,4 +1,8 @@
 #!/bin/bash
+# anmr executive file can't read the new version ORCA orcaJ.out file
+# this program is modified the words of file "(Total)" =>  " Total "
+# only For ORCA above 6.0.0 version
+
 declare -i CONF_Number answer
 
 CONF_Number=$(ls -d CONF* | sed 's/CONF/ /' | sort -g | tail -n1 | awk '{print $1}')

@@ -5,7 +5,6 @@ import subprocess
 
 descr = """
 ________________________________________________________________________________
-|                                          [07.18.2023] vitamin.cheng@gmail.com
 | Modification of cregen using rthr(0.175) bthr(0.03) ethr (0.15) ewin(4.0)
 | Usage : cregen.py <geometry> [options]
 | [Options]
@@ -17,7 +16,6 @@ ________________________________________________________________________________
 | ethr     : --ethr set energy threshold between conformer pair in kcal/mol 
 |                   [default 0.15]
 | ewin     : --ewin set the energy threshold in kcal/mol [default 4]
-| Package  : Tools
 |______________________________________________________________________________
 """
 

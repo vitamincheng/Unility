@@ -9,12 +9,11 @@ from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 descr = """
 ________________________________________________________________________________
-|                                          [10.05.2024] vitamin.cheng@gmail.com
-| Usages : FactorCompare.py <geometry> [options]
+| Compare two different xyz files by using factor analysis
 | Structure_Integrity_Compare 
-| Input     : -i first.xyz second.xyz 
-| Packages  : Tools 
-| Module    : xyzfile.py / calculate_rmsd.py
+| Usages  : FactorCompare.py <geometry> [options]
+| [option]
+| Input   : -i first.xyz second.xyz 
 |______________________________________________________________________________
 """
 

@@ -9,7 +9,6 @@ from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 descr = """
 ________________________________________________________________________________
-|                                          [07.19.2023] vitamin.cheng@gmail.com
 | For search the confomrers from various angles of cleavage specifying two atoms                        
 | Usage    : xyzSplit.py [options]                  
 | [Options]
@@ -20,8 +19,6 @@ ________________________________________________________________________________
 | nCut     : -c or cut Number of cut to make 360 degrees around the roation axis 
 | Output   : -o Save xyz file [default output.xyz] 
 | Print    : -p Print output to screen [default False]
-| Packages : Tools 
-| Module   : xyzfile.py / topo.py / unility.py
 |______________________________________________________________________________
 """
 

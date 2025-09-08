@@ -7,7 +7,6 @@ from sys import argv as sysargv
 # from icecream import ic
 descr = """
 ________________________________________________________________________________
-|                                          [07.07.2023] vitamin.cheng@gmail.com
 | Reorder the Serial No. in xyz file
 | Usage : Serial.py <geometry> [options]
 | [Options]
@@ -16,8 +15,6 @@ ________________________________________________________________________________
 | New      : -n or --new  To reorder the Serial No. from No. 1
 | Keep     : -k or --keep To Keep the Serial No. in #Clusters
 | Print    : -p Print the final data on screen 
-| Packages : Tools     
-| Module   : xyzfile.py
 |______________________________________________________________________________
 """
 

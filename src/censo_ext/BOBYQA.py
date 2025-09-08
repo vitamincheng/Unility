@@ -10,7 +10,6 @@ from censo_ext.Tools.utility import IsExist_return_bool
 
 descr = """
 ________________________________________________________________________________
-|                                          [07.22.2025] vitamin.cheng@gmail.com
 | BOBYQA.py
 | Usages  : BOBYQA.py [options]
 | [options]
@@ -18,8 +17,6 @@ ________________________________________________________________________________
 | Ref      : -r the actual reference file [default 1r.dat]
 | Limit    : -l limit border(ppm) [defalut 0.20]
 | Prog     : -p --prog Use external anmr execute file [default False]
-| Package  : Tools
-| Module   : ??.py
 |______________________________________________________________________________
 """
 

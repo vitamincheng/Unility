@@ -7,8 +7,7 @@ from censo_ext.Tools.xyzfile import GeometryXYZs
 
 descr = """
 ________________________________________________________________________________
-|                                          [09.11.2024] vitamin.cheng@gmail.com
-| molManipulate.py  
+| For separate or merge of molecules 
 | Usages   : molManipulate.py <geometry> [options]
 | [options]
 | Input    : -s input xyz file to be separated to small molecule 
@@ -16,8 +15,6 @@ ________________________________________________________________________________
 | Output   : [default in Separation folder]
 | Input    : -m input xyz file to be merged to big molecule [required] 
 | Output   : -o output xyz file [default output.xyz]
-| Packages : Tools 
-| Module   : xyzfile.py
 |______________________________________________________________________________
 """
 

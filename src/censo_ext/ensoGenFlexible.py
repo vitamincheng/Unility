@@ -11,7 +11,6 @@ from sys import argv as sysargv
 
 descr = """
 ________________________________________________________________________________
-|                                          [11.08.2024] vitamin.cheng@gmail.com
 | ensoGenFlexible.py
 | Usages   : ensoGenFlexible.py <geometry> [options]
 | [options]
@@ -19,9 +18,6 @@ ________________________________________________________________________________
 | Output   : -o output anmr_enso file [default anmr_enso.flexible]
 | Manual   : -m Manually assign the splitting position [default False]
 | Temp     : -t the temperature of the environment [default 298.15 K]
-| Packages : Tools
-| Module   : xyzfile.py / anmrfile.py /molclus_thermo.py / molclus_orca.py
-|            molclus_thermo.py
 |______________________________________________________________________________
 """
 

@@ -9,16 +9,13 @@ from pathlib import Path
 
 descr = """
 ________________________________________________________________________________
-|                                          [08.27.2024] vitamin.cheng@gmail.com
-| Simple crest of multixyz file for orca
+| For Orca calculation
 | Usages   : molclus.py <geometry> [options]
 | [options]
 | Input    : -i input file [default traj.xyz]
 | Output   : -o output file [default isomers.xyz]
 | Template : -t orca template file [default template.inp]
 | Reserve  : -r Reserve all files, otherwise will only reserve .gbw .out .xyz three files.
-| Packages : Tools
-| Module   : xyzfile.py / unility.py
 |______________________________________________________________________________
 """
 
