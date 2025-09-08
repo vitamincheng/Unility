@@ -11,7 +11,7 @@ from censo_ext.Tools.utility import IsExist_return_bool
 descr = """
 ________________________________________________________________________________
 | BOBYQA.py
-| Usages  : BOBYQA.py [options]
+| Usages   : BOBYQA.py [options]
 | [options]
 | Dir      : -d the directory [default .]
 | Ref      : -r the actual reference file [default 1r.dat]

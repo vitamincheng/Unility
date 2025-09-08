@@ -9,9 +9,9 @@ from pathlib import Path
 descr = """
 ________________________________________________________________________________
 | dat2BOBYQA.py  
-| Usages  : dat2BOBYQA.py <dat file> [options]
-| [options]
+| Usages   : dat2BOBYQA.py <dat file> [options]
 | Input    : -i input file [default anmr.dat]
+| [options]
 | Dir      : -D Directory [default .]
 | Start    : -s --start start point in spectra [default -5]
 | End      : -e --end end point in spectra [default 15]

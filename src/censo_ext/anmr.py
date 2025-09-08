@@ -9,7 +9,7 @@ from pathlib import Path
 descr = """
 ________________________________________________________________________________
 | anmr.py  
-| Usages  : anmr.py [options]
+| Usages   : anmr.py [options]
 | [options]
 | Output   : -o output file [default output.dat]
 | Dir      : -D the directory of input files(CONF) [default .]

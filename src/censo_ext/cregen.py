@@ -6,10 +6,11 @@ import subprocess
 descr = """
 ________________________________________________________________________________
 | Modification of cregen using rthr(0.175) bthr(0.03) ethr (0.15) ewin(4.0)
-| Usage : cregen.py <geometry> [options]
-| [Options]
+| Usage    : cregen.py <geometry> [options]
+|
 | Input    : -i one xyz file [default isomers.xyz]
 | Output   : -o one xyz file [default cluster.xyz]
+| [Options]
 | rthr     : --rthr set RMSD threshold Angstrom [default 0.175]
 | bthr     : --bthr set lower bound for the rotatoional constant threshold 
 |                   [default 0.03]
