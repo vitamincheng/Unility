@@ -199,7 +199,7 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     return Normal_plist
 
 
-def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, args: argparse.Namespace, Active_range: int, hidden=True) -> npt.NDArray:
+def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, args: argparse.Namespace, Active_range: int) -> npt.NDArray:
     """
     Generate and save a plot of the NMR spectrum.
 
@@ -212,7 +212,6 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
         nIntergals (int): Total number of intensities to generate.
         args (argparse.Namespace): Command line arguments containing plotting parameters.
         Active_range (int): Range around spectrum to display.
-        hidden (bool): If True, suppress matplotlib display and save plot only.
 
     Returns:
         npt.NDArray: Array containing x and y coordinates of the plot data.
@@ -237,34 +236,16 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
     lw: float = args.lw * 2 / 1000
     lw_points: int = int((args.end - args.start) * dpi)+1
 
-    from nmrsim.plt import mplplot
     x: npt.NDArray[np.float64]
     y: npt.NDArray[np.float64]
-    if not hidden:
-        if input("    Do you want to show matplotlib results?    ") in ("y", "yes"):
-            x, y = mplplot(Normal_plist, w=lw, y_max=Normal_y_max, y_min=-
-                           Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points)
-        else:
-            x, y = mpl_plot(Normal_plist, w=lw, y_max=Normal_y_max, y_min=-
-                            Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points, hidden=True)
-        print(f"    Plot is saved to {args.out} !")
+    x, y = mpl_plot(Normal_plist, w=lw, y_max=Normal_y_max, y_min=-
+                    Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points)
+    if not args.bobyqa:
         np.savetxt(args.out, np.vstack((x, y)).T, fmt='%2.5f %12.5e')
-        print("    All Done!")
-        return np.vstack((x, y))
-    elif hidden:
-        x, y = mpl_plot(Normal_plist, w=lw, y_max=Normal_y_max, y_min=-
-                        Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points, hidden=True)
-        if not args.bobyqa:
-            np.savetxt(args.out, np.vstack((x, y)).T, fmt='%2.5f %12.5e')
-        return np.vstack((x, y))
-    else:
-        print("something wrong in your print_plot method hidden setting")
-        ic()
-        raise ValueError(
-            "something wrong in your print_plot method hidden setting")
+    return np.vstack((x, y))
 
 
-def mpl_plot(plist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, hidden=False) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+def mpl_plot(plist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """
     Generate a plot using lorentzian lineshape for NMR spectrum.
 
@@ -278,7 +259,6 @@ def mpl_plot(plist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, hidd
         y_max (float): Maximum y-axis value for plot (default: 1.0).
         points (int): Number of points to generate for the curve (default: 800).
         limits (tuple, optional): x-axis limits as (min, max) tuple.
-        hidden (bool): If True, suppress matplotlib display (default: False).
 
     Returns:
         tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]: 
@@ -286,21 +266,16 @@ def mpl_plot(plist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None, hidd
         - y: Array of y-coordinates
     """
     from nmrsim.plt import low_high, add_lorentzians
-    if hidden:
-        plist.sort()
-        if limits:
-            l_limit, r_limit = low_high(limits)
-        else:
-            l_limit = plist[0][0] - 50
-            r_limit = plist[-1][0] + 50
-        x: npt.NDArray[np.float64] = np.linspace(
-            float(l_limit), float(r_limit), points).astype(np.float64)
-        y: npt.NDArray[np.float64] = add_lorentzians(x, plist, w)
-        return x, y
+    plist.sort()
+    if limits:
+        l_limit, r_limit = low_high(limits)
     else:
-        print("Please use the nmrsim mplplot ")
-        ic()
-        raise ValueError("Please use the nmrsim mplplot ")
+        l_limit = plist[0][0] - 50
+        r_limit = plist[-1][0] + 50
+    x: npt.NDArray[np.float64] = np.linspace(
+        float(l_limit), float(r_limit), points).astype(np.float64)
+    y: npt.NDArray[np.float64] = add_lorentzians(x, plist, w)
+    return x, y
 
 
 def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:

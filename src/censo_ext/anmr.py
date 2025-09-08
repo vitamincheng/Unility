@@ -176,14 +176,6 @@ def cml(descr) -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-show",
-        "--show",
-        dest="show",
-        action="store_true",
-        help="Show the spectra [default False]",
-    )
-
-    parser.add_argument(
         "-b",
         "--bobyqa",
         dest="bobyqa",
@@ -322,7 +314,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     mat_filter_multi: npt.NDArray[np.int64] = np.array([])
 
     # Main processing loop for identifying and categorizing spin systems
-    if not args.json:
+    if not args.json and len(inAnmr.get_Anmr_Active()) == 1 and inAnmr.get_Anmr_Active()[0] == 'H':
         inJCoups_origin: npt.NDArray[np.float64] = copy.deepcopy(inJCoups)
 
         while (1):
@@ -515,13 +507,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     #
     import censo_ext.Tools.qm as qm
     idx0_peaks_range: list[int] = []
-
-    if not args.json:
+    Res_peaks: list[list[tuple[float, float]]] = []
+    if not args.json and len(inAnmr.get_Anmr_Active()) == 1 and inAnmr.get_Anmr_Active()[0] == 'H':
         print("")
         print(" ===== Processing =====")
         print(" the group of calculate spectra :", len(idx0_ab_group_sets))
         print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
-        Res_peaks: list[list[tuple[float, float]]] = []
+        # Res_peaks: list[list[tuple[float, float]]] = []
         if len(inSParams*inHydrogen) <= args.mss:
             idx0_ab_group = list(idx0_ab_group_sets[0])
             v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
@@ -586,6 +578,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
         idx0_peaks_range = [*range(len(Res_peaks))]
 
+    elif not args.json and len(inAnmr.get_Anmr_Active()) == 1 and inAnmr.get_Anmr_Active()[0] == 'C':
+        for idx, ppm in enumerate(inSParams):
+            x: list = []
+            x.append((float(ppm*(-1)), float(inHydrogen[idx])))
+            Res_peaks.append(x)
+
+        import json
+        # import pickle
+        with open(str(inAnmr.get_Directory()/Path("peaks.json")), "w") as final:
+            json.dump(Res_peaks, final)
     else:
         import json
         # import pickle
@@ -598,9 +600,18 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             idx0_peaks_range = args.json
 
     Final_peaks: list[tuple[float, float]] = []
-    for idx, peak in enumerate(Res_peaks):
-        if idx in idx0_peaks_range:
+
+    if inAnmr.get_Anmr_Active()[0] == 'H':
+        for idx, peak in enumerate(Res_peaks):
+            if idx in idx0_peaks_range:
+                Final_peaks += peak
+    elif inAnmr.get_Anmr_Active()[0] == 'C':
+        for idx, peak in enumerate(Res_peaks):
             Final_peaks += peak
+    else:
+        print("  Something Wrong in your get_anmr_Active()")
+        ic()
+        exit(0)
 
     print("")
     print(" ===== Processing to plotting spectra =====")
@@ -609,7 +620,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
     if dpi and Active_range:
         np_dat: npt.NDArray[np.float64] = qm.print_plot(
-            Final_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range, hidden=not args.show)
+            Final_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range)
     else:
         print("  dpi and Active_range is wrong")
         print("  Exit and Close the program !!!")
