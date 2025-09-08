@@ -9,7 +9,6 @@ from sys import argv as sysargv
 
 descr = """
 ________________________________________________________________________________
-|                                          [10.05.2024] vitamin.cheng@gmail.com
 | xyzTranslate.py  
 | Usages   : xyzTranslate.py <geometry> [options]
 | [options]
@@ -17,8 +16,6 @@ ________________________________________________________________________________
 | Move     : -m use a vector [x,y,z]
 | Cut      : -c cut of the line 
 | Output   : -o output xyz file [default output.xyz]
-| Packages : Tools 
-| Module   : xyzfile.py
 |______________________________________________________________________________
 """
 
