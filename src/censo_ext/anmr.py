@@ -260,9 +260,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     inFile: Path = Path("crest_conformers.xyz")
 
     # Process different nuclear elements (C or H)
-    for idx, x in enumerate(inAnmr.get_Anmr_Active()):
+    for idx, Active in enumerate(inAnmr.get_Anmr_Active()):
         if idx == 0:
-            if x == 'C':
+            if Active == 'C':
                 # Carbon processing - read molecular structure
                 from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
                 mol, neighbors, bond_order = read_mol_neighbors_bond_order(
@@ -278,16 +278,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 if not args.thr:
                     args.thr = args.lw * 0.3
                 inJCoups = np.zeros_like(inJCoups)
-            elif x == 'H':
+            elif Active == 'H':
                 # Hydrogen processing - identify equivalent hydrogens
                 idx1_nMagEqvHydrogens: dict[int, int] = {}
                 for key in inAnmr.avg_orcaSJ.idx1Atoms.keys():
                     idx1_nMagEqvHydrogens[key] = inAnmr.nMagnetEqvs[key]
-                for x in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
+                for y in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
                         inAnmr.get_Directory()/inFile):
-                    if x in idx1_nMagEqvHydrogens.keys():
-                        del idx1_nMagEqvHydrogens[x]
-                        del in_idx1Atoms[x]
+                    if y in idx1_nMagEqvHydrogens.keys():
+                        del idx1_nMagEqvHydrogens[y]
+                        del in_idx1Atoms[y]
 
                 inHydrogen = [
                     value for value in idx1_nMagEqvHydrogens.values()]
@@ -396,14 +396,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                                            "  Something wrong in your SParams !!!")
                                         ic()
                                         raise ValueError(
-                                            idx + x + idy + y + " was not found or is a directory")
+                                            f"{idx} {x} {idy} {y} was not found or is a directory")
 
             # ic(mat_filter_ab_quartet)
             # Calculate which couplings are NOT part of AB quartets (multiplets)
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
             idx0_ab_connect: list[list[int | set[int]]] = []
             for idx0, x in enumerate(mat_filter_ab_quartet):
-                group: set[int] = set((x*(idx0+1)).nonzero()[0].tolist())  # return arg # nopep8 #idx0+1 is only for nozero
+                group: set[int] = set(np.array(x*(idx0+1)).nonzero()[0].tolist())  # return arg # nopep8 #idx0+1 is only for nozero
                 group.add(idx0)
                 idx0_ab_connect.append([idx0, group])
 
@@ -435,19 +435,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 # Handle CH3 equivalent groups manually (symmetry considerations)
                 # So if chemical shift in AB quartet region need to move to multiplet
                 list_Equivalent3: list[int] = []
-                for x in (inAnmr.nMagnetEqvs.keys()):
-                    if inAnmr.nMagnetEqvs[x] == 3:
+                for key in inAnmr.nMagnetEqvs.keys():
+                    if inAnmr.nMagnetEqvs[key] == 3:
                         for idy, y in enumerate(in_idx1Atoms):
-                            if y == min(inAnmr.NeighborMangetEqvs[x]):
+                            if y == min(inAnmr.NeighborMangetEqvs[key]):
                                 list_Equivalent3.append(idy)
                 set_Equivalent3: set[int] = set(list_Equivalent3)
 
                 # Adjust groups to account for equivalent protons
                 # Equivalent3 is idx0 numbers
-                for idx, x in enumerate(idx0_ab_group_sets):
-                    set_move: set[int] = x.intersection(set_Equivalent3)
+                for idx, group_set in enumerate(idx0_ab_group_sets):
+                    set_move: set[int] = group_set.intersection(
+                        set_Equivalent3)
                     if not len(set_move) == 0:
-                        idx0_ab_group_sets[idx] = set(x).difference(
+                        idx0_ab_group_sets[idx] = set(group_set).difference(
                             set_move).union(set([idx]))
                         set_move = set_move.difference(set([idx]))
                     for idy, y in enumerate(set_move):
@@ -459,13 +460,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
 
             max_len_AB: int = 0
-            for idx, x in enumerate(idx0_ab_group_sets):
+            for idx, group_set in enumerate(idx0_ab_group_sets):
                 mat_multi_x_idx: list[int] = [
                     idx0_set*x for x, idx0_set in enumerate(mat_filter_multi[idx].tolist())if idx0_set != 0]
-                print(f'{(idx+1):>5d}{len(x):>5d}', {a+1 for a in x}, set(
-                    a+1 for a in mat_multi_x_idx).difference({a+1 for a in x}))
-                if len(x) > max_len_AB:
-                    max_len_AB = len(x)
+                print(f'{(idx+1):>5d}{len(group_set):>5d}', {a+1 for a in group_set}, set(
+                    a+1 for a in mat_multi_x_idx).difference({a+1 for a in group_set}))
+                if len(group_set) > max_len_AB:
+                    max_len_AB = len(group_set)
 
             # Adjust thresholds automatically if maximum spin system exceeds limit
             if (max_len_AB > args.mss):
@@ -580,9 +581,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
     elif not args.json and len(inAnmr.get_Anmr_Active()) == 1 and inAnmr.get_Anmr_Active()[0] == 'C':
         for idx, ppm in enumerate(inSParams):
-            x: list = []
-            x.append((float(ppm*(-1)), float(inHydrogen[idx])))
-            Res_peaks.append(x)
+            dat: list = []
+            dat.append((float(ppm*(-1)), float(inHydrogen[idx])))
+            Res_peaks.append(dat)
 
         import json
         # import pickle

@@ -360,7 +360,7 @@ if __name__ == "__main__":
                            args=argparse.Namespace(**x))
     ic(len(R_peak))
     print_plot(in_plist=R_peak, dpi=10000, nIntergals=2,
-               Active_range=10, args=argparse.Namespace(**x), hidden=False)
+               Active_range=10, args=argparse.Namespace(**x))
 
     R_peaks: list = []
     for idx in range(len(v)):
@@ -371,4 +371,4 @@ if __name__ == "__main__":
     ic(R_peaks)
     ic(len(R_peaks))
     print_plot(in_plist=R_peaks, dpi=10000, nIntergals=2,
-               Active_range=10, args=argparse.Namespace(**x), hidden=False)
+               Active_range=10, args=argparse.Namespace(**x))
