@@ -12,16 +12,16 @@ from pathlib import Path
 descr = """
 ________________________________________________________________________________
 | For Return to origin and lay on the xz plane
-| Usage: xyzReturnOandZ.py <geometry> [options]                  
-| [Options]
+| Usage    : xyzReturnOandZ.py <geometry> [options]                  
 | Input    : -i xyz file [default traj.xyz]
+| Output   : -o Saved xyz file [default output.xyz] 
+| [Options]
 | Atom     : -a or --atom [1 2 3] idx of atom  
 |              1 : Fixed atom and return origin
 |              2 : Rotation atom and z axis
 |              3 : Rotation atom and lay on xz plane
 | Automatic: --auto Automatically search for the minimum deviation setting 
 |                   origin of all atoms [default False] 
-| Output   : -o Saved xyz file [default output.xyz] 
 | Replace  : -r Replace the input file
 | Print    : -p Print the final data on screen 
 |______________________________________________________________________________

@@ -11,11 +11,11 @@ descr = """
 ________________________________________________________________________________
 | xyzTranslate.py  
 | Usages   : xyzTranslate.py <geometry> [options]
+| Input    : -i input xyz file to be translate and cut if you assign -c [default traj.xyz]
+| Output   : -o output xyz file [default output.xyz]
 | [options]
-| Input    : -i input xyz file to be translate and cut if you assign -c 
 | Move     : -m use a vector [x,y,z]
 | Cut      : -c cut of the line 
-| Output   : -o output xyz file [default output.xyz]
 |______________________________________________________________________________
 """
 

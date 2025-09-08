@@ -11,13 +11,13 @@ descr = """
 ________________________________________________________________________________
 | For search the confomrers from various angles of cleavage specifying two atoms                        
 | Usage    : xyzSplit.py [options]                  
-| [Options]
 | Input    : -i Read xyz file [default traj.xyz]
+| Output   : -o Save xyz file [default output.xyz] 
+| [Options]
 | Atom     : -a or --atom [1 2] idx of atom's number  
 |              1 : Fixed atom
 |              2 : Rotation axis atom (360 degrees) 
 | nCut     : -c or cut Number of cut to make 360 degrees around the roation axis 
-| Output   : -o Save xyz file [default output.xyz] 
 | Print    : -p Print output to screen [default False]
 |______________________________________________________________________________
 """

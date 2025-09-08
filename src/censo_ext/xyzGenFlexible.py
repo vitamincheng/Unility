@@ -14,9 +14,9 @@ descr = """
 ________________________________________________________________________________
 | For Generation of Flexible xyz molecule 
 | Usages   : xyzGenFlexible.py <geometry> [options]
-| [options]
 | Input    : -i xyz file (only for 1st xyz file) [default traj.xyz]
 | Output   : -o output xyz file [default output.xyz]
+| [options]
 | Manual   : -m Manually check out the function (xtb/orca/thermo) [defalut False]
 |______________________________________________________________________________
 """

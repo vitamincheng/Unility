@@ -7,9 +7,9 @@ descr = """
 ________________________________________________________________________________
 | For gxtb calculation 
 | Usages   : molclus_gxtb.py <geometry> [options]
-| [options]
 | Input    : -i input file [default traj.xyz]
 | Output   : -o output file [default isomers.xyz]
+| [options]
 | Opt      : --opt To optimize energy [default False]
 | Method   : --method To set the method gxtb [default gxtb]
 | Solvent  : --alpb To set the solvent (for alpb mode and prefered choice)

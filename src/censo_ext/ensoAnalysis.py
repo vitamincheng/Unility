@@ -10,15 +10,15 @@ from pathlib import Path
 
 descr = """
 ________________________________________________________________________________
-| Usage  : ensoAnalysis.py <enso file> [Options]
+| Usage   : ensoAnalysis.py <enso file> [Options]
+| Input   : -i input file [default: anmr_enso]
 | [Options]
-| Input  : -i input file [default: anmr_enso]
-|          -n -new copy your inupt file to backup file for new project
-|          -t temperature K [default: 298.15 K]
-|          -s switch ONOFF in anmr_enso file
-|          -w For weights(precent) for every CONFS
-|          -v Verbose mode and show the detail of calculation
-| Output : average_enso
+| New     : -n -new copy your inupt file to backup file for new project
+| Temp    : -t temperature K [default: 298.15 K]
+| Switch  : -s switch ONOFF in anmr_enso file
+| Weight  : -w For weights(precent) for every CONFS
+| Verbose : -v Verbose mode and show the detail of calculation
+| Output  : average_enso
 |______________________________________________________________________________
 """
 

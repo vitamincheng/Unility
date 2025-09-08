@@ -9,9 +9,9 @@ descr = """
 ________________________________________________________________________________
 | For GFN2-xTB by using tblite libary (python)  
 | Usages   : molclus_tblite_xtb.py <geometry> [options]
-| [options]
 | Input    : -i input file [default traj.xyz]
 | Output   : -o output file [default isomers.xyz]
+| [options]
 | Opt      : --opt To optimize energy [default False]
 | Method   : --method To set the method GFN1-xTB/GFN2-xTB [default GFN2-xTB]
 | Solvent  : --alpb To set the solvent (for alpb mode and prefered choice)

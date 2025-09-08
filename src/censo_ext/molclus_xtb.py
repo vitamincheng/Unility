@@ -7,9 +7,9 @@ descr = """
 ________________________________________________________________________________
 | For GFN-xTB of molecules of xyz file  
 | Usages   : molclus_xtb.py <geometry> [options]
-| [options]
 | Input    : -i input file [default traj.xyz]
 | Output   : -o output file [default isomers.xyz]
+| [options]
 | Opt      : --opt To optimize energy [default False]
 | Method   : --method To set the method gfn0/gfn1/gfn2/gfnff [default gfn2]
 | Solvent  : --alpb To set the solvent (for alpb mode and prefered choice)

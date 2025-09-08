@@ -7,15 +7,13 @@ from sys import argv as sysargv
 descr = """
 ________________________________________________________________________________
 | dat_normalized.py  
-| Usages  : dat_normalized.py <dat file> [options]
-| [options]
+| Usages   : dat_normalized.py <dat file> [options]
 | Input    : -i input file [default anmrh.dat]
 | Output   : -o output file [default output.dat]
+| [options]
 | Start    : -s --start start point in spectra [default -5]
 | End      : -e --end end point in spectra [default 15]
 | dpi      : --dpi 10000 for H 500 for C [defalt 10000]
-| Package  : Tools 
-| Module   : anmrfile.py / unility.py
 | If your spectra is below 50 ppm and args.end is below 50 ppm, it will 
 | automatically set the parameter to start=-20ppm end=250ppm and dpi=500
 |______________________________________________________________________________

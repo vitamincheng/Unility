@@ -8,10 +8,10 @@ from sys import argv as sysargv
 descr = """
 ________________________________________________________________________________
 | Reorder the Serial No. in xyz file
-| Usage : Serial.py <geometry> [options]
-| [Options]
+| Usage    : xyzSerial.py <geometry> [options]
 | Input    : -i one xyz file [default isomers.xyz]
 | Output   : -o one xyz file [default output.xyz]
+| [Options]
 | New      : -n or --new  To reorder the Serial No. from No. 1
 | Keep     : -k or --keep To Keep the Serial No. in #Clusters
 | Print    : -p Print the final data on screen 

@@ -9,10 +9,8 @@ from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 descr = """
 ________________________________________________________________________________
-| Compare two different xyz files by using factor analysis
-| Structure_Integrity_Compare 
-| Usages  : FactorCompare.py <geometry> [options]
-| [option]
+| Compare two different xyz files by using factor analysis (Structure Integrity)
+| Usages  : FactorCompare.py <geometry> 
 | Input   : -i first.xyz second.xyz 
 |______________________________________________________________________________
 """

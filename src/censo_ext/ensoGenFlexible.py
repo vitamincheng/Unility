@@ -13,9 +13,9 @@ descr = """
 ________________________________________________________________________________
 | ensoGenFlexible.py
 | Usages   : ensoGenFlexible.py <geometry> [options]
-| [options]
 | Input    : -i xyz file [default traj.xyz]
 | Output   : -o output anmr_enso file [default anmr_enso.flexible]
+| [options]
 | Manual   : -m Manually assign the splitting position [default False]
 | Temp     : -t the temperature of the environment [default 298.15 K]
 |______________________________________________________________________________

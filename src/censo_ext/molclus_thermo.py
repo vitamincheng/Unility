@@ -9,8 +9,8 @@ descr = """
 ________________________________________________________________________________
 | For thermo calculation by using GFN-xTB method   
 | Usages   : molclus_thermo.py <geometry> [options]
-| [options]
 | Input    : -i input file [default traj.xyz]
+| [options]
 | Method   : --method To set the method gfn0/gfn1/gfn2/gfnff [default gfn2]
 | Solvent  : --alpb To set the solvent (for alpb mode and prefered choice)
 |             CHCl3/DMSO/H2O(water)  

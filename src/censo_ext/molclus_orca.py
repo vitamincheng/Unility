@@ -11,9 +11,9 @@ descr = """
 ________________________________________________________________________________
 | For Orca calculation
 | Usages   : molclus.py <geometry> [options]
-| [options]
 | Input    : -i input file [default traj.xyz]
 | Output   : -o output file [default isomers.xyz]
+| [options]
 | Template : -t orca template file [default template.inp]
 | Reserve  : -r Reserve all files, otherwise will only reserve .gbw .out .xyz three files.
 |______________________________________________________________________________
