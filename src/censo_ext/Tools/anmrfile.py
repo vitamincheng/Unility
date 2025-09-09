@@ -1055,12 +1055,19 @@ class Anmr():
             ...                        ('field5', 'i4'), ('field6', 'i4'),
             ...                        ('field7', 'i4'), ('field8', 'i4')])
             >>> obj.method_create_enso(data)
+            # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'), ('Energy', '<f8'),
+            # ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')])
         """
 
         if len(in_np.dtype) != 8:  # type:ignore
             print(" Something wrong in your anmr_enso file")
             ic()
             raise ValueError(" Something wrong in your anmr_enso file")
+        else:
+            self.enso = np.array(in_np, dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'),
+                                               ('BW', '<f8'), ('Energy',
+                                                               '<f8'), ('Gsolv', '<f8'),
+                                               ('mRRHO', '<f8'), ('gi', '<f8')])
 
     def method_read_enso(self, file: Path = Path("anmr_enso")) -> None:
         """Read ENSO data from file.
@@ -1134,7 +1141,7 @@ class Anmr():
         """
 
         print("ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi     ")
-        for Enso in self.enso:
+        for Enso in np.atleast_1d(self.enso):
             print(f'{int(Enso[0]):<1d}      {int(Enso[1]):<4d} {int(Enso[2]):<4d} {Enso[3]:>6.4f} {Enso[4]: > 11.7f} {Enso[5]: > 10.7f} {Enso[6]: > 10.7f} {Enso[7]:>4.3f}')  # nopep8
 
     def method_save_enso(self, file: Path = Path("anmr_enso.new")) -> None:

@@ -59,10 +59,25 @@ def test_anmr_H_from_raw_data_EA() -> None:
     x['average'] = False
     x['json'] = None
     x['dir'] = Dir_EA_H
-    # x['bobyqa'] = True
-    res = anmr.main(argparse.Namespace(**x))
-    assert res.shape == (2, 48310)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 48310)
     assert filecmp.cmp(Dir_EA_H/Path("peaks.json"), compare_EA_H)
+    delete_all_files(Dir_EA_H / Path("peaks.json"), Dir_EA_H/Path(outFile))
+
+
+def test_anmr_H_average_on_json_off_EA() -> None:
+    # this is Ethyl Acetate
+    x['average'] = True
+    x['json'] = None
+    x['dir'] = Dir_EA_H
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 48310)
+
+
+def test_anmr_H_average_on_json_on_EA() -> None:
+    # this is Ethyl Acetate
+    x['average'] = True
+    x['json'] = [-1]
+    x['dir'] = Dir_EA_H
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 48310)
     delete_all_files(Dir_EA_H / Path("peaks.json"), Dir_EA_H/Path(outFile))
 
 
@@ -70,7 +85,6 @@ def test_anmr_C_from_raw_data() -> None:
     x['average'] = False
     x['json'] = None
     x['dir'] = Dir_Ergo_C
-
     assert anmr.main(argparse.Namespace(**x)).shape == (2, 86411)
     assert filecmp.cmp(Dir_Ergo_C/Path("peaks.json"), compare_Ergo_C)
 
@@ -91,6 +105,6 @@ def test_anmr_C_average_on_json_on() -> None:
     delete_all_files(Dir_Ergo_C / Path("peaks.json"), Dir_Ergo_C/Path(outFile))
 
 
-if __name__ == "__main__":
-    import cProfile
-    cProfile.run("test_anmr_from_raw_data()", sort="cumtime")
+# if __name__ == "__main__":
+#    import cProfile
+#    cProfile.run("test_anmr_from_raw_data()", sort="cumtime")
