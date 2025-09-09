@@ -649,9 +649,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         ic()
         exit(0)
 
-    if not args.bobyqa:
-        print(f" the spectra is saved to : {args.out}")
-
     print(" All done ...")
     return np_dat
 

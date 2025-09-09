@@ -123,8 +123,8 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
     from nmrsim.math import normalize_peaklist
     Normal_plist: list[tuple[float, float]
                        ] = normalize_peaklist(peaklist, nIntergals)
-    print_plot(Normal_plist, dpi=1000,
-               nIntergals=nIntergals, args=args, Active_range=10)
+    # print_plot(Normal_plist, dpi=1000,
+    #           nIntergals=nIntergals, args=args, Active_range=10)
     return Normal_plist
 
 
@@ -242,6 +242,7 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
                     Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points)
     if not args.bobyqa:
         np.savetxt(args.out, np.vstack((x, y)).T, fmt='%2.5f %12.5e')
+        print(f" the spectra is saved to : {args.out}")
     return np.vstack((x, y))
 
 
