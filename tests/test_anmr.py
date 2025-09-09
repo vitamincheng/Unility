@@ -6,13 +6,14 @@ from pathlib import Path
 import argparse
 import censo_ext.anmr as anmr
 import filecmp
+import platform
 Dir_Ergo_H = "tests/data/34.Ergocalciferol/04.Hydrogen"
 Dir_Ergo_C = "tests/data/34.Ergocalciferol/07.Carbon"
 Dir_EA_H = "tests/data/06.EthylAcetate/03.Censo"
 outFile = Path("output.dat")
 compare_Ergo_H = "tests/compare/anmr_peaks_H.json"
 compare_Ergo_C = "tests/compare/anmr_peaks_C.json"
-compare_EA_H = "tests/compare/anmr_peaks_EA_H.json"
+_system = platform.system()
 
 
 def test_anmr_miss_args() -> None:
@@ -34,7 +35,11 @@ def test_anmr_H_from_raw_data() -> None:
     x['json'] = None
     x['dir'] = Dir_Ergo_H
     assert anmr.main(argparse.Namespace(**x)).shape == (2, 77868)
-    assert filecmp.cmp(Dir_Ergo_H/Path("peaks.json"), compare_Ergo_H)
+    if _system == "Linux":
+        compare = "tests/compare/anmr_peaks_Ergo_H_ubuntu.json"
+    elif _system == "Darwin":
+        compare = "tests/compare/anmr_peaks_Ergo_H_Darwin.json"
+    assert filecmp.cmp(Dir_Ergo_H/Path("peaks.json"), compare)  # type: ignore
 
 
 def test_anmr_H_average_on_json_off() -> None:
@@ -60,7 +65,12 @@ def test_anmr_H_from_raw_data_EA() -> None:
     x['json'] = None
     x['dir'] = Dir_EA_H
     assert anmr.main(argparse.Namespace(**x)).shape == (2, 48310)
-    assert filecmp.cmp(Dir_EA_H/Path("peaks.json"), compare_EA_H)
+    if _system == "Linux":  # Need 2 min
+        compare = "tests/compare/anmr_peaks_EA_H_ubuntu.json"
+
+    elif _system == "Darwin":  # Need 5 min
+        compare = "tests/compare/anmr_peaks_EA_H_Darwin.json"
+    assert filecmp.cmp(Dir_EA_H/Path("peaks.json"), compare)  # type: ignore
     delete_all_files(Dir_EA_H / Path("peaks.json"), Dir_EA_H/Path(outFile))
 
 
@@ -86,7 +96,11 @@ def test_anmr_C_from_raw_data() -> None:
     x['json'] = None
     x['dir'] = Dir_Ergo_C
     assert anmr.main(argparse.Namespace(**x)).shape == (2, 86411)
-    assert filecmp.cmp(Dir_Ergo_C/Path("peaks.json"), compare_Ergo_C)
+    if _system == "Linux":
+        compare = "tests/compare/anmr_peaks_Ergo_C_ubuntu.json"
+    elif _system == "Darwin":
+        compare = "tests/compare/anmr_peaks_Ergo_C_Darwin.json"
+    assert filecmp.cmp(Dir_Ergo_C/Path("peaks.json"), compare)  # type: ignore
 
 
 def test_anmr_C_average_on_json_off() -> None:

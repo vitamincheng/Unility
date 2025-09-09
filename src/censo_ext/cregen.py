@@ -117,7 +117,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     prog = "crest"
     from censo_ext.Tools.utility import program_IsExist
-    program_IsExist("prog")
+    program_IsExist(prog)
 
     crest_cmd: str = f"{prog} {isomersFile} --cregen {isomersFile} --rthr {args.rthr} -- bthr {args.bthr} --ethr {args.ethr} --ewin {args.ewin} > isomers.out"  # nopep8
 

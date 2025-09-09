@@ -10,6 +10,7 @@ import platform
 _system = platform.system()
 DirName: Path = Path(
     "tests/data/31.Cyclohexanone/03.Censo_for_Hydrogen_(revTPSS)")
+DirCompare: Path = Path("tests/compare/BOBYQA")
 RefDat: Path = Path("1r_h.dat")
 
 
@@ -87,7 +88,7 @@ def test_BOBYQA_single():
     args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     BOBYQA.main(argparse.Namespace(**args_x))
     assert filecmp.cmp(DirName / Path("output.dat"),
-                       DirName / Path("orcaS-BOBYQA-anmrpy.dat"))
+                       DirCompare / Path("orcaS-BOBYQA-anmrpy.dat"))
     BOBYQA_final_remove_files()
 
 
@@ -105,7 +106,7 @@ def test_BOBYQA_single_external_prog(monkeypatch):
     monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
     BOBYQA.main(argparse.Namespace(**args_x))
     assert filecmp.cmp(DirName / Path("anmr.dat"),
-                       DirName / Path("orcaS-BOBYQA-anmr.dat"))
+                       DirCompare / Path("orcaS-BOBYQA-anmr.dat"))
     BOBYQA_final_remove_files()
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(DirName / "anmr.dat",
@@ -125,7 +126,7 @@ def test_BOBYQA_group():
     args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
     BOBYQA.main(argparse.Namespace(**args_x))
     assert filecmp.cmp(DirName / Path("output.dat"),
-                       DirName / Path("orcaS-BOBYQA-group-anmrpy.dat"))
+                       DirCompare / Path("orcaS-BOBYQA-group-anmrpy.dat"))
     BOBYQA_final_remove_files()
 
 
@@ -142,13 +143,9 @@ def test_BOBYQA_group_external_prog(monkeypatch):
     monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
     BOBYQA.main(argparse.Namespace(**args_x))
     assert filecmp.cmp(DirName / Path("anmr.dat"),
-                       DirName / Path("orcaS-BOBYQA-group-anmr.dat"))
+                       DirCompare / Path("orcaS-BOBYQA-group-anmr.dat"))
     from censo_ext.Tools.utility import delete_all_files
-    delete_all_files(DirName / "anmr.dat",
-                     DirName / "anmr.out",
-                     DirName / "tmpanmr.1",
-                     DirName / "tmpanmr_frag.av",
-                     DirName / "tmpanmr_full.av")
+    delete_all_files(DirName / "anmr.dat", DirName / "anmr.out")
 
 
 if __name__ == "__main__":
