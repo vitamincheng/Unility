@@ -5,7 +5,8 @@ from censo_ext.Tools.utility import delete_all_files
 from pathlib import Path
 import argparse
 import censo_ext.anmr as anmr
-Dir = "tests/data/34.Ergocalciferol/04.Hydrogen"
+Dir_Ergo_H = "tests/data/34.Ergocalciferol/04.Hydrogen"
+Dir_Ergo_C = "tests/data/34.Ergocalciferol/07.Carbon"
 outFile = "output.dat"
 compare = "tests/compare/anmr_peaks.json"
 
@@ -19,31 +20,55 @@ def test_anmr_miss_args() -> None:
     assert e.value.code == 2  # for argparse error
 
 
-x: dict = {"auto": True, "dir": Dir, "bobyqa": False, "mf": 500,
+x: dict = {"auto": True, "dir": Dir_Ergo_H, "bobyqa": False, "mf": 500,
+           "lw": None, "thr": None, "thrab": 0.025, "tb": 4, "mss": 9,
+           "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
+
+y: dict = {"auto": True, "dir": Dir_Ergo_C, "bobyqa": False, "mf": 500,
            "lw": None, "thr": None, "thrab": 0.025, "tb": 4, "mss": 9,
            "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
 
 
-def test_anmr_from_raw_data() -> None:
+def test_anmr_H_from_raw_data() -> None:
     x['average'] = False
     x['json'] = None
     assert anmr.main(argparse.Namespace(**x)).shape == (2, 77868)
     # assert filecmp.cmp(Dir/Path("peaks.json"), compare)
 
 
-def test_anmr_average_on_json_off() -> None:
+def test_anmr_H_average_on_json_off() -> None:
     x['average'] = True
     x['json'] = None
     assert anmr.main(argparse.Namespace(**x)).shape == (2, 77868)
     # delete_all_files("tests/data/34.Ergocalciferol/04.Hydrogen/peaks.json")   # Normal is necessary to remove the peaks.json but next method need this file
 
 
-def test_anmr_average_on_json_on() -> None:
+def test_anmr_H_average_on_json_on() -> None:
     x['average'] = True
     x['json'] = [-1]
     assert anmr.main(argparse.Namespace(**x)).shape == (2, 77868)
-    delete_all_files(Dir / Path("peaks.json"), Dir/Path(outFile))
+    delete_all_files(Dir_Ergo_H / Path("peaks.json"), Dir_Ergo_H/Path(outFile))
 
+
+def test_anmr_C_from_raw_data() -> None:
+    y['average'] = False
+    y['json'] = None
+    assert anmr.main(argparse.Namespace(**y)).shape == (2, 86411)
+    # assert filecmp.cmp(Dir/Path("peaks.json"), compare)
+
+
+def test_anmr_C_average_on_json_off() -> None:
+    y['average'] = True
+    y['json'] = None
+    assert anmr.main(argparse.Namespace(**y)).shape == (2, 86411)
+    # delete_all_files("tests/data/34.Ergocalciferol/04.Hydrogen/peaks.json")   # Normal is necessary to remove the peaks.json but next method need this file
+
+
+def test_anmr_C_average_on_json_on() -> None:
+    y['average'] = True
+    y['json'] = [-1]
+    assert anmr.main(argparse.Namespace(**y)).shape == (2, 86411)
+    delete_all_files(Dir_Ergo_C / Path("peaks.json"), Dir_Ergo_C/Path(outFile))
 
 # if __name__ == "__main__":
 #    import cProfile
