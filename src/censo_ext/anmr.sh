@@ -9,6 +9,6 @@ tail -1 anmr.dat >> ~anmr.dat
 rm anmr.dat
 mv -f ~anmr.dat anmr.dat
 rm tmpanmr*
-rm tmpanmr.1
-rm tmpanmr_frag.av
-rm tmpanmr_full.av
+rm -f tmpanmr.1
+rm -f tmpanmr_frag.av
+rm -f tmpanmr_full.av
