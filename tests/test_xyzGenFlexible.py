@@ -21,7 +21,7 @@ def test_xyzGenflexible_miss_args():
 
 def test_xyzGenFlexible_args():
     x: dict = {"file": inFile, "manual": False,
-               "out": outFile}
+               "out": outFile, "cuts": 3}
     args = argparse.Namespace(**x)
     xyzGenFlexible.main(args)
 
@@ -32,7 +32,7 @@ def test_xyzGenFlexible_args():
 
 def test_xyzGenFlexible_args_manual(monkeypatch):
     x: dict = {"file": inFile, "manual": True,
-               "out": outFile}
+               "out": outFile, "cuts": 3}
     args = argparse.Namespace(**x)
     import io
     monkeypatch.setattr('sys.stdin', io.StringIO("55"))

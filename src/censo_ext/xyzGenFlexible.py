@@ -18,6 +18,7 @@ ________________________________________________________________________________
 | Output   : -o output xyz file [default output.xyz]
 | [options]
 | Manual   : -m Manually check out the function (xtb/orca/thermo) [defalut False]
+| nCuts    : -c or cut Number of cut to make 360 degrees around the roation axis [default 3]
 |______________________________________________________________________________
 """
 
@@ -57,6 +58,17 @@ def cml(descr) -> argparse.Namespace:
         dest="manual",
         action="store_true",
         help="Assign the splitting position of Atoms [static Atoms, rotation Atoms] [default False]",
+    )
+
+    parser.add_argument(
+        "-c",
+        "--nCuts",
+        dest="cuts",
+        action="store",
+        type=int,
+        default=3,
+        required=False,
+        help="Number of cuts to make in 360 degrees around the rotation axis [default 3]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -167,7 +179,7 @@ def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> 
         # ic(key, value)
         import censo_ext.xyzSplit as xyzSplit
         args_x: dict = {"file": splitIn,
-                        "atoms": [key, value], "cuts": 3, "print": False, "out": splitOut}
+                        "atoms": [key, value], "cuts": args.cuts, "print": False, "out": splitOut}
         sys.stdout = open(os.devnull, 'w')
         xyzSplit.main(argparse.Namespace(**args_x))
         sys.stdout = sys.__stdout__
