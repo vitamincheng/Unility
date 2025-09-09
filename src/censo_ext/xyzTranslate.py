@@ -31,8 +31,8 @@ def cml(descr) -> argparse.Namespace:
 
     parser.add_argument(
         "-c",
-        "--cut",
-        dest="cut",
+        "--nCuts",
+        dest="cuts",
         action="store",
         required=False,
         type=int,
@@ -109,9 +109,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         xyzFile: GeometryXYZs = read_xyz_file(inFile)
 
         outGeometry = GeometryXYZs()
-        if args.cut:
+        if args.cuts:
             outGeometry: GeometryXYZs = xyzFile.method_translate_cut_xyzs(
-                delta=np.array(args.move), cut=args.cut+1)
+                delta=np.array(args.move), cut=args.cuts+1)
         else:
             outGeometry: GeometryXYZs = xyzFile.method_translate_xyzs(
                 np.array(args.move))

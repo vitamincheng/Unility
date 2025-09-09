@@ -11,7 +11,7 @@ outFile: Path = Path("tests/compare/output.xyz")
 
 def test_xyzTranslate_move():
     x: dict = {"file": inFile,
-               "move": [5, 0, 0], "out": outFile, "cut": None}
+               "move": [5, 0, 0], "out": outFile, "cuts": None}
     args = argparse.Namespace(**x)
     xyzTranslate.main(args)
     compare: Path = Path("tests/compare/xyzTranslate-move.xyz")
@@ -21,7 +21,7 @@ def test_xyzTranslate_move():
 
 def test_xyzTranslate_cut():
     x: dict = {"file": inFile,
-               "move": [5, 0, 0], "out": outFile, "cut": 10}
+               "move": [5, 0, 0], "out": outFile, "cuts": 10}
     args = argparse.Namespace(**x)
     xyzTranslate.main(args)
     compare: Path = Path("tests/compare/xyzTranslate-cut.xyz")
@@ -31,12 +31,12 @@ def test_xyzTranslate_cut():
 
 def test_xyzTranslate_cut_move():
     x: dict = {"file": inFile,
-               "move": [5, 0, 0], "out": outFile, "cut": 3}
+               "move": [5, 0, 0], "out": outFile, "cuts": 3}
     args = argparse.Namespace(**x)
     xyzTranslate.main(args)
 
     x: dict = {"file": outFile,
-               "move": [0, 0, 5], "out": Path("tests/compare/output2.xyz"), "cut": 3}
+               "move": [0, 0, 5], "out": Path("tests/compare/output2.xyz"), "cuts": 3}
     args = argparse.Namespace(**x)
     xyzTranslate.main(args)
 
