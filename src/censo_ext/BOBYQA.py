@@ -73,8 +73,8 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-FileName_OrcaS: Path = Path("Average/NMR/orcaS.out")
-FileName_BOBYQA: Path = Path("Average/NMR/orcaS-BOBYQA.out")
+FileOrcaS: Path = Path("Average/NMR/orcaS.out")
+FileBOBYQA: Path = Path("Average/NMR/orcaS-BOBYQA.out")
 
 Ref_TMS: float = 31.820
 
@@ -87,7 +87,7 @@ def rosenbrock(x0) -> float:
     #
     from censo_ext.Tools.datfile import CensoDat
     orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-        Directory / FileName_BOBYQA)
+        Directory / FileBOBYQA)
 
     if len(x0) == 1:
         # single peak
@@ -99,7 +99,7 @@ def rosenbrock(x0) -> float:
             for idx_key in loop:
                 orcaS_Table[idx_key][1] = x0[idx]
 
-    np.savetxt(Directory/FileName_BOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
+    np.savetxt(Directory/FileBOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
     orcaS_Table = np.delete(orcaS_Table, 2, axis=1)
 
     if prog:
@@ -140,7 +140,7 @@ def rosenbrock(x0) -> float:
 
     elif not prog:
         # ic("Internal")
-        np.savetxt(Directory/FileName_OrcaS, orcaS_Table, fmt="%10d %10.5f")
+        np.savetxt(Directory/FileOrcaS, orcaS_Table, fmt="%10d %10.5f")
         import censo_ext.anmr as anmr
         x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0,
                    'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
@@ -179,7 +179,7 @@ def rosenbrock(x0) -> float:
 def Scan_single_Peak() -> None:
     import pybobyqa
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-        Directory / FileName_BOBYQA)
+        Directory / FileBOBYQA)
     in_set: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
     in_set = {x for x in in_set if x < 1000 and x >= 1}
     # in_set.discard(0)
@@ -207,7 +207,7 @@ def Scan_single_Peak() -> None:
 def Scan_group_Peaks() -> None:
     import pybobyqa
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-        Directory / FileName_BOBYQA)
+        Directory / FileBOBYQA)
 
     in_set: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
     in_set = {x for x in in_set if x >= 1000}
@@ -267,9 +267,9 @@ def Scan_group_Peaks() -> None:
 
 def Create_BOBYQA() -> None:
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-        Directory / FileName_OrcaS)
+        Directory / FileOrcaS)
     OrcaS_Table = np.insert(OrcaS_Table, 2, 0, axis=1)
-    np.savetxt(Directory / FileName_BOBYQA,
+    np.savetxt(Directory / FileBOBYQA,
                OrcaS_Table, fmt="%10d %10.5f %10d")
     print(" Create the orcaS-BOBYQA.out file ")
     print(" three column :         0 - Do nothing ")
@@ -312,10 +312,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     else:
         prog = False
 
-    if IsExist_return_bool(Directory / FileName_OrcaS):                 # type: ignore # nopep8
-        ic("orcaS.out is exist")
-        if IsExist_return_bool(Directory / FileName_BOBYQA):            # type: ignore # nopep8
-            ic("orcaS-BOBYQA.out is exist")
+    if IsExist_return_bool(Directory / FileOrcaS):                 # type: ignore # nopep8
+        ic(FileOrcaS, " is exist")
+        if IsExist_return_bool(Directory / FileBOBYQA):            # type: ignore # nopep8
+            ic(FileBOBYQA, " is exist")
             if prog:
                 # ic("External")
                 cwd: Path = Path(os.getcwd())
@@ -347,7 +347,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     else:
         ic()
         raise FileNotFoundError(
-            str(Directory/FileName_OrcaS) + " is not exist !!!")  # type: ignore # nopep8
+            str(Directory/FileOrcaS) + " is not exist !!!")  # type: ignore # nopep8
 
 
 if __name__ == "__main__":

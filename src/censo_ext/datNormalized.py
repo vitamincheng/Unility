@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # from icecream import ic
 import argparse
+from pathlib import Path
 from sys import argv as sysargv
 # from scipy.signal import argrelmax, argrelmin
 
@@ -90,15 +91,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml(descr)
     print(descr)  # Program description
     print(f"    provided arguments: {" ".join(sysargv)}")
-
-    if args.file:
+    inFile: Path = Path(args.file)
+    outFile: Path = Path(args.out)
+    if inFile:
         from censo_ext.Tools.utility import IsExist
-        IsExist(args.file)
+        IsExist(inFile)
         from censo_ext.Tools.datfile import CensoDat
-        inDat: CensoDat = CensoDat(args.file)
+        inDat: CensoDat = CensoDat(inFile)
         inDat.method_normalize_dat(
             start=args.start, end=args.end, dpi=args.dpi)
-        inDat.set_fileName(args.out)
+        inDat.set_fileName(outFile)
         inDat.method_save_dat()
 
 

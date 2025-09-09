@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 import argparse
-import censo_ext.dat2BOBYQA as dat2BOBYQA
+import censo_ext.Pending_dat2BOBYQA as Pending_dat2BOBYQA
 import censo_ext.BOBYQA as BOBYQA
 import censo_ext.anmr as anmr
 
@@ -45,7 +45,7 @@ def test_dat2BOBYQA_missing_args():
     x: dict = {}
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
-        dat2BOBYQA.main(args)
+        Pending_dat2BOBYQA.main(args)
     assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
 
@@ -55,5 +55,5 @@ def test_dat2BOBYQA_Full():
     BOBYQA_init()
     x: dict = {"dir": DirName, "file": DirName /
                RefDat, "start": -5.0, "end": 15.0, "dpi": 100, "thr": 10}
-    dat2BOBYQA.main(argparse.Namespace(**x))
+    Pending_dat2BOBYQA.main(argparse.Namespace(**x))
     BOBYQA_final_remove_files()

@@ -94,9 +94,9 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def idx_3atom_opt(args) -> tuple[int, int, int]:
+def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
     from censo_ext.Tools.factor import method_factor_analysis
-    args_x: dict = {"file": args.file,
+    args_x: dict = {"file": inFile,
                     "factor": 0.5, "debug": False, "opt": False}
     idx1_LowFactor: list[int]
     idx_STD: dict[int, float]
@@ -108,7 +108,7 @@ def idx_3atom_opt(args) -> tuple[int, int, int]:
     idx1_Bonding: list[list[int]] = []
     for idx, x in enumerate(idx1_LowFactor):
         from censo_ext.Tools.topo import Topo
-        args_x: dict = {"file": args.file, "bonding": x,
+        args_x: dict = {"file": inFile, "bonding": x,
                         "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
         idx1_Bonding.append(Sts_topo.method_bonding(
@@ -151,6 +151,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
 
+    inFile = Path(args.file)
+    outFile = Path(args.out)
+
     if not args.print:
         print(descr)  # Program description
         print(f"    provided arguments: {" ".join(sysargv)}")
@@ -166,23 +169,23 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if not args.atom and args.auto:
         print("\n Automated to set the 3 atoms to return origin and lay on XZ plane")
         print(" First FactorAnalysis.py will executive and second continue the RetrunOandZ.py ")
-        p_idx, q_idx, r_idx = idx_3atom_opt(args)
+        p_idx, q_idx, r_idx = idx_3atom_opt(inFile)
     else:
         p_idx, q_idx, r_idx = args.atom
 
-    infile: GeometryXYZs = GeometryXYZs(args.file)
-    infile.method_read_xyz()
+    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+    xyzFile.method_read_xyz()
 
     # Process xyz file
-    for idx_St in range(len(infile)):
+    for idx_St in range(len(xyzFile)):
 
-        dxyz: npt.NDArray[np.float64] = infile.Sts[idx_St].coord[p_idx-1].copy()
-        infile.Sts[idx_St].coord -= dxyz  # type: ignore
+        dxyz: npt.NDArray[np.float64] = xyzFile.Sts[idx_St].coord[p_idx-1].copy()
+        xyzFile.Sts[idx_St].coord -= dxyz  # type: ignore
         import math
         z_axis = (0, 0, math.sqrt(
-            np.sum(np.square(infile.Sts[idx_St].coord[q_idx-1]))))
+            np.sum(np.square(xyzFile.Sts[idx_St].coord[q_idx-1]))))
 
-        rotation_axis = infile.Sts[idx_St].coord[q_idx-1]+z_axis
+        rotation_axis = xyzFile.Sts[idx_St].coord[q_idx-1]+z_axis
         if np.linalg.norm(rotation_axis) == 0:
             Normalized_RotationAxis: npt.NDArray[np.float64] = np.array([
                 0, 1, 0])
@@ -191,23 +194,23 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 np.linalg.norm(rotation_axis)
 
         R_pq = R.from_rotvec(np.pi*Normalized_RotationAxis)
-        infile.Sts[idx_St].coord = R_pq.apply(
-            infile.Sts[idx_St].coord)  # type: ignore
+        xyzFile.Sts[idx_St].coord = R_pq.apply(
+            xyzFile.Sts[idx_St].coord)  # type: ignore
 
-        Angle_qr = np.angle(complex(infile.Sts[idx_St].coord[r_idx-1][0], complex(
-            infile.Sts[idx_St].coord[r_idx-1][1])))
+        Angle_qr = np.angle(complex(xyzFile.Sts[idx_St].coord[r_idx-1][0], complex(
+            xyzFile.Sts[idx_St].coord[r_idx-1][1])))
         R_qr = R.from_euler('z', -Angle_qr)
-        infile.Sts[idx_St].coord = R_qr.apply(
-            infile.Sts[idx_St].coord)  # type: ignore
+        xyzFile.Sts[idx_St].coord = R_qr.apply(
+            xyzFile.Sts[idx_St].coord)  # type: ignore
 
     # Save or print result
     if args.print:
-        infile.method_print([])
+        xyzFile.method_print([])
     else:
-        filename: Path = Path(args.file) if args.replace else Path(args.out)
-        print(f"    Saved to {filename}")
-        infile.set_filename(filename)
-        infile.method_save_xyz([])
+        fileName: Path = inFile if args.replace else outFile
+        print(f"    Saved to {fileName}")
+        xyzFile.set_filename(fileName)
+        xyzFile.method_save_xyz([])
 
 
 if __name__ == "__main__":

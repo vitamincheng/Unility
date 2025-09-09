@@ -142,7 +142,7 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def cal_RMSD_coord(args, xyzfile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDArray[np.float64]:
+def cal_RMSD_coord(args, xyzFile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDArray[np.float64]:
     # start from 0 to num-1
     idx0_cal: list[int] = [x-1 for x in idx1_cal]
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
@@ -151,19 +151,19 @@ def cal_RMSD_coord(args, xyzfile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDAr
     coordSquare: list[list[float]] = []
     for idx0 in (idx0_cal):
         idx_coordSquare, _ = cal_RMSD_xyz(
-            xyzfile, idx0_cal[0]+1, idx0+1, args=argparse.Namespace(**x))
+            xyzFile, idx0_cal[0]+1, idx0+1, args=argparse.Namespace(**x))
         A: list[float] = list(idx_coordSquare.values())
         coordSquare.append(A)
     return np.array(coordSquare, dtype=np.float64)
 
 
 def FactorFilter(args) -> None:
-    xyzfile: GeometryXYZs = GeometryXYZs(args.file)
-    xyzfile.method_read_xyz()
+    xyzFile: GeometryXYZs = GeometryXYZs(args.file)
+    xyzFile.method_read_xyz()
     # start from 1 to num
-    idx1_xyz: list[int] = [x+1 for x in [*range(len(xyzfile))]]
+    idx1_xyz: list[int] = [x+1 for x in [*range(len(xyzFile))]]
 
-    nConfs: int = len(xyzfile)
+    nConfs: int = len(xyzFile)
 
     if not args.thr:
         args.thr = 2
@@ -183,7 +183,7 @@ def FactorFilter(args) -> None:
     while (nConfs > args.thr):
         print(f" ========== Processing {idx1_separate} ==========")
         coord_STD: npt.NDArray[np.float64] = cal_RMSD_coord(
-            args, xyzfile, idx1_xyz).T
+            args, xyzFile, idx1_xyz).T
         Column_STD: npt.NDArray[np.float64] = np.std(coord_STD, axis=0)
         Average_STD: np.float64 = np.float64(np.average(Column_STD))
         print(f" Average of STD       : {Average_STD:10.5f}")
@@ -224,15 +224,15 @@ def FactorFilter(args) -> None:
 
     nMinor: list[int] = []
     for idx, x in enumerate(idx1_minor):
-        xyzfile.set_filename(Dir_Res / Path(f"minor{idx+1}.xyz"))
-        xyzfile.method_save_xyz(x)
+        xyzFile.set_filename(Dir_Res / Path(f"minor{idx+1}.xyz"))
+        xyzFile.method_save_xyz(x)
         print(f" minor{idx+1}.xyz  : {x}")
         nMinor.append(len(x))
     np_nMinor: npt.NDArray[np.float64] = np.array(nMinor)
 
     residue_file: Path = Path("residue.xyz")
-    xyzfile.set_filename(Dir_Res / residue_file)
-    xyzfile.method_save_xyz(major_idx)
+    xyzFile.set_filename(Dir_Res / residue_file)
+    xyzFile.method_save_xyz(major_idx)
     print(f" {residue_file} : {major_idx}")
 
     print(f" Coefficient of variation : {np_nMinor.std()/np_nMinor.mean()}")

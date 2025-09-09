@@ -112,20 +112,22 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
 
-    single_traj_Name = ".traj.xyz"
-    temp_isomer_Name = ".isomers.xyz"
+    single_traj_Name = Path(".traj.xyz")
+    temp_isomer_Name = Path(".isomers.xyz")
     xtb_cmd: str = ""
-    infile: GeometryXYZs = GeometryXYZs(args.file)
-    infile.method_read_xyz()
+    inFile = Path(args.file)
+    outFile = Path(args.out)
+    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+    xyzFile.method_read_xyz()
     from censo_ext.Tools.utility import program_IsExist
     prog = "xtb"
     program_IsExist(prog)
     xtb_cmd += prog
 
-    print(f" Inputted geometry file: {args.file}")
+    print(f" Inputted geometry file: {inFile}")
     xtb_cmd += f" {single_traj_Name}"
     print(" Loading basic information from the inputted geometry file ...")
-    print(f" There are totally       {len(infile)} geometries in the inputted geometry file\n")  # nopep8
+    print(f" There are totally       {len(xyzFile)} geometries in the inputted geometry file\n")  # nopep8
     print(f" Setting method :  {args.method}")
     cmd_solvent = "vacuum"
     if args.alpb and (not args.gbsa):
@@ -148,9 +150,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.opt:
         xtb_cmd += " --opt"
 
-    for idx in range(1, len(infile)+1, 1):
-        infile.set_filename(Path(single_traj_Name))
-        infile.method_save_xyz([idx])
+    for idx in range(1, len(xyzFile)+1, 1):
+        xyzFile.set_filename(single_traj_Name)
+        xyzFile.method_save_xyz([idx])
         print(f"                          *** Configuration         {idx}  ****")  # nopep8
         print(f" Loading geometry	 {idx}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
@@ -171,22 +173,22 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 if re.search(r"TOTAL ENERGY", y):
                     get_energy = idy
             if get_energy:
-                infile.Sts[idx -
-                           1].comment_energy = float(xtb_lines[get_energy].split()[3])
+                xyzFile.Sts[idx -
+                            1].comment_energy = float(xtb_lines[get_energy].split()[3])
 
     if args.opt:
         # print("opt")
-        outfile: GeometryXYZs = GeometryXYZs(Path(temp_isomer_Name))
-        outfile.method_read_xyz()
-        outfile.method_comment_new()
-        outfile.set_filename(args.out)
-        outfile.method_save_xyz([])
+        optFile: GeometryXYZs = GeometryXYZs(temp_isomer_Name)
+        optFile.method_read_xyz()
+        optFile.method_comment_new()
+        optFile.set_filename(outFile)
+        optFile.method_save_xyz([])
     else:
         # print("singe point")
-        infile.method_rewrite_comment()
-        infile.method_comment_new()
-        infile.set_filename(args.out)
-        infile.method_save_xyz([])
+        xyzFile.method_rewrite_comment()
+        xyzFile.method_comment_new()
+        xyzFile.set_filename(outFile)
+        xyzFile.method_save_xyz([])
 
     subprocess.call(
         "rm -rf charges wbo xtb.out xtbrestart xtbtopo.mol xtbopt* .xtboptok", shell=True)

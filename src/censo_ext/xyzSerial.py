@@ -86,24 +86,26 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(descr)  # Program description
         print(f"    provided arguments: {" ".join(sysargv)}")
 
-    xyzfile: GeometryXYZs = GeometryXYZs(Path(args.file))
-    xyzfile.method_read_xyz()
+    inFile = Path(args.file)
+    outFile = Path(args.out)
+    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+    xyzFile.method_read_xyz()
 
     if args.keep:
-        xyzfile.method_comment_keep()
+        xyzFile.method_comment_keep()
         if not args.print:
             print("keep serial numbers")
     elif args.new:
-        xyzfile.method_comment_new()
+        xyzFile.method_comment_new()
         if not args.print:
             print("Reordering serials numbers from 1")
 
     if args.print:
-        xyzfile.method_print([])
+        xyzFile.method_print([])
     else:
-        xyzfile.set_filename(Path(args.out))
-        xyzfile.method_save_xyz([])
-        print(f"Data saved to : {args.out}")
+        xyzFile.set_filename(outFile)
+        xyzFile.method_save_xyz([])
+        print(f"Data saved to : {outFile}")
 
 
 if __name__ == "__main__":

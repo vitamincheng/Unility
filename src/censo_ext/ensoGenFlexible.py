@@ -94,8 +94,9 @@ def xtb(args):
     molclus_xtb.main(argparse.Namespace(**x))
     os.chdir(cwd)
     copy_file(xtb_folder / outFile, inFile)
-    copy_file(xtb_folder / outFile, Path("isomers.xyz"))
-    print(" Saved the isomers.xyz in your working directory ")
+    isomers_xyz: Path = Path("isomers.xyz")
+    copy_file(xtb_folder / outFile, isomers_xyz)
+    print(f" Saved the {isomers_xyz} in your working directory ")
     shutil.rmtree(xtb_folder, ignore_errors=True)
     print(" ========== End ==========")
 
@@ -116,8 +117,9 @@ def orca(args, Dir, FileName):
     molclus_orca.main(argparse.Namespace(**x))
     os.chdir(working_Dir)
     copy_file(xtb_folder / outFile, inFile)
-    copy_file(xtb_folder / outFile, Path("isomers.xyz"))
-    print(" Saved the isomers.xyz in your working directory ")
+    isomers_xyz: Path = Path("isomers.xyz")
+    copy_file(xtb_folder / outFile, isomers_xyz)
+    print(f" Saved the {isomers_xyz} in your working directory ")
     shutil.rmtree(xtb_folder, ignore_errors=True)
     print(" ========== End ==========")
 
@@ -145,12 +147,12 @@ def ensoGen(args, thermo_list) -> None:
     from censo_ext.Tools.xyzfile import GeometryXYZs
     from censo_ext.Tools.anmrfile import Anmr
     print(" ========= ensoGenFlexible ==========")
-    xyzfile: GeometryXYZs = GeometryXYZs(args.file)
-    xyzfile.method_read_xyz()
+    xyzFile: GeometryXYZs = GeometryXYZs(args.file)
+    xyzFile.method_read_xyz()
     # outAnmr: ClassAnmr = ClassAnmr(Path(args.file).parents[0])
     outAnmr: Anmr = Anmr()
     outAnmr.method_create_enso(
-        xyzfile.method_ensoGenFlexible(args, thermo_list))
+        xyzFile.method_ensoGenFlexible(args, thermo_list))
     outAnmr.method_save_enso()
     print(" Saved the anmr_enso.new in your working directory ")
     print(" ========== End ==========")

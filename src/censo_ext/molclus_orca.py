@@ -76,13 +76,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
 
+    inFile = Path(args.file)
+    outFile = Path(args.out)
+    solo_xyz: Path = Path("[xyzfile]")
+    template_inp: Path = Path(".template.inp")
+
     # Ensure input file exists
     from censo_ext.Tools.utility import IsExist
-    IsExist(args.file)
+    IsExist(inFile)
     template_Exist: bool = IsExist_return_bool(args.template)
 
     # Define default template
-    template_inp: str = ".template.inp"
     if not template_Exist:
         with open(template_inp, "w") as f:
             sys.stdout = f
@@ -92,9 +96,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         sys.stdout = sys.__stdout__
 
     # Read input file
-    inGeoXYZs: GeometryXYZs = GeometryXYZs(args.file)
-    inGeoXYZs.method_read_xyz()
-    solo_xyz: Path = Path("[xyzfile]")
+    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+    xyzFile.method_read_xyz()
 
     # Find orca executable path
     str_env: list[str] = os.environ['PATH'].split(":")
@@ -113,17 +116,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if template_Exist:
         template_Name: str = args.template[:-4]
     else:
-        template_Name: str = template_inp[:-4]
+        template_Name: str = str(template_inp)[:-4]
 
-    print(f" Inputted geometry file: {args.file}")
+    print(f" Inputted geometry file: {inFile}")
     print(" Loading basic information from the inputted geometry file ...")
     print(
-        f" There are totally       {len(inGeoXYZs)} geometries in the inputted geometry file")
+        f" There are totally       {len(xyzFile)} geometries in the inputted geometry file")
     if template_Exist:
         print(f" Setting file : {args.template}")
     else:
         print(" Setting file : use default [r2SCAN-3c / CHCl3] ")
-        args.template = template_inp
+        args.template = str(template_inp)
     print(" Loading setting file ...")
     print(" All conformer in the inputted geometry file will be processed")
     subprocess.call("rm -f isomers.xyz *.tmp", shell=True)
@@ -132,10 +135,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(" Running: rm isomers.xyz *.tmp")
     templateFileIsExists: bool = False
 
-    for idx1 in range(1, len(inGeoXYZs)+1, 1):
+    for idx1 in range(1, len(xyzFile)+1, 1):
         idx1_str = (f"{idx1:05d}")
-        inGeoXYZs.set_filename(solo_xyz)
-        inGeoXYZs.method_save_xyz([idx1])
+        xyzFile.set_filename(solo_xyz)
+        xyzFile.method_save_xyz([idx1])
 
         print(f"                          "
               f"*** Configuration        {idx1} ****")
@@ -171,23 +174,23 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 f"mv -f {template_Name}.xyz {idx1_str}.xyz", shell=True)
         else:
             if get_energy:
-                inGeoXYZs.Sts[idx1 - 1].comment_energy = float(orca_lines[get_energy].split()[4])  # nopep8
+                xyzFile.Sts[idx1 - 1].comment_energy = float(orca_lines[get_energy].split()[4])  # nopep8
 
         subprocess.call(f"mv -f {template_Name}.out {idx1_str}.out", shell=True)  # nopep8
         subprocess.call(f"mv -f {template_Name}.gbw {idx1_str}.gbw", shell=True)  # nopep8
 
-    if templateFileIsExists:
-        out_File: GeometryXYZs = GeometryXYZs(args.out)
-        out_File.method_read_xyz()
-        out_File.method_comment_new()
-        out_File.method_save_xyz([])
-        print(f" Saved to  {args.out} \n All is done !!!")
+    if templateFileIsExists:  # template File is Exists
+        TemplateExistsFile: GeometryXYZs = GeometryXYZs(outFile)
+        TemplateExistsFile.method_read_xyz()
+        TemplateExistsFile.method_comment_new()
+        TemplateExistsFile.method_save_xyz([])
+        print(f" Saved to  {outFile} \n All is done !!!")
     else:
-        inGeoXYZs.method_rewrite_comment()
-        inGeoXYZs.method_comment_new()
-        inGeoXYZs.set_filename(args.out)
-        inGeoXYZs.method_save_xyz([])
-        print(f" Saved to  {args.out} \n All is done !!!")
+        xyzFile.method_rewrite_comment()
+        xyzFile.method_comment_new()
+        xyzFile.set_filename(outFile)
+        xyzFile.method_save_xyz([])
+        print(f" Saved to  {outFile} \n All is done !!!")
 
     if not args.reserve:
         subprocess.call(

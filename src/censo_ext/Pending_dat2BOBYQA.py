@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import argparse
-from icecream import ic
+# from icecream import ic
 from sys import argv as sysargv
 import numpy as np
 import numpy.typing as npt

@@ -2,6 +2,7 @@
 import argparse
 from sys import argv as sysargv
 import subprocess
+from pathlib import Path
 
 descr = """
 ________________________________________________________________________________
@@ -102,29 +103,36 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print(f"    provided arguments: {" ".join(sysargv)}")
 
+    inFile: Path = Path(args.file)
+    outFile: Path = Path(args.out)
+    isomersFile: Path = Path("isomers.xyz")
+    clusterFile: Path = Path("cluster.xyz")
+
     from censo_ext.Tools.utility import IsExist
     IsExist(args.file)
 
-    if args.file != "isomers.xyz":
-        subprocess.call(f"cp {args.file} isomers.xyz", shell=True)
-        print(f"  cp {args.file} isomers.xyz")
+    if args.file != isomersFile:
+        subprocess.call(f"cp {inFile} {isomersFile}", shell=True)
+        print(f"  cp {inFile} {isomersFile}")
 
-    crest_cmd: str = f"crest isomers.xyz --cregen isomers.xyz --rthr {args.rthr} -- bthr {args.bthr} --ethr {args.ethr} --ewin {args.ewin} > isomers.out"  # nopep8
-
+    prog = "crest"
     from censo_ext.Tools.utility import program_IsExist
-    program_IsExist("crest")
+    program_IsExist("prog")
+
+    crest_cmd: str = f"{prog} {isomersFile} --cregen {isomersFile} --rthr {args.rthr} -- bthr {args.bthr} --ethr {args.ethr} --ewin {args.ewin} > isomers.out"  # nopep8
 
     subprocess.call(crest_cmd, shell=True)
     print(f"  {crest_cmd}")
-    subprocess.call("mv -f crest_ensemble.xyz cluster.xyz", shell=True)
-    print("  mv -f crest_ensemble.xyz cluster.xyz")
+
+    subprocess.call(f"mv -f crest_ensemble.xyz {clusterFile}", shell=True)
+    print(f"  mv -f crest_ensemble.xyz {clusterFile}")
     subprocess.call(
-        "xyzSerial.py -i cluster.xyz --new --print > tmp && mv -f tmp cluster.xyz", shell=True)
-    if args.out != "cluster.xyz":
-        subprocess.call(f"mv -f cluster.xyz {args.out}", shell=True)
-        print(f"  mv -f cluster.xyz {args.out}")
-    if args.file != "isomers.xyz":
-        subprocess.call("rm -rf isomers.xyz", shell=True)
+        f"xyzSerial.py -i {clusterFile} --new --print > tmp && mv -f tmp {clusterFile}", shell=True)
+    if outFile != clusterFile:
+        subprocess.call(f"mv -f {clusterFile} {outFile}", shell=True)
+        print(f"  mv -f cluster.xyz {outFile}")
+    if inFile != isomersFile:
+        subprocess.call(f"rm -rf {isomersFile}", shell=True)
 
     subprocess.call(
         "rm -rf coord* cre_members crest.energies crest_best.xyz scoord.1 struc.xyz isomers.xyz.sorted crest_input_copy.xyz crest.restart", shell=True)

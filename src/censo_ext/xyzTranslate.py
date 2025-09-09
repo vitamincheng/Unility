@@ -73,7 +73,7 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-def read_xyz_file(file: str) -> GeometryXYZs:
+def read_xyz_file(file: str | Path) -> GeometryXYZs:
     try:
         infile = GeometryXYZs()
         infile.set_filename(Path(file))
@@ -85,7 +85,7 @@ def read_xyz_file(file: str) -> GeometryXYZs:
         raise
 
 
-def write_xyz_file(outfile: GeometryXYZs, file: str) -> None:
+def write_xyz_file(outfile: GeometryXYZs, file: str | Path) -> None:
     """Write XYZ data to a file."""
     try:
         outfile.set_filename(Path(file))
@@ -102,18 +102,21 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print(f"    provided arguments: {" ".join(sysargv)}")
 
-    try:
-        infile: GeometryXYZs = read_xyz_file(args.file)
+    inFile = Path(args.file)
+    outFile = Path(args.out)
 
-        outfile = GeometryXYZs()
+    try:
+        xyzFile: GeometryXYZs = read_xyz_file(inFile)
+
+        outGeometry = GeometryXYZs()
         if args.cut:
-            outfile: GeometryXYZs = infile.method_translate_cut_xyzs(
+            outGeometry: GeometryXYZs = xyzFile.method_translate_cut_xyzs(
                 delta=np.array(args.move), cut=args.cut+1)
         else:
-            outfile: GeometryXYZs = infile.method_translate_xyzs(
+            outGeometry: GeometryXYZs = xyzFile.method_translate_xyzs(
                 np.array(args.move))
 
-        write_xyz_file(outfile, args.out)
+        write_xyz_file(outGeometry, outFile)
 
     except Exception as e:
         print(f"An error occurred: {e}")

@@ -95,7 +95,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     if args == argparse.Namespace():
         args = cml(descr)
 
-    single_xyz_name = ".temp.xyz"
+    inFile = Path(args.file)
+    single_xyz_name = Path(".temp.xyz")
 
     import platform
     _system: str = platform.system()
@@ -105,17 +106,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     if _system == "Darwin":
         xtb_cmd = "/opt/homebrew/bin/xtb"
 
-    infile: GeometryXYZs = GeometryXYZs(args.file)
-    infile.method_read_xyz()
+    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+    xyzFile.method_read_xyz()
 
     from censo_ext.Tools.utility import program_IsExist
     program_IsExist("xtb")
 
-    print(f" Inputted geometry file: {args.file}")
+    print(f" Inputted geometry file: {inFile}")
     xtb_cmd = f"{xtb_cmd} {single_xyz_name}"
 
     print(" Loading basic information from the inputted geometry file ...")
-    print(f" There are totally        {len(infile)} geometries in the inputted geometry file\n")  # nopep8
+    print(f" There are totally        {len(xyzFile)} geometries in the inputted geometry file\n")  # nopep8
     print(f" Setting method :  {args.method}")
     cmd_solvent = "vacuum"
     if args.alpb:
@@ -154,9 +155,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     sys.stdout = sys.__stdout__
 
     thermo: list = []
-    for idx in range(1, len(infile)+1, 1):
-        infile.set_filename(Path(single_xyz_name))
-        infile.method_save_xyz([idx])
+    for idx in range(1, len(xyzFile)+1, 1):
+        xyzFile.set_filename(single_xyz_name)
+        xyzFile.method_save_xyz([idx])
         print(f"                          *** Configuration         {idx}  ****")  # nopep8
         print(f" Loading geometry	 {idx}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")

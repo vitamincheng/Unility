@@ -114,13 +114,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
 
-    single_traj_Name = ".single_traj.xyz"
-    infile: GeometryXYZs = GeometryXYZs(args.file)
-    infile.method_read_xyz()
+    single_traj_Name = Path(".single_traj.xyz")
+    inFile = Path(args.file)
+    outFile = Path(args.out)
+    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+    xyzFile.method_read_xyz()
 
-    print(f" Inputted geometry file: {args.file}")
+    print(f" Inputted geometry file: {inFile}")
     print(" Loading basic information from the inputted geometry file ...")
-    print(f" There are totally       {len(infile)} geometries in the inputted geometry file\n")  # nopep8
+    print(f" There are totally       {len(xyzFile)} geometries in the inputted geometry file\n")  # nopep8
     print(f" Setting method :  {args.method}")
     cmd_solvent = "vacuum"
     if args.alpb:
@@ -134,10 +136,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(" Cleaning old input and temporary files ...")
     print(" Running: rm isomers.xyz *.tmp")
 
-    for idx in range(1, len(infile)+1, 1):
+    for idx in range(1, len(xyzFile)+1, 1):
         # idx_str : str = f"{[idx]:05d}"
-        infile.set_filename(Path(single_traj_Name))
-        infile.method_save_xyz([idx])
+        xyzFile.set_filename(Path(single_traj_Name))
+        xyzFile.method_save_xyz([idx])
         print(f"                          *** Configuration         {idx}  ****")  # nopep8
         print(f" Loading geometry	 {idx}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
@@ -176,16 +178,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 optimizer.send((energy, gradient / angstrom))
 
                 trajectory.append((energy, gradient, coordinates))
-            infile.Sts[idx-1].comment_energy = trajectory[-1][0]
-            infile.Sts[idx-1].coord = list(trajectory[-1][2])
+            xyzFile.Sts[idx-1].comment_energy = trajectory[-1][0]
+            xyzFile.Sts[idx-1].coord = list(trajectory[-1][2])
 
         else:
-            infile.Sts[idx-1].comment_energy = results["energy"]
+            xyzFile.Sts[idx-1].comment_energy = results["energy"]
 
-    infile.method_rewrite_comment()
-    infile.method_comment_new()
-    infile.set_filename(args.out)
-    infile.method_save_xyz([])
+    xyzFile.method_rewrite_comment()
+    xyzFile.method_comment_new()
+    xyzFile.set_filename(outFile)
+    xyzFile.method_save_xyz([])
 
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(single_traj_Name)

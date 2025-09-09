@@ -94,7 +94,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml(descr)
 
     from censo_ext.Tools.utility import IsExist
-    IsExist(Path(args.file))
+    inFile = Path(args.file)
+    outFile = Path(args.out)
+    IsExist(inFile)
 
     if not args.print:
         print(descr)  # Program description
@@ -110,12 +112,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     from censo_ext.Tools.utility import delete_file_bool
     Delete_work: bool = False
     if not args.print:
-        Delete_work = delete_file_bool(args.out)
+        Delete_work = delete_file_bool(outFile)
 
     idx1_p, idx1_q = args.atoms
     nCutters: int = args.cuts
 
-    x: dict = {"file": args.file, "bond_broken": [idx1_q, idx1_p],
+    x: dict = {"file": inFile, "bond_broken": [idx1_q, idx1_p],
                "print": False, "debug": False}
 
     from censo_ext.Tools.topo import Topo
@@ -123,10 +125,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     idx0_broken_bond_H: list[int] = [
         x-1 for x in Sts_topo.method_broken_bond_H(argparse.Namespace(**x))]
 
-    infile: GeometryXYZs = GeometryXYZs(args.file)
-    infile.method_read_xyz()
+    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+    xyzFile.method_read_xyz()
 
-    for idx0_St, St in enumerate(infile.Sts):
+    for idx0_St, St in enumerate(xyzFile.Sts):
 
         dxyz: npt.NDArray[np.float64] = St.coord[idx1_p-1].copy()
         inital: list[npt.NDArray[np.float64]] = St.coord.copy()
@@ -148,17 +150,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             St.coord += dxyz
 
             if args.print:
-                infile.method_print([idx0_St+1])
+                xyzFile.method_print([idx0_St+1])
             else:
-                infile.set_filename(args.out)
-                infile.method_save_xyz_append([idx0_St+1])
+                xyzFile.set_filename(outFile)
+                xyzFile.method_save_xyz_append([idx0_St+1])
 
     if not args.print:
         if Delete_work:
-            print(f"   {args.out} is here, it will be removed.")
-            print(f"    Overwrite the file : {args.out}")
+            print(f"   {outFile} is here, it will be removed.")
+            print(f"    Overwrite the file : {outFile}")
         else:
-            print(f"    Create a new file  : {args.out}")
+            print(f"    Create a new file  : {outFile}")
 
 
 if __name__ == "__main__":

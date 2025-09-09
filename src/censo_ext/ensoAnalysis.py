@@ -143,13 +143,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     from censo_ext.Tools.utility import IsExist_return_bool
     from os.path import exists
     from censo_ext.Tools.Parameter import Eh, Rcal
-    fileExists: bool = IsExist_return_bool(args.file)
-    backupfile: Path = Path(str(args.file) + ".backup")
-    backupfileExists: bool = IsExist_return_bool(backupfile)
+
+    inFile: Path = Path(args.file)
+    backupFile: Path = Path(str(args.file) + ".backup")
+
+    fileExists: bool = IsExist_return_bool(inFile)
+    backupfileExists: bool = IsExist_return_bool(backupFile)
 
     print("")
-    print(f" Reading the input file  : {args.file}")
-    print(f" Reading the backup file : {backupfile}")
+    print(f" Reading the input file  : {inFile}")
+    print(f" Reading the backup file : {backupFile}")
 
     if fileExists:
         if backupfileExists:
@@ -157,13 +160,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             pass
         else:
 
-            print(f" The backup file is not exist. {backupfile}")
+            print(f" The backup file is not exist. {backupFile}")
             print(f" ONOFF args.new : {args.new}")
             if args.new:
                 print(
-                    f" Copy {args.file} to {backupfile} for original Energy and for reference")
+                    f" Copy {inFile} to {backupFile} for original Energy and for reference")
                 import shutil
-                shutil.copyfile(args.file, args.file + ".backup")
+                shutil.copyfile(inFile, backupFile)
                 print("  Run this program again ")
                 print("  Exit and Close the program !!!")
                 exit(0)
@@ -177,14 +180,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 exit(0)
 
     else:
-        print(f"  the file is not exist. {args.file}")
+        print(f"  the file is not exist. {inFile}")
         print("  Exit and Close the program !!!")
         ic()
         raise FileNotFoundError(
-            str(args.file) + " was not found or is a directory")
+            str(inFile) + " was not found or is a directory")
 
     if (not fileExists) or (not backupfileExists):
-        print(f"    {args.file} or {backupfile} , the file is not exist ...")
+        print(f"    {inFile} or {backupFile} , the file is not exist ...")
         print("  Exit and Close the program !!!")
         ic()
         exit(0)
@@ -197,7 +200,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     #                 dtype=['i8', 'i8', 'f8', 'f8']))
     anmr_enso: npt.NDArray = np.genfromtxt(args.file, names=True, dtype=[
         ('i8'), ('i8'), ('i8'), ('f8'), ('f8'), ('f8'), ('f8'), ('f8')])
-    backup_enso: npt.NDArray = np.genfromtxt(backupfile, names=True, dtype=[
+    backup_enso: npt.NDArray = np.genfromtxt(backupFile, names=True, dtype=[
         ('i8'), ('i8'), ('i8'), ('f8'), ('f8'), ('f8'), ('f8'), ('f8')])
 
     # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
@@ -252,7 +255,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("")
         print("args.weights is ON and will only executive the percentage of each CONFS")
         print("Calculated and Weights of each CONFS from (Energy + mRRHO) ")
-        print(f"And Save to the original file : {args.file}")
+        print(f"And Save to the original file : {inFile}")
         print("Finished ...")
         print("")
         exit(0)
@@ -262,8 +265,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     avg_nums = int(np.sum(anmr_enso['ONOFF']))
     avg_fraction = 1/avg_nums
 
-    print(f" the name of input file          : {args.file}")
-    print(f" the name of input file energy   : {backupfile}")
+    print(f" the name of input file          : {inFile}")
+    print(f" the name of input file energy   : {backupFile}")
     print(f" number of CONFS                 : {avg_nums:d}")
     print("")
     print(" ----- Average CONFS -----")
@@ -387,7 +390,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         result_enso['BW'] = avg_fraction
         if result_enso.dtype.names:
             names_anmr = list(result_enso.dtype.names)
-        np.savetxt("average_enso", result_enso[names_anmr[:8]], comments="", header="ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi",
+        avg_enso: Path = Path("average_enso")
+        np.savetxt(avg_enso, result_enso[names_anmr[:8]], comments="", header="ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi",
                    fmt='%-6d %-4d %-4d %6.4f %11.7f %10.7f %10.7f %2.3f')
 
         if args.verbose:

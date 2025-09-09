@@ -263,6 +263,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     for idx, Active in enumerate(inAnmr.get_Anmr_Active()):
         if idx == 0:
             if Active == 'C':
+
                 # Carbon processing - read molecular structure
                 from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
                 mol, neighbors, bond_order = read_mol_neighbors_bond_order(
@@ -270,14 +271,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
                 # For C/CH/CH2/CH3 from 0 1 2 3 to 1 2 3 4 for Carbon spectra
                 inHydrogen = [value+1 for value in bond_order.values()]
-
-                Active_range = 200
-                dpi = 500
+                Active_range, dpi = 200, 500
                 if not args.lw:
                     args.lw = 20
                 if not args.thr:
                     args.thr = args.lw * 0.3
                 inJCoups = np.zeros_like(inJCoups)
+
+                if set(inAnmr.avg_orcaSJ.idx1Atoms.values()) != set(Active):
+
+                    print(" Your orcaS.out have Something wrong")
+                    print("  Exit and Close the program !!!")
+                    ic()
+                    exit(0)
+
             elif Active == 'H':
                 # Hydrogen processing - identify equivalent hydrogens
                 idx1_nMagEqvHydrogens: dict[int, int] = {}
@@ -292,17 +299,24 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 inHydrogen = [
                     value for value in idx1_nMagEqvHydrogens.values()]
 
-                Active_range = 10
-                dpi = 10000
+                Active_range, dpi = 10, 10000
                 if not args.lw:
                     args.lw = 1
                 if not args.thr:
                     args.thr = args.lw * 0.3
+
+                if set(inAnmr.avg_orcaSJ.idx1Atoms.values()) != set(Active):
+
+                    print(" Your orcaS.out have Something wrong")
+                    print("  Exit and Close the program !!!")
+                    ic()
+                    exit(0)
             else:
                 print("  Other Active Nuclear element, waiting to build")
                 print("  Exit and Close the program !!!")
                 ic()
                 exit(0)
+
         elif idx >= 1:
             print("  Only for ONE Active Nuclear element, waiting to build")
             print("  Exit and Close the program !!!")
@@ -314,14 +328,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     mat_filter_multi: npt.NDArray[np.int64] = np.array([])
 
     # Main processing loop for identifying and categorizing spin systems
-    if not args.json and len(inAnmr.get_Anmr_Active()) == 1 and inAnmr.get_Anmr_Active()[0] == 'H':
+    if not args.json and inAnmr.get_Anmr_Active()[0] == 'H':
         inJCoups_origin: npt.NDArray[np.float64] = copy.deepcopy(inJCoups)
 
         while (1):
 
             # the numbers of mss is low, it will be computated as AB quartet
             if len(inSParams*inHydrogen) <= args.mss:
-
                 inJCoups = copy.deepcopy(inJCoups_origin)
 
                 # Step 1: Filter out small coupling constants based on threshold
@@ -358,12 +371,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 mat_filter_low_factor = (
                     np.abs(inJCoups) > args.thr).astype(np.int64)
                 inJCoups[np.logical_not(mat_filter_low_factor)] = 0
-                # mat_filter_low_factor = (np.abs(inJCoups_origin) > args.thr)*1
-                # inJCoups = copy.deepcopy(inJCoups_origin)
-                # inJCoups *= mat_filter_low_factor
 
                 # Step 2: Identify potential AB quartet systems
-                # np.fill_diagonal(mat_filter_ab_quartet, 0)
                 mat_filter_ab_quartet: npt.NDArray[np.int64] = np.zeros(
                     (inSParams.size, inSParams.size), dtype=np.int64)
                 import math
@@ -410,10 +419,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             # Merge overlapping spin system groups
             idx0_ab_group_sets = []
             for _, x in idx0_ab_connect:
-                if len(x) == 1:                     # type: ignore
+                if len(x) == 1:                      # type: ignore
                     idx0_ab_group_sets.append(x)     # type: ignore
-                elif len(x) > 1:                    # type: ignore
-                    group: set[int] = x             # type: ignore
+                elif len(x) > 1:                     # type: ignore
+                    group: set[int] = x              # type: ignore
                     loop: bool = True
                     bond_penetration: int = 1
                     while loop:
@@ -429,9 +438,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     ic()
                     raise ValueError("  idx0_ab_group_sets is bugs !!!")
 
-            if len(inSParams*inHydrogen) <= args.mss:
-                pass
-            else:
+            if len(inSParams*inHydrogen) > args.mss:
                 # Handle CH3 equivalent groups manually (symmetry considerations)
                 # So if chemical shift in AB quartet region need to move to multiplet
                 list_Equivalent3: list[int] = []
@@ -453,6 +460,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                         set_move = set_move.difference(set([idx]))
                     for idy, y in enumerate(set_move):
                         mat_filter_multi[idx][y] = 1
+
             # ic(idx0_ab_group_sets)
             print(" ===== Processing =====")
             print(f" threshold of JCoupling  : {args.thr:>3.5f}")
@@ -509,16 +517,28 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     import censo_ext.Tools.qm as qm
     idx0_peaks_range: list[int] = []
     Res_peaks: list[list[tuple[float, float]]] = []
-    if not args.json and len(inAnmr.get_Anmr_Active()) == 1 and inAnmr.get_Anmr_Active()[0] == 'H':
+    if not args.json and inAnmr.get_Anmr_Active()[0] == 'H':
         print("")
         print(" ===== Processing =====")
         print(" the group of calculate spectra :", len(idx0_ab_group_sets))
         print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
+
         # Res_peaks: list[list[tuple[float, float]]] = []
         if len(inSParams*inHydrogen) <= args.mss:
             idx0_ab_group = list(idx0_ab_group_sets[0])
             v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
             J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
+
+            for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
+                mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
+                    int).tolist()
+                idx0_ab_group: list[int] = list(idx0_ab_group_set)
+                idx1_ab_group: set[int] = set(a+1 for a in idx0_ab_group_set)
+                mat_multi_x_idx0: list[int] = [
+                    idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
+                print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
+                    a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
+
             QM_Base: list[tuple[float, float]] = qm.qm_full(v=list(
                 v), J=J, nIntergals=len(inHydrogen), args=args)
             from nmrsim.math import normalize_peaklist
@@ -527,12 +547,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
         else:
             for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
+
                 mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
                     int).tolist()
                 idx0_ab_group: list[int] = list(idx0_ab_group_set)
-                idx1_ab_group: set[int] = {a+1 for a in idx0_ab_group_set}
+                idx1_ab_group: set[int] = set(a+1 for a in idx0_ab_group_set)
                 mat_multi_x_idx0: list[int] = [
-                    idx0_set*x for x, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
+                    idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
                 print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
                     a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
 
@@ -579,7 +600,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
         idx0_peaks_range = [*range(len(Res_peaks))]
 
-    elif not args.json and len(inAnmr.get_Anmr_Active()) == 1 and inAnmr.get_Anmr_Active()[0] == 'C':
+    elif not args.json and inAnmr.get_Anmr_Active()[0] == 'C':
         for idx, ppm in enumerate(inSParams):
             dat: list = []
             dat.append((float(ppm*(-1)), float(inHydrogen[idx])))
