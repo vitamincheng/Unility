@@ -123,7 +123,7 @@ class Topo():
         for idx in idx_neighbors.keys():
             import numpy as np
             NeighborsAtoms_not_H[idx] = np.array(
-                [i for i in idx_neighbors[idx] if int(i) not in idx1_Hydrogen_atoms])
+                [x for x in idx_neighbors[idx] if int(x) not in idx1_Hydrogen_atoms])
         del NeighborsAtoms_not_H[idx_q]
         Terminal_Atoms: list[int] = [idx_p]
         Complete_Atoms: bool = False
@@ -160,7 +160,7 @@ class Topo():
         idx1_Hydrogen_atoms: list[int] = self.idx1_Hydrogen_atom
         Neighbors_Atoms: list[int] = idx_neighbors[idx_p].tolist()
         Neighbors_Atoms = [
-            i for i in Neighbors_Atoms if i not in idx1_Hydrogen_atoms]
+            x for x in Neighbors_Atoms if x not in idx1_Hydrogen_atoms]
         Neighbors_Atoms.sort()
         if args.print:
             print(f" Bonding : {idx_p} @ Neighbors_Atoms")
@@ -203,7 +203,7 @@ class Topo():
                 del idx_neighbors[key]
         for key, value in idx_neighbors.copy().items():
             idx_neighbors[key] = np.array(
-                [a for a in value if a not in idx1_Hydorgen_atoms])
+                [x for x in value if x not in idx1_Hydorgen_atoms])
 
         # Tranfer neighbors to Graph
         graph_in: list[tuple[int, npt.NDArray]] = list()

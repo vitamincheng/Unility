@@ -100,13 +100,12 @@ class Anmrrc():
         self.Temp: float = float(match.group(5))            # Temp    : Temperature (K)         # nopep8    # type: ignore
 
         # 3 lines of .anmrrc Parameters
-        for idx, x in enumerate(lines):
-            if idx >= 3:
-                self.anmrrc.append([int(x.split()[0]), float(
-                    x.split()[1]), float(x.split()[2]), int(x.split()[3])])
+        for x in lines[3:]:
+            self.anmrrc.append([int(x.split()[0]), float(
+                x.split()[1]), float(x.split()[2]), int(x.split()[3])])
 
         # Set the active species based on anmrrc entries
-        for idx, x in enumerate(self.anmrrc):
+        for x in self.anmrrc:
             if x[3] == 1:
                 self.Active.append(self.Nums_element[int(x[0])])
 
@@ -178,12 +177,12 @@ class Anmrrc():
                     acid_atoms_NoShowRemove.append(idx+1)
         NoShow_Remove_Group: npt.NDArray[np.int64] = np.array(
             [], dtype=np.int64)
-        for idx, x in enumerate(acid_atoms_NoShowRemove):
+        for x in acid_atoms_NoShowRemove:
             NoShow_Remove_Group = np.concatenate(
                 (NoShow_Remove_Group, neighbors[x]), axis=None)
-        idx1_H_atom: list[int] = [idx+1 for idx,
+        idx1_H_atom: list[int] = [idx0+1 for idx0,
                                  i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
-        return [i for i in NoShow_Remove_Group if i in idx1_H_atom]
+        return [x for x in NoShow_Remove_Group if x in idx1_H_atom]
 
     def get_Reference_anmrrc(self) -> float:
         """Retrieve the reference shielding value from the .anmrrc file.
@@ -237,13 +236,13 @@ class Anmr():
             Directory (Path, optional): The directory containing NMR data files. Defaults to Path(".").
         """
         self.__Directory: Path = Directory
+        self.__verbose: bool = verbose
         self.enso: npt.NDArray                              # anmr_enso
         self.anmrJ: npt.NDArray[np.float64]                 # JCoup of anmr.out generated from anmr # nopep8
         self.anmrS: list[list[float]] = []                  # Shielding of anmr.out generated from anmr # nopep8
         # directory of orcaSJ
         self.orcaSJ: list[OrcaSJ] = []
         self.avg_orcaSJ = OrcaSJ()
-        self.__verbose: bool = verbose
 
         # anmr_nucinfo
         # idx1 and numbers of Chemical Equivalent
@@ -403,8 +402,9 @@ class Anmr():
             self.avg_orcaSJ: OrcaSJ = OrcaSJ()
             self.avg_orcaSJ.idx1Atoms = self.orcaSJ[0].idx1Atoms
 
-            for idx in self.orcaSJ[0].SParams.keys():
-                self.avg_orcaSJ.SParams[idx] = 0.0
+            # inital condition, let the chemical shift of average of orcaS is set to 0.0
+            for x in self.orcaSJ[0].SParams.keys():
+                self.avg_orcaSJ.SParams[x] = 0.0
 
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
                 idy0: list[int] = list(map(int, x.SParams.keys()))
@@ -486,7 +486,7 @@ class Anmr():
 
             # Calculation the average ppm of Equivalent Atom and Replace the old ppm
             for orcaSJ in self.orcaSJ:
-                for idx, x in enumerate(AtomsEqvKeep):
+                for x in AtomsEqvKeep:
                     if (self.nChemEqvs[x] != 1):
                         ppm: list[float] = []
                         for y in self.NeighborChemEqvs[x]:
@@ -498,17 +498,17 @@ class Anmr():
             # for Equivalent Atom  of orcaJCoups
             # Calculation the average JCoups of Equivalent JCoups and Replace the old JCoups
             for orcaSJ in self.orcaSJ:
-                for idx, x in enumerate(AtomsEqvKeep):
+                for x in AtomsEqvKeep:
                     if (self.nMagnetEqvs[x] != 1):
                         for y in AtomsKeep:
                             JCoups: list[float] = []
                             average: float = 0
-                            for z in (self.NeighborMangetEqvs[x]):
+                            for z in self.NeighborMangetEqvs[x]:
                                 JCoups.append(orcaSJ.JCoups[list(
                                     AtomsKeep).index(y)][list(AtomsKeep).index(z)])
                                 average: float = sum(JCoups)/len(JCoups)
 
-                            for z in (self.NeighborMangetEqvs[x]):
+                            for z in self.NeighborMangetEqvs[x]:
                                 orcaSJ.JCoups[list(AtomsKeep).index(
                                     y)][list(AtomsKeep).index(z)] = average
                                 orcaSJ.JCoups[list(AtomsKeep).index(
@@ -921,7 +921,7 @@ class Anmr():
         """
 
         print("    #  in coord file  # nucs   delta(ppm)")
-        for idx, x in enumerate(self.anmrS):
+        for x in self.anmrS:
             print(f"{x[0]:>5d} {x[1]:>9d} {x[2]:>9d} {x[3]:>13.3f}")
 
     def method_print_anmrJ(self) -> None:
