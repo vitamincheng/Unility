@@ -119,6 +119,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     outFile = Path(args.out)
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
+
+    # Default to xtb command
     from censo_ext.Tools.utility import program_IsExist
     prog = "xtb"
     program_IsExist(prog)

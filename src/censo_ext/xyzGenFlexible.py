@@ -5,7 +5,7 @@ import sys
 # from graph import Graph
 import numpy as np
 import numpy.typing as npt
-# from icecream import ic
+from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 from pathlib import Path
@@ -59,6 +59,13 @@ def cml(descr) -> argparse.Namespace:
         action="store_true",
         help="Assign the splitting position of Atoms [static Atoms, rotation Atoms] [default False]",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
+        action="store_true",
+        help="Verbose mode [default False]",
+    )
 
     parser.add_argument(
         "-c",
@@ -94,7 +101,6 @@ def get_xyzSplit(neighbor: dict[int, npt.NDArray], circleMols: list[list[int]], 
     xyzSplit: dict[int, int] = {}
     for mol in residualMols:
         mol = list(map(int, mol))
-        # ic(mol)
         flexibleMols: list[int] = [
             a for a in mol if a not in flattenCircleMols]
         nodeMols: list[int] = [a for a in mol if a in flattenCircleMols]
@@ -136,7 +142,8 @@ def get_xyzSplit(neighbor: dict[int, npt.NDArray], circleMols: list[list[int]], 
 
 def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> None:
 
-    # ic(xyzSplitDict)
+    if args.verbose:
+        ic(xyzSplitDict)
     if args.manual:
         print("Assign the first number of list : ", end="")
         for key, value in xyzSplitDict.items():
@@ -176,7 +183,8 @@ def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> 
 
     from censo_ext.Tools.utility import move_file
     for key, value in xyzSplitDict.items():
-        # ic(key, value)
+        if args.verbose:
+            ic(key, value)
         import censo_ext.xyzSplit as xyzSplit
         args_x: dict = {"file": splitIn,
                         "atoms": [key, value], "cuts": args.cuts, "print": False, "out": splitOut}

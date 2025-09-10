@@ -43,8 +43,8 @@ def cml(descr) -> argparse.Namespace:
 
 def cal_RMSD(xyzfile, idx_p, idx_q) -> float:
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
-    x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
-               "ignore_Hydrogen": True, "quiet": True, "debug": False}
+    x: dict = {"remove_idx": None, "add_idx": None,
+               "bond_broken": None, "ignore_Hydrogen": True}
     _, RMSD = cal_RMSD_xyz(
         xyzfile, idx_p, idx_q, args=argparse.Namespace(**x))
     return RMSD
@@ -56,13 +56,14 @@ def Factor_xyzCompare(args) -> None:
     merge_FileName: Path = Path("temp_save.xyz")
     subprocess.call(
         f"cat {args.file[0]} {args.file[1]} > {merge_FileName}", shell=True)
+
     xyzfile_P: GeometryXYZs = GeometryXYZs(args.file[0])
     xyzfile_P.method_read_xyz()
     xyzfile_Q: GeometryXYZs = GeometryXYZs(args.file[1])
     xyzfile_Q.method_read_xyz()
-
     xyzfile_Merge: GeometryXYZs = GeometryXYZs(merge_FileName)
     xyzfile_Merge.method_read_xyz()
+
     nSts_P: int = len(xyzfile_P)
     nSts_Q: int = len(xyzfile_Q)
 
@@ -76,14 +77,12 @@ def Factor_xyzCompare(args) -> None:
 
     import shutil
     prog: str = "crest"
-    if not shutil.which(prog):
-        print(f"  Need the {prog} program !!!")
-        print("  Exit and Close the program !!!")
-        exit(1)
+    from censo_ext.Tools.utility import program_IsExist
+    program_IsExist(prog)
 
     Dir_str: Path = Path("CREST_P")
     workDir: Path = Path(os.getcwd())
-    Compare_Res: Path = Path("weight_P")
+    CompareDir: Path = Path("weight_P")
     New_cwd: Path = workDir / Dir_str
     from os.path import exists
     if not exists(New_cwd):
@@ -95,11 +94,11 @@ def Factor_xyzCompare(args) -> None:
 
     os.chdir(New_cwd)
     subprocess.call(
-        f"{prog} {FileName} --cregen {FileName} --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > {Compare_Res}", shell=True)
+        f"{prog} {FileName} --cregen {FileName} --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > {CompareDir}", shell=True)
     os.chdir(workDir)
-    shutil.copyfile(New_cwd / Compare_Res, workDir / Compare_Res)
+    shutil.copyfile(New_cwd / CompareDir, workDir / CompareDir)
 
-    Path_weight_P: Path = New_cwd / Compare_Res
+    Path_weight_P: Path = New_cwd / CompareDir
     from censo_ext.Tools.utility import IsExist
     IsExist(Path_weight_P)
 
@@ -175,8 +174,7 @@ def Factor_xyzCompare(args) -> None:
     print(" ========== Finished ==========")
     print("")
     subprocess.call(
-        f"rm -rf {Dir_str} {Compare_Res} {merge_FileName}", shell=True)
-    # subprocess.call("rm -rf tmp_save.xyz weight_P ", shell=True)
+        f"rm -rf {Dir_str} {CompareDir} {merge_FileName}", shell=True)
     print(" Removed the temp file ")
 
 

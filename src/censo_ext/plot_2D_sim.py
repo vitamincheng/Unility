@@ -20,11 +20,11 @@ def Load_Directory(directory_H, directory_C) -> tuple[npt.NDArray[np.float64], n
 
     import censo_ext.anmr as anmr
     args_x: dict = {"auto": True, "average": True,
-                    "bobyqa": True, "mf": 500, "dir": directory_H, "thr": None, "json": [-1], "thrab": 0.025,
+                    "bobyqa": True, "mf": 500, "dir": directory_H, "thr": None, "json": [-1], "thrab": 0.025, "verobse": False,
                     "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
     data_x = anmr.main(argparse.Namespace(**args_x)).T
     args_y: dict = {"auto": True, "average": True,
-                    "bobyqa": True, "mf": 500, "dir": directory_C, "thr": None, "json": [-1], "thrab": 0.025,
+                    "bobyqa": True, "mf": 500, "dir": directory_C, "thr": None, "json": [-1], "thrab": 0.025, "verbose": False,
                     "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
     data_y = anmr.main(argparse.Namespace(**args_y)).T
 
@@ -103,7 +103,7 @@ def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, npt.NDA
             for idx0 in idx0_neighbor:
 
                 import censo_ext.anmr as anmr
-                x = {'out': 'output.dat', 'mf': 500.0, "dir": "Test/34.Ergocalciferol/04.Hydrogen", 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
+                x = {'out': 'output.dat', 'mf': 500.0, "dir": "Test/34.Ergocalciferol/04.Hydrogen", 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025, "verbose": False,
                      'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': True, 'json': [idx0]}
                 sys.stdout = open(os.devnull, 'w')
                 np_dat = anmr.main(args=argparse.Namespace(**x))

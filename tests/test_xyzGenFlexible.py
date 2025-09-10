@@ -20,7 +20,7 @@ def test_xyzGenflexible_miss_args():
 
 
 def test_xyzGenFlexible_args():
-    x: dict = {"file": inFile, "manual": False,
+    x: dict = {"file": inFile, "manual": False, "verbose": False,
                "out": outFile, "cuts": 3}
     args = argparse.Namespace(**x)
     xyzGenFlexible.main(args)
@@ -31,7 +31,7 @@ def test_xyzGenFlexible_args():
 
 
 def test_xyzGenFlexible_args_manual(monkeypatch):
-    x: dict = {"file": inFile, "manual": True,
+    x: dict = {"file": inFile, "manual": True, "verbose": False,
                "out": outFile, "cuts": 3}
     args = argparse.Namespace(**x)
     import io

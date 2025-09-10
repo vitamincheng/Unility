@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Self
 import os
 import sys
+import re
 import numpy as np
 import numpy.typing as npt
 from icecream import ic
@@ -78,23 +79,25 @@ class Anmrrc():
         self.Active: list[str] = []
         self.third_line: str = lines[2].rstrip()
 
-        for idx, x in enumerate(lines[0].split()):
-            if x != "XH":
-                from censo_ext.Tools.utility import function_is_int
-                if function_is_int(x):
-                    self.acid_atoms_NoShow.append(int(x))
-                else:
-                    raise ValueError(
-                        " Your .anmrrc file about 'XH acid atoms' havesomething wrong !!!")
-            else:
-                break
+        match: re.Match[str] | None = re.search(
+            "(.*) XH acid atoms", lines[0])
 
-        _2nd_line: list[str] = lines[1].split()
-        self.mf: float = float(_2nd_line[4])             # mf      : nmr frequency           # nopep8
-        self.lw: float = float(_2nd_line[6])             # lw      : lines of width          # nopep8
-        self.Temp: float = float(_2nd_line[12])          # Temp    : Temperature (K)         # nopep8
-        self.JCoups: bool = bool(_2nd_line[8])           # JCoups  : bool of JCoups ONOFF    # nopep8
-        self.SParams: bool = bool(_2nd_line[10])         # Sparams : bool of SParams ONOFF   # nopep8
+        for x in match.group(1).split():  # type: ignore
+            from censo_ext.Tools.utility import function_is_int
+            if function_is_int(x):
+                self.acid_atoms_NoShow.append(int(x))
+            else:
+                raise ValueError(
+                    " Your .anmrrc file about 'XH acid atoms' haves omething wrong !!!")
+
+        match = re.search(
+            "mf= (.*) lw= (.*) J= (.*) S= (.*) T= (.*)", lines[1])
+
+        self.mf: float = float(match.group(1))              # mf      : nmr frequency           # nopep8    # type: ignore
+        self.lw: float = float(match.group(2))              # lw      : lines of width          # nopep8    # type: ignore
+        self.JCoups: bool = bool(match.group(3))            # JCoups  : bool of JCoups ONOFF    # nopep8    # type: ignore
+        self.SParams: bool = bool(match.group(4))           # Sparams : bool of SParams ONOFF   # nopep8    # type: ignore
+        self.Temp: float = float(match.group(5))            # Temp    : Temperature (K)         # nopep8    # type: ignore
 
         # 3 lines of .anmrrc Parameters
         for idx, x in enumerate(lines):
@@ -226,7 +229,7 @@ class Anmr():
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, Directory: Path = Path(".")) -> None:
+    def __init__(self, Directory: Path = Path("."), verbose: bool = False) -> None:
         """
         Initialize the Anmr object.
 
@@ -240,6 +243,7 @@ class Anmr():
         # directory of orcaSJ
         self.orcaSJ: list[OrcaSJ] = []
         self.avg_orcaSJ = OrcaSJ()
+        self.__verbose: bool = verbose
 
         # anmr_nucinfo
         # idx1 and numbers of Chemical Equivalent
@@ -420,8 +424,9 @@ class Anmr():
                 self.avg_orcaSJ.JCoups += np.array(y) * \
                     normal_idx_weight[x.CONFSerialNums]
 
-            ic(self.avg_orcaSJ.SParams)
-            ic(self.avg_orcaSJ.JCoups)
+            if self.__verbose:
+                ic(self.avg_orcaSJ.SParams)
+                ic(self.avg_orcaSJ.JCoups)
 
         print(" ===== Finished the Average of all folder orcaS.out and orcaJ.out =====")
 
@@ -470,7 +475,8 @@ class Anmr():
             AtomsKeep: npt.NDArray[np.int64] = np.array(Atoms)
             AtomsEqvKeep: npt.NDArray[np.int64] = AtomsKeep.copy()
 
-            ic(AtomsEqvKeep)
+            if self.__verbose:
+                ic(AtomsEqvKeep)
 
             for idx, x in enumerate(AtomsEqvKeep):
                 if (self.nMagnetEqvs[x]) != 1:
@@ -537,7 +543,10 @@ class Anmr():
             for idx0, x in enumerate(AtomsKeep):
                 if x in AtomsDelete:
                     AtomsDelete2idx0[int(x)] = idx0
-            ic(AtomsDelete2idx0)
+
+            if self.__verbose:
+                ic(AtomsDelete2idx0)
+
             list_AtomsDelete: list[int] = [
                 x for x in AtomsDelete2idx0.values()]
             list_AtomsDelete.reverse()
@@ -612,12 +621,15 @@ class Anmr():
         print(f"Directories = {dirNames}")
         del idx
 
-        for idx0 in range(len(dirNames)):
+        from tqdm import tqdm
+
+        for idx0 in tqdm(range(len(dirNames))):
             file_orcaS: Path = Dir / Path(dirNames[idx0] + "/NMR/orcaS.out")  # nopep8
             file_orcaJ: Path = Dir / Path(dirNames[idx0] + "/NMR/orcaJ.out")  # nopep8
             if os.path.exists(file_orcaS) and os.path.exists(file_orcaJ):
-                print(str(idx0)+"  :  "+str(file_orcaS))
-                print(str(idx0)+"  :  "+str(file_orcaJ))
+                if self.__verbose:
+                    print(str(idx0)+"  :  "+str(file_orcaS))
+                    print(str(idx0)+"  :  "+str(file_orcaJ))
 
                 iter: OrcaSJ = OrcaSJ()
                 iter.CONFSerialNums = int(dirNames[idx0].replace('CONF', ''))
@@ -836,9 +848,8 @@ class Anmr():
             nLines += nNuclei - idx0 * 6 + 3
         end_idx1 = start_idx1 + nLines + nNuclei % 6 + 3 - 1
 
-        for idx0, line in enumerate(lines):
-            if idx0 >= start_idx1 and idx0 <= end_idx1:
-                DataJ.append(line.rstrip())
+        for x in range(start_idx1, end_idx1+1):
+            DataJ.append(lines[x].rstrip())
 
         for line in lines:
             if re.search(r"\+\/\-", line):
@@ -1217,7 +1228,7 @@ class OrcaSJ():
             >>> print(reader.JCoups)
         """
 
-        print(f" method_read_orcaJ {file}")
+        # print(f" method_read_orcaJ {file}")
         IsExist(file)
 
         start_idx: int
@@ -1263,9 +1274,8 @@ class OrcaSJ():
             ic()
             raise ValueError(" the data of the file is some error ...")
 
-        for idx, line in enumerate(lines):
-            if idx >= start_idx and idx <= end_idx:
-                Data_str.append(line.rstrip())
+        for x in range(start_idx, end_idx+1):
+            Data_str.append(lines[x].rstrip())
 
         for x in Data_str:
             DataJ.append(x.split()[2:])
@@ -1315,7 +1325,7 @@ class OrcaSJ():
             - self.Anisotropy: Dictionary mapping atom indices to anisotropy values
         """
 
-        print(f" method_read_orcaS {file}")
+        # print(f" method_read_orcaS {file}")
         IsExist(file)
 
         start_idx: int
@@ -1351,9 +1361,9 @@ class OrcaSJ():
             ic()
             raise ValueError(" This program is not work with before orca 5.0 ")
 
-        for idx0, line in enumerate(lines):
-            if idx0 >= start_idx and idx0 <= end_idx:
-                DataS.append(line.rstrip())
+        for x in range(start_idx, end_idx+1):
+            DataS.append(lines[x].rstrip())
+
         self.idx1Atoms, self.Anisotropy, self.SParams = {}, {}, {}
         for x in DataS:
             self.idx1Atoms[int(x.split()[0])+1] = str(x.split()[1])

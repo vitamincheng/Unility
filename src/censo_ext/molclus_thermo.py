@@ -102,9 +102,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     _system: str = platform.system()
 
     # Default to xtb command
-    xtb_cmd: str = "xtb"
-    if _system == "Darwin":
-        xtb_cmd = "/opt/homebrew/bin/xtb"
+    from censo_ext.Tools.utility import program_IsExist
+    xtb_cmd: str = ""
+    prog = "xtb"
+    program_IsExist(prog)
+    xtb_cmd += prog
 
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()

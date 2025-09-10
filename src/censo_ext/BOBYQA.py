@@ -17,6 +17,7 @@ ________________________________________________________________________________
 | Ref      : -r the actual reference file [default 1r.dat]
 | Limit    : -l limit border(ppm) [defalut 0.20]
 | Prog     : -p --prog Use external anmr execute file [default False]
+| verbose  : -v --verbose more detail [default False]
 |______________________________________________________________________________
 """
 
@@ -67,6 +68,14 @@ def cml(descr) -> argparse.Namespace:
         dest="prog",
         action="store_true",
         help="Use external anmr execute file [default False]",
+    )
+
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
+        action="store_true",
+        help="Verbose mode [default False]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -166,45 +175,42 @@ def rosenbrock(x0) -> float:
         Dat_Ref.method_normalize_dat()
         Diff: CensoDat = Dat_Cal - Dat_Ref
 
-    # Dat_Ref = CensoDat(file=Path(Directory/Dat_fileName))
-    # Dat_Ref.method_normalize_dat()
-    # Dat_Cal.method_normalize_dat()
-    # Diff: CensoDat = Dat_Cal - Dat_Ref
-
     res = np.sum(np.square(Diff.get_Dat()))
 
     return res
 
 
-def Scan_single_Peak() -> None:
+def Scan_single_Peak(args) -> None:
     import pybobyqa
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileBOBYQA)
     in_set: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
     in_set = {x for x in in_set if x < 1000 and x >= 1}
-    # in_set.discard(0)
     for nSerial in in_set:
-        # ic(nSerial)
+        if args.verbose:
+            ic(nSerial)
         intp: npt.NDArray[np.int64] = np.argwhere(
             OrcaS_Table.T[2] == nSerial).flatten()
         Data_Chemical_Shift: list[float] = list(
             map(float, np.atleast_1d(OrcaS_Table.T[1][intp[0]])))
-        # ic(Data_Chemical_Shift)
-        # ic(intp)
+        if args.verbose:
+            ic(Data_Chemical_Shift)
+            ic(intp)
 
         global idx_keys
         idx_keys = list(intp)
         x0: npt.NDArray[np.float64] = np.array(Data_Chemical_Shift)
         lower: npt.NDArray[np.float64] = x0 - limit_border
         upper: npt.NDArray[np.float64] = x0 + limit_border
-        # ic(int(SParam[0]), x0.tolist())
+        if args.verobse:
+            ic(x0.tolist())
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
             lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
         print(soln)
     print(" ==== Finished single_peak ====")
 
 
-def Scan_group_Peaks() -> None:
+def Scan_group_Peaks(args) -> None:
     import pybobyqa
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileBOBYQA)
@@ -222,12 +228,11 @@ def Scan_group_Peaks() -> None:
     for nSerial in in_set:
         intp: npt.NDArray[np.int64] = np.argwhere(
             OrcaS_Table.T[2] == nSerial).flatten()
-        # idx_keys = list(map(int, intp))
-        # idx_atoms = OrcaS_Table.T[0][intp]
         Data.append(
             [nSerial, OrcaS_Table.T[1][intp[0]], intp])
 
-    # ic(Data)
+    if args.verbose:
+        ic(Data)
     nNumbers: int = len(Data)
     from itertools import permutations
     Permutations: list[tuple] = list(permutations(
@@ -240,7 +245,8 @@ def Scan_group_Peaks() -> None:
         x0: npt.NDArray[np.float64] = np.array([x[1] for x in Data])[
             list(Permutation)]
         idx_keys = [x[2] for x in Data]
-        # ic(idx_keys)
+        if args.verobse:
+            ic(idx_keys)
         lower = x0 - limit_border
         upper = x0 + limit_border
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
@@ -265,7 +271,7 @@ def Scan_group_Peaks() -> None:
     print(" ==== Finished group_peaks ====")
 
 
-def Create_BOBYQA() -> None:
+def Create_BOBYQA(args) -> None:
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileOrcaS)
     OrcaS_Table = np.insert(OrcaS_Table, 2, 0, axis=1)
@@ -330,20 +336,18 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     subprocess.call("mv CONF* backup", shell=True)
                     subprocess.call("cp -r backup/CONF1/ .", shell=True)
                 os.chdir(cwd)
-            Scan_single_Peak()
-            Scan_group_Peaks()
+            Scan_single_Peak(args)
+            Scan_group_Peaks(args)
             if prog:
                 cwd: Path = Path(os.getcwd())
                 os.chdir(Directory)  # type: ignore
-                # print(" Recover the data from backup directory")
-                # Res = input("Are you Sure to Continue ?? (Y/N)")
-                # if Res == "Y":
+
                 subprocess.call("rm -rf CONF1", shell=True)
                 subprocess.call("mv backup/CONF* .", shell=True)
                 subprocess.call("rmdir backup", shell=True)
                 os.chdir(cwd)
         else:
-            Create_BOBYQA()
+            Create_BOBYQA(args)
     else:
         ic()
         raise FileNotFoundError(

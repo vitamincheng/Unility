@@ -28,4 +28,5 @@ dependencies = [
     "nmrsim",
     "pyberny",
     "tblite",
+    "tqdm",
 ]

@@ -15,7 +15,7 @@ RefDat: Path = Path("1r_h.dat")
 def anmr_init():
     # Create Average/NMR/orcaS.out and Average/NMR/orcaS_BOBYQA.out file
     args_x: dict = {"auto": True, "average": False, "dir": DirName, "bobyqa": False, "mf": 500,
-                    "lw": None, "thr": None, "json": None, "thrab": 0.025, "tb": 4, "mss": 9,
+                    "lw": None, "thr": None, "json": None, "thrab": 0.025, "tb": 4, "mss": 9, "verbose": False,
                     "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
     args = argparse.Namespace(**args_x)
     anmr.main(args)

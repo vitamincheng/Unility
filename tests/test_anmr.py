@@ -25,7 +25,7 @@ def test_anmr_miss_args() -> None:
     assert e.value.code == 2  # for argparse error
 
 
-x: dict = {"auto": True, "bobyqa": False, "mf": 500,
+x: dict = {"auto": True, "bobyqa": False, "mf": 500, "verbose": False,
            "lw": None, "thr": None, "thrab": 0.025, "tb": 4, "mss": 9,
            "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
 

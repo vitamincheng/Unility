@@ -165,7 +165,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             " Geometry optimization use xtb : Yes or No ").lower().split()[0]
         if choice_xtb == "y" or choice_xtb == "yes":
             xtb(args)
-            # molclus_xtb.py
         choice_orca: str = input(
             " Geometry optimization use orca : Yes or No ").lower().split()[0]
         if choice_orca == "y" or choice_orca == "yes":

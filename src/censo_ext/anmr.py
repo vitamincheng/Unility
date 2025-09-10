@@ -23,8 +23,8 @@ ________________________________________________________________________________
 | mss      : -mss max of spin numbers [default 10]
 |            if your computer have slowly CPU, try to use mss 4 or 5. 
 | Cutoff   : --cutoff cutoff limits in quantum chemistry in nmr [default 0.001]
-| Start    : -start start ppm of plotting spectra
-| End      : -end end ppm of plotting spectra
+| Start    : -start start ppm of plotting spectra [default from data]
+| End      : -end end ppm of plotting spectra [default from data]
 | ref      : reference standard - see .anmrrc file
 | BOBYQA   : -b --bobyqa BOBYQA mode (only use numpy) [default False]
 | JSON     : -j --json Read the raw data of every single peak [if is -1(All)]
@@ -154,7 +154,7 @@ def cml(descr) -> argparse.Namespace:
         action="store",
         type=float,
         required=False,
-        help="start ppm of plotting spectra",
+        help="start ppm of plotting spectra [default from data]",
     )
 
     parser.add_argument(
@@ -164,7 +164,7 @@ def cml(descr) -> argparse.Namespace:
         action="store",
         type=float,
         required=False,
-        help="end ppm of plotting spectra",
+        help="end ppm of plotting spectra [default from data]",
     )
 
     parser.add_argument(
@@ -206,6 +206,14 @@ def cml(descr) -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
+        action="store_true",
+        help="Verbose mode and show the detail of data [defalut False]",
+    )
+
+    parser.add_argument(
         "-auto",
         "--auto",
         dest="auto",
@@ -230,7 +238,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     from censo_ext.Tools.anmrfile import Anmr
 
     # Create an Anmr object and read required files
-    inAnmr: Anmr = Anmr(Directory)
+    inAnmr: Anmr = Anmr(Directory, args.verbose)
     inAnmr.method_read_anmrrc()
     inAnmr.method_read_nucinfo()
 
@@ -407,7 +415,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                                         raise ValueError(
                                             f"{idx} {x} {idy} {y} was not found or is a directory")
 
-            # ic(mat_filter_ab_quartet)
+            if args.verbose:
+                ic(mat_filter_ab_quartet)
             # Calculate which couplings are NOT part of AB quartets (multiplets)
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
             idx0_ab_connect: list[list[int | set[int]]] = []
@@ -461,18 +470,23 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     for idy, y in enumerate(set_move):
                         mat_filter_multi[idx][y] = 1
 
-            # ic(idx0_ab_group_sets)
-            print(" ===== Processing =====")
-            print(f" threshold of JCoupling  : {args.thr:>3.5f}")
-            print(f" threshold of AB quartet : {args.thrab:>3.5f}")
-            print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
+            if args.verbose:
+                ic(idx0_ab_group_sets)
+            # show every step of threshold
+            if args.verbose:
+                print(" ===== Processing =====")
+                print(f" threshold of JCoupling  : {args.thr:>3.5f}")
+                print(f" threshold of AB quartet : {args.thrab:>3.5f}")
+                print(
+                    "  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
 
             max_len_AB: int = 0
             for idx, group_set in enumerate(idx0_ab_group_sets):
                 mat_multi_x_idx: list[int] = [
                     idx0_set*x for x, idx0_set in enumerate(mat_filter_multi[idx].tolist())if idx0_set != 0]
-                print(f'{(idx+1):>5d}{len(group_set):>5d}', {a+1 for a in group_set}, set(
-                    a+1 for a in mat_multi_x_idx).difference({a+1 for a in group_set}))
+                if args.verbose:
+                    print(f'{(idx+1):>5d}{len(group_set):>5d}', {a+1 for a in group_set}, set(
+                        a+1 for a in mat_multi_x_idx).difference({a+1 for a in group_set}))
                 if len(group_set) > max_len_AB:
                     max_len_AB = len(group_set)
 
