@@ -24,7 +24,8 @@ def anmr_init():
 
 
 def BOBYQA_init():
-    args_y: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
+    args_y: dict = {"dir": DirName, "ref": RefDat,
+                    "limit": 0.20, "prog": None, "verbose": False}
     args2 = argparse.Namespace(**args_y)
 
     with pytest.raises(SystemExit) as e:
@@ -61,7 +62,8 @@ def test_BOBYQA_miss_orcaS_file():
     #
     # not run anmr_BOBYQA_init() and directly run BOBYQA.py
     BOBYQA_final_remove_files()
-    args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
+    args_x: dict = {"dir": DirName, "ref": RefDat,
+                    "limit": 0.20, "prog": None, "verbose": False}
     with pytest.raises(FileNotFoundError) as e:
         BOBYQA.main(argparse.Namespace(**args_x))
     assert str(e.value) == str(
@@ -85,7 +87,8 @@ def test_BOBYQA_single():
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
-    args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
+    args_x: dict = {"dir": DirName, "ref": RefDat,
+                    "limit": 0.20, "prog": None, "verbose": False}
     BOBYQA.main(argparse.Namespace(**args_x))
     assert filecmp.cmp(DirName / Path("output.dat"),
                        DirCompare / Path("orcaS-BOBYQA-anmrpy.dat"))
@@ -101,7 +104,8 @@ def test_BOBYQA_single_external_prog(monkeypatch):
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
 
-    args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
+    args_x: dict = {"dir": DirName, "ref": RefDat,
+                    "limit": 0.20, "prog": True, "verbose": False}
     from io import StringIO
     monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
     BOBYQA.main(argparse.Namespace(**args_x))
@@ -123,7 +127,8 @@ def test_BOBYQA_group():
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA-group.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
-    args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": None}
+    args_x: dict = {"dir": DirName, "ref": RefDat,
+                    "limit": 0.20, "prog": None, "verbose": False}
     BOBYQA.main(argparse.Namespace(**args_x))
     assert filecmp.cmp(DirName / Path("output.dat"),
                        DirCompare / Path("orcaS-BOBYQA-group-anmrpy.dat"))
@@ -138,7 +143,8 @@ def test_BOBYQA_group_external_prog(monkeypatch):
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA-group.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
-    args_x: dict = {"dir": DirName, "ref": RefDat, "limit": 0.20, "prog": True}
+    args_x: dict = {"dir": DirName, "ref": RefDat,
+                    "limit": 0.20, "prog": True, "verbose": False}
     from io import StringIO
     monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
     BOBYQA.main(argparse.Namespace(**args_x))

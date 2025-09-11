@@ -112,7 +112,7 @@ def rosenbrock(x0) -> float:
     orcaS_Table = np.delete(orcaS_Table, 2, axis=1)
 
     if prog:
-        ic("External program: anmr")
+        print("External program: anmr")
         import sys
         cwd: Path = Path(os.getcwd())
         os.chdir(Directory)
@@ -140,7 +140,7 @@ def rosenbrock(x0) -> float:
         sys.stdout = sys.__stdout__
 
         if result != 0:
-            ic("Cal.=================", result)
+            ic(f"Cal.================= {result}")
             raise ValueError(
                 " call anmr.sh process have something wrong !!!")
 
@@ -148,12 +148,12 @@ def rosenbrock(x0) -> float:
         Dat_Cal: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
 
     elif not prog:
-        # ic("Internal")
+        print("Internal python: anmr.py")
         np.savetxt(Directory/FileOrcaS, orcaS_Table, fmt="%10d %10.5f")
         import censo_ext.anmr as anmr
         x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0,
                    'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
-                   'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False,
+                   'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, "verbose": False,
                    'mss': 9, 'auto': True, 'average': True, 'bobyqa': False}
         import sys
         sys.stdout = open(os.devnull, 'w')
@@ -202,7 +202,7 @@ def Scan_single_Peak(args) -> None:
         x0: npt.NDArray[np.float64] = np.array(Data_Chemical_Shift)
         lower: npt.NDArray[np.float64] = x0 - limit_border
         upper: npt.NDArray[np.float64] = x0 + limit_border
-        if args.verobse:
+        if args.verbose:
             ic(x0.tolist())
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
             lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
@@ -255,10 +255,10 @@ def Scan_group_Peaks(args) -> None:
         solution_f.append(soln.f)
         solution_x0.append(soln.x)
 
-    ic(solution_f)
+    print(f"solution_f : {solution_f}")
     argsmin: int = min(range(len(solution_f)), key=solution_f.__getitem__)
     list_x0: list[float] = solution_x0[argsmin]
-    ic(list_x0)
+    print(f"list_x0 : {list_x0}")
 
     # After Permutations, the best choice x0 is calculated again and get output.dat or anmr.dat
     x0 = np.array(list_x0)
@@ -307,10 +307,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml("")
     if args.dir:                            # default .
         Directory = Path(args.dir)
-        # ic(Directory)
     if args.ref:                            # default 1r.dat
         Dat_fileName = args.ref
-        # ic(Dat_fileName)
     if args.limit:                          # default 0.20 ppm
         limit_border = args.limit
     if args.prog:
@@ -319,11 +317,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         prog = False
 
     if IsExist_return_bool(Directory / FileOrcaS):                 # type: ignore # nopep8
-        ic(FileOrcaS, " is exist")
+        print(f"{FileOrcaS} is exist")
         if IsExist_return_bool(Directory / FileBOBYQA):            # type: ignore # nopep8
-            ic(FileBOBYQA, " is exist")
+            print(f"{FileBOBYQA} is exist")
             if prog:
-                # ic("External")
                 cwd: Path = Path(os.getcwd())
                 os.chdir(Directory)  # type: ignore
                 print(" Need to build the new CONF* system")
