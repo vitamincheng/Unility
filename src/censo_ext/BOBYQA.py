@@ -112,7 +112,7 @@ def rosenbrock(x0) -> float:
     orcaS_Table = np.delete(orcaS_Table, 2, axis=1)
 
     if prog:
-        print("External program: anmr")
+        # print("External program: anmr")
         import sys
         cwd: Path = Path.cwd()
         os.chdir(Directory)
@@ -148,7 +148,7 @@ def rosenbrock(x0) -> float:
         Dat_Cal: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
 
     elif not prog:
-        print("Internal python: anmr.py")
+        # print("Internal python: anmr.py")
         np.savetxt(Directory/FileOrcaS, orcaS_Table, fmt="%10d %10.5f")
         import censo_ext.anmr as anmr
         x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0,
@@ -169,7 +169,7 @@ def rosenbrock(x0) -> float:
     Dat_Cal.method_normalize_dat()
     global Dat_Ref
     try:
-        Diff: CensoDat = Dat_Cal - Dat_Ref
+        Diff: CensoDat = Dat_Cal - Dat_Ref  # type: ignore
     except NameError:
         Dat_Ref = CensoDat(file=Path(Directory/Dat_fileName))
         Dat_Ref.method_normalize_dat()
@@ -245,7 +245,7 @@ def Scan_group_Peaks(args) -> None:
         x0: npt.NDArray[np.float64] = np.array([x[1] for x in Data])[
             list(Permutation)]
         idx_keys = [x[2] for x in Data]
-        if args.verobse:
+        if args.verbose:
             ic(idx_keys)
         lower = x0 - limit_border
         upper = x0 + limit_border

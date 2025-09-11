@@ -20,7 +20,7 @@ def test_cregen_miss_args():
 
 @pytest.mark.skipif(_system == "Darwin", reason="crest only work under linux")
 def test_cregen_crest():
-    x: dict = {"file": "tests/data/crest_conformers2.xyz", "rthr": 0.175, "bthr": 0.03,
+    x: dict = {"file": Path("tests/data/crest_conformers2.xyz"), "rthr": 0.175, "bthr": 0.03,
                "ethr": 0.15, "ewin": 4, "out": "cluster.xyz"}
     args = argparse.Namespace(**x)
     cregen.main(args)

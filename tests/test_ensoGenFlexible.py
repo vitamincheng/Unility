@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pytest
 import argparse
+from pathlib import Path
 # import filecmp
 import censo_ext.ensoGenFlexible as ensoGenFlexible
 from censo_ext.Tools.utility import delete_all_files
@@ -16,7 +17,7 @@ def test_ensoGenFlexible_miss_args():
 
 @pytest.mark.slow
 def test_ensoGenFlexible_single_xyz() -> None:
-    inFile = "tests/data/06.EthylAcetate/traj.xyz"
+    inFile: Path = Path("tests/data/06.EthylAcetate/traj.xyz")
     x: dict = {"file": inFile, "manual": False, "temp": 298.15}
     ensoGenFlexible.main(argparse.Namespace(**x))
     # compare = Path("tests/compare/molManipulate.xyz")
@@ -26,7 +27,8 @@ def test_ensoGenFlexible_single_xyz() -> None:
 
 @pytest.mark.slow
 def test_ensoGenFlexible_multi_xyzs() -> None:
-    inFile = "tests/data/06.EthylAcetate/03.Censo/crest_conformers.xyz"
+    inFile: Path = Path(
+        "tests/data/06.EthylAcetate/03.Censo/crest_conformers.xyz")
     x: dict = {"file": inFile, "manual": False, "temp": 298.15}
     ensoGenFlexible.main(argparse.Namespace(**x))
     # compare = Path("tests/compare/molManipulate.xyz")

@@ -84,7 +84,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Ensure input file exists
     from censo_ext.Tools.utility import IsExist
     IsExist(inFile)
-    template_Exist: bool = IsExist_return_bool(args.template)
+    template_Exist: bool = IsExist_return_bool(Path(args.template))
 
     # Define default template
     if not template_Exist:
