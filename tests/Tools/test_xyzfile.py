@@ -6,8 +6,8 @@ import filecmp
 
 
 def test_xyzfile_read_xyz_miss_args():
-    fileName: str = "tests/test.xyz"
-    file = GeometryXYZs(Path(fileName))
+    fileName: Path = Path("tests/test.xyz")
+    file = GeometryXYZs(fileName)
     with pytest.raises(FileNotFoundError) as e:
         file.method_read_xyz()
     assert str(e.value) == f"  The file {fileName} is not Exist ..."
@@ -88,4 +88,4 @@ def test_xyzfile_save_xyz(input_bool: bool, input_Path: Path, compare_filename: 
     file.set_filename(outfile)
     file.method_save_xyz([])
     assert filecmp.cmp(outfile, compare_filename) == input_bool
-    os.remove(outfile)
+    outfile.unlink()

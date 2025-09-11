@@ -75,7 +75,7 @@ if __name__ == "__main__":
     print(descr)
 
     if args.recover:
-        path = os.getcwd()
+        path: str = str(Path.cwd())
         print(f"Files and directories in {path} : ")
         dirNames: list[str] = next(os.walk(path))[1]
 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         exit(0)
 
     else:
-        path: str = os.getcwd()
+        path: str = str(Path.cwd())
         print(f"Files and directories in {path} : ")
         dirNames: list[str] = next(os.walk(path))[1]
 

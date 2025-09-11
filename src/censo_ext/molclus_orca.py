@@ -114,7 +114,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 #    orca_path="~/orca_5_0_4_linux_x86-64_shared_openmpi411/orca"
 #    orca_path="~/orca_6_0_0_linux_x86-64_avx2_shared_openmpi416/orca"
     if template_Exist:
-        template_Name: str = args.template[:-4]
+        template_Name: str = str(args.template)[:-4]
     else:
         template_Name: str = str(template_inp)[:-4]
 

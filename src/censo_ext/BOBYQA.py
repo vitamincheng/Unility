@@ -114,7 +114,7 @@ def rosenbrock(x0) -> float:
     if prog:
         print("External program: anmr")
         import sys
-        cwd: Path = Path(os.getcwd())
+        cwd: Path = Path.cwd()
         os.chdir(Directory)
         template_inp: str = "CONF1/NMR/orcaS.out"
         with open(template_inp, "w") as f:
@@ -206,7 +206,7 @@ def Scan_single_Peak(args) -> None:
             ic(x0.tolist())
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
             lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
-        print(soln)
+        print(f"{soln=}")
     print(" ==== Finished single_peak ====")
 
 
@@ -251,14 +251,14 @@ def Scan_group_Peaks(args) -> None:
         upper = x0 + limit_border
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
             lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
-        print(soln)
+        print(f"{soln=}")
         solution_f.append(soln.f)
         solution_x0.append(soln.x)
 
-    print(f"solution_f : {solution_f}")
+    print(f"{solution_f=}")
     argsmin: int = min(range(len(solution_f)), key=solution_f.__getitem__)
     list_x0: list[float] = solution_x0[argsmin]
-    print(f"list_x0 : {list_x0}")
+    print(f"{list_x0=}")
 
     # After Permutations, the best choice x0 is calculated again and get output.dat or anmr.dat
     x0 = np.array(list_x0)
@@ -321,7 +321,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         if IsExist_return_bool(Directory / FileBOBYQA):            # type: ignore # nopep8
             print(f"{FileBOBYQA} is exist")
             if prog:
-                cwd: Path = Path(os.getcwd())
+                cwd: Path = Path.cwd()
                 os.chdir(Directory)  # type: ignore
                 print(" Need to build the new CONF* system")
                 print(" And copy your CONF* to /Backup/CONF*")
@@ -336,7 +336,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             Scan_single_Peak(args)
             Scan_group_Peaks(args)
             if prog:
-                cwd: Path = Path(os.getcwd())
+                cwd: Path = Path.cwd()
                 os.chdir(Directory)  # type: ignore
 
                 subprocess.call("rm -rf CONF1", shell=True)
@@ -348,7 +348,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     else:
         ic()
         raise FileNotFoundError(
-            str(Directory/FileOrcaS) + " is not exist !!!")  # type: ignore # nopep8
+            f"{Directory/FileOrcaS} is not exist !!!")  # type: ignore # nopep8
 
 
 if __name__ == "__main__":

@@ -269,8 +269,8 @@ class Geometry():
         """
 
         self.comment = " Energy = "+" "*7 + \
-            f"{self.comment_energy:.10f}"+" Eh"+" "*8 + \
-            "#Cluster:     "+str(self.comment_nClusters)
+            f"{self.comment_energy:.10f} Eh"+" "*8 + \
+            f"#Cluster:     {self.comment_nClusters}"
 
     def method_update_comment(self) -> None:
         """
@@ -461,13 +461,12 @@ class GeometryXYZs():
                 raise ValueError(
                     " Something wrong in your Molecule Separation xyz file")
 
-        path = "Separation"
-        isExist: bool = os.path.exists(path)
-        if not isExist:
-            os.makedirs(path)
+        path: Path = Path("Separation")
+        if not path.exists():
+            path.mkdir()
 
         for idx0, x in enumerate(list_idx):
-            self.set_filename(Path(path) / Path(str(idx0+1)+".xyz"))
+            self.set_filename(path / Path(str(idx0+1)+".xyz"))
             self.method_save_xyz([idx1+idx0+1])
         return True
 

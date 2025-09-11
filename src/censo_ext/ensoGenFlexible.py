@@ -85,7 +85,7 @@ def xtb(args):
     if not xtb_folder.is_dir():
         xtb_folder.mkdir()
     copy_file(args.file, xtb_folder / inFile)
-    cwd: Path = Path(os.getcwd())
+    cwd: Path = Path.cwd()
     x: dict = {"file": inFile, "method": "gfn2", "chrg": 0, "uhf": 1,
                "out": outFile, "alpb": "CHCl3", "gbsa": None, "opt": True}
     import censo_ext.molclus_xtb as molclus_xtb
@@ -103,7 +103,7 @@ def orca(args, Dir, FileName):
     if not orca_folder.is_dir():
         orca_folder.mkdir()
     copy_file(Path(inFile), orca_folder / inFile)
-    cwd: Path = Path(os.getcwd())
+    cwd: Path = Path.cwd()
 
     import censo_ext.molclus_orca as molclus_orca
     x: dict = {"file": inFile, "template": "template.inp", "reserve": False,
@@ -124,7 +124,7 @@ def thermo(args) -> list:
         thermo_folder.mkdir()
     copy_file(inFile, thermo_folder / inFile)
 
-    cwd: Path = Path(os.getcwd())
+    cwd: Path = Path.cwd()
     os.chdir(thermo_folder)
     args_x: dict = {"file": inFile, "method": "gfn2",
                     "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1}

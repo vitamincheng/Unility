@@ -5,11 +5,13 @@ import argparse
 import censo_ext.molclus_orca as orca
 import filecmp
 import platform
-
-inFile: str = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz"
-inTemplate_sp_File: str = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/template_sp.inp"
-inTemplate_opt_File: str = "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/template_opt.inp"
-outFile: str = "isomers.xyz"
+from pathlib import Path
+inFile: Path = Path("tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/traj.xyz")
+inTemplate_sp_File: Path = Path(
+    "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/template_sp.inp")
+inTemplate_opt_File: Path = Path(
+    "tests/data/06.EthylAcetate/02.ORCA_r2SCAN_3C/template_opt.inp")
+outFile: Path = Path("isomers.xyz")
 _system = platform.system()
 
 

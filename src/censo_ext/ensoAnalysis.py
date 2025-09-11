@@ -141,7 +141,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(f"    provided arguments: {" ".join(sysargv)}")
 
     from censo_ext.Tools.utility import IsExist_return_bool
-    from os.path import exists
     from censo_ext.Tools.Parameter import Eh, Rcal
 
     inFile: Path = Path(args.file)
@@ -184,7 +183,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("  Exit and Close the program !!!")
         ic()
         raise FileNotFoundError(
-            str(inFile) + " was not found or is a directory")
+            f"{inFile} was not found or is a directory")
 
     if (not fileExists) or (not backupfileExists):
         print(f"    {inFile} or {backupFile} , the file is not exist ...")
@@ -206,8 +205,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
     #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
 
-    if exists("average_enso"):
-        os.remove("average_enso")
+    if Path("average_enso").exists():
+        Path("average_enso").unlink()
 
     print("")
     print(" ===== Processing =====")

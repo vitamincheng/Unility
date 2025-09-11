@@ -81,12 +81,12 @@ def Factor_xyzCompare(args) -> None:
     program_IsExist(prog)
 
     Dir_str: Path = Path("CREST_P")
-    workDir: Path = Path(os.getcwd())
+    workDir: Path = Path.cwd()
     CompareDir: Path = Path("weight_P")
     New_cwd: Path = workDir / Dir_str
-    from os.path import exists
-    if not exists(New_cwd):
-        os.makedirs(New_cwd)
+    if not Path(New_cwd).exists():
+        Path(New_cwd).mkdir()
+
     from censo_ext.Tools.utility import IsExists_DirFileName
     fileName_Dir, FileName_str = IsExists_DirFileName(Path(args.file[0]))
     FileName: Path = Path(FileName_str)

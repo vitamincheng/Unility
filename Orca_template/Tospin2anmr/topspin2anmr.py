@@ -129,7 +129,7 @@ print(match_lines[0])
 sw = SF1-SF2
 
 step = sw / ftsize
-print("1 point of sw = " + str(step))
+print(f"1 point of sw = {step}")
 print()
 
 print("Reading the 1r file ")
@@ -153,7 +153,7 @@ with open(infileName, "rb") as f:
 res: np.ndarray = np.array(outData[::-1])
 np.savetxt(outfileName, res, fmt='%2.5f %12.5e')
 
-print("Coversion to anmr file (" + outfileName + ")")
+print(f"Coversion to anmr file ({outfileName})")
 print("Finished ...")
 
 # use interpolation function returned by `interp1d`

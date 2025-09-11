@@ -352,8 +352,8 @@ def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     delete_all_files(xyz_tmp)
 
     if len(idx_atom1) == 0:
-        raise ValueError(str("The value of idx_atom1 is error"))
+        raise ValueError("The value of idx_atom1 is error")
     elif len(idx_coordSquare) == 0:
-        raise ValueError(str("The value of coord_square is error"))
+        raise ValueError("The value of coord_square is error")
     else:
         return idx_coordSquare, res_rmsd

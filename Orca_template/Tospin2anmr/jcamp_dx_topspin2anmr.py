@@ -174,7 +174,7 @@ sw = SW_p/SF
 
 
 step = sw / ftsize
-print("1 point of sw = "+str(step))
+print(f"1 point of sw = {step}")
 
 print()
 
@@ -200,7 +200,7 @@ with open(infile_name, "rb") as f:
         byte = f.read(4)
 
 
-print("Coversion to anmr file ("+outfile_name+")")
+print(f"Coversion to anmr file, {outfile_name}")
 
 res = outfile[::-1]
 

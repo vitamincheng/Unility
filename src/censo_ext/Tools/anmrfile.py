@@ -626,10 +626,10 @@ class Anmr():
         for idx0 in tqdm(range(len(dirNames))):
             file_orcaS: Path = Dir / Path(dirNames[idx0] + "/NMR/orcaS.out")  # nopep8
             file_orcaJ: Path = Dir / Path(dirNames[idx0] + "/NMR/orcaJ.out")  # nopep8
-            if os.path.exists(file_orcaS) and os.path.exists(file_orcaJ):
+            if file_orcaS.exists() and file_orcaJ.exists():
                 if self.__verbose:
-                    print(str(idx0)+"  :  "+str(file_orcaS))
-                    print(str(idx0)+"  :  "+str(file_orcaJ))
+                    print(f"{idx0}  :  {file_orcaS}")
+                    print(f"{idx0}  :  {file_orcaJ}")
 
                 iter: OrcaSJ = OrcaSJ()
                 iter.CONFSerialNums = int(dirNames[idx0].replace('CONF', ''))
@@ -1269,7 +1269,7 @@ class OrcaSJ():
             print("This program is not work with before orca 5.0 ")
 
         if start_idx == 0 or end_idx == 0:
-            print(file, " the data of the file is some error ...")
+            print(f"{file}, the data of the file is some error ...")
             print("  Exit and Close the program !!!")
             ic()
             raise ValueError(" the data of the file is some error ...")

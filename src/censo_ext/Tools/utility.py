@@ -10,7 +10,6 @@ import shutil
 #    import os
 #    os.getcwd()
 #    os.chdir()
-#
 #    os.mkdir()
 #    os.rmdir()     if it is empty directory
 #    os.listdir()
@@ -27,12 +26,14 @@ import shutil
 #    p.rmdir()
 #    p.is_dir()
 #    p.is_file()
+#    p.unlink()         delete file
 #    p.exist()
 #    import shutil       if it is not empty directory
 #    shutil.rmtree(directory, ignore_errors=True)
+#    shutil.copyfile(source,denstination)
 
 
-def IsExists_DirFileName(DirFileName: Path):
+def IsExists_DirFileName(DirFile: Path):
     """Checks if a file or directory path exists and returns its directory and name components.
 
     This function verifies the existence of a given path and extracts its parent directory
@@ -62,18 +63,18 @@ def IsExists_DirFileName(DirFileName: Path):
         as the name component.
     """
 
-    IsExist(DirFileName)
-    Name: str = DirFileName.name
+    IsExist(DirFile)
+    File: str = DirFile.name
     Dir: Path
-    if DirFileName.parents:
-        Dir = DirFileName.parents[0]
+    if DirFile.parents:
+        Dir = DirFile.parents[0]
     else:
-        print(DirFileName, " the DirFileName is not exist ...")
+        print(f"{DirFile} the DirFileName is not exist ...")
         print("  Exit and Close the program !!!")
         ic()
         raise FileNotFoundError(
-            str(DirFileName) + " was not found or is a directory")
-    return Dir, Name
+            f"{DirFile} was not found or is a directory")
+    return Dir, File
 
 
 def function_is_float(string: str) -> bool:
@@ -140,7 +141,7 @@ def copy_file(source: Path, destination: Path) -> None:
     shutil.copy(source, destination)
 
 
-def delete_all_files(*fileNames) -> None:
+def delete_all_files(*inFiles) -> None:
     """Delete all specified files from the filesystem.
 
     This function takes a variable number of file paths and attempts to delete
@@ -161,14 +162,14 @@ def delete_all_files(*fileNames) -> None:
         which may result in an error.
     """
 
-    from os.path import exists
-    for file in [*fileNames]:
-        IsExists: bool = exists(file)
+    for File in [*inFiles]:
+        path = Path(File)
+        IsExists: bool = path.exists()
         if IsExists:
-            os.remove(file)
+            path.unlink()
 
 
-def delete_file_bool(fileName: Path) -> bool:
+def delete_file_bool(inFile: Path) -> bool:
     """Deletes a file if it exists and returns whether the operation was successful.
 
     This function checks if a file exists at the specified path, and if it does,
@@ -190,9 +191,9 @@ def delete_file_bool(fileName: Path) -> bool:
     """
 
     from os.path import exists
-    IsExists: bool = exists(fileName)
+    IsExists: bool = exists(inFile)
     if IsExists:
-        os.remove(fileName)
+        os.remove(inFile)
         return True
     else:
         return False
@@ -213,49 +214,7 @@ def jsonKeys2int(x) -> dict:
     return {int(k): v for k, v in x}
 
 
-def save_dict(fileName: Path, Data: dict) -> None:
-    """Save a dictionary to a file with specific formatting.
-
-    Each key-value pair is written on a new line, formatted as a float and a number in
-    scientific notation.
-
-    Args:
-        fileName (Path): The path to the output file.
-        Data (dict): The dictionary to save.
-    """
-    with open(fileName, 'w') as f:
-        for key, value in Data.items():
-            f.write('%12.5f %12.5e\n' % (key, value))
-
-
-# def save_BOBYQA_orcaS(fileName: Path, Data: dict) -> None:
-#    with open(fileName, 'w') as f:
-#
-#        for key, value in Data.items():
-#            if type(value) is list:
-#                f.write('%10d %12.5f %10d \n' % (key, value[0], value[1]))
-#            else:
-#                f.write('%10d %12.5f %10d \n' % (key, value, 0))
-#
-#
-# def load_BOBYQA_orcaS(fileName: Path) -> dict:
-#    IsExist(fileName)
-#    lines = open(fileName, "r").readlines()
-#
-#    Data: dict = {}
-#    for x in lines:
-#        if len(x.split()) == 2:
-#            Data[int(x.split()[0])] = [float(x.split()[1])]
-#        elif len(x.split()) == 3:
-#            Data[int(x.split()[0])] = [float(x.split()[1]), int(x.split()[2])]
-#        else:
-#            print(" Something wrong in your orcaS.out")
-#            print("  Exit and Close the program !!!")
-#            ic()
-#    return Data
-
-
-def save_dict_orcaS(fileName: Path, Data: dict) -> None:
+def save_dict_orcaS(inFile: Path, Data: dict) -> None:
     """Save a dictionary to a file in orcaS format.
 
     Each key-value pair is written on a new line, formatted as an integer key and a float value.
@@ -264,12 +223,12 @@ def save_dict_orcaS(fileName: Path, Data: dict) -> None:
         fileName (Path): The path to the output file.
         Data (dict): The dictionary to save.
     """
-    with open(fileName, 'w') as f:
+    with open(inFile, 'w') as f:
         for key, value in Data.items():
             f.write('%10d %12.5f \n' % (key, value))
 
 
-def load_dict_orcaS(fileName: Path) -> dict:
+def load_dict_orcaS(inFile: Path) -> dict:
     """Load a dictionary from a file in orcaS format.
 
     Each line is expected to contain an integer key and a float value, separated by whitespace.
@@ -280,15 +239,15 @@ def load_dict_orcaS(fileName: Path) -> dict:
     Returns:
         dict: A dictionary with integer keys and float values.
     """
-    IsExist(fileName)
-    lines: list = open(fileName, "r").readlines()
-    Data: dict = {}
+    IsExist(inFile)
+    lines: list = open(inFile, "r").readlines()
+    Data: dict[int, float] = {}
     for x in lines:
         Data[int(x.split()[0])] = float(x.split()[1])
     return Data
 
 
-def IsExist(fileName: Path) -> None:
+def IsExist(inFile: Path) -> None:
     """Check if a file exists and raise FileNotFoundError if it doesn't.
 
     This function verifies whether the specified file path exists in the filesystem.
@@ -312,15 +271,15 @@ def IsExist(fileName: Path) -> None:
         as it calls ic() and raises an exception.
     """
 
-    IsExists: bool = Path(fileName).exists()
+    IsExists: bool = inFile.exists()
     if not IsExists:
-        print(f"  The file {fileName} is not exist ...")
+        print(f"  The file {inFile} is not exist ...")
         print("    Exit and Close the program !!!")
         ic()
-        raise FileNotFoundError(f"  The file {fileName} is not Exist ...")
+        raise FileNotFoundError(f"  The file {inFile} is not Exist ...")
 
 
-def IsExist_return_bool(fileName: Path) -> bool:
+def IsExist_return_bool(inFile: Path) -> bool:
     """Check if a file exists and return a boolean value.
 
     This function takes a file path as input and checks whether the file exists
@@ -328,7 +287,7 @@ def IsExist_return_bool(fileName: Path) -> bool:
     an error message and returns False.
 
     Args:
-        fileName (Path): The path to the file to check for existence.
+        inFile (Path): The path to the file to check for existence.
 
     Returns:
         bool: True if the file exists, False otherwise.
@@ -344,17 +303,17 @@ def IsExist_return_bool(fileName: Path) -> bool:
         When the file does not exist, an error message is printed to the console
         in a formatted manner with 80 equal signs for visibility.
     """
-    IsExists: bool = Path(fileName).exists()
+    IsExists: bool = inFile.exists()
     if IsExists:
         return True
     else:
         print("="*80)
-        print(f"{fileName} the file is not exist ...")
+        print(f"{inFile} the file is not exist ...")
         print("="*80)
         return False
 
 
-def program_IsExist(ProgramName: str) -> bool:
+def program_IsExist(Prog: str) -> bool:
     """Check if a program exists in the system PATH.
 
     This function uses shutil.which() to search for the specified program
@@ -387,10 +346,10 @@ def program_IsExist(ProgramName: str) -> bool:
     """
 
     from shutil import which
-    if which(ProgramName):
+    if which(Prog):
         return True
     else:
-        print(ProgramName, " the program is not exist ...")
+        print(f"{Prog}, the program is not exist ...")
         print("  Exit and Close the program !!!")
         ic()
         raise ValueError(" the program is not Exist ...")
@@ -404,5 +363,5 @@ def save_figure(fileName="nmrplot") -> None:
             Defaults to "nmrplot". The extensions ".pdf" and ".svg" will be appended.
     """
     import matplotlib.pyplot as plt
-    plt.savefig(fileName + ".pdf", dpi=300)
-    plt.savefig(fileName + ".svg")
+    plt.savefig(f"{fileName}.pdf", dpi=300)
+    plt.savefig(f"{fileName}.svg")

@@ -609,7 +609,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
         import json
         # import pickle
-        with open(str(inAnmr.get_Directory()/Path("peaks.json")), "w") as final:
+        with open(inAnmr.get_Directory()/Path("peaks.json"), "w") as final:
             json.dump(Res_peaks, final)
 
         idx0_peaks_range = [*range(len(Res_peaks))]
@@ -622,12 +622,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
         import json
         # import pickle
-        with open(str(inAnmr.get_Directory()/Path("peaks.json")), "w") as final:
+        with open(inAnmr.get_Directory()/Path("peaks.json"), "w") as final:
             json.dump(Res_peaks, final)
     else:
         import json
         # import pickle
-        with open(str(inAnmr.get_Directory()/Path("peaks.json")), "r") as json_file:
+        with open(inAnmr.get_Directory()/Path("peaks.json"), "r") as json_file:
             Res_peaks = json.load(json_file)
 
         if args.json[0] == -1:

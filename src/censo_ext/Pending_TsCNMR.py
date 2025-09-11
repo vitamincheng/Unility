@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from pathlib import Path
 import argparse
 import numpy as np
 from sys import argv as sysargv
@@ -111,9 +112,7 @@ def main():
         print(descr)  # Program description
         print(f"    provided arguments: {" ".join(sysargv)}")
 
-    from os.path import exists
-    file_exists = exists(args.file)
-    if not file_exists:
+    if not Path(args.file).exists:
         print(f"    {args.file} , the file is not exist ...")
         print("  Exit and Close the program !!!")
         ic()
