@@ -206,7 +206,7 @@ def Scan_single_Peak(args) -> None:
             ic(x0.tolist())
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
             lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
-        print(f"{soln=}")
+        print(f"{soln.f=} {soln.x=}")
     print(" ==== Finished single_peak ====")
 
 
@@ -251,7 +251,7 @@ def Scan_group_Peaks(args) -> None:
         upper = x0 + limit_border
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
             lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
-        print(f"{soln=}")
+        print(f"{soln.f=} {soln.x=}")
         solution_f.append(soln.f)
         solution_x0.append(soln.x)
 
