@@ -144,7 +144,7 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
 
     idx_ratio: list[list[int]] = []
     Ratio: list[float] = []
-    for idx, x in enumerate(unique_PairLowFactor):
+    for x in unique_PairLowFactor:
 
         args_x = {"file": args.file, "bond_broken": [
             x[0], x[1]], "print": False, "debug": False}

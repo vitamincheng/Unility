@@ -136,12 +136,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(" Cleaning old input and temporary files ...")
     print(" Running: rm isomers.xyz *.tmp")
 
-    for idx in range(1, len(xyzFile)+1, 1):
+    for idx1 in range(1, len(xyzFile)+1, 1):
         # idx_str : str = f"{[idx]:05d}"
         xyzFile.set_filename(Path(single_traj_Name))
-        xyzFile.method_save_xyz([idx])
-        print(f"                          *** Configuration         {idx}  ****")  # nopep8
-        print(f" Loading geometry	 {idx}  from the inputted geometry file")      # nopep8
+        xyzFile.method_save_xyz([idx1])
+        print(f"                          *** Configuration         {idx1}  ****")  # nopep8
+        print(f" Loading geometry	 {idx1}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
 
         optimizer = Berny(geomlib.readfile(single_traj_Name))
@@ -178,11 +178,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 optimizer.send((energy, gradient / angstrom))
 
                 trajectory.append((energy, gradient, coordinates))
-            xyzFile.Sts[idx-1].comment_energy = trajectory[-1][0]
-            xyzFile.Sts[idx-1].coord = list(trajectory[-1][2])
+            xyzFile.Sts[idx1-1].comment_energy = trajectory[-1][0]
+            xyzFile.Sts[idx1-1].coord = list(trajectory[-1][2])
 
         else:
-            xyzFile.Sts[idx-1].comment_energy = results["energy"]
+            xyzFile.Sts[idx1-1].comment_energy = results["energy"]
 
     xyzFile.method_rewrite_comment()
     xyzFile.method_comment_new()

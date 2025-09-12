@@ -451,9 +451,9 @@ class GeometryXYZs():
         if not path.exists():
             path.mkdir()
 
-        for idx0, x in enumerate(list_idx):
-            self.set_filename(path / Path(str(idx0+1)+".xyz"))
-            self.method_save_xyz([idx1+idx0+1])
+        for plus_idx1, x in enumerate(list_idx, 1):
+            self.set_filename(path / Path(str(plus_idx1)+".xyz"))
+            self.method_save_xyz([idx1+plus_idx1])
         return True
 
     def method_Sts_extend(self, Sts_: list[Geometry]) -> None:

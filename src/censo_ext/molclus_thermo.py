@@ -157,11 +157,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     sys.stdout = sys.__stdout__
 
     thermo: list = []
-    for idx in range(1, len(xyzFile)+1, 1):
+    for idx1 in range(1, len(xyzFile)+1, 1):
         xyzFile.set_filename(single_xyz_name)
-        xyzFile.method_save_xyz([idx])
-        print(f"                          *** Configuration         {idx}  ****")  # nopep8
-        print(f" Loading geometry	 {idx}  from the inputted geometry file")      # nopep8
+        xyzFile.method_save_xyz([idx1])
+        print(f"                          *** Configuration         {idx1}  ****")  # nopep8
+        print(f" Loading geometry	 {idx1}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
         subprocess.call(xtb_cmd, shell=True)
         print(f" Running:  {xtb_cmd}")

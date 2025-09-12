@@ -38,8 +38,8 @@ class Topo():
         self.__neighbors: dict[int, npt.NDArray[np.int64]]
         self.__mol, self.__neighbors = ml4nmr.read_mol_neighbors(
             self.__fileName)
-        self.idx1_Hydrogen_atom: list[int] = [idx+1 for idx,
-                           i in enumerate(self.__mol) if i.symbol == "H"]  # type: ignore # nopep8
+        self.idx1_Hydrogen_atom: list[int] = [idx1 for idx1,
+                           i in enumerate(self.__mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
 
     def get_cn(self) -> dict[int, int]:
         """Computes and returns the coordination number (CN) for each atom in the molecular structure.

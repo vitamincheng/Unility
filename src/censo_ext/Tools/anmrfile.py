@@ -170,17 +170,17 @@ class Anmrrc():
         from censo_ext.Tools.ml4nmr import read_mol_neighbors
         mol, neighbors = read_mol_neighbors(DirFileName)
         acid_atoms_NoShowRemove: list[int] = []
-        for idx, x in enumerate(mol):
+        for idx1, x in enumerate(mol, 1):
             for y in acid_atoms_NoShow:
                 if x.symbol == y:  # type: ignore
-                    acid_atoms_NoShowRemove.append(idx+1)
+                    acid_atoms_NoShowRemove.append(idx1)
         NoShow_Remove_Group: npt.NDArray[np.int64] = np.array(
             [], dtype=np.int64)
         for x in acid_atoms_NoShowRemove:
             NoShow_Remove_Group = np.concatenate(
                 (NoShow_Remove_Group, neighbors[x]), axis=None)
-        idx1_H_atom: list[int] = [idx0+1 for idx0,
-                                 i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
+        idx1_H_atom: list[int] = [idx1 for idx1,
+                                 i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
         return [x for x in NoShow_Remove_Group if x in idx1_H_atom]
 
     def get_Reference_anmrrc(self) -> float:
@@ -385,9 +385,9 @@ class Anmr():
                 zip(np.atleast_1d(idx1_CONF), np.atleast_1d(weight)))
 
             Active_orcaSJ: list[int] = []
-            for idx, x in enumerate(self.orcaSJ):
+            for idx0, x in enumerate(self.orcaSJ):
                 if x.CONFSerialNums in idx1_CONF:
-                    Active_orcaSJ.append(idx)
+                    Active_orcaSJ.append(idx0)
 
             # orcaSParams and orcaJCoups using weighting to calculate and
             # save to Average_orcaSJ
@@ -467,10 +467,10 @@ class Anmr():
             if self.__verbose:
                 ic(AtomsEqvKeep)
 
-            for idx, x in enumerate(AtomsEqvKeep):
+            for idx0, x in enumerate(AtomsEqvKeep):
                 if (self.nMagnetEqvs[x]) != 1:
                     if x != min(self.NeighborMangetEqvs[x]):
-                        AtomsEqvKeep[idx] = 0
+                        AtomsEqvKeep[idx0] = 0
             AtomsEqvKeep = AtomsEqvKeep[np.nonzero(AtomsEqvKeep)]
 
             # Calculation the average ppm of Equivalent Atom and Replace the old ppm
@@ -510,8 +510,8 @@ class Anmr():
                                     k)][list(AtomsKeep).index(ll)] = 0
                                 orcaSJ.JCoups[list(AtomsKeep).index(
                                     ll)][list(AtomsKeep).index(k)] = 0
-                for idx, x in enumerate(orcaSJ.JCoups):
-                    orcaSJ.JCoups[idx][idx] = 0
+                for idx0, x in enumerate(orcaSJ.JCoups):
+                    orcaSJ.JCoups[idx0][idx0] = 0
 
             AtomsDelete: list[int] = list(
                 map(int, set(AtomsKeep).difference(set(list(AtomsEqvKeep)))))
@@ -1015,9 +1015,9 @@ class Anmr():
         del lines[0]
 
         Chemlines: list[str] = lines[0:int(len(lines)/2)]
-        for idx, x in enumerate(Chemlines):
+        for idx0, x in enumerate(Chemlines):
             x: str = x.rstrip()
-            if (idx % 2) == 0:
+            if (idx0 % 2) == 0:
                 self.nChemEqvs[int(x.split()[0])] = int(x.split()[1])
             else:
                 int_tmp: list[int] = []
@@ -1026,9 +1026,9 @@ class Anmr():
                 self.NeighborChemEqvs[int(x.split()[0])] = int_tmp
 
         Magnetlines: list[str] = lines[int(len(lines)/2):len(lines)]
-        for idx, x in enumerate(Magnetlines):
+        for idx0, x in enumerate(Magnetlines):
             x: str = x.rstrip()
-            if (idx % 2) == 0:
+            if (idx0 % 2) == 0:
                 self.nMagnetEqvs[int(x.split()[0])] = int(x.split()[1])
             else:
                 int_tmp: list[int] = []
@@ -1231,24 +1231,24 @@ class OrcaSJ():
         if int(nVersion.split()[2][0]) == 5:
             nLines = 0
             start_idx = 0
-            for idx, line in enumerate(lines):
+            for idx0, line in enumerate(lines):
                 if re.search(r"Number of nuclei for epr/nmr", line):
                     nNuclei = int(line.split()[-1])
                     import math
                     nLines = (math.ceil(nNuclei/6))*(nNuclei+1)
 
                 if re.search(r"SUMMARY OF ISOTROPIC COUPLING CONSTANTS", line):
-                    start_idx = idx + 2
+                    start_idx = idx0 + 2
 
             if nLines != 0 and start_idx != 0:
                 end_idx = start_idx + nLines - 1
 
         elif int(nVersion.split()[2][0]) == 6:
-            for idx, line in enumerate(lines):
+            for idx0, line in enumerate(lines):
                 if re.search(r"Maximum memory used throughout the entire PROP", line):
-                    end_idx = idx - 4
+                    end_idx = idx0 - 4
                 if re.search(r"SUMMARY OF ISOTROPIC COUPLING CONSTANTS", line):
-                    start_idx = idx + 2
+                    start_idx = idx0 + 2
         else:
             print("This program is not work with before orca 5.0 ")
 
@@ -1268,9 +1268,9 @@ class OrcaSJ():
             nums: int = nums+1
         nAtomDataJ: int = nums
 
-        for idx, x in enumerate(DataJ):
-            if (idx > nAtomDataJ):
-                DataJ[idx % (nAtomDataJ+1)] = DataJ[idx % (nAtomDataJ+1)]+x
+        for idx0, x in enumerate(DataJ):
+            if (idx0 > nAtomDataJ):
+                DataJ[idx0 % (nAtomDataJ+1)] = DataJ[idx0 % (nAtomDataJ+1)]+x
 
         del DataJ[0]
         del DataJ[nAtomDataJ:]

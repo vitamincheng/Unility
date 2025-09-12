@@ -268,8 +268,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     inFile: Path = Path("crest_conformers.xyz")
 
     # Process different nuclear element (C or H)
-    for idx, Active in enumerate(inAnmr.get_Anmr_Active()):
-        if idx == 0:  # only one Active nuclear element
+    for idx1, Active in enumerate(inAnmr.get_Anmr_Active(), 1):
+        if idx1 == 1:  # only one Active nuclear element
 
             if Active == 'C':
                 # Carbon processing - read molecular structure
@@ -319,7 +319,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 print("  Exit and Close the program !!!")
                 exit(0)
 
-        elif idx >= 1:
+        elif idx1 > 1:
             print("  Only for ONE Active Nuclear element, waiting to build")
             print("  Exit and Close the program !!!")
             exit(0)

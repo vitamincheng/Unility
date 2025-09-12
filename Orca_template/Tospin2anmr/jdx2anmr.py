@@ -120,12 +120,11 @@ idx0_lines_start: int = 0
 idx0_lines_end: int = 0
 
 
-for idx, line in enumerate(lines):
+for idx0, line in enumerate(lines):
     if re.search(r"XYDATA", line):
-        idx0_lines_start = idx
-for idx, line in enumerate(lines):
+        idx0_lines_start = idx0
     if re.search(r"END", line):
-        idx0_lines_end = idx
+        idx0_lines_end = idx0
 
 if idx0_lines_start == 0 or idx0_lines_end == 0:
     print("  Your jdx format file have something wrong !!!")

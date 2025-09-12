@@ -152,14 +152,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.opt:
         xtb_cmd += " --opt"
 
-    for idx in range(1, len(xyzFile)+1, 1):
+    for idx1 in range(1, len(xyzFile)+1, 1):
         xyzFile.set_filename(single_traj_Name)
-        xyzFile.method_save_xyz([idx])
-        print(f"                          *** Configuration         {idx}  ****")  # nopep8
-        print(f" Loading geometry	 {idx}  from the inputted geometry file")      # nopep8
+        xyzFile.method_save_xyz([idx1])
+        print(f"                          *** Configuration         {idx1}  ****")  # nopep8
+        print(f" Loading geometry	 {idx1}  from the inputted geometry file")      # nopep8
         print(" Generating  file...")
         subprocess.call(f"{xtb_cmd} > xtb.out", shell=True)
-        idx1_str = (f"{idx:05d}")
+        idx1_str = (f"{idx1:05d}")
         print(f" Running:  {xtb_cmd} > {idx1_str}.out")
 
         get_energy: int | None = None
@@ -175,7 +175,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 if re.search(r"TOTAL ENERGY", y):
                     get_energy = idy
             if get_energy:
-                xyzFile.Sts[idx -
+                xyzFile.Sts[idx1 -
                             1].comment_energy = float(lines[get_energy].split()[3])
 
     if args.opt:

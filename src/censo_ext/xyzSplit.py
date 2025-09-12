@@ -124,7 +124,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
 
-    for idx0_St, St in enumerate(xyzFile.Sts):
+    for idx1_St, St in enumerate(xyzFile.Sts, 1):
 
         dxyz: npt.NDArray[np.float64] = St.coord[idx1_p-1].copy()
         inital: list[npt.NDArray[np.float64]] = St.coord.copy()
@@ -146,10 +146,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             St.coord += dxyz
 
             if args.print:
-                xyzFile.method_print([idx0_St+1])
+                xyzFile.method_print([idx1_St])
             else:
                 xyzFile.set_filename(outFile)
-                xyzFile.method_save_xyz_append([idx0_St+1])
+                xyzFile.method_save_xyz_append([idx1_St])
 
     if not args.print:
         if Delete_work:

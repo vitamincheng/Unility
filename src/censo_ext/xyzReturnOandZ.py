@@ -106,7 +106,7 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
     STD_Atoms: list[float] = list(map(float, idx_STD.values()))
 
     idx1_Bonding: list[list[int]] = []
-    for idx, x in enumerate(idx1_LowFactor):
+    for x in idx1_LowFactor:
         from censo_ext.Tools.topo import Topo
         args_x: dict = {"file": inFile, "bonding": x,
                         "print": False, "debug": False}
@@ -126,7 +126,7 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
 
     from itertools import combinations
     idx1_Combine3atom: list[tuple[int, int, int]] = []
-    for idx, x in enumerate(idx1_3atom):
+    for x in idx1_3atom:
         for y in list(combinations(x, 3)):
             idx1_Combine3atom.append(y)
 
