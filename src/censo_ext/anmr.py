@@ -267,11 +267,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     inHydrogen: list[int] = []
     inFile: Path = Path("crest_conformers.xyz")
 
-    # Process different nuclear elements (C or H)
+    # Process different nuclear element (C or H)
     for idx, Active in enumerate(inAnmr.get_Anmr_Active()):
-        if idx == 0:
-            if Active == 'C':
+        if idx == 0:  # only one Active nuclear element
 
+            if Active == 'C':
                 # Carbon processing - read molecular structure
                 from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
                 mol, neighbors, bond_order = read_mol_neighbors_bond_order(
@@ -288,10 +288,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
                 if set(inAnmr.avg_orcaSJ.idx1Atoms.values()) != set(Active):
 
-                    print(" Your orcaS.out have Something wrong")
-                    print("  Exit and Close the program !!!")
-                    ic()
-                    exit(0)
+                    raise ValueError(
+                        "  Yours Average orcaS.out and orcaJ.out have something errors !!!")
 
             elif Active == 'H':
                 # Hydrogen processing - identify equivalent hydrogens
@@ -314,21 +312,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     args.thr = args.lw * 0.3
 
                 if set(inAnmr.avg_orcaSJ.idx1Atoms.values()) != set(Active):
-
-                    print(" Your orcaS.out have Something wrong")
-                    print("  Exit and Close the program !!!")
-                    ic()
-                    exit(0)
+                    raise ValueError(
+                        "  Your orcaS.out have Something error !!!")
             else:
                 print("  Other Active Nuclear element, waiting to build")
                 print("  Exit and Close the program !!!")
-                ic()
                 exit(0)
 
         elif idx >= 1:
             print("  Only for ONE Active Nuclear element, waiting to build")
             print("  Exit and Close the program !!!")
-            ic()
             exit(0)
 
     # Initialize variables for AB quartet detection and processing
@@ -409,9 +402,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                                     mat_filter_ab_quartet[idx][idy] = 1
                                 else:
                                     if mat_filter_low_factor[idx][idy] == 1:
-                                        ic(idx, x, idy, y,
-                                           "  Something wrong in your SParams !!!")
-                                        ic()
                                         raise ValueError(
                                             f"{idx} {x} {idy} {y} was not found or is a directory")
 
@@ -443,8 +433,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                             bond_penetration += 1
                     idx0_ab_group_sets.append(group)
                 else:
-                    print("  Something wrong in ab_group_set")
-                    ic()
                     raise ValueError("  idx0_ab_group_sets is bugs !!!")
 
             if len(inSParams*inHydrogen) > args.mss:
@@ -472,7 +460,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
             if args.verbose:
                 ic(idx0_ab_group_sets)
-            # show every step of threshold
+            #  show every step of threshold
             if args.verbose:
                 print(" ===== Processing =====")
                 print(f" threshold of JCoupling  : {args.thr:>3.5f}")
@@ -530,14 +518,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     #
     import censo_ext.Tools.qm as qm
     idx0_peaks_range: list[int] = []
-    Res_peaks: list[list[tuple[float, float]]] = []
+    accPeaks: list[list[tuple[float, float]]] = []
     if not args.json and inAnmr.get_Anmr_Active()[0] == 'H':
         print("")
         print(" ===== Processing =====")
         print(" the group of calculate spectra :", len(idx0_ab_group_sets))
         print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
 
-        # Res_peaks: list[list[tuple[float, float]]] = []
+        # accPeaks: list[list[tuple[float, float]]] = []
         if len(inSParams*inHydrogen) <= args.mss:
             idx0_ab_group = list(idx0_ab_group_sets[0])
             v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
@@ -557,7 +545,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 v), J=J, nIntergals=len(inHydrogen), args=args)
             from nmrsim.math import normalize_peaklist
             QM_Multiplet = normalize_peaklist(QM_Base, len(inHydrogen))
-            Res_peaks.append(QM_Multiplet)
+            accPeaks.append(QM_Multiplet)
 
         else:
             for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
@@ -594,60 +582,53 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     elif len(inJ) == 0:
                         QM_Multiplet = QM_Base
                     else:
-                        print("Something wrong")
-                        print("  Exit and Close the program !!!")
-                        ic()
-                        exit(1)
+                        raise ValueError(
+                            "  inJ,  Exit and Close the program !!!")
                 from nmrsim.math import normalize_peaklist
                 QM_Multiplet = normalize_peaklist(
                     QM_Multiplet, inHydrogen[idx0])
 
-                if len(Res_peaks) == 0 and len(QM_Multiplet) == 0:
+                if len(accPeaks) == 0 and len(QM_Multiplet) == 0:
                     pass
                 else:
-                    Res_peaks.append(QM_Multiplet)
+                    accPeaks.append(QM_Multiplet)
 
         import json
-        # import pickle
-        with open(inAnmr.get_Directory()/Path("peaks.json"), "w") as final:
-            json.dump(Res_peaks, final)
+        with open(inAnmr.get_Directory()/Path("peaks.json"), "w") as jsonFile:
+            json.dump(accPeaks, jsonFile)
 
-        idx0_peaks_range = [*range(len(Res_peaks))]
+        idx0_peaks_range = [*range(len(accPeaks))]
 
     elif not args.json and inAnmr.get_Anmr_Active()[0] == 'C':
         for idx, ppm in enumerate(inSParams):
             dat: list = []
             dat.append((float(ppm*(-1)), float(inHydrogen[idx])))
-            Res_peaks.append(dat)
+            accPeaks.append(dat)
 
         import json
-        # import pickle
-        with open(inAnmr.get_Directory()/Path("peaks.json"), "w") as final:
-            json.dump(Res_peaks, final)
+        with open(inAnmr.get_Directory()/Path("peaks.json"), "w") as jsonFile:
+            json.dump(accPeaks, jsonFile)
     else:
         import json
-        # import pickle
-        with open(inAnmr.get_Directory()/Path("peaks.json"), "r") as json_file:
-            Res_peaks = json.load(json_file)
+        with open(inAnmr.get_Directory()/Path("peaks.json"), "r") as jsonFile:
+            accPeaks = json.load(jsonFile)
 
         if args.json[0] == -1:
-            idx0_peaks_range = [*range(len(Res_peaks))]
+            idx0_peaks_range = [*range(len(accPeaks))]
         else:
             idx0_peaks_range = args.json
 
-    Final_peaks: list[tuple[float, float]] = []
+    finalPeaks: list[tuple[float, float]] = []
 
     if inAnmr.get_Anmr_Active()[0] == 'H':
-        for idx, peak in enumerate(Res_peaks):
+        for idx, peak in enumerate(accPeaks):
             if idx in idx0_peaks_range:
-                Final_peaks += peak
+                finalPeaks += peak
     elif inAnmr.get_Anmr_Active()[0] == 'C':
-        for idx, peak in enumerate(Res_peaks):
-            Final_peaks += peak
+        for idx, peak in enumerate(accPeaks):
+            finalPeaks += peak
     else:
-        print("  Something Wrong in your get_anmr_Active()")
-        ic()
-        exit(0)
+        raise ValueError("  Something Wrong in your get_anmr_Active()")
 
     print("")
     print(" ===== Processing to plotting spectra =====")
@@ -655,16 +636,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     args.out = str(inAnmr.get_Directory()/Path(args.out))
 
     if dpi and Active_range:
-        np_dat: npt.NDArray[np.float64] = qm.print_plot(
-            Final_peaks, dpi, nIntergals=1, args=args, Active_range=Active_range)
+        print(" All done ...")
+        return qm.print_plot(finalPeaks, dpi, nIntergals=1, args=args, Active_range=Active_range)
     else:
         print("  dpi and Active_range is wrong")
         print("  Exit and Close the program !!!")
-        ic()
         exit(0)
-
-    print(" All done ...")
-    return np_dat
 
 
 if __name__ == "__main__":

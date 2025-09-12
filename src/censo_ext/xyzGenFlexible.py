@@ -84,16 +84,18 @@ def cml(descr) -> argparse.Namespace:
 
 def read_data(args) -> tuple[dict[int, npt.NDArray], list[list[int]], list[list[np.int64]], dict[int, int], dict[int, int]]:
     from censo_ext.Tools.topo import Topo
+    from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     Sts_topo: Topo = Topo(args.file)
     _, neighbor, circleMols, residualMols = Sts_topo.topology()
     idx_atomsCN: dict[int, int] = Sts_topo.get_cn()
-    # ic(neighbor, circleMols, residualMols)
-    # ic(atomsCN)
-    from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
+    if args.verbose:
+        ic(neighbor, circleMols, residualMols)
+        ic(idx_atomsCN)
     _, _, idx_Bond_order = read_mol_neighbors_bond_order(
         args.file)
-    # ic(Bond_order)
-    # ic(residualMols)
+    if args.verbose:
+        ic(idx_Bond_order)
+        ic(residualMols)
     return neighbor, circleMols, residualMols, idx_Bond_order, idx_atomsCN
 
 
@@ -108,7 +110,6 @@ def get_xyzSplit(neighbor: dict[int, npt.NDArray], circleMols: list[list[int]], 
         if len(flexibleMols) == 1:
             continue
         # ic(flexibleMols, nodeMols)
-        # ic()
 
         flexibleMolsCNis4: list = [
             a for a in flexibleMols if atomsCN[a] == 4]

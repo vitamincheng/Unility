@@ -25,7 +25,7 @@ def test_xyzGenFlexible_args():
     args = argparse.Namespace(**x)
     xyzGenFlexible.main(args)
 
-    compare = "tests/compare/xyzGen_Darwin.xyz"
+    compare: Path = Path("tests/compare/xyzGen_Darwin.xyz")
     assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
 
@@ -38,6 +38,6 @@ def test_xyzGenFlexible_args_manual(monkeypatch):
     monkeypatch.setattr('sys.stdin', io.StringIO("55"))
     xyzGenFlexible.main(args)
 
-    compare = "tests/compare/xyzGen_Darwin_manual.xyz"
+    compare: Path = Path("tests/compare/xyzGen_Darwin_manual.xyz")
     assert filecmp.cmp(args.out, compare)
     os.remove(args.out)

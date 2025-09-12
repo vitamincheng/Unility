@@ -69,30 +69,28 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(f"    provided arguments: {" ".join(sysargv)}")
 
     if args.separate:
-        infile: GeometryXYZs = GeometryXYZs()
-        infile.set_filename(args.separate)
-        infile.method_read_xyz()
-        if len(infile) == 1:
-            infile.method_idx_molecules_xyzs(idx1=1)
+        inFile: GeometryXYZs = GeometryXYZs()
+        inFile.set_filename(args.separate)
+        inFile.method_read_xyz()
+        if len(inFile) == 1:
+            inFile.method_idx_molecules_xyzs(idx1=1)
         else:
-            print("Only use single conformer in your xyz file")
+            print("  Only use single conformer in your xyz file")
             print("  Exit and Close the program !!!")
-            from icecream import ic
-            ic()
             exit(0)
 
     elif args.merge:
-        infile0: GeometryXYZs = GeometryXYZs()
-        infile0.set_filename(args.merge[0])
-        infile0.method_read_xyz()
-        infile1: GeometryXYZs = GeometryXYZs()
-        infile1.set_filename(args.merge[1])
-        infile1.method_read_xyz()
+        inFile0: GeometryXYZs = GeometryXYZs()
+        inFile0.set_filename(args.merge[0])
+        inFile0.method_read_xyz()
+        inFile1: GeometryXYZs = GeometryXYZs()
+        inFile1.set_filename(args.merge[1])
+        inFile1.method_read_xyz()
 
-        outfile: GeometryXYZs = GeometryXYZs()
-        outfile = infile0 + infile1
-        outfile.set_filename(args.out)
-        outfile.method_save_xyz([])
+        outFile: GeometryXYZs = GeometryXYZs()
+        outFile = inFile0 + inFile1
+        outFile.set_filename(args.out)
+        outFile.method_save_xyz([])
 
 
 if __name__ == "__main__":

@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-import os
 import pytest
 import argparse
 import censo_ext.ensoAnalysis as ensoAnalysis
 import filecmp
 from pathlib import Path
 
-file_anmr = "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso"
+file_anmr: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso")
+file_anmr_backup: Path = Path(str(file_anmr)+".backup")
 
 
 def test_ensoAnalysis_miss_args():
@@ -46,7 +46,7 @@ def test_ensoAnalysis_Hydrogen_new_read():
     with open(out_print, "w") as f:
         sys.stdout = f
         x: dict = {"file": file_anmr, "new": None, "switch": [*range(1, 55)],
-                   "temp": 298.15, "weights": False, "verbose": False}
+                   "temp": 298.15, "weights": False, "verbose": False, "out": "average_enso"}
         args = argparse.Namespace(**x)
         ensoAnalysis.main(args)
     sys.stdout = sys.__stdout__
@@ -56,7 +56,7 @@ def test_ensoAnalysis_Hydrogen_new_read():
     assert lines[-1].split()[-1] == "(Allowed)"
     assert float(lines[-1].split()[-2]) == -0.00031361
     out_print.unlink()
-    Path(args.file+".backup").unlink()
+    Path(file_anmr_backup).unlink()
 
     out_enso: Path = Path("average_enso")
     compare: Path = Path("tests/compare/test_average_enso")
@@ -76,7 +76,7 @@ def test_ensoAnalysis_Hydrogen_new_read_miss_args():
     with open(out_print, "w") as f:
         sys.stdout = f
         x: dict = {"file": file_anmr, "new": None, "switch": None,
-                   "temp": None, "weights": False, "verbose": False}
+                   "temp": None, "weights": False, "verbose": False, "out": "average_enso"}
         ensoAnalysis.main(argparse.Namespace(**x))
     sys.stdout = sys.__stdout__
     with open(out_print, "r") as f:
@@ -85,7 +85,7 @@ def test_ensoAnalysis_Hydrogen_new_read_miss_args():
     assert lines[-1].split()[-1] == "(Allowed)"
     assert float(lines[-1].split()[-2]) == -0.00031361
     out_print.unlink()
-    Path(file_anmr+".backup").unlink()
+    Path(file_anmr_backup).unlink()
 
     out_enso: Path = Path("average_enso")
     compare: Path = Path("tests/compare/test_average_enso")
@@ -105,7 +105,7 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
     with open(out_print, "w") as f:
         sys.stdout = f
         x: dict = {"file": file_anmr, "new": None, "switch": None,
-                   "temp": None, "weights": False, "verbose": True}
+                   "temp": None, "weights": False, "verbose": True, "out": "average_enso"}
         ensoAnalysis.main(argparse.Namespace(**x))
     sys.stdout = sys.__stdout__
     with open(out_print, "r") as f:
@@ -114,7 +114,7 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
     assert lines[-4].split()[-1] == "(Allowed)"
     assert float(lines[-4].split()[-2]) == -0.00031361
     out_print.unlink()
-    Path(file_anmr+".backup").unlink()
+    Path(file_anmr_backup).unlink()
 
     out_enso: Path = Path("average_enso")
     compare: Path = Path("tests/compare/test_average_enso")
@@ -125,6 +125,7 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
 def test_ensoAnalysis_Hydrogen_new_read_weights():
     file_anmr_weights: Path = Path(
         "tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso_weights")
+    file_anmr_weights_backup: Path = Path(str(file_anmr_weights)+".backup")
     x: dict = {"file": file_anmr_weights, "new": True}
     with pytest.raises(SystemExit) as e:
         ensoAnalysis.main(argparse.Namespace(**x))
@@ -138,4 +139,4 @@ def test_ensoAnalysis_Hydrogen_new_read_weights():
         ensoAnalysis.main(argparse.Namespace(**x))
     assert e.type is SystemExit
     assert e.value.code == 0  # for argparse error
-    Path(str(file_anmr_weights)+".backup").unlink()
+    Path(file_anmr_weights_backup).unlink()

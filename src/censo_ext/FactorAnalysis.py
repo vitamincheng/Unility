@@ -215,25 +215,24 @@ def FactorFilter(args) -> None:
         idx1_separate += 1
         nConfs = len(idx1_xyz)
 
-    Dir_Res: Path = Path("Final_Result")
-    isExist: bool = os.path.exists(Dir_Res)
-    if not isExist:
-        Dir_Res.mkdir()
+    reDir: Path = Path("Final_Result")
+    if not reDir.is_dir():
+        reDir.mkdir()
 
     print(" ========== Finally Data ==========")
 
     nMinor: list[int] = []
     for idx, x in enumerate(idx1_minor):
-        xyzFile.set_filename(Dir_Res / Path(f"minor{idx+1}.xyz"))
+        xyzFile.set_filename(reDir / Path(f"minor{idx+1}.xyz"))
         xyzFile.method_save_xyz(x)
         print(f" minor{idx+1}.xyz  : {x}")
         nMinor.append(len(x))
     np_nMinor: npt.NDArray[np.float64] = np.array(nMinor)
 
-    residue_file: Path = Path("residue.xyz")
-    xyzFile.set_filename(Dir_Res / residue_file)
+    residueFile: Path = Path("residue.xyz")
+    xyzFile.set_filename(reDir / residueFile)
     xyzFile.method_save_xyz(major_idx)
-    print(f" {residue_file} : {major_idx}")
+    print(f" {residueFile} : {major_idx}")
 
     print(f" Coefficient of variation : {np_nMinor.std()/np_nMinor.mean()}")
 

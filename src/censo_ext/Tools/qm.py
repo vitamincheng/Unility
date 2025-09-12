@@ -91,8 +91,6 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
     """
     nspins: int = len(v)
     if J.shape != (nspins, nspins):
-        print("Your JCoup is Error")
-        ic()
         raise ValueError("Your JCoup is Error")
 
     H: npt.NDArray[np.complex128]

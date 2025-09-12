@@ -141,7 +141,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     print(" Running: rm isomers.xyz *.tmp")
 
     xtb_cmd = xtb_cmd + " --enso -I ../xcontrol-inp > thermo.out"
-    xcontrol_inp: str = "xcontrol-inp"
+    xcontrol_inp: Path = Path("xcontrol-inp")
     import sys
     with open(xcontrol_inp, "w") as f:
         sys.stdout = f

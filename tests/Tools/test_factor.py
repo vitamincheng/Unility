@@ -2,10 +2,11 @@
 import argparse
 import pytest
 from censo_ext.Tools.factor import method_factor_analysis, method_factor_opt
+from pathlib import Path
 
 
 def test_factor_analysis_miss_args():
-    fileName: str = "tests/data/crest_conformers000.xyz"
+    fileName: Path = Path("tests/data/crest_conformers000.xyz")
     x: dict = {"file": fileName, "print": False,
                "replace": False, "factor": 0.5}
     args = argparse.Namespace(**x)
@@ -17,9 +18,10 @@ def test_factor_analysis_miss_args():
 
 
 def test_factor_analysis():
-    fileName: str = "tests/data/crest_conformers.xyz"
+    fileName: Path = Path("tests/data/crest_conformers.xyz")
+    outFile: Path = Path("tests/compare/output_xyzReturnOandZ.xyz")
     x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False, "replace": False,
-               "out": "tests/compare/output_xyzReturnOandZ.xyz", "factor": 0.50}
+               "out": outFile, "factor": 0.50}
     args = argparse.Namespace(**x)
     idx1_minor_factor, Table_S = method_factor_analysis(args)
     assert idx1_minor_factor == [1, 2, 7, 8, 15, 19, 21,
@@ -28,9 +30,9 @@ def test_factor_analysis():
     assert Table_S[1] == pytest.approx(0.41868188431231546)
     assert Table_S[61] == pytest.approx(3.8871420948650774)
 
-    fileName: str = "tests/data/crest_conformers1.xyz"
+    fileName: Path = Path("tests/data/crest_conformers1.xyz")
     x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False, "replace": False,
-               "out": "tests/compare/output_xyzReturnOandZ.xyz", "factor": 0.50}
+               "out": outFile, "factor": 0.50}
     args = argparse.Namespace(**x)
     idx1_minor_factor, Table_S = method_factor_analysis(args)
     assert idx1_minor_factor == []
@@ -40,9 +42,10 @@ def test_factor_analysis():
 
 
 def test_factor_opt():
-    fileName: str = "tests/data/crest_conformers.xyz"
+    fileName: Path = Path("tests/data/crest_conformers.xyz")
+    outFile: Path = Path("tests/compare/output_xyzReturnOandZ.xyz")
     x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False,
-               "replace": False, "out": "tests/compare/output_xyzReturnOandZ.xyz", "factor": 0.50}
+               "replace": False, "out": outFile, "factor": 0.50}
     args = argparse.Namespace(**x)
     idx1_minor_factor, Table_S = method_factor_analysis(args)
 

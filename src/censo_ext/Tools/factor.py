@@ -35,15 +35,15 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
         >>> print(f"Standard deviations: {std_dict}")
     """
 
-    xyzfile: GeometryXYZs = GeometryXYZs(args.file)
-    xyzfile.method_read_xyz()
+    xyzFile: GeometryXYZs = GeometryXYZs(args.file)
+    xyzFile.method_read_xyz()
     args_x: dict = {"remove_idx": None, "add_idx": None,
                     "bond_broken": None, "ignore_Hydrogen": True, "debug": False, }
     coord: list[list[float]] = []
     idxElement: list[int] = []
-    for idx0 in range(len(xyzfile)):
+    for idx0 in range(len(xyzFile)):
         coord_square, _ = cal_RMSD_xyz(
-            xyzfile, 1, idx0+1, args=argparse.Namespace(**args_x))
+            xyzFile, 1, idx0+1, args=argparse.Namespace(**args_x))
         var: list[float] = list(coord_square.values())
         if idx0 == 0:
             idxElement = list(coord_square.keys())
@@ -161,8 +161,6 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
         tSTD_R: float = float(0)  # Total STD Right Data
 
         if len(idxSTD_L) < 1 or len(idxSTD_R) < 1:
-            print("something wrong in your List_STD ")
-            ic()
             raise ValueError("something wrong in your List_STD ")
 
         elif len(idxSTD_L) < (nConfs-2) and len(idxSTD_R) < (nConfs-2):

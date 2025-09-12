@@ -114,7 +114,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
 
-    single_traj_Name = Path(".single_traj.xyz")
+    single_traj_Name = Path(".solo.xyz")
     inFile = Path(args.file)
     outFile = Path(args.out)
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)

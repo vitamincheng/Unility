@@ -4,8 +4,9 @@ import argparse
 import censo_ext.xyzSplit as xyzSplit
 import filecmp
 import os
-inFile = "tests/data/crest_conformers1.xyz"
-outFile = "tests/compare/output.xyz"
+from pathlib import Path
+inFile: Path = Path("tests/data/crest_conformers1.xyz")
+outFile: Path = Path("tests/compare/output.xyz")
 
 
 def test_xyzSplit():
@@ -14,7 +15,7 @@ def test_xyzSplit():
     args = argparse.Namespace(**x)
     xyzSplit.main(args)
 
-    compare = "tests/compare/xyzSplit.xyz"
+    compare: Path = Path("tests/compare/xyzSplit.xyz")
     assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
 

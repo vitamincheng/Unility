@@ -52,7 +52,7 @@ def test_unility_ProgramIsExist():
     assert program_IsExist("orca")
     with pytest.raises(ValueError) as e:
         program_IsExist("kkk")
-    assert str(e.value) == " the program is not Exist ..."
+    assert str(e.value) == "kkk, the program is not Exist ..."
 
 
 def test_unility_unilityIsExist():

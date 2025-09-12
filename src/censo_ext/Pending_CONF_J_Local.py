@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import os
 import argparse
 import numpy as np
 import numpy.typing as npt
@@ -7,6 +6,8 @@ import numpy.typing as npt
 from sys import argv as sysargv
 from icecream import ic
 from pathlib import Path
+from censo_ext.Tools.utility import delete_all_files
+from censo_ext.Tools.utility import IsExist_return_bool
 
 descr = """
 ________________________________________________________________________________
@@ -62,10 +63,7 @@ def function_read_orcaJ(file: Path = Path("orcaJ.out")) -> npt.NDArray[np.float6
     if single_orcaSJ.method_read_orcaJ(file):
         return single_orcaSJ.JCoups
     else:
-        print("  Someting wrong in your orcaJ.out file")
-        print("  Exit and Close the program !!!")
-        ic()
-        exit(1)
+        raise ValueError("  Someting wrong in your orcaJ.out file")
 
 
 if __name__ == "__main__":
@@ -75,9 +73,9 @@ if __name__ == "__main__":
     print(descr)
 
     if args.recover:
-        path: str = str(Path.cwd())
-        print(f"Files and directories in {path} : ")
-        dirNames: list[str] = next(os.walk(path))[1]
+        Dir: Path = Path.cwd()
+        print(f"Files and directories in {Dir} : ")
+        dirNames: list[str] = [x for x in Dir.walk()][0][1]
 
         idx: int = 0
         while (idx != len(dirNames)):
@@ -91,16 +89,13 @@ if __name__ == "__main__":
             PathBackup: str = f"{dirName}/NMR/orcaJ.out.backup"
             orcaJPath: str = f"{dirName}/NMR/orcaJ.out"
 
-            if os.path.exists(PathBackup):
+            if IsExist_return_bool(Path(PathBackup)):
                 import shutil
                 shutil.copyfile(PathBackup, orcaJPath)
-                os.remove(PathBackup)
+                delete_all_files(PathBackup)
             else:
-                print(" Something wrong in your orcaJ.out folder")
-                print(f" {PathBackup}")
-                print("  Exit and Close the program !!!")
-                ic()
-                exit(1)
+                raise FileNotFoundError(
+                    " Something wrong in your orcaJ.out folder")
 
         print("  Copy orcaJ.out.backup to orcaJ.out in every NMR folder")
         print("  Recover the orcaJ.out file in your CONF folder")
@@ -108,9 +103,9 @@ if __name__ == "__main__":
         exit(0)
 
     else:
-        path: str = str(Path.cwd())
-        print(f"Files and directories in {path} : ")
-        dirNames: list[str] = next(os.walk(path))[1]
+        Dir: Path = Path.cwd()
+        print(f"Files and directories in {Dir} : ")
+        dirNames: list[str] = [x for x in Dir.walk()][0][1]
 
         idx = 0
         while (idx != len(dirNames)):
@@ -120,14 +115,10 @@ if __name__ == "__main__":
                 idx = idx+1
         print(f" Directories = {dirNames}")
 
-        from os.path import exists
-        file: str = "coord"
-        file_exists: bool = exists(file)
+        file: Path = Path("coord")
+        file_exists: bool = IsExist_return_bool(file)
         if not file_exists:
-            print(file, " the file is not exist ...")
-            print("  Exit and Close the program !!!")
-            ic()
-            exit(1)
+            raise FileNotFoundError(f"{file} the file is not exist ...")
 
         lines: list[str] = open(file, "r").readlines()
         import re
@@ -149,7 +140,7 @@ if __name__ == "__main__":
             orcaJfile: Path = Path(f"{dirName}/NMR/orcaJ.out")
             JCoup: npt.NDArray[np.float64]
 
-            if os.path.exists(fileBackup):
+            if IsExist_return_bool(fileBackup):
                 JCoup = function_read_orcaJ(fileBackup)
             else:
                 JCoup = function_read_orcaJ(orcaJfile)
@@ -159,7 +150,7 @@ if __name__ == "__main__":
             for i in range(len(idx_Atom_Eqv)-1, -1, -1):
 
                 if (len(idx_Atom_Eqv[i]) != 1):
-                    ic(idx_Atom_Eqv[i])
+                    print(f"{idx_Atom_Eqv[i]}=")
                     JCoup_temp = np.mean(JCoup[(idx_Atom_Eqv[i])], axis=0)
                     JCoup[idx_Atom_Eqv[i]] = JCoup_temp
                     JCoup.transpose()[idx_Atom_Eqv[i]] = JCoup_temp
@@ -171,8 +162,9 @@ if __name__ == "__main__":
                             JCoup[idx_Atom_Eqv[i][j], idx_Atom_Eqv[i][k]] = 0
             np.set_printoptions(formatter={'float': '{:12.5f}'.format})
 
-            os.remove(dirName + '/NMR/orcaJ.out')
-            with open(dirName + '/NMR/orcaJ.out', 'w') as outfile:
+            orcaJ_File = (dirName + '/NMR/orcaJ.out')
+            delete_all_files(orcaJ_File)
+            with open(orcaJ_File, 'w') as outfile:
                 for i in range(0, len(np_idx_h_lines)):
                     for j in range(i+1, len(np_idx_h_lines)):
                         outfile.write(

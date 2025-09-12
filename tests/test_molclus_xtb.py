@@ -34,17 +34,16 @@ def test_xtb_alpb_opt():
 
     args = argparse.Namespace(**x)
 
-    compare = ""
     xtb.main(args)
     if _system == "Darwin":
-        compare = "tests/compare/molclus_xtb_1_Darwin.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_1_Darwin.xyz")
     elif _system == "Linux":
-        compare = "tests/compare/molclus_xtb_1.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_1.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
     try:
-        assert filecmp.cmp(args.out, compare)
+        assert filecmp.cmp(args.out, compare)  # type: ignore
     except AssertionError as e:
         print(e)
         os.remove(args.out)
@@ -58,17 +57,16 @@ def test_xtb_gbsa_opt():
 
     args = argparse.Namespace(**x)
 
-    compare = ""
     xtb.main(args)
     if _system == "Darwin":
-        compare = "tests/compare/molclus_xtb_2_Darwin.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_2_Darwin.xyz")
     elif _system == "Linux":
-        compare = "tests/compare/molclus_xtb_2.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_2.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
     try:
-        assert filecmp.cmp(args.out, compare)
+        assert filecmp.cmp(args.out, compare)  # type: ignore
     except AssertionError as e:
         print(e)
         os.remove(args.out)
@@ -83,15 +81,14 @@ def test_xtb_alpb():
     args = argparse.Namespace(**x)
     xtb.main(args)
 
-    compare = ""
     if _system == "Darwin":
-        compare = "tests/compare/molclus_xtb_3_Darwin.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_3_Darwin.xyz")
     elif _system == "Linux":
-        compare = "tests/compare/molclus_xtb_3.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_3.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    assert filecmp.cmp(args.out, compare)
+    assert filecmp.cmp(args.out, compare)  # type: ignore
     os.remove(args.out)
 
 
@@ -104,13 +101,12 @@ def test_xtb_gbsa():
     args = argparse.Namespace(**x)
     xtb.main(args)
 
-    compare = ""
     if _system == "Darwin":
-        compare = "tests/compare/molclus_xtb_4_Darwin.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_4_Darwin.xyz")
     elif _system == "Linux":
-        compare = "tests/compare/molclus_xtb_4.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_4.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    assert filecmp.cmp(args.out, compare)
+    assert filecmp.cmp(args.out, compare)  # type: ignore
     os.remove(args.out)

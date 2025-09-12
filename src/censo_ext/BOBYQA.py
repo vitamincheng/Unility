@@ -105,7 +105,7 @@ def rosenbrock(x0) -> float:
     else:
         # group peaks
         for idx, loop in enumerate(idx_keys):
-            for idx_key in loop:
+            for idx_key in loop:  # type: ignore
                 orcaS_Table[idx_key][1] = x0[idx]
 
     np.savetxt(Directory/FileBOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
@@ -116,7 +116,7 @@ def rosenbrock(x0) -> float:
         import sys
         cwd: Path = Path.cwd()
         os.chdir(Directory)
-        template_inp: str = "CONF1/NMR/orcaS.out"
+        template_inp: Path = Path("CONF1/NMR/orcaS.out")
         with open(template_inp, "w") as f:
             sys.stdout = f
             print("--------------------------------")
@@ -129,18 +129,17 @@ def rosenbrock(x0) -> float:
         sys.stdout = sys.__stdout__
         orcaS_Table.T[1] = orcaS_Table.T[1] + Ref_TMS
         orcaS_Table.T[0] = orcaS_Table.T[0]-1
-        np.savetxt(Path("CONF1/NMR/orcaS-main.out"), orcaS_Table, fmt="%7d       H    %10.5f          0")  # type: ignore # nopep8
-
+        orcaS_Table_File = Path("CONF1/NMR/orcaS-main.out")
+        np.savetxt(orcaS_Table_File, orcaS_Table, fmt="%7d       H    %10.5f          0")  # type: ignore # nopep8
         subprocess.call(
             "cat CONF1/NMR/orcaS-main.out >> CONF1/NMR/orcaS.out", shell=True)
-        subprocess.call("rm CONF1/NMR/orcaS-main.out", shell=True)
+        subprocess.call(f"rm {orcaS_Table_File}", shell=True)
 
         sys.stdout = open(os.devnull, 'w')
         result = subprocess.call("anmr.sh", shell=True)
         sys.stdout = sys.__stdout__
 
         if result != 0:
-            ic(f"Cal.================= {result}")
             raise ValueError(
                 " call anmr.sh process have something wrong !!!")
 
@@ -162,8 +161,6 @@ def rosenbrock(x0) -> float:
 
         Dat_Cal: CensoDat = CensoDat(file=Directory/Path(x["out"]))
     else:
-        print("Something wrong in your argument ")
-        ic()
         raise ValueError("Something wrong in your argument")
 
     Dat_Cal.method_normalize_dat()
@@ -175,9 +172,7 @@ def rosenbrock(x0) -> float:
         Dat_Ref.method_normalize_dat()
         Diff: CensoDat = Dat_Cal - Dat_Ref
 
-    res = np.sum(np.square(Diff.get_Dat()))
-
-    return res
+    return np.sum(np.square(Diff.get_Dat()))
 
 
 def Scan_single_Peak(args) -> None:
@@ -186,6 +181,8 @@ def Scan_single_Peak(args) -> None:
         Directory / FileBOBYQA)
     in_set: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
     in_set = {x for x in in_set if x < 1000 and x >= 1}
+    print(f"  {in_set=}")
+    print(" ==== Start single_peak ====")
     for nSerial in in_set:
         if args.verbose:
             ic(nSerial)
@@ -217,10 +214,11 @@ def Scan_group_Peaks(args) -> None:
 
     in_set: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
     in_set = {x for x in in_set if x >= 1000}
-
     if len(in_set) == 0:
-        print(" ==== Finished group_peaks ====")
         return
+
+    print(f"  {in_set=}")
+    print(" ==== Start group_peaks ====")
 
     # Data structure of idx, Chemical_Shift, idx_atoms
     Data: list[list] = []
@@ -292,11 +290,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     return (bool,bool)
     '''
-    #
     # orcaS-BOBYQA.out  for setting
     # Average/NMR/orcaS.out for anmr.py   (internal)
     # CONF1/NMR/orcaS.out for anmr        (external)
-    #
 
     global Directory
     global Dat_fileName
@@ -317,9 +313,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         prog = False
 
     if IsExist_return_bool(Directory / FileOrcaS):                 # type: ignore # nopep8
-        print(f"{FileOrcaS} is exist")
+        print(f"  {FileOrcaS} is exist")
         if IsExist_return_bool(Directory / FileBOBYQA):            # type: ignore # nopep8
-            print(f"{FileBOBYQA} is exist")
+            print(f"  {FileBOBYQA} is exist")
             if prog:
                 cwd: Path = Path.cwd()
                 os.chdir(Directory)  # type: ignore
@@ -346,7 +342,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         else:
             Create_BOBYQA(args)
     else:
-        ic()
         raise FileNotFoundError(
             f"{Directory/FileOrcaS} is not exist !!!")  # type: ignore # nopep8
 

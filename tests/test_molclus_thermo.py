@@ -2,8 +2,9 @@
 import pytest
 import argparse
 import censo_ext.molclus_thermo as thermo
+from pathlib import Path
 
-inFile = "tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz"
+inFile: Path = Path("tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz")
 
 
 def test_molclus_thermo_miss_args():

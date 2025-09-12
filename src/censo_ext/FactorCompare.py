@@ -57,20 +57,20 @@ def Factor_xyzCompare(args) -> None:
     subprocess.call(
         f"cat {args.file[0]} {args.file[1]} > {merge_FileName}", shell=True)
 
-    xyzfile_P: GeometryXYZs = GeometryXYZs(args.file[0])
-    xyzfile_P.method_read_xyz()
-    xyzfile_Q: GeometryXYZs = GeometryXYZs(args.file[1])
-    xyzfile_Q.method_read_xyz()
-    xyzfile_Merge: GeometryXYZs = GeometryXYZs(merge_FileName)
-    xyzfile_Merge.method_read_xyz()
+    xyzFile_P: GeometryXYZs = GeometryXYZs(args.file[0])
+    xyzFile_P.method_read_xyz()
+    xyzFile_Q: GeometryXYZs = GeometryXYZs(args.file[1])
+    xyzFile_Q.method_read_xyz()
+    xyzFile_Merge: GeometryXYZs = GeometryXYZs(merge_FileName)
+    xyzFile_Merge.method_read_xyz()
 
-    nSts_P: int = len(xyzfile_P)
-    nSts_Q: int = len(xyzfile_Q)
+    nSts_P: int = len(xyzFile_P)
+    nSts_Q: int = len(xyzFile_Q)
 
     result: list | npt.NDArray[np.float64] = []
     for idx_P in range(nSts_P):
         for idx_Q in range(nSts_Q):
-            result.append(cal_RMSD(xyzfile_Merge, idx_P+1, idx_Q+nSts_P+1))
+            result.append(cal_RMSD(xyzFile_Merge, idx_P+1, idx_Q+nSts_P+1))
 
     result = np.array(result)
     result = result.reshape(nSts_P, nSts_Q).T

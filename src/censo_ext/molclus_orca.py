@@ -104,10 +104,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     prog: str = "orca"
     match: list[str] = [x for x in str_env if prog in x]
     if len(match) == 0:
-        print(f"  Need the {prog} program !!!!")
-        print("  Exit and Close the program !!!")
-        from icecream import ic
-        ic()
         raise ValueError(f" Need the {prog} Program !!!")
 
     orca_path = match[0]+f"/{prog}"
@@ -180,10 +176,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         subprocess.call(f"mv -f {template_Name}.gbw {idx1_str}.gbw", shell=True)  # nopep8
 
     if templateFileIsExists:  # template File is Exists
-        TemplateExistsFile: GeometryXYZs = GeometryXYZs(outFile)
-        TemplateExistsFile.method_read_xyz()
-        TemplateExistsFile.method_comment_new()
-        TemplateExistsFile.method_save_xyz([])
+        TemplateFile: GeometryXYZs = GeometryXYZs(outFile)
+        TemplateFile.method_read_xyz()
+        TemplateFile.method_comment_new()
+        TemplateFile.method_save_xyz([])
         print(f" Saved to  {outFile} \n All is done !!!")
     else:
         xyzFile.method_rewrite_comment()

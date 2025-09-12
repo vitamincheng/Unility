@@ -187,11 +187,11 @@ def centroid(X: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     return X.mean(axis=0)
 
 
-def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.float64]]:
+def get_Coordinates(xyzFile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.float64]]:
     """Read xyz file to extract atom types and coordinates.
 
     Args:
-        xyzfile: GeometryXYZs object containing molecular structures.
+        xyzFile: GeometryXYZs object containing molecular structures.
         idx0(int): Index of the structure in xyzfile (zero-based indexing).
 
     Returns:
@@ -211,15 +211,15 @@ def get_Coordinates(xyzfile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
          [ 0.0  1.0  0.0]]
     """
 
-    idx_Names: dict[int, str] = xyzfile.Sts[idx0].names
+    idx_Names: dict[int, str] = xyzFile.Sts[idx0].names
     element: npt.NDArray[np.int64] = np.array(
         [atom2int(atom) for atom in idx_Names.values()])
     V: npt.NDArray[np.float64] = np.array(
-        xyzfile.Sts[idx0].coord, dtype=np.float64)
+        xyzFile.Sts[idx0].coord, dtype=np.float64)
     return element, V
 
 
-def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> tuple[dict[int, float], float]:
+def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> tuple[dict[int, float], float]:
     """
     Read xyz file and calculate RMSD between two structures.
 
@@ -228,7 +228,7 @@ def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     specific atom indices, breaking bonds), and calculates the RMSD using the Kabsch algorithm.
 
     Args:
-        xyzfile(GeometryXYZs): The XYZ file object containing molecular structures.
+        xyzFile(GeometryXYZs): The XYZ file object containing molecular structures.
         idx_p(int): Index of the first structure (1-based indexing).
         idx_q(int): Index of the second structure (1-based indexing).
         args(argparse.Namespace): Command-line arguments controlling the RMSD calculation.
@@ -249,12 +249,10 @@ def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     q_all_atoms: npt.NDArray[np.int64]
     p_all: npt.NDArray[np.float64]
     q_all: npt.NDArray[np.float64]
-    p_all_atoms, p_all = get_Coordinates(xyzfile, idx_p)
-    q_all_atoms, q_all = get_Coordinates(xyzfile, idx_q)
+    p_all_atoms, p_all = get_Coordinates(xyzFile, idx_p)
+    q_all_atoms, q_all = get_Coordinates(xyzFile, idx_q)
 
     if p_all.shape[0] != q_all.shape[0]:
-        print("error: Structures not same size")
-        ic()
         raise ValueError("error: Structures not same size")
 
     from typing import Union
@@ -279,8 +277,8 @@ def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     # Handle bond breaking
     if args.bond_broken:
         if args.ignore_Hydrogen:
-            xyzfile.set_filename(xyz_tmp)
-            xyzfile.method_save_xyz([idx_p])
+            xyzFile.set_filename(xyz_tmp)
+            xyzFile.method_save_xyz([idx_p])
             args_x: dict = {"file": xyz_tmp, "bond_broken": [*args.bond_broken],
                             "print": False, "debug": False}
             from censo_ext.Tools.topo import Topo
@@ -291,8 +289,6 @@ def cal_RMSD_xyz(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
             p_view, q_view = index, index
 
         else:
-            print(" Only support under ignore Hydrogen condition ")
-            ic()
             raise ValueError(" Only support under ignore Hydrogen condition ")
     else:
         pass

@@ -159,8 +159,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(f"    provided arguments: {" ".join(sysargv)}")
 
     if not args.atom and not args.auto:
-        print(" No any sepific atom in your provided arguments ")
-        ic()
         raise ValueError(" No any sepific atom in your provided arguments ")
 
     p_idx: int
@@ -185,13 +183,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         z_axis = (0, 0, math.sqrt(
             np.sum(np.square(xyzFile.Sts[idx_St].coord[q_idx-1]))))
 
-        rotation_axis = xyzFile.Sts[idx_St].coord[q_idx-1]+z_axis
-        if np.linalg.norm(rotation_axis) == 0:
-            Normalized_RotationAxis: npt.NDArray[np.float64] = np.array([
-                0, 1, 0])
-        else:
-            Normalized_RotationAxis = rotation_axis / \
-                np.linalg.norm(rotation_axis)
+        rotation_axis = xyzFile.Sts[idx_St].coord[q_idx-1] + z_axis
+
+        Normalized_RotationAxis: npt.NDArray[np.float64] = np.array([
+            0, 1, 0]) if np.linalg.norm(rotation_axis) == 0 else rotation_axis / np.linalg.norm(rotation_axis)
 
         R_pq = R.from_rotvec(np.pi*Normalized_RotationAxis)
         xyzFile.Sts[idx_St].coord = R_pq.apply(

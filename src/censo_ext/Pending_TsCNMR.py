@@ -115,7 +115,6 @@ def main():
     if not Path(args.file).exists:
         print(f"    {args.file} , the file is not exist ...")
         print("  Exit and Close the program !!!")
-        ic()
         exit(0)
 
     if not args.print:

@@ -69,9 +69,6 @@ def IsExists_DirFileName(DirFile: Path):
     if DirFile.parents:
         Dir = DirFile.parents[0]
     else:
-        print(f"{DirFile} the DirFileName is not exist ...")
-        print("  Exit and Close the program !!!")
-        ic()
         raise FileNotFoundError(
             f"{DirFile} was not found or is a directory")
     return Dir, File
@@ -273,9 +270,6 @@ def IsExist(inFile: Path) -> None:
 
     IsExists: bool = inFile.exists()
     if not IsExists:
-        print(f"  The file {inFile} is not exist ...")
-        print("    Exit and Close the program !!!")
-        ic()
         raise FileNotFoundError(f"  The file {inFile} is not Exist ...")
 
 
@@ -349,10 +343,7 @@ def program_IsExist(Prog: str) -> bool:
     if which(Prog):
         return True
     else:
-        print(f"{Prog}, the program is not exist ...")
-        print("  Exit and Close the program !!!")
-        ic()
-        raise ValueError(" the program is not Exist ...")
+        raise ValueError(f"{Prog}, the program is not Exist ...")
 
 
 def save_figure(fileName="nmrplot") -> None:

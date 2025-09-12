@@ -155,7 +155,6 @@ class Topo():
             list[int]: A list of atom indices bonded to the specified atom (excluding H atoms).
         """
         idx_p: int = args.bonding
-        # ic(args.file)
         idx_neighbors: dict[int, npt.NDArray] = self.__neighbors
         idx1_Hydrogen_atoms: list[int] = self.idx1_Hydrogen_atom
         Neighbors_Atoms: list[int] = idx_neighbors[idx_p].tolist()
@@ -227,7 +226,6 @@ class Topo():
                 end = neighbors_atoms
                 g = Graph(from_list=graph_in)
                 g.del_edge(start, end)
-                # circle_Mols.append
                 for x in g.all_paths(start, end):
                     the_same: bool = False
                     for circle_Mol in circle_Mols:

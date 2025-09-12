@@ -357,8 +357,6 @@ def save_figure():
 
 def plot_show_findpeaks(height_thr: list[float], ppms: list[list[float]], intensit: list[npt.NDArray]) -> None:
     for idx, x in enumerate(ppms):
-        # ic(type(x))
-        # ic(type(intensit[idx]))
         from scipy.signal import find_peaks
         peaks, _ = find_peaks(intensit[idx], height=height_thr[idx], width=4)
         for peak in peaks:

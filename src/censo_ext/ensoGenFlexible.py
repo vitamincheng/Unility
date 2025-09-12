@@ -8,7 +8,6 @@ from pathlib import Path
 from censo_ext.Tools.utility import delete_all_files
 from censo_ext.Tools.utility import copy_file
 from sys import argv as sysargv
-import filecmp
 
 descr = """
 ________________________________________________________________________________
@@ -74,7 +73,7 @@ def cml(descr) -> argparse.Namespace:
     return args
 
 
-######
+# global variable
 outFile: Path = Path("isomers.xyz")
 inFile: Path = Path("traj.xyz")
 
@@ -170,14 +169,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         if choice_orca == "y" or choice_orca == "yes":
             orca(args, Dir, fileName)
         else:
-            print(f" Direct use {args.file} as opt xyz file ")
-        thermo_list: list = thermo(args)
-        ensoGen(args, thermo_list)
+            print(f" Direct use {p} as opt xyz file ")
+        ensoGen(args, thermo(args))
     else:
         xtb(args)
         orca(args, Dir, fileName)
-        thermo_list = thermo(args)
-        ensoGen(args, thermo_list)
+        ensoGen(args, thermo(args))
     delete_all_files(inFile, outFile)
 
 

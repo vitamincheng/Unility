@@ -6,7 +6,6 @@
 from __future__ import annotations
 from pathlib import Path
 from typing import Self
-import os
 import sys
 import numpy as np
 import numpy.typing as npt
@@ -51,14 +50,14 @@ class Geometry():
         """
 
         import copy
-        res: Geometry = copy.deepcopy(self)
+        reGeometry: Geometry = copy.deepcopy(self)
         for key in other.names.keys():
-            res.names[len(self.names) + key] = other.names[key]
+            reGeometry.names[len(self.names) + key] = other.names[key]
         # coordinates of every atom
-        res.coord = self.coord + other.coord
-        res.extras = self.extras + other.extras
-        res.nAtoms = len(self.names) + len(other.names)
-        return res
+        reGeometry.coord = self.coord + other.coord
+        reGeometry.extras = self.extras + other.extras
+        reGeometry.nAtoms = len(self.names) + len(other.names)
+        return reGeometry
 
     def __repr__(self) -> str:
         """ 
@@ -68,14 +67,14 @@ class Geometry():
             str: Formatted XYZ string with atom names, coordinates, and extras.
         """
 
-        res: str = ""
-        res += f"{self.nAtoms}\n{self.comment}\n"
+        reStr: str = ""
+        reStr += f"{self.nAtoms}\n{self.comment}\n"
         for idx0 in range(self.nAtoms):
             extra: str = "   ".join(
                 self.extras[idx0]) if self.extras[idx0] != [] else ""
-            res += f'{self.names[idx0+1]:>3s}    {self.coord[idx0][0]: 14.10f}'  # nopep8
-            res += f'    {self.coord[idx0][1]: 14.10f}    {self.coord[idx0][2]: 14.10f}    {extra}\n'  # nopep8
-        return res
+            reStr += f'{self.names[idx0+1]:>3s}    {self.coord[idx0][0]: 14.10f}'  # nopep8
+            reStr += f'    {self.coord[idx0][1]: 14.10f}    {self.coord[idx0][2]: 14.10f}    {extra}\n'  # nopep8
+        return reStr
 
     def get_comment_energy(self) -> float:
         """
@@ -98,10 +97,10 @@ class Geometry():
             Geometry: Translated Geometry instance.
         """
 
-        res: Geometry = copy.deepcopy(self)
-        for x in res.coord:
+        reGeometry: Geometry = copy.deepcopy(self)
+        for x in reGeometry.coord:
             x += delta
-        return res
+        return reGeometry
 
     def method_molecules_separation_xyz(self, idx1_Select_Names: list[int]) -> bool:
         """
@@ -313,18 +312,11 @@ class Geometry():
                     self.comment_energy, self.comment_nClusters = float(comments[0]), int(comments[2])  # nopep8
                 else:
                     self.comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
-
-                # if comments[4] == "E" and function_is_float(comments[5]):
-                #    self.comment_energy, self.comment_nClusters = float(comments[5]), 0  # nopep8
-
             else:
                 self.comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
         else:
-            print(" Something wrong in your xyz file !!!")
-            print(comments)
-            print("  Exit and Close the program !!!")
-            ic()
-            raise ValueError("  Something wrong in your xyz file !!! ")
+            raise ValueError(
+                f"{comments} Something wrong in your xyz file !!! ")
 
         self.method_rewrite_comment()
         return
@@ -372,20 +364,20 @@ class GeometryXYZs():
             GeometryXYZs: Interpolated structures.
         """
 
-        res: GeometryXYZs = GeometryXYZs()
+        xyzFile: GeometryXYZs = GeometryXYZs()
         if len(self) == 1:
             for x in np.linspace(0, 1, num=cut, endpoint=True):
                 dSt = self.Sts[0].method_translate_xyz(delta=delta*x)
-                res.Sts.append(copy.deepcopy(dSt))
-            return res
+                xyzFile.Sts.append(copy.deepcopy(dSt))
+            return xyzFile
         else:
             print(" More than 1 in your xyz file ")
             print(" All xyzs will to save your xyz file")
             for St in self.Sts:
                 for x in np.linspace(0, 1, num=cut, endpoint=True):
                     dSt: Geometry = St.method_translate_xyz(delta=delta*x)
-                    res.Sts.append(copy.deepcopy(dSt))
-            return res
+                    xyzFile.Sts.append(copy.deepcopy(dSt))
+            return xyzFile
 
     def method_translate_xyzs(self, delta: npt.NDArray[np.float64]) -> GeometryXYZs:
         """
@@ -398,11 +390,11 @@ class GeometryXYZs():
             GeometryXYZs: Translated structures.
         """
 
-        Res: GeometryXYZs = GeometryXYZs()
+        reFile: GeometryXYZs = GeometryXYZs()
         for x in self.Sts:
             x: Geometry = x.method_translate_xyz(delta=delta)
-            Res.Sts.append(copy.deepcopy(x))
-        return Res
+            reFile.Sts.append(copy.deepcopy(x))
+        return reFile
 
     def __add__(self, Var: Self) -> GeometryXYZs:
         """
@@ -415,19 +407,17 @@ class GeometryXYZs():
             GeometryXYZs: Concatenated structures.
         """
 
-        GeoXYZs: GeometryXYZs
+        xyzFile: GeometryXYZs
         if len(Var) == 1:
-            GeoXYZs = copy.deepcopy(self)
-            GeoXYZs.Sts.append(Var.Sts[0])
+            xyzFile = copy.deepcopy(self)
+            xyzFile.Sts.append(Var.Sts[0])
 
-            res: GeometryXYZs = GeometryXYZs()
+            reFile: GeometryXYZs = GeometryXYZs()
             for idx in range(0, len(self), 1):
-                res.Sts.append(
-                    GeoXYZs.Sts[idx] + GeoXYZs.Sts[-1])
-            return res
+                reFile.Sts.append(
+                    xyzFile.Sts[idx] + xyzFile.Sts[-1])
+            return reFile
         else:
-            print(" Too much xyzs structures in your xyz file")
-            ic()
             raise ValueError("Too much xyzs structures in your xyz file")
 
     def method_idx_molecules_xyzs(self, idx1: int = 1) -> bool:
@@ -450,14 +440,10 @@ class GeometryXYZs():
         delete_all_files(fileName)
         for x in list_idx:
             self.Sts.append(copy.deepcopy(self.Sts[idx1-1]))
-        # ic(len(self.structures))
         for idx, x in enumerate(list_idx):
             if self.Sts[idx1+idx].method_molecules_separation_xyz(x):
                 pass
             else:
-                print("  Something wrong in your Molecule Separation xyz file")
-                print("  Exit and Close the program !!!")
-                ic()
                 raise ValueError(
                     " Something wrong in your Molecule Separation xyz file")
 
@@ -645,11 +631,11 @@ class GeometryXYZs():
                          Returns an empty list if no valid energies are found.
         """
 
-        Res: list = []
+        reEnergy: list = []
         for St in self.Sts:
             if St.get_comment_energy():
-                Res.append(St.get_comment_energy())
-        return Res
+                reEnergy.append(St.get_comment_energy())
+        return reEnergy
 
     def method_ensoGenFlexible(self, args, thermo_list) -> npt.NDArray:
         """Generate thermodynamic data for all Geometry instances.
@@ -688,45 +674,44 @@ class GeometryXYZs():
         #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
 
         # Column 8 is Total Gibbs Free Energy (Eh) = Energy + mRRHO
-        # ic(thermo_list)
         TEMP: float = args.temp
-        np_enso: npt.NDArray = np.zeros((len(self.Sts),), dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
-                                                                 ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')])
-        np_enso['ONOFF'] = 1
-        np_enso['gi'] = 1.000
-        np_enso['Gsolv'] = 0.00000000
-        np_enso['NMR'] = np.arange(1, len(self.Sts)+1)
-        np_enso['CONF'] = np.arange(1, len(self.Sts)+1)
-        np_enso['mRRHO'] = np.array(thermo_list)
-        np_enso['Energy'] = np.array(
+        reEnso: npt.NDArray = np.zeros((len(self.Sts),), dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
+                                                                ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')])
+        reEnso['ONOFF'] = 1
+        reEnso['gi'] = 1.000
+        reEnso['Gsolv'] = 0.00000000
+        reEnso['NMR'] = np.arange(1, len(self.Sts)+1)
+        reEnso['CONF'] = np.arange(1, len(self.Sts)+1)
+        reEnso['mRRHO'] = np.array(thermo_list)
+        reEnso['Energy'] = np.array(
             [a.comment_energy for a in self.Sts], dtype=[('Energy', 'f8')])
         Total: npt.NDArray = np.array(
-            np_enso['Energy']+np_enso['mRRHO'], dtype=[('Total', 'f8')])
-        np_enso = rfn.merge_arrays((np_enso, Total), flatten=True)
+            reEnso['Energy']+reEnso['mRRHO'], dtype=[('Total', 'f8')])
+        reEnso = rfn.merge_arrays((reEnso, Total), flatten=True)
 
         # Gibbs_min is lowest energy of Gibbs Free Energy
-        Gibbs_min: np.float64 = np_enso['Total'].min()
+        Gibbs_min: np.float64 = reEnso['Total'].min()
 
         # Column 9 is delta Gibbs Free Energy (kcal/mol)
         Gibbs: npt.NDArray = np.array(
-            (np_enso['Total']-Gibbs_min)*Eh, dtype=[('Gibbs', 'f8')])
-        np_enso = rfn.merge_arrays((np_enso, Gibbs), flatten=True)
+            (reEnso['Total']-Gibbs_min)*Eh, dtype=[('Gibbs', 'f8')])
+        reEnso = rfn.merge_arrays((reEnso, Gibbs), flatten=True)
 
         # Column 1o is Qi (each CONFS)
         Qi: npt.NDArray = np.array(
-            np.exp(-np_enso['Gibbs']/(TEMP*FACTOR)), dtype=[('Qi', 'f8')])
-        np_enso = rfn.merge_arrays((np_enso, Qi), flatten=True)
+            np.exp(-reEnso['Gibbs']/(TEMP*FACTOR)), dtype=[('Qi', 'f8')])
+        reEnso = rfn.merge_arrays((reEnso, Qi), flatten=True)
 
         # Qall is sum of Qi
-        Qall: np.float64 = np.sum(np_enso['Qi'])
+        Qall: np.float64 = np.sum(reEnso['Qi'])
 
         # Column 11 is percentage of each CONFS
         NEW_BW: npt.NDArray = np.array(
-            np_enso['Qi']/Qall, dtype=[('NEW_BW', 'f8')])
-        np_enso = rfn.merge_arrays((np_enso, NEW_BW), flatten=True)
+            reEnso['Qi']/Qall, dtype=[('NEW_BW', 'f8')])
+        reEnso = rfn.merge_arrays((reEnso, NEW_BW), flatten=True)
         # copy BW and delete residual parameter
-        np_enso['BW'] = np_enso['NEW_BW']
+        reEnso['BW'] = reEnso['NEW_BW']
         names_anmr: list = list()
-        if np_enso.dtype.names:
-            names_anmr = list(np_enso.dtype.names)
-        return np_enso[names_anmr[:8]]
+        if reEnso.dtype.names:
+            names_anmr = list(reEnso.dtype.names)
+        return reEnso[names_anmr[:8]]

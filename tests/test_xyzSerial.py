@@ -9,33 +9,32 @@ outFile: Path = Path("tests/compare/output.xyz")
 
 
 def test_xyzSerial_new():
-    x: dict = {"file": "tests/data/crest_conformers.xyz", "new": True,
+    x: dict = {"file": Path("tests/data/crest_conformers.xyz"), "new": True,
                "keep": False, "out": outFile, "print": False}
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
-    compare = "tests/compare/xyzSerial-new.xyz"
+    compare: Path = Path("tests/compare/xyzSerial-new.xyz")
     assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
 
 
 def test_xyzSerial_keep():
-    x: dict = {"file": "tests/data/crest_conformers4.xyz", "new": False,
+    x: dict = {"file": Path("tests/data/crest_conformers4.xyz"), "new": False,
                "keep": True, "out": outFile, "print": False}
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
-    compare = "tests/compare/xyzSerial-keep.xyz"
+    compare: Path = Path("tests/compare/xyzSerial-keep.xyz")
     assert filecmp.cmp(args.out, compare)
     os.remove(args.out)
 
 
 def test_xyzSerial_filename_miss():
-    x: dict = {"file": "tests/data/crest_conformers_xyzSerial000.xyz", "new": True,
+    x: dict = {"file": Path("tests/data/crest_conformers_xyzSerial000.xyz"), "new": True,
                "keep": True, "out": outFile, "print": False}
 
     args = argparse.Namespace(**x)
-
     with pytest.raises(FileNotFoundError) as e:
         xyzSerial.main(args)
     assert str(e.value) == f"  The file {x['file']} is not Exist ..."

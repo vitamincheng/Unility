@@ -31,7 +31,7 @@ def test_FactorAnalysis_F_bond_broken() -> None:
     x: dict = {"file": inFile, "factor": 0.50, "opt": False, "thr": 2,
                "bond_broken": [40, 44], "ignore_Hydrogen": True, "Analysis": None,
                "remove_idx": None, "add_idx": None, "Filter": True}
-    out_print = "result.txt"
+    out_print: Path = Path("result.txt")
     import sys
     o_stdout = sys.stdout
     with open(out_print, "w") as f:

@@ -18,40 +18,42 @@ def test_symmetry_crest_conformers_miss_args():
 def test_symmetry_crest_conformers():
 
     from censo_ext.Tools.xyzfile import GeometryXYZs
-    xyz = GeometryXYZs(Path("tests/data/crest_conformers.xyz"))
-    xyz.method_read_xyz()
-    for idx in range(len(xyz)):
-        assert method_get_point_group(xyz.Sts, idx, False) == 'C1'
+    xyzFile = GeometryXYZs(Path("tests/data/crest_conformers.xyz"))
+    xyzFile.method_read_xyz()
+    for idx in range(len(xyzFile)):
+        assert method_get_point_group(xyzFile.Sts, idx, False) == 'C1'
 
 
 def test_symmetry_crest_conformers_H():
 
     from censo_ext.Tools.xyzfile import GeometryXYZs
-    xyz = GeometryXYZs(Path("tests/data/crest_conformers.xyz"))
-    xyz.method_read_xyz()
-    for idx in range(len(xyz)):
-        assert method_get_point_group(xyz.Sts, idx, True) == 'C1'
+    xyzFile = GeometryXYZs(Path("tests/data/crest_conformers.xyz"))
+    xyzFile.method_read_xyz()
+    for idx in range(len(xyzFile)):
+        assert method_get_point_group(xyzFile.Sts, idx, True) == 'C1'
 
 
 def test_symmetry_isomers():
     from censo_ext.Tools.xyzfile import GeometryXYZs
     # for isomers.xyz
-    xyz = GeometryXYZs(Path("tests/data/isomers.xyz"))
-    xyz.method_read_xyz()
+    xyzFile = GeometryXYZs(Path("tests/data/isomers.xyz"))
+    xyzFile.method_read_xyz()
 
     expected_Res: list[str] = ["Cs", "C2", "C1"]
 
-    for idx in range(len(xyz)):
-        assert method_get_point_group(xyz.Sts, idx, False) == expected_Res[idx]
+    for idx in range(len(xyzFile)):
+        assert method_get_point_group(
+            xyzFile.Sts, idx, False) == expected_Res[idx]
 
 
 def test_symmetry_isomers_H():
     from censo_ext.Tools.xyzfile import GeometryXYZs
     # for isomers.xyz
-    xyz = GeometryXYZs(Path("tests/data/isomers.xyz"))
-    xyz.method_read_xyz()
+    xyzFile = GeometryXYZs(Path("tests/data/isomers.xyz"))
+    xyzFile.method_read_xyz()
 
     expected_Res: list[str] = ["Cs", "C2", "C1"]
 
-    for idx in range(len(xyz)):
-        assert method_get_point_group(xyz.Sts, idx, True) == expected_Res[idx]
+    for idx in range(len(xyzFile)):
+        assert method_get_point_group(
+            xyzFile.Sts, idx, True) == expected_Res[idx]

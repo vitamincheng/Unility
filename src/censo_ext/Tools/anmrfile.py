@@ -2,7 +2,6 @@
 #  Module anmr/ censo           [08.27.2024] vitamin.cheng@gmail.com
 from __future__ import annotations
 from typing import Self
-import os
 import sys
 import re
 import numpy as np
@@ -208,8 +207,6 @@ class Anmrrc():
         if reference:
             return reference
         else:
-            print("No reference in your .anmrrc file")
-            ic()
             raise ValueError("No reference in your .anmrrc file")
 
 
@@ -370,9 +367,6 @@ class Anmr():
 
         print(" ===== Average of all folder orcaS.out and orcaJ.out =====")
         if len(self.nChemEqvs) == 0 or len(self.nMagnetEqvs) == 0 or self.enso.size == 0:
-            print("  Need to read the anmr_nucinfo and anmr_enso enso ")
-            print("  Exit and Close the program !!!")
-            ic()
             raise FileNotFoundError(
                 " Need to read the anmr_nucinfo and anmr_enso enso ")
         else:
@@ -383,8 +377,6 @@ class Anmr():
                 np.int64)
 
             if np.sum(switch) == 0:
-                print(" anmr_enso: Table - ONOFF is Zero ")
-                ic()
                 raise ValueError(" anmr_enso: Table - ONOFF is Zero ")
 
             weight = weight*switch
@@ -461,9 +453,6 @@ class Anmr():
         print(" Replace the equivalent of Sparams and JCoups")
 
         if len(self.nChemEqvs) == 0 or len(self.nMagnetEqvs) == 0 or self.enso.size == 0:
-            print("  Need to read the anmr_nucinfo and anmr_enso enso ")
-            print("  Exit and Close the program !!!")
-            ic()
             raise FileNotFoundError(
                 " Need to read the anmr_nucinfo and anmr_enso enso ")
         else:
@@ -606,10 +595,9 @@ class Anmr():
             - Parsing errors in individual files will print error messages but won't stop processing
         """
 
-        Dir: Path = self.__Directory
-        print(f"Files and directories in {Dir} : ")
-
-        dirNames: list[str] = next(os.walk(Dir))[1]
+        Directoy: Path = self.__Directory
+        print(f"Files and directories in {Directoy} : ")
+        dirNames: list[str] = [x for x in Directoy.walk()][0][1]
         np.set_printoptions(formatter={'float': '{:12.5f}'.format})
 
         idx = 0
@@ -624,8 +612,8 @@ class Anmr():
         from tqdm import tqdm
 
         for idx0 in tqdm(range(len(dirNames))):
-            file_orcaS: Path = Dir / Path(dirNames[idx0] + "/NMR/orcaS.out")  # nopep8
-            file_orcaJ: Path = Dir / Path(dirNames[idx0] + "/NMR/orcaJ.out")  # nopep8
+            file_orcaS: Path = Directoy / Path(dirNames[idx0] + "/NMR/orcaS.out")  # nopep8
+            file_orcaJ: Path = Directoy / Path(dirNames[idx0] + "/NMR/orcaJ.out")  # nopep8
             if file_orcaS.exists() and file_orcaJ.exists():
                 if self.__verbose:
                     print(f"{idx0}  :  {file_orcaS}")
@@ -838,8 +826,6 @@ class Anmr():
         if start_shielding_idx1 != 0:
             nNuclei: int = start_idx1 - start_shielding_idx1 - 2
         else:
-            print(" Something wrong ")
-            ic()
             raise ValueError(" Something wrong in your anmr.out file")
         del firstLine, start_shielding_idx1
 
@@ -1071,8 +1057,6 @@ class Anmr():
         """
 
         if len(in_np.dtype) != 8:  # type:ignore
-            print(" Something wrong in your anmr_enso file")
-            ic()
             raise ValueError(" Something wrong in your anmr_enso file")
         else:
             self.enso = np.array(in_np, dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'),
@@ -1119,8 +1103,6 @@ class Anmr():
 
         self.enso = np.genfromtxt(file, names=True)
         if len(self.enso.dtype) != 8:                                       # type:ignore
-            print(" Something wrong in your anmr_enso file")
-            ic()
             raise FileNotFoundError("something wrong in your anmr_enso file")
 
     def method_print_enso(self) -> None:
@@ -1269,10 +1251,7 @@ class OrcaSJ():
             print("This program is not work with before orca 5.0 ")
 
         if start_idx == 0 or end_idx == 0:
-            print(f"{file}, the data of the file is some error ...")
-            print("  Exit and Close the program !!!")
-            ic()
-            raise ValueError(" the data of the file is some error ...")
+            raise ValueError(f"{file}, the data of the file is some error ...")
 
         for x in range(start_idx, end_idx+1):
             Data_str.append(lines[x].rstrip())
@@ -1357,8 +1336,6 @@ class OrcaSJ():
                 if re.search(r"CHEMICAL SHIELDING SUMMARY", line):
                     start_idx = idx0 + 6
         else:
-            print(" This program is not work with before orca 5.0 ")
-            ic()
             raise ValueError(" This program is not work with before orca 5.0 ")
 
         for x in range(start_idx, end_idx+1):
@@ -1414,9 +1391,6 @@ class OrcaSJ():
                 print(f'{idx:>5d}', f'{Atom:>8s}', end="")
                 print(f'{self.SParams[idx]:>15.3f}')
         else:
-            print(" your orcaJ and orcaS is not fit each other")
-            print("  Exit and Close the program !!!")
-            ic()
             raise ValueError("your orcaJ and orcaS is not fit each other")
 
     def method_print_orcaJ(self) -> None:

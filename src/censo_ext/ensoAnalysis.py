@@ -3,7 +3,6 @@ import argparse
 import numpy as np
 import numpy.typing as npt
 import math
-import os
 from icecream import ic
 from sys import argv as sysargv
 from pathlib import Path
@@ -11,14 +10,14 @@ from pathlib import Path
 descr = """
 ________________________________________________________________________________
 | Usage   : ensoAnalysis.py <enso file> [Options]
-| Input   : -i input file [default: anmr_enso]
+| Input   : -i input file [default anmr_enso]
 | [Options]
 | New     : -n -new copy your inupt file to backup file for new project
 | Temp    : -t temperature K [default: 298.15 K]
 | Switch  : -s switch ONOFF in anmr_enso file
 | Weight  : -w For weights(precent) for every CONFS
-| Verbose : -v Verbose mode and show the detail of calculation
-| Output  : average_enso
+| Verbose : -v Verbose mode and show the detail of calculation [default False]
+| Output  : -o output file [default average_enso]
 |______________________________________________________________________________
 """
 
@@ -38,8 +37,8 @@ def cml(descr) -> argparse.Namespace:
         dest="out",
         action="store",
         required=False,
-        default="",
-        help="Provide name of the output file without file ending.",
+        default="average_enso",
+        help="Provide name of the output file without file ending. [average_enso]",
     )
     parser.add_argument(
         "-n",
@@ -55,7 +54,7 @@ def cml(descr) -> argparse.Namespace:
         action="store",
         required=False,
         default="anmr_enso",
-        help="Provide input_file name ",
+        help="Provide input_file name [default anmr_enso]",
     )
     parser.add_argument(
         "-w",
@@ -70,7 +69,7 @@ def cml(descr) -> argparse.Namespace:
         "--verbose",
         dest="verbose",
         action="store_true",
-        help="Verbose mode and show the detail of Calculation",
+        help="Verbose mode and show the detail of Calculation [default False]",
     )
 
     parser.add_argument(
@@ -155,7 +154,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if fileExists:
         if backupfileExists:
-            # backup_file_exists = IsExist_return_bool(backupfile)
             pass
         else:
 
@@ -164,8 +162,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             if args.new:
                 print(
                     f" Copy {inFile} to {backupFile} for original Energy and for reference")
-                import shutil
-                shutil.copyfile(inFile, backupFile)
+                from censo_ext.Tools.utility import copy_file
+                copy_file(inFile, backupFile)
                 print("  Run this program again ")
                 print("  Exit and Close the program !!!")
                 exit(0)
@@ -179,16 +177,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 exit(0)
 
     else:
-        print(f"  the file is not exist. {inFile}")
-        print("  Exit and Close the program !!!")
-        ic()
         raise FileNotFoundError(
             f"{inFile} was not found or is a directory")
 
     if (not fileExists) or (not backupfileExists):
         print(f"    {inFile} or {backupFile} , the file is not exist ...")
         print("  Exit and Close the program !!!")
-        ic()
         exit(0)
 
     np.set_printoptions(precision=4, linewidth=75, suppress=True)
@@ -389,8 +383,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         result_enso['BW'] = avg_fraction
         if result_enso.dtype.names:
             names_anmr = list(result_enso.dtype.names)
-        avg_enso: Path = Path("average_enso")
-        np.savetxt(avg_enso, result_enso[names_anmr[:8]], comments="", header="ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi",
+        np.savetxt(args.out, result_enso[names_anmr[:8]], comments="", header="ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi",
                    fmt='%-6d %-4d %-4d %6.4f %11.7f %10.7f %10.7f %2.3f')
 
         if args.verbose:

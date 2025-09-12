@@ -5,9 +5,10 @@ import argparse
 import censo_ext.molclus_tblite_xtb as tblite_xtb
 import filecmp
 import platform
+from pathlib import Path
 
-inFile = "tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz"
-outFile = "tests/compare/isomers.xyz"
+inFile: Path = Path("tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz")
+outFile: Path = Path("tests/compare/isomers.xyz")
 _system = platform.system()
 
 
@@ -34,15 +35,14 @@ def test_tblite_xtb_alpb_opt():
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
-    compare = ""
     if _system == "Darwin":
-        compare = "tests/compare/molclus_tblite_xtb_1_Darwin.xyz"
+        compare: Path = Path("tests/compare/molclus_tblite_xtb_1_Darwin.xyz")
     elif _system == "Linux":
-        compare = "tests/compare/molclus_tblite_xtb_1.xyz"
+        compare: Path = Path("tests/compare/molclus_tblite_xtb_1.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
-    assert filecmp.cmp(args.out, compare)
+    assert filecmp.cmp(args.out, compare)  # type: ignore
     os.remove(args.out)
 
 
@@ -56,16 +56,15 @@ def test_tblite_xtb_gbsa_opt():
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
-    compare = ""
     if _system == "Darwin":
-        compare = "tests/compare/molclus_xtb_2_Darwin.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_2_Darwin.xyz")
     elif _system == "Linux":
-        compare = "tests/compare/molclus_xtb_2.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_2.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
     try:
-        assert filecmp.cmp(args.out, compare)
+        assert filecmp.cmp(args.out, compare)  # type: ignore
         os.remove(args.out)
     except AssertionError as e:
         print(e)
@@ -81,17 +80,16 @@ def test_tblite_xtb_alpb():
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
-    compare = ""
     if _system == "Darwin":
-        compare = "tests/compare/molclus_tblite_xtb_3_Darwin.xyz"
+        compare: Path = Path("tests/compare/molclus_tblite_xtb_3_Darwin.xyz")
     elif _system == "Linux":
-        compare = "tests/compare/molclus_tblite_xtb_3.xyz"
+        compare: Path = Path("tests/compare/molclus_tblite_xtb_3.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
     try:
 
-        assert filecmp.cmp(args.out, compare)
+        assert filecmp.cmp(args.out, compare)  # type: ignore
         os.remove(args.out)
     except AssertionError as e:
         print(e)
@@ -108,16 +106,15 @@ def test_tblite_xtb_gbsa():
     args = argparse.Namespace(**x)
     tblite_xtb.main(args)
 
-    compare = ""
     if _system == "Darwin":
-        compare = "tests/compare/molclus_xtb_4_Darwin.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_4_Darwin.xyz")
     elif _system == "Linux":
-        compare = "tests/compare/molclus_xtb_4.xyz"
+        compare: Path = Path("tests/compare/molclus_xtb_4.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
     try:
-        assert filecmp.cmp(args.out, compare)
+        assert filecmp.cmp(args.out, compare)  # type: ignore
         os.remove(args.out)
     except AssertionError as e:
         print(e)

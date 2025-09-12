@@ -75,14 +75,14 @@ def cml(descr) -> argparse.Namespace:
 
 def read_xyz_file(file: str | Path) -> GeometryXYZs:
     try:
-        infile = GeometryXYZs()
-        infile.set_filename(Path(file))
-        infile.method_read_xyz()
-        return infile
+        reFile = GeometryXYZs()
+        reFile.set_filename(Path(file))
+        reFile.method_read_xyz()
+        return reFile
 
     except Exception as e:
         print(f"Failed to read file {file}: {e}")
-        raise
+        raise FileNotFoundError(f"{file}")
 
 
 def write_xyz_file(outfile: GeometryXYZs, file: str | Path) -> None:
@@ -92,7 +92,7 @@ def write_xyz_file(outfile: GeometryXYZs, file: str | Path) -> None:
         outfile.method_save_xyz([])
     except Exception as e:
         print(f"Failed to write file {file}: {e}")
-        raise
+        raise FileNotFoundError(f"{file}")
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
@@ -103,20 +103,19 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(f"    provided arguments: {" ".join(sysargv)}")
 
     inFile = Path(args.file)
-    outFile = Path(args.out)
 
     try:
         xyzFile: GeometryXYZs = read_xyz_file(inFile)
 
-        outGeometry = GeometryXYZs()
+        outFile = GeometryXYZs()
         if args.cuts:
-            outGeometry: GeometryXYZs = xyzFile.method_translate_cut_xyzs(
+            outFile: GeometryXYZs = xyzFile.method_translate_cut_xyzs(
                 delta=np.array(args.move), cut=args.cuts+1)
         else:
-            outGeometry: GeometryXYZs = xyzFile.method_translate_xyzs(
+            outFile: GeometryXYZs = xyzFile.method_translate_xyzs(
                 np.array(args.move))
 
-        write_xyz_file(outGeometry, outFile)
+        write_xyz_file(outFile, Path(args.out))
 
     except Exception as e:
         print(f"An error occurred: {e}")

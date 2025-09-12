@@ -112,7 +112,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml(descr)
 
-    single_traj_Name = Path(".traj.xyz")
+    single_traj_Name = Path(".solo.xyz")
     temp_isomer_Name = Path(".isomers.xyz")
     xtb_cmd: str = ""
     inFile = Path(args.file)
