@@ -115,12 +115,12 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
             args=argparse.Namespace(**args_x)))
 
     idx1_3atom: list[list[int]] = []
-    for idx, x in enumerate(idx1_LowFactor):
+    for idx0, x in enumerate(idx1_LowFactor):
         # total numbers >=3 or >2 (one of total numbers is )
-        if len(idx1_Bonding[idx]) > 1:
+        if len(idx1_Bonding[idx0]) > 1:
             tmp: list[int] = []
             tmp.append(x)
-            for y in idx1_Bonding[idx]:
+            for y in idx1_Bonding[idx0]:
                 tmp.append(y)
             idx1_3atom.append(tmp)
 
@@ -132,13 +132,13 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
 
     idx_minTotalDev: int = 0
     minTotalDev: float = 100
-    for idx, x in enumerate(idx1_Combine3atom):
+    for idx0, x in enumerate(idx1_Combine3atom):
         TotalDevAtoms: float = 0.0
         for y in x:
             TotalDevAtoms += (STD_Atoms[idx1_Atoms.index(y)])
         if minTotalDev > TotalDevAtoms:
             minTotalDev = TotalDevAtoms
-            idx_minTotalDev: int = idx
+            idx_minTotalDev: int = idx0
 
     print("")
     print(f" 3 atom idx of lowest total factor {idx1_Combine3atom[idx_minTotalDev]}")  # nopep8

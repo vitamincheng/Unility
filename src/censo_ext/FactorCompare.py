@@ -145,9 +145,9 @@ def Factor_xyzCompare(args) -> None:
     STD_diff2_Res: float = float(diff2_Res.std())
 
     idx_max_diff2_R: npt.NDArray[np.float64] = np.array([], dtype=int)
-    for idx, num in enumerate(diff2_Res):
+    for idx0, num in enumerate(diff2_Res):
         if num > STD_diff2_Res:
-            idx_max_diff2_R = np.append(idx_max_diff2_R, idx)
+            idx_max_diff2_R = np.append(idx_max_diff2_R, idx0)
 
     thr: float = float(sort_Res[idx_max_diff2_R[0]+2])
 

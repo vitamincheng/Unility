@@ -104,9 +104,9 @@ def rosenbrock(x0) -> float:
             orcaS_Table[idx_key][1] = x0[0]
     else:
         # group peaks
-        for idx, loop in enumerate(idx_keys):
+        for idx0, loop in enumerate(idx_keys):
             for idx_key in loop:  # type: ignore
-                orcaS_Table[idx_key][1] = x0[idx]
+                orcaS_Table[idx_key][1] = x0[idx0]
 
     np.savetxt(Directory/FileBOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
     orcaS_Table = np.delete(orcaS_Table, 2, axis=1)

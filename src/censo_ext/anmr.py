@@ -377,10 +377,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 mat_filter_ab_quartet: npt.NDArray[np.int64] = np.zeros(
                     (inSParams.size, inSParams.size), dtype=np.int64)
                 import math
-                for idx, x in enumerate(inSParams):
-                    for idy, y in enumerate(inSParams):
-                        if idx == idy:
-                            mat_filter_ab_quartet[idx][idy] = 0
+                for idx0, x in enumerate(inSParams):
+                    for idy0, y in enumerate(inSParams):
+                        if idx0 == idy0:
+                            mat_filter_ab_quartet[idx0][idy0] = 0
                         else:
                             # Check if two chemical shifts are very close (AB quartet condition)
                             # If the JCoups is negative, the pwaks will prioritize to normal QM calculation
@@ -388,22 +388,22 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                             # if x-y == 0 the Ratio_J_Hz will crash
                             # if the JCoups is negative, will prioritize to use normal QM calculation.
                             # if the peaks which is not AB Quartet and have positive nubmers will use Multiplet (nmrsim)
-                            if (math.fabs(x-y) < 0.0005 and mat_filter_low_factor[idx][idy] == 1) or (inJCoups[idx][idy] <= -args.thr):
-                                mat_filter_ab_quartet[idx][idy] = 1
+                            if (math.fabs(x-y) < 0.0005 and mat_filter_low_factor[idx0][idy0] == 1) or (inJCoups[idx0][idy0] <= -args.thr):
+                                mat_filter_ab_quartet[idx0][idy0] = 1
                             else:
                                 if math.fabs(x-y) < 0.0005:
                                     Ratio_J_Hz = 10000
                                 else:
                                     Ratio_J_Hz = math.fabs(
-                                        inJCoups[idx][idy]/(math.fabs(x-y)))
+                                        inJCoups[idx0][idy0]/(math.fabs(x-y)))
                                 if Ratio_J_Hz < args.thrab:
-                                    mat_filter_ab_quartet[idx][idy] = 0
-                                elif Ratio_J_Hz >= args.thrab and mat_filter_low_factor[idx][idy] == 1:
-                                    mat_filter_ab_quartet[idx][idy] = 1
+                                    mat_filter_ab_quartet[idx0][idy0] = 0
+                                elif Ratio_J_Hz >= args.thrab and mat_filter_low_factor[idx0][idy0] == 1:
+                                    mat_filter_ab_quartet[idx0][idy0] = 1
                                 else:
-                                    if mat_filter_low_factor[idx][idy] == 1:
+                                    if mat_filter_low_factor[idx0][idy0] == 1:
                                         raise ValueError(
-                                            f"{idx} {x} {idy} {y} was not found or is a directory")
+                                            f"{idx0} {x} {idy0} {y} was not found or is a directory")
 
             if args.verbose:
                 ic(mat_filter_ab_quartet)
@@ -469,11 +469,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     "  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
 
             max_len_AB: int = 0
-            for idx, group_set in enumerate(idx0_ab_group_sets):
+            for idx0, group_set in enumerate(idx0_ab_group_sets):
                 mat_multi_x_idx: list[int] = [
-                    idx0_set*x for x, idx0_set in enumerate(mat_filter_multi[idx].tolist())if idx0_set != 0]
+                    idx0_set*x for x, idx0_set in enumerate(mat_filter_multi[idx0].tolist())if idx0_set != 0]
                 if args.verbose:
-                    print(f'{(idx+1):>5d}{len(group_set):>5d}', {a+1 for a in group_set}, set(
+                    print(f'{(idx0+1):>5d}{len(group_set):>5d}', {a+1 for a in group_set}, set(
                         a+1 for a in mat_multi_x_idx).difference({a+1 for a in group_set}))
                 if len(group_set) > max_len_AB:
                     max_len_AB = len(group_set)
@@ -600,9 +600,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         idx0_peaks_range = [*range(len(accPeaks))]
 
     elif not args.json and inAnmr.get_Anmr_Active()[0] == 'C':
-        for idx, ppm in enumerate(inSParams):
+        for idx0, ppm in enumerate(inSParams):
             dat: list = []
-            dat.append((float(ppm*(-1)), float(inHydrogen[idx])))
+            dat.append((float(ppm*(-1)), float(inHydrogen[idx0])))
             accPeaks.append(dat)
 
         import json
@@ -621,11 +621,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     finalPeaks: list[tuple[float, float]] = []
 
     if inAnmr.get_Anmr_Active()[0] == 'H':
-        for idx, peak in enumerate(accPeaks):
-            if idx in idx0_peaks_range:
+        for idx0, peak in enumerate(accPeaks):
+            if idx0 in idx0_peaks_range:
                 finalPeaks += peak
     elif inAnmr.get_Anmr_Active()[0] == 'C':
-        for idx, peak in enumerate(accPeaks):
+        for peak in accPeaks:
             finalPeaks += peak
     else:
         raise ValueError("  Something Wrong in your get_anmr_Active()")

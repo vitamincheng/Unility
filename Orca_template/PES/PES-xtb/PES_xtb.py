@@ -125,10 +125,10 @@ if __name__ == "__main__":
 
     xyzFile = GeometryXYZs(Path("xtbscan.xyz"))
     xyzFile.method_read_xyz()
-    for idx in range(1, len(xyzFile)+1, 1):
+    for idx1 in range(1, len(xyzFile)+1, 1):
         xyzFile.set_filename(Path("xtbscan_single.xyz"))
 
-        xyzFile.method_save_xyz([idx])
+        xyzFile.method_save_xyz([idx1])
 
         with open("scan.inp", "w") as f:
             # f.write("$fix")
@@ -138,7 +138,7 @@ if __name__ == "__main__":
             f.write("   distance: "+str(args.center_atom[1])+", "
                     + str(args.center_atom[2])+", "+str(args.bond2_distance[0])+"\n")
             f.write("   distance: "+str(args.center_atom[1])+", "
-                    + str(args.center_atom[0])+", "+str(abs(args.bond1_distance[0]-args.bond1_distance[1])*(idx-1)/len(xyzFile)+args.bond1_distance[0])+"\n")
+                    + str(args.center_atom[0])+", "+str(abs(args.bond1_distance[0]-args.bond1_distance[1])*(idx1-1)/len(xyzFile)+args.bond1_distance[0])+"\n")
             f.write("$scan\n")
             f.write("   1: "+str(args.bond2_distance[0])+", "+str(args.bond2_distance[1])
                     + ", "+str(args.cut_distance[1])+"\n")

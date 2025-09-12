@@ -122,9 +122,9 @@ if __name__ == "__main__":
         lines: list[str] = open(file, "r").readlines()
         import re
         idx_h_lines: list[int] = []
-        for idx, line in enumerate(lines):
+        for idx0, line in enumerate(lines):
             if re.search(r"h", line):
-                idx_h_lines.append(idx)
+                idx_h_lines.append(idx0)
         np_idx_h_lines: npt.NDArray[np.int64] = np.array(idx_h_lines) - 1
         np.set_printoptions(formatter={'float': '{:12.5f}'.format})
 

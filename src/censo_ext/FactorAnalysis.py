@@ -221,10 +221,10 @@ def FactorFilter(args) -> None:
     print(" ========== Finally Data ==========")
 
     nMinor: list[int] = []
-    for idx, x in enumerate(idx1_minor, 1):
-        xyzFile.set_filename(reDir / Path(f"minor{idx}.xyz"))
+    for idx1, x in enumerate(idx1_minor, 1):
+        xyzFile.set_filename(reDir / Path(f"minor{idx1}.xyz"))
         xyzFile.method_save_xyz(x)
-        print(f" minor{idx}.xyz  : {x}")
+        print(f" minor{idx1}.xyz  : {x}")
         nMinor.append(len(x))
     np_nMinor: npt.NDArray[np.float64] = np.array(nMinor)
 
