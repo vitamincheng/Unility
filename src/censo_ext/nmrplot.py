@@ -51,7 +51,7 @@ def checkval(value):
     return x
 
 
-def cml(descr):
+def cml():
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
@@ -351,7 +351,7 @@ if __name__ == "__main__":
         raise ImportError("    Error while importing from sys!")
 
     print(descr)  # Program description
-    args, args_defaults = cml(descr)
+    args, args_defaults = cml()
     print("    provided arguments: {}".format(" ".join(sysargv)))
 
     if args.debug:

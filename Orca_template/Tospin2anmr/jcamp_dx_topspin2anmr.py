@@ -16,7 +16,7 @@ ________________________________________________________________________________
 
 
 # def cml():
-def cml(descr):
+def cml():
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
@@ -106,7 +106,7 @@ def search_string_in_file(file_name, string_to_search):
 #    return list_of_results
 
 print(descr)  # Program description
-# args, args_defaults = cml(descr)
+# args, args_defaults = cml()
 # print("    provided arguments: {}".format(" ".join(sysargv)))
 
 

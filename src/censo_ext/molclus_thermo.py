@@ -22,7 +22,7 @@ ________________________________________________________________________________
 """
 
 
-def cml(descr) -> argparse.Namespace:
+def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
@@ -93,7 +93,7 @@ def cml(descr) -> argparse.Namespace:
 def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
 
     if args == argparse.Namespace():
-        args = cml(descr)
+        args = cml()
 
     inFile = Path(args.file)
     single_xyz_name = Path(".temp.xyz")

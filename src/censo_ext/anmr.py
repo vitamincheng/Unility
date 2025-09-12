@@ -34,7 +34,7 @@ ________________________________________________________________________________
 """
 
 
-def cml(descr) -> argparse.Namespace:
+def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
@@ -334,14 +334,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
         while (1):
 
-            # the numbers of mss is low, it will be computated as AB quartet
+            # the numbers of args.mss is low, all nucleus will be computated as AB quartet
             if len(inSParams*inHydrogen) <= args.mss:
                 inJCoups = copy.deepcopy(inJCoups_origin)
 
                 # Step 1: Filter out small coupling constants based on threshold
                 # Delete Too Small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
                 # 1: keep and 0: neglect
-                # reset all inJCoups
+                # reset all inJCoups to zero
                 mat_filter_low_factor: npt.NDArray[np.int64] = np.zeros(
                     (inSParams.size, inSParams.size), dtype=np.int64)
                 mat_filter_low_factor = (
@@ -426,7 +426,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     bond_penetration: int = 1
                     while loop:
                         loop = False
-                        for idy, y in enumerate(group):
+                        for y in group:
                             if (not group.issuperset(idx0_ab_connect[y][1])) and bond_penetration <= args.tb:  # type: ignore # nopep8
                                 loop = True
                                 group = group.union(idx0_ab_connect[y][1])  # type: ignore # nopep8
@@ -441,25 +441,26 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 list_Equivalent3: list[int] = []
                 for key in inAnmr.nMagnetEqvs.keys():
                     if inAnmr.nMagnetEqvs[key] == 3:
-                        for idy, y in enumerate(in_idx1Atoms):
+                        for idy0, y in enumerate(in_idx1Atoms):
                             if y == min(inAnmr.NeighborMangetEqvs[key]):
-                                list_Equivalent3.append(idy)
+                                list_Equivalent3.append(idy0)
                 set_Equivalent3: set[int] = set(list_Equivalent3)
 
                 # Adjust groups to account for equivalent protons
                 # Equivalent3 is idx0 numbers
-                for idx, group_set in enumerate(idx0_ab_group_sets):
+                for idx0, group_set in enumerate(idx0_ab_group_sets):
                     set_move: set[int] = group_set.intersection(
                         set_Equivalent3)
                     if not len(set_move) == 0:
-                        idx0_ab_group_sets[idx] = set(group_set).difference(
-                            set_move).union(set([idx]))
-                        set_move = set_move.difference(set([idx]))
-                    for idy, y in enumerate(set_move):
-                        mat_filter_multi[idx][y] = 1
+                        idx0_ab_group_sets[idx0] = set(group_set).difference(
+                            set_move).union(set([idx0]))
+                        set_move = set_move.difference(set([idx0]))
+                    for y in set_move:
+                        mat_filter_multi[idx0][y] = 1
 
             if args.verbose:
                 ic(idx0_ab_group_sets)
+
             #  show every step of threshold
             if args.verbose:
                 print(" ===== Processing =====")
@@ -470,11 +471,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
             max_len_AB: int = 0
             for idx0, group_set in enumerate(idx0_ab_group_sets):
-                mat_multi_x_idx: list[int] = [
+                mat_multi_idx0: list[int] = [
                     idx0_set*x for x, idx0_set in enumerate(mat_filter_multi[idx0].tolist())if idx0_set != 0]
                 if args.verbose:
                     print(f'{(idx0+1):>5d}{len(group_set):>5d}', {a+1 for a in group_set}, set(
-                        a+1 for a in mat_multi_x_idx).difference({a+1 for a in group_set}))
+                        a+1 for a in mat_multi_idx0).difference({a+1 for a in group_set}))
                 if len(group_set) > max_len_AB:
                     max_len_AB = len(group_set)
 

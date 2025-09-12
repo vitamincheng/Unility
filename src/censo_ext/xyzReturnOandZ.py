@@ -28,7 +28,7 @@ ________________________________________________________________________________
 """
 
 
-def cml(descr) -> argparse.Namespace:
+def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
@@ -149,7 +149,7 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
-        args = cml(descr)
+        args = cml()
 
     inFile = Path(args.file)
     outFile = Path(args.out)

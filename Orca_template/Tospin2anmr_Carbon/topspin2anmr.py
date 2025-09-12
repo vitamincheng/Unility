@@ -16,7 +16,7 @@ ________________________________________________________________________________
 
 
 def cml():
-    # def cml(descr):
+    # def cml():
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(

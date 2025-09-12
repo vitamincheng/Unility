@@ -16,7 +16,7 @@ ________________________________________________________________________________
 """
 
 
-def cml(descr) -> argparse.Namespace:
+def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
@@ -180,7 +180,7 @@ def Factor_xyzCompare(args) -> None:
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
-        args = cml(descr)
+        args = cml()
     print(descr)  # Program description
     print(f"    provided arguments: {" ".join(sysargv)}")
 

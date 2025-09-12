@@ -22,7 +22,7 @@ ________________________________________________________________________________
 """
 
 
-def cml(descr):
+def cml():
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
@@ -101,7 +101,7 @@ def cml(descr):
 
 
 if __name__ == "__main__":
-    args = cml(descr)
+    args = cml()
     ic(args.center_atom)
     ic(args.bond1_distance)
     ic(args.bond2_distance)

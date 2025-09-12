@@ -23,7 +23,7 @@ ________________________________________________________________________________
 """
 
 
-def cml(descr):
+def cml():
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
@@ -106,7 +106,7 @@ def Lorentzian_Distribution(dx, mu):
 
 
 def main():
-    args = cml(descr)
+    args = cml()
     if not args.print:
         print(descr)  # Program description
         print(f"    provided arguments: {" ".join(sysargv)}")
