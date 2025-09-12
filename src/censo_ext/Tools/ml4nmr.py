@@ -8,7 +8,6 @@ from pathlib import Path
 from ase.atoms import Atoms
 import numpy as np
 import numpy.typing as npt
-from icecream import ic
 from censo_ext.Tools.utility import IsExist
 from ase.data import covalent_radii
 custom_radii: npt.NDArray[np.float64] = covalent_radii.copy()

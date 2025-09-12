@@ -3,7 +3,7 @@ from pathlib import Path
 import argparse
 import numpy as np
 from sys import argv as sysargv
-from icecream import ic
+# from icecream import ic
 
 descr = """
 ________________________________________________________________________________
@@ -102,8 +102,7 @@ def Set_Peak_full_Spectra(x, multi, npData):
 
 
 def Lorentzian_Distribution(dx, mu):
-    fx = 1 / 3.1415926 * (mu / (dx*dx + mu+mu))
-    return fx
+    return 1 / 3.1415926 * (mu / (dx*dx + mu+mu))
 
 
 def main():

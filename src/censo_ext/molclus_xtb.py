@@ -169,14 +169,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         else:
             # print("singe point")
-            xtb_lines = open("xtb.out", "r").readlines()
+            lines: list[str] = open("xtb.out", "r").readlines()
             import re
-            for idy, y in enumerate(xtb_lines):
+            for idy, y in enumerate(lines):
                 if re.search(r"TOTAL ENERGY", y):
                     get_energy = idy
             if get_energy:
                 xyzFile.Sts[idx -
-                            1].comment_energy = float(xtb_lines[get_energy].split()[3])
+                            1].comment_energy = float(lines[get_energy].split()[3])
 
     if args.opt:
         # print("opt")

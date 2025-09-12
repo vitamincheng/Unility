@@ -8,7 +8,7 @@ For more information, usage, example and citation read more at
 https://github.com/charnley/rmsd
 """
 
-from icecream import ic
+# from icecream import ic
 import copy
 import numpy as np
 import numpy.typing as npt
@@ -123,8 +123,7 @@ def kabsch_rotate(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64]) -> npt
     U: npt.NDArray[np.float64] = kabsch(P, Q)
 
     # Rotate P
-    Res: npt.NDArray[np.float64] = np.dot(P, U)
-    return Res
+    return np.dot(P, U)
 
 
 def kabsch(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
@@ -164,9 +163,7 @@ def kabsch(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64]) -> npt.NDArra
         V[:, -1] = -V[:, -1]
 
     # Create Rotation matrix U
-    U: npt.NDArray[np.float64] = np.dot(V, W)
-
-    return U
+    return np.dot(V, W)
 
 
 def centroid(X: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:

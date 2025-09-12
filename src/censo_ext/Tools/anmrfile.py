@@ -652,7 +652,9 @@ class Anmr():
         fileName_Av_orcaAtoms: Path = self.__Directory / \
             Path("Average/NMR/orcaA.out")
 
-        if IsExist_return_bool(fileName_Av_orcaS) and IsExist_return_bool(fileName_Av_orcaAtoms) and IsExist_return_bool(fileName_Av_orcaJ):
+        if IsExist_return_bool(fileName_Av_orcaS) and \
+           IsExist_return_bool(fileName_Av_orcaAtoms) and \
+           IsExist_return_bool(fileName_Av_orcaJ):
             return True
         else:
             return False

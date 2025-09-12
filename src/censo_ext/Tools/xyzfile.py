@@ -10,7 +10,7 @@ import sys
 import numpy as np
 import numpy.typing as npt
 import argparse
-from icecream import ic
+# from icecream import ic
 import copy
 
 
@@ -390,11 +390,11 @@ class GeometryXYZs():
             GeometryXYZs: Translated structures.
         """
 
-        reFile: GeometryXYZs = GeometryXYZs()
+        xyzFile: GeometryXYZs = GeometryXYZs()
         for x in self.Sts:
             x: Geometry = x.method_translate_xyz(delta=delta)
-            reFile.Sts.append(copy.deepcopy(x))
-        return reFile
+            xyzFile.Sts.append(copy.deepcopy(x))
+        return xyzFile
 
     def __add__(self, Var: Self) -> GeometryXYZs:
         """

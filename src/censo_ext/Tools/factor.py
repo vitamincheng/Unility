@@ -4,7 +4,6 @@ from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import numpy as np
 import numpy.typing as npt
-from icecream import ic
 from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 
 

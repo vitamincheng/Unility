@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import numpy.typing as npt
 import math
-from icecream import ic
+# from icecream import ic
 from sys import argv as sysargv
 from pathlib import Path
 
@@ -127,9 +127,8 @@ def Boltzmann_enso(np_enso: npt.NDArray, TEMP) -> npt.NDArray:
     # Column 11 is percentage of each CONFS
     NEW_BW: npt.NDArray[np.float64] = np.array(
         np_enso['Qi']/Qall, dtype=[('NEW_BW', 'f8')])
-    np_enso = rfn.merge_arrays((np_enso, NEW_BW), flatten=True)
 
-    return np_enso
+    return rfn.merge_arrays((np_enso, NEW_BW), flatten=True)
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

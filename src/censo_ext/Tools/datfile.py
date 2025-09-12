@@ -5,7 +5,6 @@ from typing import Self
 import sys
 import numpy as np
 import numpy.typing as npt
-from icecream import ic
 from pathlib import Path
 
 from censo_ext.Tools.utility import IsExist

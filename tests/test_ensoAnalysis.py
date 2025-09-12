@@ -50,8 +50,7 @@ def test_ensoAnalysis_Hydrogen_new_read():
         args = argparse.Namespace(**x)
         ensoAnalysis.main(args)
     sys.stdout = sys.__stdout__
-    with open(out_print, "r") as f:
-        lines = f.readlines()
+    lines: list[str] = open(out_print, "r").readlines()
     assert float(lines[-2].split()[-1]) == -0.1968
     assert lines[-1].split()[-1] == "(Allowed)"
     assert float(lines[-1].split()[-2]) == -0.00031361
@@ -79,8 +78,7 @@ def test_ensoAnalysis_Hydrogen_new_read_miss_args():
                    "temp": None, "weights": False, "verbose": False, "out": "average_enso"}
         ensoAnalysis.main(argparse.Namespace(**x))
     sys.stdout = sys.__stdout__
-    with open(out_print, "r") as f:
-        lines = f.readlines()
+    lines: list[str] = open(out_print, "r").readlines()
     assert float(lines[-2].split()[-1]) == -0.1968
     assert lines[-1].split()[-1] == "(Allowed)"
     assert float(lines[-1].split()[-2]) == -0.00031361
@@ -108,8 +106,7 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
                    "temp": None, "weights": False, "verbose": True, "out": "average_enso"}
         ensoAnalysis.main(argparse.Namespace(**x))
     sys.stdout = sys.__stdout__
-    with open(out_print, "r") as f:
-        lines = f.readlines()
+    lines: list[str] = open(out_print, "r").readlines()
     assert float(lines[-5].split()[-1]) == -0.1968
     assert lines[-4].split()[-1] == "(Allowed)"
     assert float(lines[-4].split()[-2]) == -0.00031361

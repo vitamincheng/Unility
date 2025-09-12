@@ -38,8 +38,7 @@ def test_FactorAnalysis_F_bond_broken() -> None:
         sys.stdout = f
         FactorAnalysis.main(argparse.Namespace(**x))
     sys.stdout = o_stdout
-    with open(out_print, "r") as f:
-        lines: list[str] = f.readlines()
+    lines: list[str] = open(out_print, "r").readlines()
 
     assert float(lines[-1].split()[-1]) == pytest.approx(1.0651832633943255)
 

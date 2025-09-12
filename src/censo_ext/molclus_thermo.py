@@ -166,11 +166,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
         subprocess.call(xtb_cmd, shell=True)
         print(f" Running:  {xtb_cmd}")
 
-        thermo_lines: list = open("thermo.out", "r").readlines()
+        lines: list = open("thermo.out", "r").readlines()
         import re
-        for idy, y in enumerate(thermo_lines):
-            if re.search(r'contrib\.', y):
-                thermo.append(y.split()[3])
+        for line in lines:
+            if re.search(r'contrib\.', line):
+                thermo.append(line.split()[3])
 
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(single_xyz_name, xcontrol_inp)

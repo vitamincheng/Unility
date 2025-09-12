@@ -119,11 +119,7 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
     peaklist: npt.NDArray[np.float64] = iv[iv[:, 1] >= args.cutoff]
     # ic(peaklist)
     from nmrsim.math import normalize_peaklist
-    Normal_plist: list[tuple[float, float]
-                       ] = normalize_peaklist(peaklist, nIntergals)
-    # print_plot(Normal_plist, dpi=1000,
-    #           nIntergals=nIntergals, args=args, Active_range=10)
-    return Normal_plist
+    return normalize_peaklist(peaklist, nIntergals)
 
 
 def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nIntergals, args: argparse.Namespace) -> list[tuple[float, float]]:
@@ -192,9 +188,7 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     # ic(peaklist)
     # ic(iv[:, 1])
     from nmrsim.math import normalize_peaklist
-    Normal_plist: list[tuple[float, float]] = np.array(normalize_peaklist(
-        peaklist, nIntergals)).tolist()
-    return Normal_plist
+    return np.array(normalize_peaklist(peaklist, nIntergals)).tolist()
 
 
 def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, args: argparse.Namespace, Active_range: int) -> npt.NDArray:

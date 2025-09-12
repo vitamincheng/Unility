@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import argparse
-import os
 import numpy as np
 import numpy.typing as npt
 from sys import argv as sysargv

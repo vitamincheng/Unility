@@ -6,7 +6,7 @@ from scipy.spatial.transform import Rotation as R
 import numpy as np
 import numpy.typing as npt
 from censo_ext.Tools.xyzfile import GeometryXYZs
-from icecream import ic
+# from icecream import ic
 from pathlib import Path
 
 descr = """

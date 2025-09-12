@@ -286,10 +286,6 @@ def Create_BOBYQA(args) -> None:
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
-    '''
-
-    return (bool,bool)
-    '''
     # orcaS-BOBYQA.out  for setting
     # Average/NMR/orcaS.out for anmr.py   (internal)
     # CONF1/NMR/orcaS.out for anmr        (external)

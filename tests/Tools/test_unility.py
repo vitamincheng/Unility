@@ -120,11 +120,9 @@ def test_unility_save_dict_orcaS():
     source: Path = Path("/tmp/test_dict.txt")
     save_dict_orcaS(source, data)
 
-    with open(source) as f:
-        lines = f.readlines()
-
-        assert len(lines) == 1
-        assert lines[0].strip() == "1      2.34568"
+    lines: list[str] = open(source).readlines()
+    assert len(lines) == 1
+    assert lines[0].strip() == "1      2.34568"
 
 
 def test_unility_load_dict_orcaS():
