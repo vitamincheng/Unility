@@ -659,7 +659,7 @@ class Anmr():
         else:
             return False
 
-    def method_load_avg_orcaSJ(self, args) -> bool:
+    def method_load_avg_orcaSJ(self, bobyqa_bool) -> bool:
         """
         Load average orcaSJ data from files.
 
@@ -698,7 +698,7 @@ class Anmr():
 
         from censo_ext.Tools.utility import jsonKeys2int
         if self.get_avg_orcaSJ_Exist():
-            if args.bobyqa:
+            if bobyqa_bool:
                 file_avg_orcaS: Path = self.__Directory / \
                     Path("Average/NMR/orcaS-BOBYQA.out")
             else:

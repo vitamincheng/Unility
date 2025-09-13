@@ -79,56 +79,56 @@ inFile: Path = Path("traj.xyz")
 
 def xtb(args):
     print(" ========== molclus_xtb.py ==========")
-    xtb_folder: Path = Path(".xtb")
-    if not xtb_folder.is_dir():
-        xtb_folder.mkdir()
-    copy_file(args.file, xtb_folder / inFile)
+    xtbDir: Path = Path(".xtb")
+    if not xtbDir.is_dir():
+        xtbDir.mkdir()
+    copy_file(args.file, xtbDir / inFile)
     cwd: Path = Path.cwd()
     x: dict = {"file": inFile, "method": "gfn2", "chrg": 0, "uhf": 1,
                "out": outFile, "alpb": "CHCl3", "gbsa": None, "opt": True}
     import censo_ext.molclus_xtb as molclus_xtb
-    os.chdir(cwd/xtb_folder)
+    os.chdir(cwd / xtbDir)
     molclus_xtb.main(argparse.Namespace(**x))
     os.chdir(cwd)
-    copy_file(xtb_folder / outFile, inFile)
-    shutil.rmtree(xtb_folder, ignore_errors=True)
+    copy_file(xtbDir / outFile, inFile)
+    shutil.rmtree(xtbDir, ignore_errors=True)
     print(" ========== End ==========")
 
 
 def orca(args, Dir, FileName):
     print(" ========== molclus_orca.py ==========")
-    orca_folder: Path = Path(".orca")
-    if not orca_folder.is_dir():
-        orca_folder.mkdir()
-    copy_file(Path(inFile), orca_folder / inFile)
+    orcaDir: Path = Path(".orca")
+    if not orcaDir.is_dir():
+        orcaDir.mkdir()
+    copy_file(Path(inFile), orcaDir / inFile)
     cwd: Path = Path.cwd()
 
     import censo_ext.molclus_orca as molclus_orca
     x: dict = {"file": inFile, "template": "template.inp", "reserve": False,
                "chrg": 0, "uhf": 1, "out": outFile}
-    os.chdir(cwd/orca_folder)
+    os.chdir(cwd/orcaDir)
     molclus_orca.main(argparse.Namespace(**x))
     os.chdir(cwd)
-    copy_file(orca_folder / outFile, inFile)
-    shutil.rmtree(orca_folder, ignore_errors=True)
+    copy_file(orcaDir / outFile, inFile)
+    shutil.rmtree(orcaDir, ignore_errors=True)
     print(" ========== End ==========")
 
 
 def thermo(args) -> list:
     import censo_ext.molclus_thermo as molclus_thermo
     print(" ========= molclus_thermo.py ==========")
-    thermo_folder: Path = Path(".thermo")
-    if not thermo_folder.is_dir():
-        thermo_folder.mkdir()
-    copy_file(inFile, thermo_folder / inFile)
+    thermoDir: Path = Path(".thermo")
+    if not thermoDir.is_dir():
+        thermoDir.mkdir()
+    copy_file(inFile, thermoDir / inFile)
 
     cwd: Path = Path.cwd()
-    os.chdir(thermo_folder)
+    os.chdir(thermoDir)
     args_x: dict = {"file": inFile, "method": "gfn2",
                     "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1}
     thermo: list = molclus_thermo.main(argparse.Namespace(**args_x))
     os.chdir(cwd)
-    shutil.rmtree(thermo_folder, ignore_errors=True)
+    shutil.rmtree(thermoDir, ignore_errors=True)
     print(" ========== End ==========")
     return thermo
 

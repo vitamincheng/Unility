@@ -105,34 +105,34 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     inFile: Path = Path(args.file)
     outFile: Path = Path(args.out)
-    isomersFile: Path = Path("isomers.xyz")
-    clusterFile: Path = Path("cluster.xyz")
+    isomers: Path = Path("isomers.xyz")
+    cluster: Path = Path("cluster.xyz")
 
     from censo_ext.Tools.utility import IsExist
     IsExist(args.file)
 
-    if args.file != isomersFile:
-        subprocess.call(f"cp {inFile} {isomersFile}", shell=True)
-        print(f"  cp {inFile} {isomersFile}")
+    if args.file != isomers:
+        subprocess.call(f"cp {inFile} {isomers}", shell=True)
+        print(f"  cp {inFile} {isomers}")
 
     prog = "crest"
     from censo_ext.Tools.utility import program_IsExist
     program_IsExist(prog)
 
-    crest_cmd: str = f"{prog} {isomersFile} --cregen {isomersFile} --rthr {args.rthr} -- bthr {args.bthr} --ethr {args.ethr} --ewin {args.ewin} > isomers.out"  # nopep8
+    crest_cmd: str = f"{prog} {isomers} --cregen {isomers} --rthr {args.rthr} -- bthr {args.bthr} --ethr {args.ethr} --ewin {args.ewin} > isomers.out"  # nopep8
 
     subprocess.call(crest_cmd, shell=True)
     print(f"  {crest_cmd}")
 
-    subprocess.call(f"mv -f crest_ensemble.xyz {clusterFile}", shell=True)
-    print(f"  mv -f crest_ensemble.xyz {clusterFile}")
+    subprocess.call(f"mv -f crest_ensemble.xyz {cluster}", shell=True)
+    print(f"  mv -f crest_ensemble.xyz {cluster}")
     subprocess.call(
-        f"xyzSerial.py -i {clusterFile} --new --print > tmp && mv -f tmp {clusterFile}", shell=True)
-    if outFile != clusterFile:
-        subprocess.call(f"mv -f {clusterFile} {outFile}", shell=True)
-        print(f"  mv -f cluster.xyz {outFile}")
-    if inFile != isomersFile:
-        subprocess.call(f"rm -rf {isomersFile}", shell=True)
+        f"xyzSerial.py -i {cluster} --new --print > tmp && mv -f tmp {cluster}", shell=True)
+    if outFile != cluster:
+        subprocess.call(f"mv -f {cluster} {outFile}", shell=True)
+        print(f"  mv -f {cluster} {outFile}")
+    if inFile != isomers:
+        subprocess.call(f"rm -rf {isomers}", shell=True)
 
     subprocess.call(
         "rm -rf coord* cre_members crest.energies crest_best.xyz scoord.1 struc.xyz isomers.xyz.sorted crest_input_copy.xyz crest.restart", shell=True)

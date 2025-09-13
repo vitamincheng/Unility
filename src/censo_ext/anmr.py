@@ -228,7 +228,7 @@ def cml() -> argparse.Namespace:
 def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.float64]:
 
     if args == argparse.Namespace():
-        args = cml("")
+        args = cml()
 
     Directory: Path = Path("")
     if args.dir:
@@ -244,7 +244,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
     # Handle average data loading if specified
     if inAnmr.get_avg_orcaSJ_Exist() and args.average:
-        inAnmr.method_load_avg_orcaSJ(args=args)
+        inAnmr.method_load_avg_orcaSJ(bobyqa_bool=args.bobyqa)
     else:
         # Process all ORCA files and generate average data
         inAnmr.method_read_enso()
@@ -274,7 +274,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             if Active == 'C':
                 # Carbon processing - read molecular structure
                 from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
-                mol, neighbors, bond_order = read_mol_neighbors_bond_order(
+                _, _, bond_order = read_mol_neighbors_bond_order(
                     inAnmr.get_Directory() / inFile)
 
                 # For C/CH/CH2/CH3 from 0 1 2 3 to 1 2 3 4 for Carbon spectra
@@ -287,7 +287,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 inJCoups = np.zeros_like(inJCoups)
 
                 if set(inAnmr.avg_orcaSJ.idx1Atoms.values()) != set(Active):
-
                     raise ValueError(
                         "  Yours Average orcaS.out and orcaJ.out have something errors !!!")
 
@@ -500,10 +499,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 from censo_ext.Tools.spectra import find_nearest
                 _, Move_idx0 = find_nearest(list(inSParams[idx0_ab_group]),
                                             inSParams[idx0_ab_group[0]])
-                a = np.argwhere(
-                    inSParams[:] == inSParams[int(Move_idx0)])
+                arg = np.argwhere(
+                    inSParams[:] == inSParams[int(Move_idx0)])[0]
                 idx0_ab_group_sets[idx0] = idx0_ab_group_set.union(
-                    set(int(idx) for idx in a[0]))
+                    set(int(x) for x in arg))
 
         # Display the parameter of Full Spectra
         for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):

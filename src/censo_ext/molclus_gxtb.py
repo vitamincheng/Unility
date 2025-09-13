@@ -161,7 +161,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xtb_cmd += " > xtb.out"
 
     for idx1 in range(1, len(xyzFile)+1, 1):
-        # idx_str : str = f"{[idx]:05d}"
         xyzFile.set_filename(single_traj_Name)
         xyzFile.method_save_xyz([idx1])
         print(f"                          *** Configuration         {idx1}  ****")  # nopep8

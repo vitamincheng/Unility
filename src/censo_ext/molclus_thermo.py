@@ -115,7 +115,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     program_IsExist("xtb")
 
     print(f" Inputted geometry file: {inFile}")
-    xtb_cmd = f"{xtb_cmd} {single_xyz_name}"
+    xtb_cmd += f" {single_xyz_name}"
 
     print(" Loading basic information from the inputted geometry file ...")
     print(f" There are totally        {len(xyzFile)} geometries in the inputted geometry file\n")  # nopep8
@@ -128,19 +128,19 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
 
     print(f" Setting solvent : {cmd_solvent}")
     print(" Loading setting data ...")
-    xtb_cmd = f"{xtb_cmd} --{args.method} --bhess vtight"
+    xtb_cmd += f" --{args.method} --bhess vtight"
     if args.alpb:
-        xtb_cmd = f"{xtb_cmd} --alpb {args.alpb}"
+        xtb_cmd += f" --alpb {args.alpb}"
     if args.gbsa:
-        xtb_cmd = f"{xtb_cmd} --gbsa {args.gbsa}"
+        xtb_cmd += f" --gbsa {args.gbsa}"
 
-    xtb_cmd = f"{xtb_cmd} --chrg {args.chrg} --uhf {args.uhf}"  # nopep8
+    xtb_cmd += f" --chrg {args.chrg} --uhf {args.uhf}"  # nopep8
 
     print(" All conformer in the inputted geometry file will be processed")
     print(" Cleaning old input and temporary files ...")
     print(" Running: rm isomers.xyz *.tmp")
 
-    xtb_cmd = xtb_cmd + " --enso -I ../xcontrol-inp > thermo.out"
+    xtb_cmd += " --enso -I ../xcontrol-inp > thermo.out"
     xcontrol_inp: Path = Path("xcontrol-inp")
     import sys
     with open(xcontrol_inp, "w") as f:

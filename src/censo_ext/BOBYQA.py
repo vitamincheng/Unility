@@ -296,7 +296,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     global prog
 
     if args == argparse.Namespace():
-        args = cml("")
+        args = cml()
     if args.dir:                            # default .
         Directory = Path(args.dir)
     if args.ref:                            # default 1r.dat
