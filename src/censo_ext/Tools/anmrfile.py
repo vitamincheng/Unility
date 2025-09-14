@@ -8,7 +8,7 @@ import numpy as np
 import numpy.typing as npt
 from icecream import ic
 from pathlib import Path
-from censo_ext.Tools.utility import IsExist, IsExist_return_bool
+from censo_ext.Tools.utility import IsExist, IsExist_bool
 # from dataclasses import dataclass
 
 
@@ -29,12 +29,12 @@ class Anmrrc():
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, DirFileName: Path) -> None:
+    def __init__(self, DirFile: Path | str) -> None:
         """
         Initialize the Anmrrc object by reading and parsing a .anmrrc file.
 
         Args:
-            DirFileName (Path): The path to the .anmrrc file to be parsed.
+            DirFile (Path): The path to the .anmrrc file to be parsed.
                 This file contains NMR reference data including atomic numbers,
                 calculated shielding values, experimental shifts, and active status.
 
@@ -50,7 +50,7 @@ class Anmrrc():
             third_line (str): The content of the third line from the .anmrrc file.
 
         Example:
-            >>> anmrrc_obj = Anmrrc(Path("data/anmrrc_file.anmrrc"))
+            >>> anmrrc_obj = Anmrrc("data/anmrrc_file.anmrrc")
             >>> print(anmrrc_obj.Active)
             ['H', 'C', 'F', 'Si', 'P']
 
@@ -62,8 +62,8 @@ class Anmrrc():
             - Third line: Additional metadata
             - Remaining lines: Atom-specific NMR data entries
         """
-
-        lines: list[str] = open(DirFileName, "r").readlines()
+        DirFile = Path(DirFile)
+        lines: list[str] = open(DirFile, "r").readlines()
 
         # Dict of Atomic Numbers and Atomic label
         self.Nums_element: dict[int, str] = {
@@ -130,7 +130,7 @@ class Anmrrc():
             Res += f"{x[0]:<d}  {x[1]:<9.2f} {x[2]:<6.1f} {x[3]:>2d}\n"
         return Res
 
-    def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFileName: Path) -> list[int]:
+    def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFile: Path | str) -> list[int]:
         """
         Get the list of hydrogen atom indices to be removed based on acid atom settings.
 
@@ -163,12 +163,12 @@ class Anmrrc():
             - This function relies on the read_mol_neighbors utility to determine atomic 
               connectivity
         """
-
+        DirFile = Path(DirFile)
         from censo_ext.Tools.Parameter import ELEMENT_NAMES
         acid_atoms_NoShow: list[str] = [ELEMENT_NAMES[i]
                                         for i in self.acid_atoms_NoShow]
         from censo_ext.Tools.ml4nmr import read_mol_neighbors
-        mol, neighbors = read_mol_neighbors(DirFileName)
+        mol, neighbors = read_mol_neighbors(DirFile)
         acid_atoms_NoShowRemove: list[int] = []
         for idx1, x in enumerate(mol, 1):
             for y in acid_atoms_NoShow:
@@ -225,14 +225,14 @@ class Anmr():
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, Directory: Path = Path("."), verbose: bool = False) -> None:
+    def __init__(self, Dir: Path | str = Path("."), verbose: bool = False) -> None:
         """
         Initialize the Anmr object.
 
         Args:
             Directory (Path, optional): The directory containing NMR data files. Defaults to Path(".").
         """
-        self.__Directory: Path = Directory
+        self.__Dir: Path = Path(Dir)
         self.__verbose: bool = verbose
         self.enso: npt.NDArray                              # anmr_enso
         self.anmrJ: npt.NDArray[np.float64]                 # JCoup of anmr.out generated from anmr # nopep8
@@ -251,14 +251,14 @@ class Anmr():
         # idx1 and neighbors index of Magnetic Equivalent
         self.NeighborMangetEqvs: dict[int, list[int]] = {}
 
-    def get_Directory(self) -> Path:
+    def get_Dir(self) -> Path:
         """
         Get the directory path.
 
         Returns:
             Path: The directory containing NMR data files.
         """
-        return self.__Directory
+        return self.__Dir
 
     def get_Anmr_Active(self) -> list[str]:
         """Get the list of active species from the .anmrrc file.
@@ -273,7 +273,7 @@ class Anmr():
         """
         return self.__AnmrParams.Active
 
-    def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFileName=Path("crest_conformers.xyz")) -> list[int]:
+    def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFile: Path | str = Path("crest_conformers.xyz")) -> list[int]:
         """
         Get the list of hydrogen atom indices to be removed based on acid atom settings.
 
@@ -302,10 +302,10 @@ class Anmr():
             The function uses the molecular neighbors information from read_mol_neighbors 
             to determine which hydrogen atoms are bonded to the specified acid atoms.
         """
+        DirFile = Path(DirFile)
+        return self.__AnmrParams.get_idx1_acid_atoms_NoShow_RemoveH(DirFile)
 
-        return self.__AnmrParams.get_idx1_acid_atoms_NoShow_RemoveH(DirFileName)
-
-    def method_read_anmrrc(self, fileName=Path(".anmrrc")) -> None:
+    def method_read_anmrrc(self, file: Path | str = Path(".anmrrc")) -> None:
         """Read .anmrrc setting file from censo.
         Args:
             fileName (Path, optional): Name of the .anmrrc file. Defaults to Path(".anmrrc").
@@ -316,17 +316,17 @@ class Anmr():
 
         Example:
             >>> reader = AnmrFile()
-            >>> reader.method_read_anmrrc(Path(".anmrrc"))
+            >>> reader.method_read_anmrrc(".anmrrc")
             >>> # File is read and parsed into self.__AnmrParams
 
         Note:
             The method sets the internal parameter `self.__AnmrParams` to an
             `Anmrrc` object created from the parsed file.
         """
-
-        DirFileName: Path = self.__Directory / fileName
-        IsExist(DirFileName)
-        self.__AnmrParams: Anmrrc = Anmrrc(DirFileName)
+        file = Path(file)
+        DirFile: Path = self.__Dir / file
+        IsExist(DirFile)
+        self.__AnmrParams: Anmrrc = Anmrrc(DirFile)
 
     def method_print_anmrrc(self) -> None:
         """Print the contents of the .anmrrc file.
@@ -400,9 +400,9 @@ class Anmr():
 
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
                 idy0: list[int] = list(map(int, x.SParams.keys()))
-                y: list[float] = list(map(float, x.SParams.values()))
-                for idz, z in zip(idy0, np.array(y) * normal_idx_weight[x.CONFSerialNums]):
-                    self.avg_orcaSJ.SParams[idz] += z.item()
+                ppm: list[float] = list(map(float, x.SParams.values()))
+                for idz, weight_ppm in zip(idy0, np.array(ppm) * normal_idx_weight[x.CONFSerialNums]):
+                    self.avg_orcaSJ.SParams[idz] += weight_ppm.item()
 
             for key, value in self.avg_orcaSJ.SParams.items():
                 self.avg_orcaSJ.SParams[key] = value - \
@@ -546,7 +546,7 @@ class Anmr():
                     orcaSJ.JCoups = np.delete(orcaSJ.JCoups, x, 1)
 
             idx1_acid_atoms_NoShow_RemoveH: list[int] = self.__AnmrParams.get_idx1_acid_atoms_NoShow_RemoveH(
-                self.__Directory / Path("crest_conformers.xyz"))
+                self.__Dir / Path("crest_conformers.xyz"))
 
             # Delete orcaSJ SParams in acid_atoms_NoShow
             idx0_AtomsDelete: list[int] = []
@@ -595,9 +595,9 @@ class Anmr():
             - Parsing errors in individual files will print error messages but won't stop processing
         """
 
-        Directoy: Path = self.__Directory
-        print(f"Files and directories in {Directoy} : ")
-        dirNames: list[str] = [x for x in Directoy.walk()][0][1]
+        Dir: Path = self.__Dir
+        print(f"Files and directories in {Dir} : ")
+        dirNames: list[str] = [x for x in Dir.walk()][0][1]
         np.set_printoptions(formatter={'float': '{:12.5f}'.format})
 
         idx = 0
@@ -611,16 +611,16 @@ class Anmr():
 
         from tqdm import tqdm
 
-        for idx0 in tqdm(range(len(dirNames))):
-            file_orcaS: Path = Directoy / Path(dirNames[idx0] + "/NMR/orcaS.out")  # nopep8
-            file_orcaJ: Path = Directoy / Path(dirNames[idx0] + "/NMR/orcaJ.out")  # nopep8
+        for idx0, name in enumerate(tqdm(dirNames)):
+            file_orcaS: Path = Dir / Path(name + "/NMR/orcaS.out")  # nopep8
+            file_orcaJ: Path = Dir / Path(name + "/NMR/orcaJ.out")  # nopep8
             if file_orcaS.exists() and file_orcaJ.exists():
                 if self.__verbose:
                     print(f"{idx0}  :  {file_orcaS}")
                     print(f"{idx0}  :  {file_orcaJ}")
 
                 iter: OrcaSJ = OrcaSJ()
-                iter.CONFSerialNums = int(dirNames[idx0].replace('CONF', ''))
+                iter.CONFSerialNums = int(name.replace('CONF', ''))
                 if not iter.method_read_orcaS(file=file_orcaS):
                     print(" Something wrong in your orcaS.out")
                 if not iter.method_read_orcaJ(file=file_orcaJ):
@@ -645,16 +645,14 @@ class Anmr():
                   False if any of the files are missing.
         """
 
-        fileName_Av_orcaS: Path = self.__Directory / \
-            Path("Average/NMR/orcaS.out")
-        fileName_Av_orcaJ: Path = self.__Directory / \
-            Path("Average/NMR/orcaJ.out")
-        fileName_Av_orcaAtoms: Path = self.__Directory / \
-            Path("Average/NMR/orcaA.out")
+        avg_Dir: Path = Path("Average/NMR")
+        file_avg_orcaS: Path = self.__Dir/avg_Dir/Path("orcaS.out")
+        file_avg_orcaJ: Path = self.__Dir / avg_Dir/Path("orcaJ.out")
+        file_avg_orcaAtoms: Path = self.__Dir / \
+            avg_Dir/Path("orcaA.out")
 
-        if IsExist_return_bool(fileName_Av_orcaS) and \
-           IsExist_return_bool(fileName_Av_orcaAtoms) and \
-           IsExist_return_bool(fileName_Av_orcaJ):
+        if IsExist_bool(file_avg_orcaS) and IsExist_bool(file_avg_orcaAtoms) and \
+           IsExist_bool(file_avg_orcaJ):
             return True
         else:
             return False
@@ -696,25 +694,26 @@ class Anmr():
             - Average/NMR/orcaA.out
         """
 
-        from censo_ext.Tools.utility import jsonKeys2int
+        from censo_ext.Tools.utility import jsonKeys2int, load_dict_orcaS
+        avg_Dir: Path = Path("Average/NMR")
         if self.get_avg_orcaSJ_Exist():
+            # Check the name of file
             if bobyqa_bool:
-                file_avg_orcaS: Path = self.__Directory / \
-                    Path("Average/NMR/orcaS-BOBYQA.out")
+                file_avg_orcaS: Path = self.__Dir / \
+                    avg_Dir/Path("orcaS-BOBYQA.out")
             else:
-                file_avg_orcaS: Path = self.__Directory / \
-                    Path("Average/NMR/orcaS.out")
-            file_avg_orcaJ: Path = self.__Directory / \
-                Path("Average/NMR/orcaJ.out")
-            file_avg_orcaAtoms: Path = self.__Directory / \
-                Path("Average/NMR/orcaA.out")
+                file_avg_orcaS: Path = self.__Dir / \
+                    avg_Dir/Path("orcaS.out")
+            file_avg_orcaJ: Path = self.__Dir/avg_Dir/Path("orcaJ.out")
+            file_avg_orcaAtoms: Path = self.__Dir / \
+                avg_Dir/Path("orcaA.out")
 
+            # load the data of file
             import json
             with open(file_avg_orcaAtoms) as f:
                 self.avg_orcaSJ.idx1Atoms = json.loads(
                     f.read(), object_pairs_hook=jsonKeys2int)
 
-            from censo_ext.Tools.utility import load_dict_orcaS
             self.avg_orcaSJ.SParams = load_dict_orcaS(
                 file_avg_orcaS)
             self.avg_orcaSJ.JCoups = np.loadtxt(file_avg_orcaJ)
@@ -754,13 +753,12 @@ class Anmr():
             - orcaJ.out: Coupling constants
             - orcaA.out: Atom indices
         """
+        avg_Dir: Path = Path("Average/NMR")
+        avg_orcaS: Path = self.__Dir / avg_Dir / Path("orcaS.out")      # nopep8
+        avg_orcaJ: Path = self.__Dir / avg_Dir / Path("orcaJ.out")      # nopep8
+        avg_orcaAtoms: Path = self.__Dir / avg_Dir / Path("orcaA.out")  # nopep8
 
-        avg_orcaS: Path = self.__Directory / Path("Average/NMR/orcaS.out")      # nopep8
-        avg_orcaJ: Path = self.__Directory / Path("Average/NMR/orcaJ.out")      # nopep8
-        avg_orcaAtoms: Path = self.__Directory / Path("Average/NMR/orcaA.out")  # nopep8
-
-        Path(self.__Directory / Path("Average/NMR")
-             ).mkdir(parents=True, exist_ok=True)
+        (self.__Dir / avg_Dir).mkdir(parents=True, exist_ok=True)
 
         from censo_ext.Tools.utility import save_dict_orcaS
         save_dict_orcaS(avg_orcaS, self.avg_orcaSJ.SParams)
@@ -777,7 +775,7 @@ class Anmr():
         """
         raise NotImplementedError("Under Construct")
 
-    def method_read_anmrSJ(self, fileName: Path = Path("anmr.out")) -> None:
+    def method_read_anmrSJ(self, fileName: Path | str = Path("anmr.out")) -> None:
         """
         Read the file anmr.out from anmr program.
 
@@ -807,8 +805,7 @@ class Anmr():
             - Populates self.anmrJ with J-coupling matrix
             - Sets self.frq with resonance frequency
         """
-
-        fileName = self.__Directory / Path(fileName)
+        fileName = self.__Dir / Path(fileName)
         IsExist(fileName)
 
         start_idx1: int = 0
@@ -979,7 +976,7 @@ class Anmr():
                 print(f" {y:4d}", end="")
             print("")
 
-    def method_read_nucinfo(self, file: Path = Path("anmr_nucinfo")) -> None:
+    def method_read_nucinfo(self, file: Path | str = Path("anmr_nucinfo")) -> None:
         """
         Read nuclear information from a specified file.
 
@@ -1008,7 +1005,7 @@ class Anmr():
             - Each pair represents one atom with its properties
         """
 
-        file = self.__Directory / Path(file)
+        file = self.__Dir / Path(file)
         IsExist(file)
 
         lines: list[str] = open(file, "r").readlines()
@@ -1066,7 +1063,7 @@ class Anmr():
                                                                '<f8'), ('Gsolv', '<f8'),
                                                ('mRRHO', '<f8'), ('gi', '<f8')])
 
-    def method_read_enso(self, file: Path = Path("anmr_enso")) -> None:
+    def method_read_enso(self, file: Path | str = Path("anmr_enso")) -> None:
         """Read ENSO data from file.
 
         This method reads ENSO data from a specified file
@@ -1076,7 +1073,7 @@ class Anmr():
         Args:
             file (Path, optional): Name of the ENSO file to read. Defaults to Path("anmr_enso").
                 The file is expected to be located in the directory specified by 
-                `self.__Directory`.
+                `self.__Dir`.
 
         Raises:
             FileNotFoundError: If the specified file does not exist or if the file does not
@@ -1100,7 +1097,7 @@ class Anmr():
             >>> print(reader.enso)
         """
 
-        file = self.__Directory / Path(file)
+        file = self.__Dir / Path(file)
         IsExist(file)
 
         self.enso = np.genfromtxt(file, names=True)
@@ -1139,7 +1136,7 @@ class Anmr():
         for Enso in np.atleast_1d(self.enso):
             print(f'{int(Enso[0]):<1d}      {int(Enso[1]):<4d} {int(Enso[2]):<4d} {Enso[3]:>6.4f} {Enso[4]: > 11.7f} {Enso[5]: > 10.7f} {Enso[6]: > 10.7f} {Enso[7]:>4.3f}')  # nopep8
 
-    def method_save_enso(self, file: Path = Path("anmr_enso.new")) -> None:
+    def method_save_enso(self, file: Path | str = Path("anmr_enso.new")) -> None:
         """Save ENSO data to a file.
 
         This method writes the ENSO data to a specified file.
@@ -1151,7 +1148,7 @@ class Anmr():
 
         Example:
             >>> anmr = AnmrFile()
-            >>> anmr.method_save_enso(Path("output_enso.txt"))
+            >>> anmr.method_save_enso("output_enso.txt")
             >>> anmr.method_save_enso()  # Uses default filename
 
         Note:
@@ -1159,7 +1156,7 @@ class Anmr():
             and then restores the original stdout.
         """
 
-        DirFileName: Path = self.__Directory / Path(file)
+        DirFileName: Path = self.__Dir / Path(file)
         with open(DirFileName, "w") as f:
             sys.stdout = f
             self.method_print_enso()
@@ -1185,7 +1182,7 @@ class OrcaSJ():
         self.CONFSerialNums: int
         self.idx1Atoms: dict[int, str] = {}
 
-    def method_read_orcaJ(self, file: Path = Path("orcaJ.out")) -> bool:
+    def method_read_orcaJ(self, file: Path | str = Path("orcaJ.out")) -> bool:
         """
         Read the ORCA J-coupling output file for the censo program.
 
@@ -1277,7 +1274,7 @@ class OrcaSJ():
         self.JCoups = np.array(DataJ, dtype=np.float64)
         return True
 
-    def method_read_orcaS(self, file: Path = Path("orcaS.out")) -> bool:
+    def method_read_orcaS(self, file: Path | str = Path("orcaS.out")) -> bool:
         """
         Read the ORCA S (NMR shielding) output file for the censo program.
 
@@ -1295,7 +1292,7 @@ class OrcaSJ():
 
         Example:
             >>> reader = NMRFileReader()
-            >>> success = reader.method_read_orcaS(Path("orcaS.out"))
+            >>> success = reader.method_read_orcaS("orcaS.out")
             >>> print(success)
             True
 
@@ -1306,7 +1303,6 @@ class OrcaSJ():
             - self.Anisotropy: Dictionary mapping atom indices to anisotropy values
         """
 
-        # print(f" method_read_orcaS {file}")
         IsExist(file)
 
         start_idx: int
@@ -1415,7 +1411,6 @@ class OrcaSJ():
             This method modifies the standard output stream directly.
             The matrix is assumed to be square and symmetric (for coupling constants).
         """
-
         for idx0 in range(self.JCoups[0].size):
             for idy0 in range(self.JCoups[0].size):
                 print(f'{(self.JCoups[idx0][idy0]):>8.3f}', end="")

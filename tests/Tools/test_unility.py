@@ -14,9 +14,9 @@ def test_unility_IsExists_DirFileName_miss_args():
 def test_unility_IsExists_DirFileName():
     from censo_ext.Tools.utility import IsExists_DirFileName
     assert IsExists_DirFileName(
-        Path("tests/data/34.Ergocalciferol/04.Hydrogen/.anmrrc")) == (Path("tests/data/34.Ergocalciferol/04.Hydrogen"), ".anmrrc")
+        "tests/data/34.Ergocalciferol/04.Hydrogen/.anmrrc") == (Path("tests/data/34.Ergocalciferol/04.Hydrogen"), ".anmrrc")
     a, b = IsExists_DirFileName(
-        Path("tests/data/34.Ergocalciferol/04.Hydrogen/anmr.dat"))
+        "tests/data/34.Ergocalciferol/04.Hydrogen/anmr.dat")
     assert a == Path("tests/data/34.Ergocalciferol/04.Hydrogen")
     assert b == "anmr.dat"
 
@@ -42,22 +42,22 @@ def test_unility_int(input_bool: bool, input_str: str):
                          argvalues=[(True, Path("tests/Tools/test_unility.py")),
                                     (False, Path("tests/Tools/test_unility1.py"))])
 def test_unility_IsExistReturnBool(input_bool: bool, input_Path: Path):
-    from censo_ext.Tools.utility import IsExist_return_bool
-    assert IsExist_return_bool(input_Path) == input_bool
+    from censo_ext.Tools.utility import IsExist_bool
+    assert IsExist_bool(input_Path) == input_bool
 
 
 def test_unility_ProgramIsExist():
-    from censo_ext.Tools.utility import program_IsExist
-    assert program_IsExist("xtb")
-    assert program_IsExist("orca")
+    from censo_ext.Tools.utility import prog_IsExist
+    assert prog_IsExist("xtb")
+    assert prog_IsExist("orca")
     with pytest.raises(ValueError) as e:
-        program_IsExist("kkk")
+        prog_IsExist("kkk")
     assert str(e.value) == "kkk, the program is not Exist ..."
 
 
 def test_unility_unilityIsExist():
     from censo_ext.Tools.utility import IsExist
-    assert IsExist(Path("tests/data/crest_conformers.xyz")) is None
+    assert IsExist("tests/data/crest_conformers.xyz") is None
     fileName: Path = Path("kkk.xyz")
     with pytest.raises(FileNotFoundError) as e:
         IsExist(fileName)
@@ -99,18 +99,6 @@ def test_unility_delete_all_files():
     delete_all_files(*files_to_delete)
     for file in files_to_delete:
         assert not file.exists()
-
-
-def test_unility_delete_file_bool():
-    from censo_ext.Tools.utility import delete_file_bool
-    file = Path("/tmp/test_file.txt")
-
-    with open(file, 'w') as f:
-        f.write("Hello World!")
-
-    assert delete_file_bool(file) is True
-
-    assert not file.exists()
 
 
 def test_unility_save_dict_orcaS():

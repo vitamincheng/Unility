@@ -3,6 +3,7 @@ import sys
 from os.path import exists
 import argparse
 import numpy as np
+import numpy.typing as npt
 from sys import argv as sysargv
 # from icecream import ic
 
@@ -53,11 +54,9 @@ def cml():
 def search_string_in_file(fileName, string_to_search):
     """Search for the given string in file and return lines containing that string,
     along with line numbers"""
-    # nline = 0
     list_of_results = []
-    with open(fileName, 'r') as read_obj:
-        for line in read_obj:
-            # nline += 1
+    with open(fileName, 'r') as f:
+        for line in f:
             if string_to_search in line:
                 list_of_results.append(line.rstrip())
     return list_of_results
@@ -150,7 +149,7 @@ with open(infileName, "rb") as f:
         i = i+1
         byte = f.read(4)
 
-res: np.ndarray = np.array(outData[::-1])
+res: npt.NDArray[np.float64] = np.array(outData[::-1])
 np.savetxt(outfileName, res, fmt='%2.5f %12.5e')
 
 print(f"Coversion to anmr file ({outfileName})")

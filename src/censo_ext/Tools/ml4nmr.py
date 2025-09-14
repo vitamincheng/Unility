@@ -44,7 +44,7 @@ covalent_rad_2009: npt.NDArray[np.float64] = np.array([
 covalent_rad_d3 = 4.0 / 3.0 * covalent_rad_2009
 
 
-def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]]]:
+def read_mol_neighbors(DirFileName: Path | str) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]]]:
     """Read molecule from .xyz file and return atoms object with neighbor list.
 
     Args:
@@ -66,13 +66,14 @@ def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int
         - H atoms must have exactly one neighbor; otherwise raises ValueError
 
     Example:
-        >>> mol, neighbors = read_mol_neighbors(Path("molecule.xyz"))
+        >>> mol, neighbors = read_mol_neighbors("molecule.xyz")
         >>> print(neighbors[1])  # Get neighbors of atom 1
     """
 
     # read the .xyz coordinates from the molecular structures
     import ase.io
     from ase import neighborlist
+    DirFileName = Path(DirFileName)
     IsExist(DirFileName)
     mol: Atoms | list[Atoms] = ase.io.read(str(DirFileName), format='xyz')
 
@@ -98,7 +99,7 @@ def read_mol_neighbors(DirFileName: Path) -> tuple[Atoms | list[Atoms], dict[int
     return mol, idx1_neighbors
 
 
-def read_mol_neighbors_bond_order(DirfileName: Path = Path("crest_conformers.xyz")) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]], dict[int, int]]:
+def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conformers.xyz")) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]], dict[int, int]]:
     """Read molecule and calculate bond orders for carbon atoms.
 
     This function reads molecular coordinates from an XYZ file and determines
@@ -117,6 +118,7 @@ def read_mol_neighbors_bond_order(DirfileName: Path = Path("crest_conformers.xyz
     """
 
     # read the .xyz coordinates from the molecular structures
+    DirfileName = Path(DirfileName)
     mol: Atoms | list[Atoms]
     idx1_neighbors: dict[int, npt.NDArray[np.int64]]
     mol, idx1_neighbors = read_mol_neighbors(DirfileName)

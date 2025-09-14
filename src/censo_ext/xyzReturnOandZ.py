@@ -103,7 +103,7 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
     idx1_LowFactor, idx_STD = method_factor_analysis(
         args=argparse.Namespace(**args_x))
     idx1_Atoms: list[int] = list(idx_STD.keys())
-    STD_Atoms: list[float] = list(map(float, idx_STD.values()))
+    STD_Atoms: list[float] = list(idx_STD.values())
 
     idx1_Bonding: list[list[int]] = []
     for x in idx1_LowFactor:

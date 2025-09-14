@@ -19,14 +19,14 @@ def test_anmrfile_miss_args() -> None:
 def test_anmrfile_read_OrcaSJ() -> None:
     Hydrogen: OrcaSJ = OrcaSJ()
     assert Hydrogen.method_read_orcaJ(
-        Path("tests/data/06.EthylAcetate/03.Censo/CONF1/NMR/orcaJ.out"))
+        "tests/data/06.EthylAcetate/03.Censo/CONF1/NMR/orcaJ.out")
     assert Hydrogen.method_read_orcaS(
-        Path("tests/data/06.EthylAcetate/03.Censo/CONF1/NMR/orcaS.out"))
+        "tests/data/06.EthylAcetate/03.Censo/CONF1/NMR/orcaS.out")
 
 
 def test_anmrfile_anmrrc() -> None:
     # For Hydrogen
-    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
+    file: Anmr = Anmr("tests/data/34.Ergocalciferol/04.Hydrogen")
     file.method_read_anmrrc()
     filename: Path = Path("tests/compare/.anmrrc")
     with open(filename, "w") as f:
@@ -37,11 +37,11 @@ def test_anmrfile_anmrrc() -> None:
     source: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen/.anmrrc")
     assert filecmp.cmp(filename, source)
     os.remove(filename)
-    assert file.get_Directory() == Path("tests/data/34.Ergocalciferol/04.Hydrogen")
+    assert file.get_Dir() == Path("tests/data/34.Ergocalciferol/04.Hydrogen")
     assert file.get_Anmr_Active() == ['H']
 
     # For Carbon
-    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
+    file: Anmr = Anmr("tests/data/34.Ergocalciferol/07.Carbon")
     file.method_read_anmrrc()
     filename: Path = Path("tests/compare/.anmrrctest")
     with open(filename, "w") as f:
@@ -52,16 +52,16 @@ def test_anmrfile_anmrrc() -> None:
     source: Path = Path("tests/data/34.Ergocalciferol/07.Carbon/.anmrrc")
     assert filecmp.cmp(filename, source)
     os.remove(filename)
-    assert file.get_Directory() == Path("tests/data/34.Ergocalciferol/07.Carbon")
+    assert file.get_Dir() == Path("tests/data/34.Ergocalciferol/07.Carbon")
     assert file.get_Anmr_Active() == ['C']
 
 
 def test_anmrfile_get_avg_orcaSJ_Exist() -> None:
     # For Hydrogen
-    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
+    file: Anmr = Anmr("tests/data/34.Ergocalciferol/04.Hydrogen")
     assert file.get_avg_orcaSJ_Exist()
     # for Carbon
-    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
+    file: Anmr = Anmr("tests/data/34.Ergocalciferol/07.Carbon")
     assert file.get_avg_orcaSJ_Exist()
 
 
@@ -77,7 +77,7 @@ def test_anmrfile_read_enso_miss_args() -> None:
 
 def test_anmrfile_read_print_enso() -> None:
     # For Hydrogen
-    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
+    file: Anmr = Anmr("tests/data/34.Ergocalciferol/04.Hydrogen")
     file.method_read_enso()
 
     filename: Path = Path("tests/compare/ensotest")
@@ -91,7 +91,7 @@ def test_anmrfile_read_print_enso() -> None:
     os.remove(filename)
 
     # for Carbon
-    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
+    file: Anmr = Anmr("tests/data/34.Ergocalciferol/07.Carbon")
     file.method_read_enso()
 
     filename: Path = Path("tests/compare/ensotest")
@@ -106,7 +106,7 @@ def test_anmrfile_read_print_enso() -> None:
 
 def test_anmrfile_read_print_nucinfo() -> None:
     # For Hydrogen
-    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
+    file: Anmr = Anmr("tests/data/34.Ergocalciferol/04.Hydrogen")
     file.method_read_nucinfo()
     filename: Path = Path("tests/compare/nucinfotest")
     with open(filename, "w") as f:
@@ -121,8 +121,8 @@ def test_anmrfile_read_print_nucinfo() -> None:
 
 
 def test_anmrfile_read_anmrSJ_H() -> None:
-    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/04.Hydrogen"))
-    file.method_read_anmrSJ(Path("anmrh0.out"))
+    file: Anmr = Anmr("tests/data/34.Ergocalciferol/04.Hydrogen")
+    file.method_read_anmrSJ("anmrh0.out")
     assert len(file.anmrS) == 33
     assert file.anmrS[0] == [1, 4, 1, 2.317]
     assert file.anmrS[-1] == [33, 71, 3, 1.104]
@@ -132,8 +132,8 @@ def test_anmrfile_read_anmrSJ_H() -> None:
 
 
 def test_anmrfile_read_anmrSJ_C() -> None:
-    file: Anmr = Anmr(Path("tests/data/34.Ergocalciferol/07.Carbon"))
-    file.method_read_anmrSJ(Path("anmrc.out"))
+    file: Anmr = Anmr("tests/data/34.Ergocalciferol/07.Carbon")
+    file.method_read_anmrSJ("anmrc.out")
     assert len(file.anmrS) == 28
     assert file.anmrS[0] == [1, 1, 1, 125.371]
     assert file.anmrS[-1] == [28, 61, 1, 9.315]

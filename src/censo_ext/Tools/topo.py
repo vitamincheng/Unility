@@ -19,7 +19,7 @@ class Topo():
     determine bonding information, and classify molecular topology into circular and residual molecules.
     """
 
-    def __init__(self, file: Path) -> None:
+    def __init__(self, file: Path | str) -> None:
         """ 
         Initializes a new instance of the Topo class with the provided file path.
 
@@ -86,7 +86,7 @@ class Topo():
         """
 
         Res: list[int] = self.method_broken_bond(args)
-        idx_neighbors: dict[int, npt.NDArray] = self.__neighbors
+        idx_neighbors: dict[int, npt.NDArray[np.int64]] = self.__neighbors
         idx1_H_atoms: list[int] = self.idx1_Hydrogen_atom
         NeighborsAtoms_H_atoms: dict[int, int] = {}  # {H:C}
         for idx in idx1_H_atoms:
@@ -115,13 +115,11 @@ class Topo():
             list[int]: A list of atom indices involved in the broken bond (excluding H atoms).
         """
         idx_p, idx_q = args.bond_broken
-
-        idx_neighbors: dict[int, npt.NDArray] = self.__neighbors
+        idx_neighbors: dict[int, npt.NDArray[np.int64]] = self.__neighbors
         idx1_Hydrogen_atoms: list[int] = self.idx1_Hydrogen_atom
         idx1_Hydrogen_atoms.append(idx_q)
-        NeighborsAtoms_not_H: dict[int, npt.NDArray] = {}
+        NeighborsAtoms_not_H: dict[int, npt.NDArray[np.int64]] = {}
         for idx in idx_neighbors.keys():
-            import numpy as np
             NeighborsAtoms_not_H[idx] = np.array(
                 [x for x in idx_neighbors[idx] if int(x) not in idx1_Hydrogen_atoms])
         del NeighborsAtoms_not_H[idx_q]
@@ -155,7 +153,7 @@ class Topo():
             list[int]: A list of atom indices bonded to the specified atom (excluding H atoms).
         """
         idx_p: int = args.bonding
-        idx_neighbors: dict[int, npt.NDArray] = self.__neighbors
+        idx_neighbors: dict[int, npt.NDArray[np.int64]] = self.__neighbors
         idx1_Hydrogen_atoms: list[int] = self.idx1_Hydrogen_atom
         Neighbors_Atoms: list[int] = idx_neighbors[idx_p].tolist()
         Neighbors_Atoms = [
@@ -165,7 +163,7 @@ class Topo():
             print(f" Bonding : {idx_p} @ Neighbors_Atoms")
         return Neighbors_Atoms
 
-    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray], list[list[int]], list[list[np.int64]]]:
+    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]]]:
         """Analyzes the molecular structure to classify it into circular and residual molecules.
 
         This method identifies circular (ring) structures and residual (non-ring) fragments
@@ -194,7 +192,8 @@ class Topo():
         """
 
         mol: ml4nmr.Atoms | list[ml4nmr.Atoms] = self.__mol
-        idx_neighbors: dict[int, npt.NDArray] = self.__neighbors.copy()
+        idx_neighbors: dict[int, npt.NDArray[np.int64]
+                            ] = self.__neighbors.copy()
         # neighbors is removed all H-atoms
         idx1_Hydorgen_atoms: list[int] = self.idx1_Hydrogen_atom
         for key, value in idx_neighbors.copy().items():
@@ -205,7 +204,7 @@ class Topo():
                 [x for x in value if x not in idx1_Hydorgen_atoms])
 
         # Tranfer neighbors to Graph
-        graph_in: list[tuple[int, npt.NDArray]] = list()
+        graph_in: list[tuple[int, npt.NDArray[np.int64]]] = list()
         for key, value in idx_neighbors.items():
             for x in value:
                 graph_in.append((key, x))

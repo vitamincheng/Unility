@@ -18,7 +18,7 @@ class CensoDat():
     and saving spectral data with various processing capabilities.
     """
 
-    def __init__(self, file: Path = Path("anmr.dat")) -> None:
+    def __init__(self, file: Path | str = Path("anmr.dat")) -> None:
         """
         Initialize the CensoDat object.
 
@@ -32,7 +32,7 @@ class CensoDat():
         Example:
             >>> from censo_ext.Tools.datfile import CensoDat
             >>> dat = CensoDat()
-            >>> dat = CensoDat(Path("custom_file.dat"))
+            >>> dat = CensoDat("custom_file.dat")
 
         Note:
             The dat file should contain two columns: chemical_shift and amplitude.
@@ -148,7 +148,7 @@ class CensoDat():
             res_new[1] = res_new[1] / np.max(res_new[1]) * highest
             self.__dat = res_new.T
 
-    def set_fileName(self, file: Path) -> None:
+    def set_fileName(self, file: Path | str) -> None:
         """
         Set the filename for output.
 

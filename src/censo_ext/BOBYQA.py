@@ -6,7 +6,7 @@ import numpy as np
 import numpy.typing as npt
 from pathlib import Path
 import subprocess
-from censo_ext.Tools.utility import IsExist_return_bool
+from censo_ext.Tools.utility import IsExist_bool
 
 descr = """
 ________________________________________________________________________________
@@ -168,7 +168,7 @@ def rosenbrock(x0) -> float:
     try:
         Diff: CensoDat = Dat_Cal - Dat_Ref  # type: ignore
     except NameError:
-        Dat_Ref = CensoDat(file=Path(Directory/Dat_fileName))
+        Dat_Ref = CensoDat(file=Directory/Dat_fileName)
         Dat_Ref.method_normalize_dat()
         Diff: CensoDat = Dat_Cal - Dat_Ref
 
@@ -308,9 +308,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     else:
         prog = False
 
-    if IsExist_return_bool(Directory / FileOrcaS):                 # type: ignore # nopep8
+    if IsExist_bool(Directory / FileOrcaS):                 # type: ignore # nopep8
         print(f"  {FileOrcaS} is exist")
-        if IsExist_return_bool(Directory / FileBOBYQA):            # type: ignore # nopep8
+        if IsExist_bool(Directory / FileBOBYQA):            # type: ignore # nopep8
             print(f"  {FileBOBYQA} is exist")
             if prog:
                 cwd: Path = Path.cwd()

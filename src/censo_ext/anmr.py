@@ -230,21 +230,18 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     if args == argparse.Namespace():
         args = cml()
 
-    Directory: Path = Path("")
-    if args.dir:
-        Directory = Path(args.dir)
-
+    # Create an Anmr object and read required files
     # Import necessary modules for processing
     from censo_ext.Tools.anmrfile import Anmr
-
-    # Create an Anmr object and read required files
-    inAnmr: Anmr = Anmr(Directory, args.verbose)
+    inAnmr: Anmr = Anmr(Dir=args.dir, verbose=args.verbose)
     inAnmr.method_read_anmrrc()
     inAnmr.method_read_nucinfo()
 
     # Handle average data loading if specified
     if inAnmr.get_avg_orcaSJ_Exist() and args.average:
-        inAnmr.method_load_avg_orcaSJ(bobyqa_bool=args.bobyqa)
+        if not inAnmr.method_load_avg_orcaSJ(bobyqa_bool=args.bobyqa):
+            raise FileNotFoundError(
+                "Something wrong in your Average orcaSJ data !!!")
     else:
         # Process all ORCA files and generate average data
         inAnmr.method_read_enso()
@@ -274,8 +271,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             if Active == 'C':
                 # Carbon processing - read molecular structure
                 from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
-                _, _, bond_order = read_mol_neighbors_bond_order(
-                    inAnmr.get_Directory() / inFile)
+                *_, bond_order = read_mol_neighbors_bond_order(
+                    inAnmr.get_Dir() / inFile)
 
                 # For C/CH/CH2/CH3 from 0 1 2 3 to 1 2 3 4 for Carbon spectra
                 inHydrogen = [value+1 for value in bond_order.values()]
@@ -296,7 +293,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 for key in inAnmr.avg_orcaSJ.idx1Atoms.keys():
                     idx1_nMagEqvHydrogens[key] = inAnmr.nMagnetEqvs[key]
                 for y in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
-                        inAnmr.get_Directory()/inFile):
+                        inAnmr.get_Dir()/inFile):
                     if y in idx1_nMagEqvHydrogens.keys():
                         del idx1_nMagEqvHydrogens[y]
                         del in_idx1Atoms[y]
@@ -444,6 +441,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                             if y == min(inAnmr.NeighborMangetEqvs[key]):
                                 list_Equivalent3.append(idy0)
                 set_Equivalent3: set[int] = set(list_Equivalent3)
+                del list_Equivalent3
 
                 # Adjust groups to account for equivalent protons
                 # Equivalent3 is idx0 numbers
@@ -525,7 +523,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
         print(" the group of calculate spectra :", len(idx0_ab_group_sets))
         print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
 
-        # accPeaks: list[list[tuple[float, float]]] = []
         if len(inSParams*inHydrogen) <= args.mss:
             idx0_ab_group = list(idx0_ab_group_sets[0])
             v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
@@ -594,7 +591,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                     accPeaks.append(QM_Multiplet)
 
         import json
-        with open(inAnmr.get_Directory()/Path("peaks.json"), "w") as jsonFile:
+        with open(inAnmr.get_Dir()/Path("peaks.json"), "w") as jsonFile:
             json.dump(accPeaks, jsonFile)
 
         idx0_peaks_range = [*range(len(accPeaks))]
@@ -606,11 +603,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
             accPeaks.append(dat)
 
         import json
-        with open(inAnmr.get_Directory()/Path("peaks.json"), "w") as jsonFile:
+        with open(inAnmr.get_Dir()/Path("peaks.json"), "w") as jsonFile:
             json.dump(accPeaks, jsonFile)
     else:
         import json
-        with open(inAnmr.get_Directory()/Path("peaks.json"), "r") as jsonFile:
+        with open(inAnmr.get_Dir()/Path("peaks.json"), "r") as jsonFile:
             accPeaks = json.load(jsonFile)
 
         if args.json[0] == -1:
@@ -633,7 +630,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     print("")
     print(" ===== Processing to plotting spectra =====")
     print(" Wait a minutes ...")
-    args.out = str(inAnmr.get_Directory()/Path(args.out))
+    args.out = str(inAnmr.get_Dir()/Path(args.out))
 
     if dpi and Active_range:
         print(" All done ...")

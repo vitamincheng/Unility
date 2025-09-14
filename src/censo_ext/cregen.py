@@ -109,15 +109,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     cluster: Path = Path("cluster.xyz")
 
     from censo_ext.Tools.utility import IsExist
-    IsExist(args.file)
+    IsExist(inFile)
 
     if args.file != isomers:
         subprocess.call(f"cp {inFile} {isomers}", shell=True)
         print(f"  cp {inFile} {isomers}")
 
     prog = "crest"
-    from censo_ext.Tools.utility import program_IsExist
-    program_IsExist(prog)
+    from censo_ext.Tools.utility import prog_IsExist
+    prog_IsExist(prog)
 
     crest_cmd: str = f"{prog} {isomers} --cregen {isomers} --rthr {args.rthr} -- bthr {args.bthr} --ethr {args.ethr} --ewin {args.ewin} > isomers.out"  # nopep8
 

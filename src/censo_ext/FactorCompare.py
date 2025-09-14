@@ -77,18 +77,18 @@ def Factor_xyzCompare(args) -> None:
 
     import shutil
     prog: str = "crest"
-    from censo_ext.Tools.utility import program_IsExist
-    program_IsExist(prog)
+    from censo_ext.Tools.utility import prog_IsExist
+    prog_IsExist(prog)
 
     Dir_str: Path = Path("CREST_P")
     workDir: Path = Path.cwd()
     CompareDir: Path = Path("weight_P")
     New_cwd: Path = workDir / Dir_str
-    if not Path(New_cwd).exists():
-        Path(New_cwd).mkdir()
+    if not New_cwd.exists():
+        New_cwd.mkdir()
 
     from censo_ext.Tools.utility import IsExists_DirFileName
-    fileName_Dir, FileName_str = IsExists_DirFileName(Path(args.file[0]))
+    fileName_Dir, FileName_str = IsExists_DirFileName(args.file[0])
     FileName: Path = Path(FileName_str)
     shutil.copyfile(workDir / fileName_Dir / FileName, New_cwd / FileName)
 

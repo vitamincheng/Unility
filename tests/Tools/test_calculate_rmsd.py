@@ -99,7 +99,7 @@ def test_calculate_centroid():
 
 
 def test_calculate_get_Coordinates():
-    xyzFile = GeometryXYZs(Path("tests/data/isomers.xyz"))
+    xyzFile = GeometryXYZs("tests/data/isomers.xyz")
     xyzFile.method_read_xyz()
     element, V = get_Coordinates(xyzFile, 0)
     assert len(element) == 17
@@ -110,7 +110,7 @@ def test_calculate_get_Coordinates():
 
 
 def test_calculate_cal_RMSD_xyz():
-    xyzFile = GeometryXYZs(Path("tests/data/isomers.xyz"))
+    xyzFile = GeometryXYZs("tests/data/isomers.xyz")
     xyzFile.method_read_xyz()
     idx_p = 1
     idx_q = 2

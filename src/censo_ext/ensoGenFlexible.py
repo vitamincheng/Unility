@@ -100,7 +100,7 @@ def orca(args, Dir, FileName):
     orcaDir: Path = Path(".orca")
     if not orcaDir.is_dir():
         orcaDir.mkdir()
-    copy_file(Path(inFile), orcaDir / inFile)
+    copy_file(inFile, orcaDir / inFile)
     cwd: Path = Path.cwd()
 
     import censo_ext.molclus_orca as molclus_orca

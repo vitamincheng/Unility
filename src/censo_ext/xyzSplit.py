@@ -105,10 +105,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if not args.cuts or not args.atoms:
         raise ValueError(" Please input your atoms that you want to split ")
 
-    from censo_ext.Tools.utility import delete_file_bool
-    Delete_work: bool = False
+    from censo_ext.Tools.utility import delete_all_files
     if not args.print:
-        Delete_work = delete_file_bool(outFile)
+        delete_all_files(outFile)
 
     idx1_p, idx1_q = args.atoms
     nCutters: int = args.cuts
@@ -152,11 +151,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 xyzFile.method_save_xyz_append([idx1_St])
 
     if not args.print:
-        if Delete_work:
-            print(f"   {outFile} is here, it will be removed.")
-            print(f"    Overwrite the file : {outFile}")
-        else:
-            print(f"    Create a new file  : {outFile}")
+        print(f"    Save to the file : {outFile}")
 
 
 if __name__ == "__main__":

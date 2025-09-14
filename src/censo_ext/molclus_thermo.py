@@ -102,17 +102,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     _system: str = platform.system()
 
     # Default to xtb command
-    from censo_ext.Tools.utility import program_IsExist
+    from censo_ext.Tools.utility import prog_IsExist
     xtb_cmd: str = ""
     prog = "xtb"
-    program_IsExist(prog)
+    prog_IsExist(prog)
     xtb_cmd += prog
 
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
 
-    from censo_ext.Tools.utility import program_IsExist
-    program_IsExist("xtb")
+    from censo_ext.Tools.utility import prog_IsExist
+    prog_IsExist("xtb")
 
     print(f" Inputted geometry file: {inFile}")
     xtb_cmd += f" {single_xyz_name}"

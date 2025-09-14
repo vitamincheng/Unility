@@ -97,7 +97,7 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def Boltzmann_enso(np_enso: npt.NDArray, TEMP) -> npt.NDArray:
+def Boltzmann_enso(np_enso: npt.NDArray, TEMP: float) -> npt.NDArray:
     import numpy.lib.recfunctions as rfn
     from censo_ext.Tools.Parameter import Eh, FACTOR
     # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
@@ -138,14 +138,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(descr)  # Program description
         print(f"    provided arguments: {" ".join(sysargv)}")
 
-    from censo_ext.Tools.utility import IsExist_return_bool
+    from censo_ext.Tools.utility import IsExist_bool
     from censo_ext.Tools.Parameter import Eh, Rcal
 
     inFile: Path = Path(args.file)
     backupFile: Path = Path(str(args.file) + ".backup")
 
-    fileExists: bool = IsExist_return_bool(inFile)
-    backupfileExists: bool = IsExist_return_bool(backupFile)
+    fileExists: bool = IsExist_bool(inFile)
+    backupfileExists: bool = IsExist_bool(backupFile)
 
     print("")
     print(f" Reading the input file  : {inFile}")

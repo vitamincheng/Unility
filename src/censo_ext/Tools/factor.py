@@ -118,7 +118,7 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
     print(" ")
     print(" ========== Optimized Broken-bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
-    bonding_LowFactor: list[npt.NDArray] = []
+    bonding_LowFactor: list[npt.NDArray[np.int64]] = []
     for idx in low_factor:
         args_x: dict = {"file": args.file, "bonding": idx,
                         "print": False, "debug": False}
@@ -156,8 +156,8 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
         idxSTD_R: list[int] = Sts_topo.method_broken_bond(
             argparse.Namespace(**args_x))
 
-        tSTD_L: float = float(0)  # total STD Left Data
-        tSTD_R: float = float(0)  # Total STD Right Data
+        tSTD_L: float = float(0.0)  # total STD Left Data
+        tSTD_R: float = float(0.0)  # Total STD Right Data
 
         if len(idxSTD_L) < 1 or len(idxSTD_R) < 1:
             raise ValueError("something wrong in your List_STD ")

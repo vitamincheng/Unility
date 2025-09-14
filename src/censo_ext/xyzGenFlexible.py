@@ -82,7 +82,7 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def read_data(args) -> tuple[dict[int, npt.NDArray], list[list[int]], list[list[np.int64]], dict[int, int], dict[int, int]]:
+def read_data(args) -> tuple[dict[int, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]], dict[int, int], dict[int, int]]:
     from censo_ext.Tools.topo import Topo
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     Sts_topo: Topo = Topo(args.file)
@@ -91,18 +91,17 @@ def read_data(args) -> tuple[dict[int, npt.NDArray], list[list[int]], list[list[
     if args.verbose:
         ic(neighbor, circleMols, residualMols)
         ic(idx_atomsCN)
-    _, _, idx_Bond_order = read_mol_neighbors_bond_order(
-        args.file)
+    *_, idx_Bond_order = read_mol_neighbors_bond_order(args.file)
     if args.verbose:
         ic(idx_Bond_order)
         ic(residualMols)
     return neighbor, circleMols, residualMols, idx_Bond_order, idx_atomsCN
 
 
-def get_xyzSplit(neighbor: dict[int, npt.NDArray], circleMols: list[list[int]], residualMols: list[list[np.int64]], Bond_order: dict[int, int], atomsCN: dict[int, int], flattenCircleMols: list[int]) -> dict[int, int]:
+def get_xyzSplit(residualMols: list[list[np.int64]], Bond_order: dict[int, int], atomsCN: dict[int, int], flattenCircleMols: list[int]) -> dict[int, int]:
     xyzSplit: dict[int, int] = {}
-    for mol in residualMols:
-        mol = list(map(int, mol))
+    for Mol in residualMols:
+        mol: list[int] = list(map(int, Mol))
         flexibleMols: list[int] = [
             a for a in mol if a not in flattenCircleMols]
         nodeMols: list[int] = [a for a in mol if a in flattenCircleMols]
@@ -187,8 +186,8 @@ def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> 
         if args.verbose:
             ic(key, value)
         import censo_ext.xyzSplit as xyzSplit
-        args_x: dict = {"file": splitIn,
-                        "atoms": [key, value], "cuts": args.cuts, "print": False, "out": splitOut}
+        args_x: dict = {"file": splitIn, "atoms": [key, value], "cuts": args.cuts,
+                        "print": False, "out": splitOut}
         sys.stdout = open(os.devnull, 'w')
         xyzSplit.main(argparse.Namespace(**args_x))
         sys.stdout = sys.__stdout__
@@ -205,13 +204,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(descr)  # Program description
     print(f"    provided arguments: {" ".join(sysargv)}")
 
-    neighbor, circleMols, residualMols, Bond_order, atomsCN = read_data(
+    _, circleMols, residualMols, Bond_order, atomsCN = read_data(
         args)
     flattenCircleMols: list[int] = []
     for mol in circleMols:
         flattenCircleMols += mol
 
-    xyzSplit: dict[int, int] = get_xyzSplit(neighbor, circleMols, residualMols,
+    xyzSplit: dict[int, int] = get_xyzSplit(residualMols,
                                             Bond_order, atomsCN, flattenCircleMols)
     gen_GeometryXYZs(xyzSplit, args)
 

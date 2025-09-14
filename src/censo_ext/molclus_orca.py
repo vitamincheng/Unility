@@ -4,7 +4,7 @@ import os
 import sys
 import argparse
 import subprocess
-from censo_ext.Tools.utility import delete_all_files, IsExist_return_bool
+from censo_ext.Tools.utility import delete_all_files, IsExist_bool
 from pathlib import Path
 
 descr = """
@@ -84,7 +84,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Ensure input file exists
     from censo_ext.Tools.utility import IsExist
     IsExist(inFile)
-    template_Exist: bool = IsExist_return_bool(Path(args.template))
+    template_Exist: bool = IsExist_bool(args.template)
 
     # Define default template
     if not template_Exist:

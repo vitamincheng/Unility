@@ -7,7 +7,7 @@ from sys import argv as sysargv
 # from icecream import ic
 from pathlib import Path
 from censo_ext.Tools.utility import delete_all_files
-from censo_ext.Tools.utility import IsExist_return_bool
+from censo_ext.Tools.utility import IsExist_bool
 
 descr = """
 ________________________________________________________________________________
@@ -44,14 +44,15 @@ def cml():
     return args
 
 
-def Atom_Equivalent(file: Path = Path("anmrh.out")) -> list:
+def Atom_Equivalent(file: Path | str = Path("anmrh.out")) -> list:
+    file = Path(file)
     from censo_ext.Tools.anmrfile import Anmr
     anmr = Anmr()
     anmr.method_read_anmrSJ(file)
     DataJ: list = anmr.anmrS
     anmr.method_read_nucinfo()
     AtomEqv: list = []
-    for x in ([a[1] for a in DataJ]):
+    for x in [a[1] for a in DataJ]:
         AtomEqv.append(anmr.NeighborMangetEqvs[x])
     return AtomEqv
 
@@ -84,11 +85,11 @@ if __name__ == "__main__":
                 idx = idx+1
         print(f" Directories = {dirNames}")
 
-        for dirName in (dirNames):
+        for dirName in dirNames:
             PathBackup: str = f"{dirName}/NMR/orcaJ.out.backup"
             orcaJPath: str = f"{dirName}/NMR/orcaJ.out"
 
-            if IsExist_return_bool(Path(PathBackup)):
+            if IsExist_bool(PathBackup):
                 import shutil
                 shutil.copyfile(PathBackup, orcaJPath)
                 delete_all_files(PathBackup)
@@ -115,7 +116,7 @@ if __name__ == "__main__":
         print(f" Directories = {dirNames}")
 
         file: Path = Path("coord")
-        file_exists: bool = IsExist_return_bool(file)
+        file_exists: bool = IsExist_bool(file)
         if not file_exists:
             raise FileNotFoundError(f"{file} the file is not exist ...")
 
@@ -128,7 +129,7 @@ if __name__ == "__main__":
         np_idx_h_lines: npt.NDArray[np.int64] = np.array(idx_h_lines) - 1
         np.set_printoptions(formatter={'float': '{:12.5f}'.format})
 
-        idx_Atom_Eqv: list = Atom_Equivalent(Path("anmrh.out"))
+        idx_Atom_Eqv: list = Atom_Equivalent("anmrh.out")
 
         for idx, x in enumerate(idx_Atom_Eqv):
             for idy, y in enumerate(x):
@@ -139,7 +140,7 @@ if __name__ == "__main__":
             orcaJfile: Path = Path(f"{dirName}/NMR/orcaJ.out")
             JCoup: npt.NDArray[np.float64]
 
-            if IsExist_return_bool(fileBackup):
+            if IsExist_bool(fileBackup):
                 JCoup = function_read_orcaJ(fileBackup)
             else:
                 JCoup = function_read_orcaJ(orcaJfile)

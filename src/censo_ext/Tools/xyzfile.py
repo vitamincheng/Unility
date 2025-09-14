@@ -36,10 +36,10 @@ class Geometry():
         self.comment: str = comment                         # Energy =   Eh   #Cluster  :i         # nopep8
         self.comment_energy: float = energy                 # Energy (Eh)
         self.comment_nClusters: int = nClusters             # index of Clusters
-        self.mass: npt.NDArray
+        self.mass: npt.NDArray[np.float64]
         self.extras: list[list[str]] = extras
-        self.com: npt.NDArray
-        self.inertia: npt.NDArray
+        self.com: npt.NDArray[np.float64]
+        self.inertia: npt.NDArray[np.float64]
 
     def __add__(self, other: Self) -> Geometry:
         """ 
@@ -86,7 +86,7 @@ class Geometry():
 
         return self.comment_energy
 
-    def method_translate_xyz(self, delta: npt.NDArray) -> Geometry:
+    def method_translate_xyz(self, delta: npt.NDArray[np.float64]) -> Geometry:
         """
         Translate all atoms by a given vector.
 
@@ -127,7 +127,7 @@ class Geometry():
         self.coord = (np.array(self.coord)[idx0_St]).tolist()
         return True
 
-    def method_idx_molecules_xyz(self, fileName: Path) -> list[list[int]]:
+    def method_idx_molecules_xyz(self, fileName: Path | str) -> list[list[int]]:
         """
         Identify molecular clusters from a topology file.
 
@@ -140,6 +140,7 @@ class Geometry():
 
         from censo_ext.Tools.topo import Topo
         import censo_ext.Tools.ml4nmr as ml4nmr
+        fileName = Path(fileName)
         neighbors: dict[int, npt.NDArray[np.int64]]
         _, neighbors = ml4nmr.read_mol_neighbors(fileName)
         idx1_molecule: set[int] = set([*range(1, len(neighbors)+1, 1)])
@@ -167,7 +168,7 @@ class Geometry():
             idx1_molecule = idx1_molecule.difference(set(Hydrogen))
         return molecules
 
-    def method_computeCOM(self) -> npt.NDArray:
+    def method_computeCOM(self) -> npt.NDArray[np.float64]:
         """Calculate the center of mass (COM) of the molecule.
 
         This method computes the center of mass coordinates using the atomic masses
@@ -191,7 +192,7 @@ class Geometry():
             self.com = np.dot(self.mass, self.coord) / np.sum(self.mass)
             return self.com
 
-    def method_computeInertia(self) -> npt.NDArray:
+    def method_computeInertia(self) -> npt.NDArray[np.float64]:
         """Calculate the moment of inertia tensor.
 
         The moment of inertia tensor is computed using the standard formula:
@@ -335,7 +336,7 @@ class Geometry():
 
 class GeometryXYZs():
 
-    def __init__(self, fileName: Path = Path("")) -> None:
+    def __init__(self, fileName: Path | str = Path("")) -> None:
         """
         Initialize a GeometryXYZs object to manage multiple Geometry instances.
 
@@ -349,7 +350,7 @@ class GeometryXYZs():
     def __len__(self) -> int:
         return int(len(self.Sts))
 
-    def set_filename(self, fileName: Path) -> None:
+    def set_filename(self, fileName: Path | str) -> None:
         self.__filename = Path(fileName)
 
     def method_translate_cut_xyzs(self, delta: npt.NDArray[np.float64], cut: int) -> GeometryXYZs:
@@ -512,7 +513,7 @@ class GeometryXYZs():
                 nAtoms = int(line)
                 comment: str = f.readline().rstrip()
                 names: dict[int, str] = dict()
-                coords: list[npt.NDArray] = list()
+                coords: list[npt.NDArray[np.float64]] = list()
                 extras: list[list[str]] = list()
 
                 for i in range(nAtoms):

@@ -220,8 +220,6 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
     if not args.end:
         args.end = (plist.T)[0].max() + Active_range * 0.1
 
-    Normal_y_max: float = np.array(Normal_plist).max()*2
-
     args.start = round(args.start, 4)
     args.end = round(args.end, 4)
 
@@ -230,15 +228,15 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
 
     x: npt.NDArray[np.float64]
     y: npt.NDArray[np.float64]
-    x, y = mpl_plot(Normal_plist, w=lw, y_max=Normal_y_max, y_min=-
-                    Normal_y_max*0.01, limits=(args.start, args.end), points=lw_points)
+    x, y = mpl_plot(Normal_plist, lw=lw, limits=(
+        args.start, args.end), lw_points=lw_points)
     if not args.bobyqa:
         np.savetxt(args.out, np.vstack((x, y)).T, fmt='%2.5f %12.5e')
         print(f" the spectra is saved to : {args.out}")
     return np.vstack((x, y))
 
 
-def mpl_plot(plist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+def mpl_plot(plist, limits: tuple[float, float], lw=1.0, lw_points=200_000) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """
     Generate a plot using lorentzian lineshape for NMR spectrum.
 
@@ -261,13 +259,13 @@ def mpl_plot(plist, w=1.0, y_min=-0.01, y_max=1.0, points=800, limits=None) -> t
     from nmrsim.plt import low_high, add_lorentzians
     plist.sort()
     if limits:
-        l_limit, r_limit = low_high(limits)
+        l_limit, r_limit = low_high(limits)  # type: ignore
     else:
-        l_limit = plist[0][0] - 50
-        r_limit = plist[-1][0] + 50
+        l_limit: float = plist[0][0] - 50
+        r_limit: float = plist[-1][0] + 50
     x: npt.NDArray[np.float64] = np.linspace(
-        float(l_limit), float(r_limit), points).astype(np.float64)
-    y: npt.NDArray[np.float64] = add_lorentzians(x, plist, w)
+        float(l_limit), float(r_limit), lw_points).astype(np.float64)
+    y: npt.NDArray[np.float64] = add_lorentzians(x, plist, lw)
     return x, y
 
 
@@ -318,8 +316,7 @@ def qm_multiplet(v: float | int, nIntergals, J: list[tuple[float, int]]) -> list
         list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
     """
     from nmrsim import Multiplet
-    td = Multiplet(v, nIntergals, J)
-    return td.peaklist()
+    return Multiplet(v, nIntergals, J).peaklist()
 
 
 if __name__ == "__main__":

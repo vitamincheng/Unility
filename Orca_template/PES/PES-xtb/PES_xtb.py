@@ -4,7 +4,6 @@ import argparse
 import subprocess
 from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
-from pathlib import Path
 
 descr = """
 ________________________________________________________________________________
@@ -123,10 +122,10 @@ if __name__ == "__main__":
 
     subprocess.call("bash 1Atom.sh", shell=True)
 
-    xyzFile = GeometryXYZs(Path("xtbscan.xyz"))
+    xyzFile = GeometryXYZs("xtbscan.xyz")
     xyzFile.method_read_xyz()
     for idx1 in range(1, len(xyzFile)+1, 1):
-        xyzFile.set_filename(Path("xtbscan_single.xyz"))
+        xyzFile.set_filename("xtbscan_single.xyz")
 
         xyzFile.method_save_xyz([idx1])
 

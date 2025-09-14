@@ -2,11 +2,10 @@
 import re
 from icecream import ic
 import sys
-# from os.path import exists
 from sys import argv as sysargv
 import argparse
+import numpy.typing as npt
 import numpy as np
-# from sys import argv as sysargv
 
 descr = """
 ________________________________________________________________________________
@@ -54,11 +53,9 @@ def cml():
 def search_string_in_file(file_name, string_to_search):
     """Search for the given string in file and return lines containing that string,
     along with line numbers"""
-    line_number = 0
     list_of_results = []
-    with open(file_name, 'r') as read_obj:
-        for line in read_obj:
-            line_number += 1
+    with open(file_name, 'r') as f:
+        for line in f:
             if string_to_search in line:
                 list_of_results.append((line.rstrip()))
     return list_of_results
@@ -149,7 +146,7 @@ for line in lines[idx0_lines_start:idx0_lines_end]:
 
 print(f"Coversion to anmr file {args.out}")
 
-res: np.ndarray = np.array(outData[::-1])
+res: npt.NDArray[np.float64] = np.array(outData[::-1])
 np.savetxt(f"{args.out}", res, fmt='%2.5f %12.5e')
 
 print("Finished ...")

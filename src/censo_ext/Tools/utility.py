@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # from icecream import ic
 from pathlib import Path
-import os
 import shutil
 #
 # https://steam.oxxostudio.tw/category/python/library/shutil.html
@@ -33,7 +32,7 @@ import shutil
 #    shutil.copyfile(source,denstination)
 
 
-def IsExists_DirFileName(DirFile: Path):
+def IsExists_DirFileName(DirFile: Path | str) -> tuple[Path, str]:
     """Checks if a file or directory path exists and returns its directory and name components.
 
     This function verifies the existence of a given path and extracts its parent directory
@@ -53,7 +52,7 @@ def IsExists_DirFileName(DirFile: Path):
     Example:
         >>> from pathlib import Path
         >>> # Assuming 'example.txt' exists in the current directory
-        >>> dir_path, filename = IsExists_DirFileName(Path("example.txt"))
+        >>> dir_path, filename = IsExists_DirFileName("example.txt")
         >>> print(f"Directory: {dir_path}, Filename: {filename}")
         Directory: ., Filename: example.txt
 
@@ -63,6 +62,7 @@ def IsExists_DirFileName(DirFile: Path):
         as the name component.
     """
 
+    DirFile = Path(DirFile)
     IsExist(DirFile)
     File: str = DirFile.name
     Dir: Path
@@ -166,36 +166,6 @@ def delete_all_files(*inFiles) -> None:
             path.unlink()
 
 
-def delete_file_bool(inFile: Path) -> bool:
-    """Deletes a file if it exists and returns whether the operation was successful.
-
-    This function checks if a file exists at the specified path, and if it does,
-    removes it from the filesystem. It returns True if the file was successfully
-    deleted, or False if the file did not exist or could not be deleted.
-
-    Args:
-        fileName (Path): The path to the file that should be deleted.
-
-    Returns:
-        bool: True if the file was successfully deleted, False if the file
-            did not exist or could not be deleted.
-
-    Example:
-        >>> from pathlib import Path
-        >>> file_path = Path("example.txt")
-        >>> delete_file_bool(file_path)
-        True
-    """
-
-    from os.path import exists
-    IsExists: bool = exists(inFile)
-    if IsExists:
-        os.remove(inFile)
-        return True
-    else:
-        return False
-
-
 def jsonKeys2int(x) -> dict:
     """Convert dictionary keys to integers.
 
@@ -244,7 +214,7 @@ def load_dict_orcaS(inFile: Path) -> dict:
     return Data
 
 
-def IsExist(inFile: Path) -> None:
+def IsExist(inFile: Path | str) -> None:
     """Check if a file exists and raise FileNotFoundError if it doesn't.
 
     This function verifies whether the specified file path exists in the filesystem.
@@ -259,7 +229,7 @@ def IsExist(inFile: Path) -> None:
 
     Example:
         >>> from pathlib import Path
-        >>> IsExist(Path("example.txt"))
+        >>> IsExist("example.txt")
         # If example.txt doesn't exist, raises FileNotFoundError with message
         # "example.txt The file is not Exist ..."
 
@@ -267,13 +237,13 @@ def IsExist(inFile: Path) -> None:
         This function will terminate the program execution if the file does not exist,
         as it calls ic() and raises an exception.
     """
-
+    inFile = Path(inFile)
     IsExists: bool = inFile.exists()
     if not IsExists:
         raise FileNotFoundError(f"  The file {inFile} is not Exist ...")
 
 
-def IsExist_return_bool(inFile: Path) -> bool:
+def IsExist_bool(inFile: Path | str) -> bool:
     """Check if a file exists and return a boolean value.
 
     This function takes a file path as input and checks whether the file exists
@@ -289,7 +259,7 @@ def IsExist_return_bool(inFile: Path) -> bool:
     Example:
         >>> from pathlib import Path
         >>> file_path = Path("example.txt")
-        >>> result = IsExist_return_bool(file_path)
+        >>> result = IsExist_bool(file_path)
         >>> print(result)
         False
 
@@ -297,17 +267,16 @@ def IsExist_return_bool(inFile: Path) -> bool:
         When the file does not exist, an error message is printed to the console
         in a formatted manner with 80 equal signs for visibility.
     """
+    inFile = Path(inFile)
     IsExists: bool = inFile.exists()
     if IsExists:
         return True
     else:
-        print("="*80)
         print(f"{inFile} the file is not exist ...")
-        print("="*80)
         return False
 
 
-def program_IsExist(Prog: str) -> bool:
+def prog_IsExist(Prog: str) -> bool:
     """Check if a program exists in the system PATH.
 
     This function uses shutil.which() to search for the specified program
@@ -327,9 +296,9 @@ def program_IsExist(Prog: str) -> bool:
             print an error message before raising the exception.
 
     Example:
-        >>> program_IsExist("python")
+        >>> prog_IsExist("python")
         True
-        >>> program_IsExist("nonexistent_program")
+        >>> prog_IsExist("nonexistent_program")
         nonexistent_program  the program is not exist ...
         Exit and Close the program !!!
         ValueError: the program is not Exist ...

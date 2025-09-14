@@ -13,7 +13,7 @@ def test_topo_FileName_miss_args():
     args = argparse.Namespace(**x)
 
     with pytest.raises(FileNotFoundError) as e:
-        Topo(Path(args.file))
+        Topo(args.file)
     assert str(e.value) == f"  The file {x["file"]} is not Exist ..."
 
 
@@ -26,7 +26,7 @@ def test_topo_get_cn(input_Path: str, bonding: int, CN_Dict: dict):
     x = {"file": input_Path,
          "bonding": bonding, "print": True, "debug": False}
     args = argparse.Namespace(**x)
-    assert Topo(Path(args.file)).get_cn() == CN_Dict
+    assert Topo(args.file).get_cn() == CN_Dict
 
 
 @pytest.mark.parametrize(argnames="input_Path,bonding,Neighbors_Atoms",
@@ -37,7 +37,7 @@ def test_topo_Bonding(input_Path: Path, bonding: int, Neighbors_Atoms: list):
     x = {"file": input_Path,
          "bonding": bonding, "print": True, "debug": False}
     args = argparse.Namespace(**x)
-    assert Topo(Path(args.file)).method_bonding(args) == Neighbors_Atoms
+    assert Topo(args.file).method_bonding(args) == Neighbors_Atoms
 
 
 @pytest.mark.parametrize(argnames="input_Path,bonding,len_neighbor,circle_Mols,residual_Mols",
@@ -65,7 +65,7 @@ def test_topo_Broken_bond_H(input_Path: Path, bond_broken: list, broken_Atoms_H:
     x = {"file": input_Path, "bond_broken": bond_broken,
          "print": True, "debug": False}
     args = argparse.Namespace(**x)
-    assert Topo(Path(args.file)).method_broken_bond_H(args) == broken_Atoms_H
+    assert Topo(args.file).method_broken_bond_H(args) == broken_Atoms_H
 
 
 @pytest.mark.parametrize(argnames="input_Path,bond_broken,broken_Atoms",
@@ -76,4 +76,4 @@ def test_topo_Broken_bond(input_Path: Path, bond_broken: list, broken_Atoms: lis
     x = {"file": input_Path,
          "bond_broken": bond_broken, "print": True, "debug": False}
     args = argparse.Namespace(**x)
-    assert Topo(Path(args.file)).method_broken_bond(args) == broken_Atoms
+    assert Topo(args.file).method_broken_bond(args) == broken_Atoms

@@ -76,7 +76,7 @@ def cml() -> argparse.Namespace:
 def read_xyz_file(file: str | Path) -> GeometryXYZs:
     try:
         reFile = GeometryXYZs()
-        reFile.set_filename(Path(file))
+        reFile.set_filename(file)
         reFile.method_read_xyz()
         return reFile
 
@@ -87,8 +87,9 @@ def read_xyz_file(file: str | Path) -> GeometryXYZs:
 
 def write_xyz_file(outfile: GeometryXYZs, file: str | Path) -> None:
     """Write XYZ data to a file."""
+    file = Path(file)
     try:
-        outfile.set_filename(Path(file))
+        outfile.set_filename(file)
         outfile.method_save_xyz([])
     except Exception as e:
         print(f"Failed to write file {file}: {e}")
@@ -115,7 +116,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             outFile: GeometryXYZs = xyzFile.method_translate_xyzs(
                 np.array(args.move))
 
-        write_xyz_file(outFile, Path(args.out))
+        write_xyz_file(outFile, args.out)
 
     except Exception as e:
         print(f"An error occurred: {e}")

@@ -252,11 +252,9 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     if p_all.shape[0] != q_all.shape[0]:
         raise ValueError("error: Structures not same size")
 
-    from typing import Union
-
     # Initialize atom indices
     idx_atom1: npt.NDArray[np.int64] = np.array([], dtype=np.int64)
-    index: Union[set[int], list[int], npt.NDArray[np.int64]]
+    index: set[int] | list[int] | npt.NDArray[np.int64]
     p_view: None | npt.NDArray[np.int64] = None
     q_view: None | npt.NDArray[np.int64] = None
 
@@ -280,7 +278,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
                             "print": False, "debug": False}
             from censo_ext.Tools.topo import Topo
             Sts_topo: Topo = Topo(args_x["file"])
-            idx_atom1 = np.array(Sts_topo.method_broken_bond(
+            idx_atom1: npt.NDArray[np.int64] = np.array(Sts_topo.method_broken_bond(
                 argparse.Namespace(**args_x)))
             index = idx_atom1-1
             p_view, q_view = index, index

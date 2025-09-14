@@ -138,7 +138,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     for idx1 in range(1, len(xyzFile)+1, 1):
         # idx_str : str = f"{[idx]:05d}"
-        xyzFile.set_filename(Path(single_traj_Name))
+        xyzFile.set_filename(single_traj_Name)
         xyzFile.method_save_xyz([idx1])
         print(f"                          *** Configuration         {idx1}  ****")  # nopep8
         print(f" Loading geometry	 {idx1}  from the inputted geometry file")      # nopep8

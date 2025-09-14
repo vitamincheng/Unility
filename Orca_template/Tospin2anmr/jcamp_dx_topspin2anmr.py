@@ -83,27 +83,13 @@ def cml():
 def search_string_in_file(file_name, string_to_search):
     """Search for the given string in file and return lines containing that string,
     along with line numbers"""
-    line_number = 0
     list_of_results = []
-    with open(file_name, 'r') as read_obj:
-        for line in read_obj:
-            line_number += 1
+    with open(file_name, 'r') as f:
+        for line in f:
             if string_to_search in line:
                 list_of_results.append((line.rstrip()))
     return list_of_results
 
-
-# def search_string_in_file(file_name, string_to_search):
-#    """Search for the given string in file and return lines containing that string,
-#    along with line numbers"""
-#    line_number = 0
-#    list_of_results = []
-#    with open(file_name, 'r') as read_obj:
-#        for line in read_obj:
-#            line_number += 1
-#            if string_to_search in line:
-#                list_of_results.append((line_number, line.rstrip()))
-#    return list_of_results
 
 print(descr)  # Program description
 # args, args_defaults = cml()
