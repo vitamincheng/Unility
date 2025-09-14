@@ -42,7 +42,7 @@ class Geometry():
         self.inertia: npt.NDArray[np.float64]
 
     def __add__(self, other: Self) -> Geometry:
-        """ 
+        """
         Concatenate two Geometry objects by combining atoms and coordinates.
 
         Returns:
@@ -50,14 +50,14 @@ class Geometry():
         """
 
         import copy
-        reGeometry: Geometry = copy.deepcopy(self)
+        geometry: Geometry = copy.deepcopy(self)
         for key in other.names.keys():
-            reGeometry.names[len(self.names) + key] = other.names[key]
+            geometry.names[len(self.names) + key] = other.names[key]
         # coordinates of every atom
-        reGeometry.coord = self.coord + other.coord
-        reGeometry.extras = self.extras + other.extras
-        reGeometry.nAtoms = len(self.names) + len(other.names)
-        return reGeometry
+        geometry.coord = self.coord + other.coord
+        geometry.extras = self.extras + other.extras
+        geometry.nAtoms = len(self.names) + len(other.names)
+        return geometry
 
     def __repr__(self) -> str:
         """ 
@@ -67,14 +67,14 @@ class Geometry():
             str: Formatted XYZ string with atom names, coordinates, and extras.
         """
 
-        reStr: str = ""
-        reStr += f"{self.nAtoms}\n{self.comment}\n"
+        Str: str = ""
+        Str += f"{self.nAtoms}\n{self.comment}\n"
         for idx0 in range(self.nAtoms):
             extra: str = "   ".join(
                 self.extras[idx0]) if self.extras[idx0] != [] else ""
-            reStr += f'{self.names[idx0+1]:>3s}    {self.coord[idx0][0]: 14.10f}'  # nopep8
-            reStr += f'    {self.coord[idx0][1]: 14.10f}    {self.coord[idx0][2]: 14.10f}    {extra}\n'  # nopep8
-        return reStr
+            Str += f'{self.names[idx0+1]:>3s}    {self.coord[idx0][0]: 14.10f}'  # nopep8
+            Str += f'    {self.coord[idx0][1]: 14.10f}    {self.coord[idx0][2]: 14.10f}    {extra}\n'  # nopep8
+        return Str
 
     def get_comment_energy(self) -> float:
         """
@@ -97,10 +97,10 @@ class Geometry():
             Geometry: Translated Geometry instance.
         """
 
-        reGeometry: Geometry = copy.deepcopy(self)
-        for x in reGeometry.coord:
+        geometry: Geometry = copy.deepcopy(self)
+        for x in geometry.coord:
             x += delta
-        return reGeometry
+        return geometry
 
     def method_molecules_separation_xyz(self, idx1_Select_Names: list[int]) -> bool:
         """
@@ -397,7 +397,7 @@ class GeometryXYZs():
             xyzFile.Sts.append(copy.deepcopy(x))
         return xyzFile
 
-    def __add__(self, Var: Self) -> GeometryXYZs:
+    def __add__(self, Other: Self) -> GeometryXYZs:
         """
         Concatenate two GeometryXYZs objects.
 
@@ -409,15 +409,15 @@ class GeometryXYZs():
         """
 
         xyzFile: GeometryXYZs
-        if len(Var) == 1:
+        if len(Other) == 1:
             xyzFile = copy.deepcopy(self)
-            xyzFile.Sts.append(Var.Sts[0])
+            xyzFile.Sts.append(Other.Sts[0])
 
-            reFile: GeometryXYZs = GeometryXYZs()
+            geometryXYZs: GeometryXYZs = GeometryXYZs()
             for idx in range(0, len(self), 1):
-                reFile.Sts.append(
+                geometryXYZs.Sts.append(
                     xyzFile.Sts[idx] + xyzFile.Sts[-1])
-            return reFile
+            return geometryXYZs
         else:
             raise ValueError("Too much xyzs structures in your xyz file")
 
@@ -632,11 +632,11 @@ class GeometryXYZs():
                          Returns an empty list if no valid energies are found.
         """
 
-        reEnergy: list = []
+        energy: list = []
         for St in self.Sts:
             if St.get_comment_energy():
-                reEnergy.append(St.get_comment_energy())
-        return reEnergy
+                energy.append(St.get_comment_energy())
+        return energy
 
     def method_ensoGenFlexible(self, args, thermo_list) -> npt.NDArray:
         """Generate thermodynamic data for all Geometry instances.
@@ -676,43 +676,43 @@ class GeometryXYZs():
 
         # Column 8 is Total Gibbs Free Energy (Eh) = Energy + mRRHO
         TEMP: float = args.temp
-        reEnso: npt.NDArray = np.zeros((len(self.Sts),), dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
-                                                                ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')])
-        reEnso['ONOFF'] = 1
-        reEnso['gi'] = 1.000
-        reEnso['Gsolv'] = 0.00000000
-        reEnso['NMR'] = np.arange(1, len(self.Sts)+1)
-        reEnso['CONF'] = np.arange(1, len(self.Sts)+1)
-        reEnso['mRRHO'] = np.array(thermo_list)
-        reEnso['Energy'] = np.array(
+        enso: npt.NDArray = np.zeros((len(self.Sts),), dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
+                                                              ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')])
+        enso['ONOFF'] = 1
+        enso['gi'] = 1.000
+        enso['Gsolv'] = 0.00000000
+        enso['NMR'] = np.arange(1, len(self.Sts)+1)
+        enso['CONF'] = np.arange(1, len(self.Sts)+1)
+        enso['mRRHO'] = np.array(thermo_list)
+        enso['Energy'] = np.array(
             [a.comment_energy for a in self.Sts], dtype=[('Energy', 'f8')])
         Total: npt.NDArray = np.array(
-            reEnso['Energy']+reEnso['mRRHO'], dtype=[('Total', 'f8')])
-        reEnso = rfn.merge_arrays((reEnso, Total), flatten=True)
+            enso['Energy']+enso['mRRHO'], dtype=[('Total', 'f8')])
+        enso = rfn.merge_arrays((enso, Total), flatten=True)
 
         # Gibbs_min is lowest energy of Gibbs Free Energy
-        Gibbs_min: np.float64 = reEnso['Total'].min()
+        Gibbs_min: np.float64 = enso['Total'].min()
 
         # Column 9 is delta Gibbs Free Energy (kcal/mol)
         Gibbs: npt.NDArray = np.array(
-            (reEnso['Total']-Gibbs_min)*Eh, dtype=[('Gibbs', 'f8')])
-        reEnso = rfn.merge_arrays((reEnso, Gibbs), flatten=True)
+            (enso['Total']-Gibbs_min)*Eh, dtype=[('Gibbs', 'f8')])
+        enso = rfn.merge_arrays((enso, Gibbs), flatten=True)
 
         # Column 1o is Qi (each CONFS)
         Qi: npt.NDArray = np.array(
-            np.exp(-reEnso['Gibbs']/(TEMP*FACTOR)), dtype=[('Qi', 'f8')])
-        reEnso = rfn.merge_arrays((reEnso, Qi), flatten=True)
+            np.exp(-enso['Gibbs']/(TEMP*FACTOR)), dtype=[('Qi', 'f8')])
+        enso = rfn.merge_arrays((enso, Qi), flatten=True)
 
         # Qall is sum of Qi
-        Qall: np.float64 = np.sum(reEnso['Qi'])
+        Qall: np.float64 = np.sum(enso['Qi'])
 
         # Column 11 is percentage of each CONFS
         NEW_BW: npt.NDArray = np.array(
-            reEnso['Qi']/Qall, dtype=[('NEW_BW', 'f8')])
-        reEnso = rfn.merge_arrays((reEnso, NEW_BW), flatten=True)
+            enso['Qi']/Qall, dtype=[('NEW_BW', 'f8')])
+        enso = rfn.merge_arrays((enso, NEW_BW), flatten=True)
         # copy BW and delete residual parameter
-        reEnso['BW'] = reEnso['NEW_BW']
+        enso['BW'] = enso['NEW_BW']
         names_anmr: list = list()
-        if reEnso.dtype.names:
-            names_anmr = list(reEnso.dtype.names)
-        return reEnso[names_anmr[:8]]
+        if enso.dtype.names:
+            names_anmr = list(enso.dtype.names)
+        return enso[names_anmr[:8]]

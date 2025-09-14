@@ -75,10 +75,10 @@ def cml() -> argparse.Namespace:
 
 def read_xyz_file(file: str | Path) -> GeometryXYZs:
     try:
-        reFile = GeometryXYZs()
-        reFile.set_filename(file)
-        reFile.method_read_xyz()
-        return reFile
+        geometryXYZs = GeometryXYZs()
+        geometryXYZs.set_filename(file)
+        geometryXYZs.method_read_xyz()
+        return geometryXYZs
 
     except Exception as e:
         print(f"Failed to read file {file}: {e}")

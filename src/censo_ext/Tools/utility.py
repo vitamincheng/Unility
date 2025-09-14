@@ -106,7 +106,7 @@ def function_is_int(string: str) -> bool:
         return False
 
 
-def move_file(source: Path, destination: Path) -> None:
+def move_file(source: Path | str, destination: Path | str) -> None:
     """Move a file from a source path to a destination path.
 
     This function first checks if the source file exists before attempting to move it.
@@ -118,11 +118,13 @@ def move_file(source: Path, destination: Path) -> None:
     Raises:
         FileNotFoundError: If the source file does not exist.
     """
+    source = Path(source)
+    destination = Path(destination)
     IsExist(source)
     shutil.move(source, destination)
 
 
-def copy_file(source: Path, destination: Path) -> None:
+def copy_file(source: Path | str, destination: Path | str) -> None:
     """Copy a file from a source path to a destination path.
 
     This function first checks if the source file exists before attempting to copy it.
@@ -134,11 +136,13 @@ def copy_file(source: Path, destination: Path) -> None:
     Raises:
         FileNotFoundError: If the source file does not exist.
     """
+    source = Path(source)
+    destination = Path(destination)
     IsExist(source)
     shutil.copy(source, destination)
 
 
-def delete_all_files(*inFiles) -> None:
+def delete_all_files(*inFiles: Path | str) -> None:
     """Delete all specified files from the filesystem.
 
     This function takes a variable number of file paths and attempts to delete
@@ -181,7 +185,7 @@ def jsonKeys2int(x) -> dict:
     return {int(k): v for k, v in x}
 
 
-def save_dict_orcaS(inFile: Path, Data: dict) -> None:
+def save_dict_orcaS(inFile: Path | str, Data: dict) -> None:
     """Save a dictionary to a file in orcaS format.
 
     Each key-value pair is written on a new line, formatted as an integer key and a float value.
@@ -190,12 +194,13 @@ def save_dict_orcaS(inFile: Path, Data: dict) -> None:
         fileName (Path): The path to the output file.
         Data (dict): The dictionary to save.
     """
+    inFile = Path(inFile)
     with open(inFile, 'w') as f:
         for key, value in Data.items():
             f.write('%10d %12.5f \n' % (key, value))
 
 
-def load_dict_orcaS(inFile: Path) -> dict:
+def load_dict_orcaS(inFile: Path | str) -> dict:
     """Load a dictionary from a file in orcaS format.
 
     Each line is expected to contain an integer key and a float value, separated by whitespace.
@@ -206,6 +211,7 @@ def load_dict_orcaS(inFile: Path) -> dict:
     Returns:
         dict: A dictionary with integer keys and float values.
     """
+    inFile = Path(inFile)
     IsExist(inFile)
     lines: list = open(inFile, "r").readlines()
     Data: dict[int, float] = {}
@@ -315,7 +321,7 @@ def prog_IsExist(Prog: str) -> bool:
         raise ValueError(f"{Prog}, the program is not Exist ...")
 
 
-def save_figure(fileName="nmrplot") -> None:
+def save_figure(fileName: str = "nmrplot") -> None:
     """Save the current matplotlib figure to PDF and SVG formats.
 
     Args:
