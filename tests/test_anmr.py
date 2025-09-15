@@ -40,7 +40,7 @@ def test_anmr_H_from_raw_data() -> None:
     elif _system == "Darwin":
         compare: Path = Path("tests/compare/anmr_peaks_Ergo_H_Darwin.json")
     assert filecmp.cmp(Dir_Ergo_H / Path("peaks.json"),
-                       compare)  # type: ignore
+                       compare)   # type: ignore
 
 
 def test_anmr_H_average_on_json_off() -> None:

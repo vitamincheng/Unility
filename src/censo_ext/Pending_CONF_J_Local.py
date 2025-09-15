@@ -82,7 +82,7 @@ if __name__ == "__main__":
             if (dirNames[idx].find('CONF') == -1):
                 del dirNames[idx]
             else:
-                idx = idx+1
+                idx += 1
         print(f" Directories = {dirNames}")
 
         for dirName in dirNames:
@@ -107,12 +107,12 @@ if __name__ == "__main__":
         print(f"Files and directories in {Dir} : ")
         dirNames: list[str] = [x for x in Dir.walk()][0][1]
 
-        idx = 0
+        idx: int = 0
         while (idx != len(dirNames)):
             if (dirNames[idx].find('CONF') == -1):
                 del dirNames[idx]
             else:
-                idx = idx+1
+                idx += 1
         print(f" Directories = {dirNames}")
 
         file: Path = Path("coord")

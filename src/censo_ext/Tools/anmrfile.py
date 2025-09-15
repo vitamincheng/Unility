@@ -606,11 +606,14 @@ class Anmr():
                 del dirNames[idx]
             else:
                 idx += 1
+
         print(f"Directories = {dirNames}")
         del idx
 
-        from tqdm import tqdm
+        if len(dirNames) == 0:
+            raise ValueError("  Your CONFXX is not Exist !!!")
 
+        from tqdm import tqdm
         for idx0, name in enumerate(tqdm(dirNames)):
             file_orcaS: Path = Dir / Path(name + "/NMR/orcaS.out")  # nopep8
             file_orcaJ: Path = Dir / Path(name + "/NMR/orcaJ.out")  # nopep8

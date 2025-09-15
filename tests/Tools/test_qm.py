@@ -8,7 +8,7 @@ from censo_ext.Tools.qm import qm_partial, qm_full
 
 def test_qm_miss_args() -> None:
     x = {"out": "output.dat", "start": -
-         0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False}
+         0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False, "verbose": False}
     v: list[float] = [964, 2775.76, 2768.20, 928, 120000]
 
     J: npt.NDArray[np.float64] = np.array([[0.0,   0.0,   0.0,   0.0],
@@ -25,7 +25,7 @@ def test_qm_miss_args() -> None:
 def test_qm_partial_full() -> None:
 
     x = {"out": "output.dat", "start": -
-         0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False}
+         0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False, "verbose": False}
     v: list[float] = [964, 2775.76, 2768.20, 928]
 
     J: npt.NDArray[np.float64] = np.array([[0.0,   0.0,   0.0,   0.0],
@@ -42,8 +42,8 @@ def test_qm_partial_full() -> None:
     assert R_peak[-1][0] == pytest.approx(2773.4946427349055)
     assert R_peak[-1][1] == pytest.approx(0.09446798980250143)
 
-    x = {"out": "output.dat", "start": -
-         0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False, "bobyqa": True}
+    x = {"out": "output.dat", "start": -0.5, "end": 10.5,
+         "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False, "bobyqa": True, "verbose": False}
     R_peak = qm_full(v=v, J=J, nIntergals=1, args=argparse.Namespace(**x))
 
     assert len(R_peak) == 36

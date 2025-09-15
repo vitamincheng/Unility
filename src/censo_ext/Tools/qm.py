@@ -61,7 +61,6 @@ def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArra
     scalars: npt.NDArray[np.float64] = 0.5 * J
     H += np.tensordot(scalars, Lproduct, axes=2)
 
-    # ic(H)
     n: int = 2 ** nspins
     T: npt.NDArray[np.float64] = np.zeros((n, n), dtype=np.float64)
     for i in range(n - 1):
@@ -97,27 +96,30 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
     T: npt.NDArray[np.float64]
     H, T = qm_parameter(v, J)
 
-    # ic(H)
     E: npt.NDArray[np.float64]
     V: npt.NDArray[np.complex128 | np.float64]
 
     E, V = np.linalg.eigh(H)
-    # ic(E, V)
+    if args.verbose:
+        ic(H)
+        ic(T)
+        ic(E, V)
     V = V.real
     I_np: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
     I_upper: npt.NDArray[np.float64] = np.triu(I_np)
-    # ic(I)
     E_matrix: npt.NDArray[np.float64] = np.abs(E[:, np.newaxis] - E)
-    # ic(E_matrix)
     E_upper: npt.NDArray[np.float64] = np.triu(E_matrix)
     combo: npt.NDArray[np.float64] = np.stack([E_upper, I_upper])
     iv: npt.NDArray[np.float64] = combo.reshape(2, I_np.shape[0] ** 2).T
 
     # an arbitrary cutoff where peaks below this intensity are filtered out of the solution
     peaklist: npt.NDArray[np.float64] = iv[iv[:, 1] >= args.cutoff]
-    # ic(peaklist)
+    if args.verbose:
+        ic(I_upper)
+        ic(E_matrix)
+        ic(peaklist)
     from nmrsim.math import normalize_peaklist
     return normalize_peaklist(peaklist, nIntergals)
 
@@ -160,35 +162,38 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
                 F[i][j] = 1
     F += F.T
     F = F*T
-    # ic(F)
     E: npt.NDArray[np.float64]
     V: npt.NDArray[np.complex128 | np.float64]
     E, V = np.linalg.eigh(H)
     V = V.real
-    # ic(E,V)
+    if args.verbose:
+        ic(F)
+        ic(E, V)
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
     I_np: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
-    # ic(I)
     IF: npt.NDArray[np.float64] = np.square(V.T.dot(F.dot(V)))
     I_upper: npt.NDArray[np.float64] = np.triu(I_np*IF)
-    # ic(IF)
-    # ic(I*IF)
+    if args.verbose:
+        ic(I_np)
+        ic(IF)
+        ic(I_np*IF)
 
     E_matrix: npt.NDArray[np.float64] = np.abs(E[:, np.newaxis] - E)
-    # ic(E_matrix)
 
     E_upper: npt.NDArray[np.float64] = np.triu(E_matrix)
 
     combo: npt.NDArray[np.float64] = np.stack([E_upper, I_upper])
     iv: npt.NDArray[np.float64] = combo.reshape(2, I_np.shape[0] ** 2).T
-    # ic(iv)
     thr: np.float64 = np.max(iv[:, 1])*args.cutoff
     peaklist: npt.NDArray[np.float64] = iv[iv[:, 1] >= thr]
-    # ic(peaklist)
-    # ic(iv[:, 1])
+    if args.verbose:
+        ic(E_matrix)
+        ic(iv)
+        ic(peaklist)
+        ic(iv[:, 1])
     from nmrsim.math import normalize_peaklist
-    return np.array(normalize_peaklist(peaklist, nIntergals)).tolist()
+    return normalize_peaklist(peaklist, nIntergals)
 
 
 def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, args: argparse.Namespace, Active_range: int) -> npt.NDArray:
@@ -211,10 +216,11 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
     from nmrsim.math import normalize_peaklist
     plist: npt.NDArray[np.float64] = np.array(in_plist)
     plist.T[0] = plist.T[0] / args.mf
-    # ic(peaklist)
     Normal_plist: list[tuple[float, float]
                        ] = normalize_peaklist(plist, nIntergals)
-    # ic(normalized_plist)
+    if args.verbose:
+        ic(plist)
+        ic(Normal_plist)
     if not args.start:
         args.start = (plist.T)[0].min() - Active_range * 0.1
     if not args.end:
@@ -288,7 +294,8 @@ def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins,
         list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
     """
     plist: list[tuple[float, float]] = []
-    # ic(v, J)
+    if args.verbose:
+        ic(v, J)
     if len(v) > 1:
         plist = qm_partial(v=v, J=J, idx0_nspins=idx0_nspins,
                            nIntergals=nIntergals, args=args)
