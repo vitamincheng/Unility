@@ -65,11 +65,12 @@ class CensoDat():
         """
         if np.array_equal(self.__dat[:, 0], other.__dat[:, 0]):
             import copy
-            Res: Self = copy.deepcopy(self)
-            Res.__dat[:, 1] = np.subtract(self.__dat[:, 1], other.__dat[:, 1])
+            censoDat: Self = copy.deepcopy(self)
+            censoDat.__dat[:, 1] = np.subtract(
+                self.__dat[:, 1], other.__dat[:, 1])
         else:
             raise ValueError(" Two dat file is not the same scale")
-        return Res
+        return censoDat
 
     def __repr__(self) -> str:
         """
@@ -78,10 +79,10 @@ class CensoDat():
         Returns:
             str: Formatted string showing all data points.
         """
-        Res: str = ""
+        Str: str = ""
         for x in self.__dat:
-            Res = Res + f'{x[0]:>12.6f}  {x[1]:>12.6e}\n'
-        return Res
+            Str += f'{x[0]:>12.6f}  {x[1]:>12.6e}\n'
+        return Str
 
     def method_save_dat(self) -> None:
         """Save the data to file.

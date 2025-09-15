@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
 #  Modification             [08.26.2024] vitamin.cheng@gmail.com
-#
-
 from __future__ import annotations
 from pathlib import Path
 from typing import Self
@@ -10,7 +7,6 @@ import sys
 import numpy as np
 import numpy.typing as npt
 import argparse
-# from icecream import ic
 import copy
 
 
@@ -214,8 +210,7 @@ class Geometry():
 
         data = self.coord - self.method_computeCOM()
 
-        self.inertia = -np.einsum("ax,a,ay->xy", data, self.mass, data)
-        return self.inertia
+        return -np.einsum("ax,a,ay->xy", data, self.mass, data)
 
     def method_update_masses(self) -> None:
         """

@@ -47,7 +47,7 @@ def atom2int(atom: str) -> int:
     return NAMES_ELEMENT[atom]
 
 
-def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[int], **kwargs) -> tuple[dict[int, float], float]:
+def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[int]) -> tuple[dict[int, float], float]:
     """
     Calculate Root-mean-square deviation from two sets of vectors.
 
@@ -55,7 +55,6 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[
         P(ndarray): (N,D) matrix, where N is points and D is dimension.
         Q(ndarray): (N,D) matrix, where N is points and D is dimension.
         idx_atom(list): List of atom indices to consider in the calculation.
-        **kwargs: Additional keyword arguments (not used in current implementation).
 
     Returns:
         Tuple[dict,float]: A tuple containing:
@@ -86,7 +85,7 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[
     return idx_atomSquare, float(np.sqrt(coord_square_total / P.shape[0]))
 
 
-def kabsch_rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom1: list[int],
+def kabsch_rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_Atom: list[int],
                 translate: bool = False) -> tuple[dict[int, float], float]:
     """
     Rotate matrix P unto Q using Kabsch algorithm and calculate the RMSD.
@@ -94,7 +93,7 @@ def kabsch_rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom
     Args:
         P (npt.NDArray[np.flaot64]): (N,D) matrix, where N is points and D is dimension.
         Q (npt.NDArray[np.flaot64]): (N,D) matrix, where N is points and D is dimension.
-        idx_atom1 (list[int]): List of atom indices to consider.
+        idx1_Atom (list[int]): List of atom indices to consider.
         translate (bool, optional): Use centroids to translate vector P and Q unto each other. Defaults to False.
 
     Returns:
@@ -105,7 +104,7 @@ def kabsch_rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom
         P = P - centroid(P)
 
     P = kabsch_rotate(P, Q)
-    A, B = rmsd(P, Q, idx_atom1)
+    A, B = rmsd(P, Q, idx1_Atom)
     return A, B
 
 
@@ -236,14 +235,20 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
             - float: The final RMSD value.
 
     Raises:
-        ValueError: If structures have different sizes or if idx_atom1 is empty after processing.
+        ValueError: If structures have different sizes or if idx1_Atom is empty after processing.
     """
 
     xyz_tmp: Path = Path(".tmp.xyz")
     idx_p -= 1
     idx_q -= 1
+
+    # index of p_all_atoms and q_all_atoms is from 0 to n-1
+    # element
     p_all_atoms: npt.NDArray[np.int64]
     q_all_atoms: npt.NDArray[np.int64]
+
+    # index of p_all and q_all is from 0 to n-1
+    # COORD
     p_all: npt.NDArray[np.float64]
     q_all: npt.NDArray[np.float64]
     p_all_atoms, p_all = get_Coordinates(xyzFile, idx_p)
@@ -253,8 +258,10 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
         raise ValueError("error: Structures not same size")
 
     # Initialize atom indices
-    idx_atom1: npt.NDArray[np.int64] = np.array([], dtype=np.int64)
+    idx1_Atom: npt.NDArray[np.int64] = np.array([], dtype=np.int64)
     index: set[int] | list[int] | npt.NDArray[np.int64]
+
+    # index of p_all_atoms and q_all_atoms
     p_view: None | npt.NDArray[np.int64] = None
     q_view: None | npt.NDArray[np.int64] = None
 
@@ -262,12 +269,11 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     if args.ignore_Hydrogen:
         assert type(p_all_atoms[0]) is not str
         assert type(q_all_atoms[0]) is not str
-        for idx in range(len(p_all_atoms)):
-            if p_all_atoms[idx] != 1:
-                idx_atom1 = np.append(idx_atom1, [idx+1])
 
-        p_view = np.where(p_all_atoms != 1)  # type: ignore
-        q_view = np.where(q_all_atoms != 1)  # type: ignore
+        p_view = np.where(p_all_atoms != 1)[0]
+        q_view = np.where(q_all_atoms != 1)[0]
+
+        idx1_Atom = np.append(idx1_Atom, p_view + 1)
 
     # Handle bond breaking
     if args.bond_broken:
@@ -278,9 +284,9 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
                             "print": False, "debug": False}
             from censo_ext.Tools.topo import Topo
             Sts_topo: Topo = Topo(args_x["file"])
-            idx_atom1: npt.NDArray[np.int64] = np.array(Sts_topo.method_broken_bond(
+            idx1_Atom = np.array(Sts_topo.method_broken_bond(
                 argparse.Namespace(**args_x)))
-            index = idx_atom1-1
+            index = idx1_Atom-1
             p_view, q_view = index, index
 
         else:
@@ -291,22 +297,22 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     # Handle index removal
     if args.remove_idx:
         if not args.ignore_Hydrogen:
-            idx_atom1 = np.arange(1, len(p_all_atoms)+1)
+            idx1_Atom = np.arange(1, len(p_all_atoms)+1)
 
-        idx_atom1 = np.setdiff1d(idx_atom1, args.remove_idx)
+        idx1_Atom = np.setdiff1d(idx1_Atom, args.remove_idx)
 
         args.remove_idx = np.array(args.remove_idx)-1
-        index = idx_atom1-1
+        index = idx1_Atom-1
 
         p_view, q_view = index, index
 
     # Handle index addition
     elif args.add_idx:
         if args.ignore_Hydrogen:
-            idx_atom1 = np.union1d(idx_atom1, args.add_idx)
+            idx1_Atom = np.union1d(idx1_Atom, args.add_idx)
         else:
-            idx_atom1 = args.add_idx
-        args.add_idx = idx_atom1-1
+            idx1_Atom = args.add_idx
+        args.add_idx = idx1_Atom - 1
 
         p_view, q_view = args.add_idx, args.add_idx
 
@@ -329,11 +335,11 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     # Final index handling
     if (args.add_idx is None) and (args.remove_idx is None) and (not args.ignore_Hydrogen):
-        idx_atom1 = np.arange(1, len(p_all_atoms)+1)
+        idx1_Atom = np.arange(1, len(p_all_atoms)+1)
 
     idx_coordSquare: dict[int, float]
     res_rmsd: float
-    idx_coordSquare, res_rmsd = kabsch_rmsd(p_coord, q_coord, list(idx_atom1))
+    idx_coordSquare, res_rmsd = kabsch_rmsd(p_coord, q_coord, list(idx1_Atom))
 
     if __name__ == "__main__":
         print(f"{" RMSD":>5s}", end=" ")
@@ -342,8 +348,8 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(xyz_tmp)
 
-    if len(idx_atom1) == 0:
-        raise ValueError("The value of idx_atom1 is error")
+    if len(idx1_Atom) == 0:
+        raise ValueError("The value of idx1_Atom is error")
     elif len(idx_coordSquare) == 0:
         raise ValueError("The value of coord_square is error")
     else:

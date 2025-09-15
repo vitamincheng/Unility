@@ -401,11 +401,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if not args.auto and not args.manual:
         for peak, cID, _, _ in new_peaks:
             height = data[int(peak)]
-            ppm = uc.ppm(peak)
-            if ppm < args.end and ppm > args.start:
-                ax.scatter(ppm, height, marker="o", color="r", s=100, alpha=0.5)  # type: ignore # nopep8
+            ppm_peak = uc.ppm(peak)
+            if ppm_peak < args.end and ppm_peak > args.start:
+                ax.scatter(ppm_peak, height, marker="o", color="r", s=100, alpha=0.5)  # type: ignore # nopep8
                 # ax.text(ppm, height + threshold*5, f"{contour_heights[n]:12.3f}" , ha="center", va="center",rotation=90)
-                ax.text(ppm, height*1.05, str(cID), ha="center", va="center")
+                ax.text(ppm_peak, height*1.05, str(cID), ha="center", va="center")
             # print(f"{cID:6d} {ppm:>15.5f}")
 
     # draw the spectra

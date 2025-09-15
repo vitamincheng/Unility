@@ -458,9 +458,7 @@ class Anmr():
         else:
             print(" ===== Update the equivalent of SParams and JCoups =====")
 
-            Atoms: list[int] = []
-            for idx, x in self.orcaSJ[0].idx1Atoms.items():
-                Atoms.append(idx)
+            Atoms: list[int] = [x for x in self.orcaSJ[0].idx1Atoms.keys()]
             AtomsKeep: npt.NDArray[np.int64] = np.array(Atoms)
             AtomsEqvKeep: npt.NDArray[np.int64] = AtomsKeep.copy()
 
@@ -476,7 +474,7 @@ class Anmr():
             # Calculation the average ppm of Equivalent Atom and Replace the old ppm
             for orcaSJ in self.orcaSJ:
                 for x in AtomsEqvKeep:
-                    if (self.nChemEqvs[x] != 1):
+                    if self.nChemEqvs[x] != 1:
                         ppm: list[float] = []
                         for y in self.NeighborChemEqvs[x]:
                             ppm.append(orcaSJ.SParams[y])
@@ -484,11 +482,11 @@ class Anmr():
                         for y in self.NeighborChemEqvs[x]:
                             orcaSJ.SParams[y] = average
 
-            # for Equivalent Atom  of orcaJCoups
+            # for Equivalent Atom of orcaJCoups
             # Calculation the average JCoups of Equivalent JCoups and Replace the old JCoups
             for orcaSJ in self.orcaSJ:
                 for x in AtomsEqvKeep:
-                    if (self.nMagnetEqvs[x] != 1):
+                    if self.nMagnetEqvs[x] != 1:
                         for y in AtomsKeep:
                             JCoups: list[float] = []
                             average: float = 0
@@ -517,14 +515,10 @@ class Anmr():
                 map(int, set(AtomsKeep).difference(set(list(AtomsEqvKeep)))))
             AtomsDelete.sort()
 
-            # Delete Equivalent Atoms of idx1Atoms
+            # Delete Equivalent Atoms of idx1Atoms and orcaSParams
             for orcaSJ in self.orcaSJ:
                 for x in AtomsDelete:
                     del orcaSJ.idx1Atoms[x]
-
-            # Delete Equivalent Atoms of orcaSParams
-            for orcaSJ in self.orcaSJ:
-                for x in AtomsDelete:
                     del orcaSJ.SParams[x]
 
             # Delete Equivalent Atom of orcaJCoups
@@ -649,10 +643,9 @@ class Anmr():
         """
 
         avg_Dir: Path = Path("Average/NMR")
-        file_avg_orcaS: Path = self.__Dir/avg_Dir/Path("orcaS.out")
-        file_avg_orcaJ: Path = self.__Dir / avg_Dir/Path("orcaJ.out")
-        file_avg_orcaAtoms: Path = self.__Dir / \
-            avg_Dir/Path("orcaA.out")
+        file_avg_orcaS: Path = self.__Dir / avg_Dir / Path("orcaS.out")
+        file_avg_orcaJ: Path = self.__Dir / avg_Dir / Path("orcaJ.out")
+        file_avg_orcaAtoms: Path = self.__Dir / avg_Dir / Path("orcaA.out")
 
         if IsExist_bool(file_avg_orcaS) and IsExist_bool(file_avg_orcaAtoms) and \
            IsExist_bool(file_avg_orcaJ):
