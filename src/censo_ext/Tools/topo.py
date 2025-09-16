@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-#                                   [07.11.2023] vitamin.cheng@gmail.com
-# Need ml4nmr.py
+#  Need ml4nmr.py
 #  ASE library / graph-theory library
 
 import argparse
@@ -86,11 +85,9 @@ class Topo():
         """
 
         Res: list[int] = self.method_broken_bond(args)
-        idx_neighbors: dict[int, npt.NDArray[np.int64]] = self.__neighbors
-        idx1_H_atoms: list[int] = self.idx1_Hydrogen_atom
         NeighborsAtoms_H_atoms: dict[int, int] = {}  # {H:C}
-        for idx in idx1_H_atoms:
-            NeighborsAtoms_H_atoms[idx] = idx_neighbors[idx][0]
+        for idx in self.idx1_Hydrogen_atom:
+            NeighborsAtoms_H_atoms[idx] = self.__neighbors[idx][0]
         addition: list[int] = []
         for idx in Res:
             for key, value in NeighborsAtoms_H_atoms.items():
@@ -153,11 +150,9 @@ class Topo():
             list[int]: A list of atom indices bonded to the specified atom (excluding H atoms).
         """
         idx_p: int = args.bonding
-        idx_neighbors: dict[int, npt.NDArray[np.int64]] = self.__neighbors
-        idx1_Hydrogen_atoms: list[int] = self.idx1_Hydrogen_atom
-        Neighbors_Atoms: list[int] = idx_neighbors[idx_p].tolist()
+        Neighbors_Atoms: list[int] = self.__neighbors[idx_p].tolist()
         Neighbors_Atoms = [
-            x for x in Neighbors_Atoms if x not in idx1_Hydrogen_atoms]
+            x for x in Neighbors_Atoms if x not in self.idx1_Hydrogen_atom]
         Neighbors_Atoms.sort()
         if args.print:
             print(f" Bonding : {idx_p} @ Neighbors_Atoms")
@@ -203,7 +198,7 @@ class Topo():
             idx_neighbors[key] = np.array(
                 [x for x in value if x not in idx1_Hydorgen_atoms])
 
-        # Tranfer neighbors to Graph
+        # Transfer neighbors to Graph
         graph_in: list[tuple[int, npt.NDArray[np.int64]]] = list()
         for key, value in idx_neighbors.items():
             for x in value:
@@ -272,3 +267,15 @@ class Topo():
             if not the_same:
                 residual_Mols.append(Molecules)
         return mol, idx_neighbors, circle_Mols, residual_Mols
+
+    def topology_components(self) -> list[set[int]]:
+        '''
+        Get the index of every components, but not include one independence atom.
+        '''
+        # Transfer neighbors to Graph
+        graph_in: list[tuple[int, int]] = list()
+        for key, value in self.__neighbors.items():
+            for x in value:
+                graph_in.append((key, int(x)))
+        g = Graph(from_list=graph_in)
+        return g.components()

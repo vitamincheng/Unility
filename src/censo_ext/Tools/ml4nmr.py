@@ -84,7 +84,6 @@ def read_mol_neighbors(DirFileName: Path | str) -> tuple[Atoms | list[Atoms], di
     nl = neighborlist.build_neighbor_list(
         mol, cutoffs, self_interaction=False, bothways=True)
     idx1_neighbors: dict[int, npt.NDArray[np.int64]] = {}
-
     for idx in range(len(mol)):
         # nl.get_neighbors(i) returns [0]: indices and [1]: offsets
         indices: npt.NDArray[np.int64] = nl.get_neighbors(idx)[0]

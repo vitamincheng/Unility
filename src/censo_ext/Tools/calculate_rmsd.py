@@ -8,7 +8,6 @@ For more information, usage, example and citation read more at
 https://github.com/charnley/rmsd
 """
 
-# from icecream import ic
 import copy
 import numpy as np
 import numpy.typing as npt
@@ -75,7 +74,7 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[
     idx_atomSquare: dict[int, float] = {}
     coord_square_total: float = 0
     for idx0, x in enumerate(idx_atom):
-        coord_square: float = float((diff[idx0]*diff[idx0]).sum())
+        coord_square: float = float((diff[idx0]**2).sum())
         # ic(coord_square)
         if __name__ == "__main__":
             print(f"{x:>5}", end=" ")
@@ -283,7 +282,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
             args_x: dict = {"file": xyz_tmp, "bond_broken": [*args.bond_broken],
                             "print": False, "debug": False}
             from censo_ext.Tools.topo import Topo
-            Sts_topo: Topo = Topo(args_x["file"])
+            Sts_topo = Topo(args_x["file"])
             idx1_Atom = np.array(Sts_topo.method_broken_bond(
                 argparse.Namespace(**args_x)))
             index = idx1_Atom-1
@@ -318,8 +317,10 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     # Set local view
     if p_view is None:
-        p_coord: npt.NDArray[np.float64] = copy.deepcopy(p_all)
-        q_coord: npt.NDArray[np.float64] = copy.deepcopy(q_all)
+        p_coord: npt.NDArray[np.float64] = copy.deepcopy(
+            p_all).astype(np.float64)
+        q_coord: npt.NDArray[np.float64] = copy.deepcopy(
+            q_all).astype(np.float64)
 
     else:
         assert p_view is not None
@@ -337,8 +338,6 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     if (args.add_idx is None) and (args.remove_idx is None) and (not args.ignore_Hydrogen):
         idx1_Atom = np.arange(1, len(p_all_atoms)+1)
 
-    idx_coordSquare: dict[int, float]
-    res_rmsd: float
     idx_coordSquare, res_rmsd = kabsch_rmsd(p_coord, q_coord, list(idx1_Atom))
 
     if __name__ == "__main__":

@@ -3,30 +3,18 @@ import numpy as np
 import numpy.typing as npt
 import argparse
 from icecream import ic
+from joblib import Memory
+location = ".cache_Joblib"
+memory = Memory(location, compress=True, verbose=0)
 
 
-def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]:
-    """
-    Calculate the Hamiltonian and transition matrix for a spin system.
-
-    This function constructs the angular momentum operators (Lx, Ly, Lz) for each spin
-    and builds the total Hamiltonian H from the Zeeman terms (v) and dipolar coupling terms (J).
-
-    Args:
-        v (list[float]): List of resonance frequencies in Hz for each spin.
-        J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
-
-    Returns:
-        tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]: 
-        - H: The total Hamiltonian matrix (complex128)
-        - T: Transition matrix for intensity calculations (float64)
-    """
+@memory.cache
+def Pauil_matrix(nspins: int) -> npt.NDArray[np.complex128]:
     sigma_x: npt.NDArray[np.complex128] = np.array([[0, 1 / 2], [1 / 2, 0]])
     sigma_y: npt.NDArray[np.complex128] = np.array([[0, -1j / 2], [1j / 2, 0]])
     sigma_z: npt.NDArray[np.complex128] = np.array([[1 / 2, 0], [0, -1 / 2]])
     unit: npt.NDArray[np.complex128] = np.array([[1, 0], [0, 1]])
 
-    nspins: int = len(v)
     L: npt.NDArray[np.complex128] = np.empty(
         (3, nspins, 2 ** nspins, 2 ** nspins), dtype=np.complex128)
     for n in range(nspins):
@@ -47,7 +35,53 @@ def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArra
         L[0][n] = Lx_current
         L[1][n] = Ly_current
         L[2][n] = Lz_current
+    return L
 
+
+@memory.cache
+def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.float64]:
+    n: int = 2 ** nspins
+    F: npt.NDArray[np.float64] = np.zeros((n, n), dtype=np.float64)
+    idx: int = int(2**(nspins-idx0_nspins-1))
+    # idx = ~int(2**idx0_nspins)+1
+    for i in range(n - 1):
+        for j in range(i + 1, n):
+            if bin((i & idx) ^ (j & idx)).count('1') == 1:
+                # if bin(i ^ j).count('1') == 1 and bin((i & idx) ^ (j & idx)).count('1') == 1:
+                F[i][j] = 1
+    return F
+
+
+@memory.cache
+def T_matrix(nspins: int) -> npt.NDArray[np.float64]:
+
+    n: int = 2 ** nspins
+    T: npt.NDArray[np.float64] = np.zeros((n, n), dtype=np.float64)
+    for i in range(n - 1):
+        for j in range(i + 1, n):
+            if bin(i ^ j).count('1') == 1:
+                T[i, j] = 1
+    return T
+
+
+def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]:
+    """
+    Calculate the Hamiltonian and transition matrix for a spin system.
+
+    This function constructs the angular momentum operators (Lx, Ly, Lz) for each spin
+    and builds the total Hamiltonian H from the Zeeman terms (v) and dipolar coupling terms (J).
+
+    Args:
+        v (list[float]): List of resonance frequencies in Hz for each spin.
+        J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
+
+    Returns:
+        tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]: 
+        - H: The total Hamiltonian matrix (complex128)
+        - T: Transition matrix for intensity calculations (float64)
+    """
+
+    L: npt.NDArray[np.complex128] = Pauil_matrix(len(v))
     L_T: npt.NDArray[np.complex128] = L.transpose(1, 0, 2, 3)
     Lproduct: npt.NDArray[np.complex128] = np.tensordot(
         L_T, L, axes=((1, 3), (0, 2))).swapaxes(1, 2).astype(np.complex128)
@@ -57,16 +91,10 @@ def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArra
         v, Lz, axes=1).astype(np.complex128)
     # ic(H)
 
-    # J = np.array(J)  # convert to numpy array first
     scalars: npt.NDArray[np.float64] = 0.5 * J
     H += np.tensordot(scalars, Lproduct, axes=2)
 
-    n: int = 2 ** nspins
-    T: npt.NDArray[np.float64] = np.zeros((n, n), dtype=np.float64)
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            if bin(i ^ j).count('1') == 1:
-                T[i, j] = 1
+    T: npt.NDArray[np.float64] = T_matrix(len(v))
     T += T.T
     return H, T
 
@@ -92,8 +120,6 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
     if J.shape != (nspins, nspins):
         raise ValueError("Your JCoup is Error")
 
-    H: npt.NDArray[np.complex128]
-    T: npt.NDArray[np.float64]
     H, T = qm_parameter(v, J)
 
     E: npt.NDArray[np.float64]
@@ -147,19 +173,9 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     if idx0_nspins >= nspins:
         raise ValueError("Your idx0_nspins is Error")
 
-    H: npt.NDArray[np.complex128]
-    T: npt.NDArray[np.float64]
     H, T = qm_parameter(v, J)
+    F: npt.NDArray[np.float64] = F_matrix(nspins, idx0_nspins)
 
-    n: int = 2 ** nspins
-    F: npt.NDArray[np.float64] = np.zeros((n, n), dtype=np.float64)
-    idx: int = int(2**(nspins-idx0_nspins-1))
-    # idx = ~int(2**idx0_nspins)+1
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            if bin((i & idx) ^ (j & idx)).count('1') == 1:
-                # if bin(i ^ j).count('1') == 1 and bin((i & idx) ^ (j & idx)).count('1') == 1:
-                F[i][j] = 1
     F += F.T
     F = F*T
     E: npt.NDArray[np.float64]
@@ -232,8 +248,6 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
     lw: float = args.lw * 2 / 1000
     lw_points: int = int((args.end - args.start) * dpi)+1
 
-    x: npt.NDArray[np.float64]
-    y: npt.NDArray[np.float64]
     x, y = mpl_plot(Normal_plist, lw=lw, limits=(
         args.start, args.end), lw_points=lw_points)
     if not args.bobyqa:

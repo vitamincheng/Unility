@@ -6,7 +6,6 @@ from typing import Self
 import sys
 import numpy as np
 import numpy.typing as npt
-import argparse
 import copy
 
 
@@ -98,7 +97,7 @@ class Geometry():
             x += delta
         return geometry
 
-    def method_molecules_separation_xyz(self, idx1_Select_Names: list[int]) -> bool:
+    def method_molecules_separation_xyz(self, idx1_Select_Names: set[int]) -> bool:
         """
         Filter atoms by selected indices and update the Geometry.
 
@@ -123,7 +122,7 @@ class Geometry():
         self.coord = (np.array(self.coord)[idx0_St]).tolist()
         return True
 
-    def method_idx_molecules_xyz(self, fileName: Path | str) -> list[list[int]]:
+    def method_idx_molecules_xyz(self, fileName: Path | str) -> list[set[int]]:
         """
         Identify molecular clusters from a topology file.
 
@@ -135,34 +134,17 @@ class Geometry():
         """
 
         from censo_ext.Tools.topo import Topo
-        import censo_ext.Tools.ml4nmr as ml4nmr
-        fileName = Path(fileName)
-        neighbors: dict[int, npt.NDArray[np.int64]]
-        _, neighbors = ml4nmr.read_mol_neighbors(fileName)
-        idx1_molecule: set[int] = set([*range(1, len(neighbors)+1, 1)])
-        molecules: list[list[int]] = []
-        while (len(idx1_molecule) != 0):
-            idx_atoms: int = 0
-            Hydrogen: list[int] = []
-            for x in idx1_molecule:
-                if len(neighbors[x]) == 1 or len(neighbors[x]) == 0:
-                    idx_atoms = x
-                    break
-            if len(neighbors[idx_atoms]) == 1:
-                x = {"file": fileName, "bonding": int(
-                    idx_atoms), "print": False, "debug": False}
-                Sts_topo: Topo = Topo(x["file"])  # type: ignore
-                neighbors_bonding: list[int] = Sts_topo.method_bonding(
-                    argparse.Namespace(**x))
-                x = {"file": fileName, "bond_broken": [
-                    neighbors_bonding[0], idx_atoms], "print": False, "debug": False}
-                Hydrogen = Sts_topo.method_broken_bond_H(
-                    argparse.Namespace(**x))
-            elif len(neighbors[idx_atoms]) == 0:
-                Hydrogen = [idx_atoms]
-            molecules.append(Hydrogen)
-            idx1_molecule = idx1_molecule.difference(set(Hydrogen))
-        return molecules
+        molecules: list[set[int]] = []
+        molecules = Topo(fileName).topology_components()
+        idx1_Atoms: set = {*range(1, self.nAtoms+1)}
+        for x in molecules:
+            idx1_Atoms = idx1_Atoms.difference(x)
+        if len(idx1_Atoms) == 0:
+            return molecules
+        else:
+            for x in [idx1_Atoms]:
+                molecules.append(x)
+            return molecules
 
     def method_computeCOM(self) -> npt.NDArray[np.float64]:
         """Calculate the center of mass (COM) of the molecule.
@@ -430,8 +412,8 @@ class GeometryXYZs():
         fileName: Path = Path("~temp.xyz")
         self.set_filename(fileName)
         self.method_save_xyz([idx1])
-        list_idx: list[list[int]] = self.Sts[idx1 -
-                                             1].method_idx_molecules_xyz(fileName)
+        list_idx: list[set[int]] = self.Sts[idx1 -
+                                            1].method_idx_molecules_xyz(fileName)
         from censo_ext.Tools.utility import delete_all_files
         delete_all_files(fileName)
         for x in list_idx:
