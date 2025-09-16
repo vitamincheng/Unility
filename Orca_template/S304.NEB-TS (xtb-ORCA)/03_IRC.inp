@@ -1,0 +1,9 @@
+! xtb2 PAL8 ALPB(chcl3) IRC 
+
+%irc
+  Maxiter 20
+  Printlevel 1
+end
+
+%maxcore 4000
+* xyzFile 0 1 ts.xyz

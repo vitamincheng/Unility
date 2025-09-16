@@ -1,0 +1,11 @@
+!wB97X-3c NEB-TS PAL8 CPCM(chloroform)
+%maxcore 6000
+
+%Geom maxiter 500 end
+%neb 
+ NImages 8  
+ PreOpt true 
+#NEB_TS_XYZFILE  "ts.xyz"
+ NEB_END_XYZFILE "end.xyz" 
+end
+* XYZfile 0 1 start.xyz

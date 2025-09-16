@@ -1,0 +1,14 @@
+!wB97X-3c PAL8 IRC
+#!SlowConv 
+#!TRAH 
+#!OptTS
+%maxcore 6000
+
+%irc
+  Maxiter 20
+  Printlevel 1
+#  InitHess Read
+#  Hess_Filename "ts.hess"
+end
+
+* xyzFile 0 1 ts.xyz

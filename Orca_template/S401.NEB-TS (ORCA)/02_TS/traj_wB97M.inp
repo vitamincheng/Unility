@@ -1,0 +1,6 @@
+!wB97M-D4 def2-QZVPPD PAL8 SlowConv
+!OptTS
+!TRAH CPCM(chloroform)
+
+%maxcore 3000
+* xyzFile 0 1 ts.xyz

@@ -1,0 +1,6 @@
+!PBE0 RI RIJK D4 def2-TZVP def2/JK PAL8 SlowConv
+!OptTS
+!TRAH CPCM(chloroform)
+
+%maxcore 6000
+* xyzFile 0 1 ts.xyz

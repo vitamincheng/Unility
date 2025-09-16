@@ -1,9 +1,7 @@
-! xtb2 PAL8 SlowConv ALPB(toluene)
-#opt
-!OptTS NumFreq
+! xtb2 PAL8 SlowConv ALPB(chcl3)
+!OptTS 
 
 %geom
-#Calc_Hess true
 maxiter 500
 end
 
