@@ -1,0 +1,14 @@
+! xtb2 PAL8 SlowConv ALPB(toluene)
+#opt
+!OptTS NumFreq
+
+%geom
+#Calc_Hess true
+maxiter 500
+end
+
+# calculation of the exact Hessian 
+# before the first optimization step
+
+%maxcore 4000
+* xyzFile 0 1 ts.xyz

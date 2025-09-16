@@ -1,0 +1,19 @@
+! xtb2 PAL8 ALPB(toluene) IRC 
+#!OptTS SlowConv 
+#cp *.xyz *.hess *_trj.xyz 
+#!NumFreq
+
+%irc
+  Maxiter 20
+  Printlevel 1
+  InitHess Read
+  Hess_Filename "TS.hess"
+end
+
+#%geom 
+#Calc_Hess true
+#maxiter 500 
+#end
+
+%maxcore 4000
+* xyzFile 0 1 ts.xyz
