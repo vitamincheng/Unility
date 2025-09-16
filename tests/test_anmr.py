@@ -13,7 +13,7 @@ Dir_EA_H: Path = Path("tests/data/06.EthylAcetate/03.Censo")
 outFile: Path = Path("output.dat")
 compare_Ergo_H: Path = Path("tests/compare/anmr_peaks_H.json")
 compare_Ergo_C: Path = Path("tests/compare/anmr_peaks_C.json")
-_system = platform.system()
+_system: str = platform.system()
 
 
 def test_anmr_miss_args() -> None:
@@ -39,8 +39,15 @@ def test_anmr_H_from_raw_data() -> None:
         compare: Path = Path("tests/compare/anmr_peaks_Ergo_H_ubuntu.json")
     elif _system == "Darwin":
         compare: Path = Path("tests/compare/anmr_peaks_Ergo_H_Darwin.json")
-    assert filecmp.cmp(Dir_Ergo_H / Path("peaks.json"),
-                       compare)   # type: ignore
+
+    import json
+    import numpy as np
+    with open(Dir_Ergo_H / Path("peaks.json"), "r") as jsonFile:
+        source = np.array(json.load(jsonFile)[0])
+    with open(compare, "r") as jsonFile:  # type: ignore
+        denstination = np.array(json.load(jsonFile)[0])
+    np.testing.assert_allclose(
+        source, denstination, rtol=1e-100, atol=0)
 
 
 def test_anmr_H_average_on_json_off() -> None:
@@ -101,7 +108,15 @@ def test_anmr_C_from_raw_data() -> None:
         compare: Path = Path("tests/compare/anmr_peaks_Ergo_C_ubuntu.json")
     elif _system == "Darwin":
         compare: Path = Path("tests/compare/anmr_peaks_Ergo_C_Darwin.json")
-    assert filecmp.cmp(Dir_Ergo_C/Path("peaks.json"), compare)  # type: ignore
+
+    import json
+    import numpy as np
+    with open(Dir_Ergo_C / Path("peaks.json"), "r") as jsonFile:
+        source = np.array(json.load(jsonFile)[0])
+    with open(compare, "r") as jsonFile:  # type: ignore
+        denstination = np.array(json.load(jsonFile)[0])
+    np.testing.assert_allclose(
+        source, denstination, rtol=1e-100, atol=0)
 
 
 def test_anmr_C_average_on_json_off() -> None:
