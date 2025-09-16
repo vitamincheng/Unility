@@ -1,13 +1,12 @@
 !xtb2 NEB-TS PAL8 ALPB(chcl3) 
 
-%maxcore 3000
 %Geom maxiter 500 END
-
 %neb 
-#Restart_ALLXYZFile "interpolated.allxyz" 
-#NImages 15  
- NEB_END_XYZFILE "end.xyz" 
-#NEB_TS_XYZFILE  "ts.xyz" 
+  #Restart_ALLXYZFile "interpolated.allxyz" 
+  #NImages 15  
+  NEB_END_XYZFILE "end.xyz" 
+  #NEB_TS_XYZFILE  "ts.xyz" 
 end
 
+%maxcore 4000
 * XYZfile 0 1 start.xyz

@@ -1,8 +1,10 @@
 ! xtb2 PAL8 ALPB(chcl3) IRC 
 
 %irc
-  Maxiter 20
+  Maxiter 200
   Printlevel 1
+  InitHess Read
+  Hess_Filename "ts.hess"
 end
 
 %maxcore 4000

@@ -1,13 +1,12 @@
-# for rection barriers range-separated hybride
 !wB97X-V def2-TZVPP NEB-TS PAL8 CPCM(chloroform)
 
-%maxcore 6000
 %Geom maxiter 500 end
 %neb 
  NImages 8  
  PreOpt true
 #NEB_TS_XYZFILE  "ts.xyz"
- NEB_END_XYZFILE "final.xyz" 
+ NEB_END_XYZFILE "end.xyz" 
 END
 
+%maxcore 6000
 * XYZfile 0 1 start.xyz

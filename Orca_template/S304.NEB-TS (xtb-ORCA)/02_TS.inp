@@ -1,8 +1,9 @@
 ! xtb2 PAL8 SlowConv ALPB(chcl3)
-!OptTS 
+! OptTS 
 
 %geom
-maxiter 500
+  Calc_Hess true
+  maxiter 500
 end
 
 # calculation of the exact Hessian 

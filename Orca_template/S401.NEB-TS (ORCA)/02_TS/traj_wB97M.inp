@@ -1,6 +1,11 @@
-!wB97M-D4 def2-QZVPPD PAL8 SlowConv
-!OptTS
-!TRAH CPCM(chloroform)
+! wB97M-D4 def2-QZVPPD PAL8 SlowConv
+! OptTS
+! CPCM(chloroform)
 
-%maxcore 3000
+%geom
+Calc_Hess true
+maxiter 500
+end
+
+%maxcore 6000
 * xyzFile 0 1 ts.xyz
