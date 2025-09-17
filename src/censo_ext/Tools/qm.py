@@ -130,6 +130,8 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
         ic(H)
         ic(T)
         ic(E, V)
+        # np.savetxt("eigenValue.out", E.real, fmt="%8.4f")
+        # np.savetxt("eigenVector.out", V.real, fmt="%8.4f")
     V = V.real
     I_np: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
 
