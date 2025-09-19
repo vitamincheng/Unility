@@ -6,6 +6,7 @@
 # use slightly modified covalent radii from ase for neighbor recognition
 from pathlib import Path
 from ase.atoms import Atoms
+from ase.neighborlist import NeighborList
 import numpy as np
 import numpy.typing as npt
 from censo_ext.Tools.utility import IsExist
@@ -78,10 +79,10 @@ def read_mol_neighbors(DirFileName: Path | str) -> tuple[Atoms | list[Atoms], di
     mol: Atoms | list[Atoms] = ase.io.read(str(DirFileName), format='xyz')
 
     # use covalent radii as thresholds for neighbor determination (what about vdW radii?)
-    cutoffs = [custom_radii[atom.number] for atom in mol]  # type: ignore
+    cutoffs: list = [custom_radii[atom.number] for atom in mol]  # type: ignore
 
     # build neighbor list and write list of neighboring atoms to the dict neighbors
-    nl = neighborlist.build_neighbor_list(
+    nl: NeighborList = neighborlist.build_neighbor_list(
         mol, cutoffs, self_interaction=False, bothways=True)
     idx1_neighbors: dict[int, npt.NDArray[np.int64]] = {}
     for idx in range(len(mol)):
@@ -92,7 +93,7 @@ def read_mol_neighbors(DirFileName: Path | str) -> tuple[Atoms | list[Atoms], di
 
         # exit if an H atom has not exactly 1 neighbor
         if mol.get_atomic_numbers()[idx] == 1 and len(idx1_neighbors[idx+1]) != 1:  # type: ignore # nopep8
-            print(f"ERROR: H atom {idx+1} has not exactly one neighbor! File in: {DirFileName}")  # nopep8
+            print(f"ERROR: H atom {idx+1} has not one neighbor! File in: {DirFileName}")  # nopep8
             raise ValueError(" Error H atom has not exactly one neighbor ! ")
 
     return mol, idx1_neighbors

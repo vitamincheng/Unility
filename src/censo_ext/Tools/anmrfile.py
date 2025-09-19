@@ -422,6 +422,25 @@ class Anmr():
 
         print(" ===== Finished the Average of all folder orcaS.out and orcaJ.out =====")
 
+    def method_filter_active_orcaSJ(self, Active: str) -> None:
+        del_idx1_Atoms: list[int] = [
+            key for key, value in self.avg_orcaSJ.idx1Atoms.items() if value != Active]
+        arg_del_idx1_Atoms: list[int] = [arg-1 for arg, idx1_atom in enumerate(
+            self.avg_orcaSJ.idx1Atoms) if idx1_atom in del_idx1_Atoms]
+        if len(del_idx1_Atoms) != 0:
+            print(" ===== Filter the Active Atom of SParams and JCoups =====")
+            for x in del_idx1_Atoms[::-1]:
+                if x in self.avg_orcaSJ.idx1Atoms:
+                    del self.avg_orcaSJ.idx1Atoms[x]
+                if x in self.avg_orcaSJ.SParams:
+                    del self.avg_orcaSJ.SParams[x]
+            for x in arg_del_idx1_Atoms[::-1]:
+                self.avg_orcaSJ.JCoups = np.delete(
+                    self.avg_orcaSJ.JCoups, x, 0)
+                self.avg_orcaSJ.JCoups = np.delete(
+                    self.avg_orcaSJ.JCoups, x, 1)
+            print(" ===== Finished the Filter of Active Atom of SParams and JCoups =====")
+
     def method_update_equiv_orcaSJ(self) -> None:
         """
         Update equivalent atoms in SParams and JCoups according to nuclear information.

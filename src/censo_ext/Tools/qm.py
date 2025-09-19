@@ -39,9 +39,9 @@ def Pauil_matrix(nspins: int) -> npt.NDArray[np.complex128]:
 
 
 @memory.cache
-def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.float64]:
+def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.uint8]:
     n: int = 2 ** nspins
-    F: npt.NDArray[np.float64] = np.zeros((n, n), dtype=np.float64)
+    F: npt.NDArray[np.uint8] = np.zeros((n, n), dtype=np.uint8)
     idx: int = int(2**(nspins-idx0_nspins-1))
     # idx = ~int(2**idx0_nspins)+1
     for i in range(n - 1):
@@ -53,18 +53,19 @@ def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.float64]:
 
 
 @memory.cache
-def T_matrix(nspins: int) -> npt.NDArray[np.float64]:
+def T_matrix(nspins: int) -> npt.NDArray[np.uint8]:
 
     n: int = 2 ** nspins
-    T: npt.NDArray[np.float64] = np.zeros((n, n), dtype=np.float64)
+    T: npt.NDArray[np.uint8] = np.zeros((n, n), dtype=np.uint8)
     for i in range(n - 1):
         for j in range(i + 1, n):
             if bin(i ^ j).count('1') == 1:
                 T[i, j] = 1
+    T += T.T
     return T
 
 
-def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]:
+def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.uint8]]:
     """
     Calculate the Hamiltonian and transition matrix for a spin system.
 
@@ -94,8 +95,7 @@ def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArra
     scalars: npt.NDArray[np.float64] = 0.5 * J
     H += np.tensordot(scalars, Lproduct, axes=2)
 
-    T: npt.NDArray[np.float64] = T_matrix(len(v))
-    T += T.T
+    T: npt.NDArray[np.uint8] = T_matrix(len(v))
     return H, T
 
 
@@ -130,8 +130,9 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
         ic(H)
         ic(T)
         ic(E, V)
-        # np.savetxt("eigenValue.out", E.real, fmt="%8.4f")
-        # np.savetxt("eigenVector.out", V.real, fmt="%8.4f")
+        np.savetxt("Hamiltonian.out", H, fmt="%6.2f")
+        np.savetxt("eigenValue.out", E.real, fmt="%6.2f")
+        np.savetxt("eigenVector.out", V.real, fmt="%6.2f")
     V = V.real
     I_np: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
 
@@ -147,6 +148,8 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
     if args.verbose:
         ic(I_upper)
         ic(E_matrix)
+        np.savetxt("E_matrix.out", E_matrix, fmt="%7.2f")
+        np.savetxt("I_matrix.out", I_np, fmt="%7.2f")
         ic(peaklist)
     from nmrsim.math import normalize_peaklist
     return normalize_peaklist(peaklist, nIntergals)
@@ -176,7 +179,7 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
         raise ValueError("Your idx0_nspins is Error")
 
     H, T = qm_parameter(v, J)
-    F: npt.NDArray[np.float64] = F_matrix(nspins, idx0_nspins)
+    F: npt.NDArray[np.uint8] = F_matrix(nspins, idx0_nspins)
 
     F += F.T
     F = F*T
@@ -235,7 +238,7 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
     plist: npt.NDArray[np.float64] = np.array(in_plist)
     plist.T[0] = plist.T[0] / args.mf
     Normal_plist: list[tuple[float, float]
-                       ] = normalize_peaklist(plist, nIntergals)
+                       ] = normalize_peaklist(plist.tolist(), nIntergals)
     if args.verbose:
         ic(plist)
         ic(Normal_plist)

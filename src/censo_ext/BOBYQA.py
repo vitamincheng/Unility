@@ -15,6 +15,8 @@ ________________________________________________________________________________
 | [options]
 | Dir      : -d the directory [default .]
 | Ref      : -r the actual reference file [default 1r.dat]
+| mf       : -mf magnetic frequency of scan nmr [default 500.0]
+| lw       : -lw line width of scan nmr [1.0 for H, 20 for C]
 | Limit    : -l limit border(ppm) [defalut 0.20]
 | Prog     : -p --prog Use external anmr execute file [default False]
 | verbose  : -v --verbose more detail [default False]
@@ -76,6 +78,27 @@ def cml() -> argparse.Namespace:
         dest="verbose",
         action="store_true",
         help="Verbose mode [default False]",
+    )
+
+    parser.add_argument(
+        "-mf",
+        "--magnfreq",
+        dest="mf",
+        action="store",
+        type=float,
+        required=False,
+        default=500.0,
+        help="magnetic frequency of scan nmr [default 500.0]",
+    )
+    parser.add_argument(
+        "-lw",
+        "-linewidth",
+        dest="lw",
+        action="store",
+        type=float,
+        required=False,
+        default=1,
+        help="line width of scan nmr [default 1.0 for H, 20.0 for C]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -150,10 +173,10 @@ def rosenbrock(x0) -> float:
         # print("Internal python: anmr.py")
         np.savetxt(Directory/FileOrcaS, orcaS_Table, fmt="%10d %10.5f")
         import censo_ext.anmr as anmr
-        x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': 500.0,
-                   'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
-                   'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, "verbose": False,
-                   'mss': 9, 'auto': True, 'average': True, 'bobyqa': False}
+        x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': mf,
+                   'lw': lw, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
+                   'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, "verbose": False,
+                   'mss': 10, 'auto': True, 'average': True, 'bobyqa': False}
         import sys
         sys.stdout = open(os.devnull, 'w')
         anmr.main(args=argparse.Namespace(**x))
@@ -217,8 +240,8 @@ def Scan_group_Peaks(args) -> None:
     if len(in_set) == 0:
         return
 
-    print(f"  {in_set=}")
     print(" ==== Start group_peaks ====")
+    print(f"  {in_set=}")
 
     # Data structure of idx, Chemical_Shift, idx_atoms
     Data: list[list] = []
@@ -242,6 +265,7 @@ def Scan_group_Peaks(args) -> None:
     for Permutation in Permutations:
         x0: npt.NDArray[np.float64] = np.array([x[1] for x in Data])[
             list(Permutation)]
+        print(f"  {x0=}")
         idx_keys = [x[2] for x in Data]
         if args.verbose:
             ic(idx_keys)
@@ -294,6 +318,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     global Dat_fileName
     global limit_border
     global prog
+    global mf, lw
 
     if args == argparse.Namespace():
         args = cml()
@@ -307,6 +332,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         prog = args.prog
     else:
         prog = False
+    if not args.mf or not args.lw:
+        print("  Your args.mf or args.lw Have something wrong !!!")
+        exit(1)
+    else:
+        mf = args.mf
+        lw = args.lw
 
     if IsExist_bool(Directory / FileOrcaS):                 # type: ignore # nopep8
         print(f"  {FileOrcaS} is exist")

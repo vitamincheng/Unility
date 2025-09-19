@@ -267,7 +267,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     # Process different nuclear element (C or H)
     for idx1, Active in enumerate(inAnmr.get_Anmr_Active(), 1):
         if idx1 == 1:  # only one Active nuclear element
-
+            inAnmr.method_filter_active_orcaSJ(Active)
             if Active == 'C':
                 # Carbon processing - read molecular structure
                 from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
@@ -322,8 +322,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
     # Initialize variables for AB quartet detection and processing
     idx0_ab_group_sets: list[set[int]] = []
-    mat_filter_multi: npt.NDArray[np.int64] = np.array([])
-
+    mat_filter_multi: npt.NDArray[np.uint8] = np.array([])
+    if args.verbose:
+        ic(inHydrogen)
+        ic(inSParams)
     # Main processing loop for identifying and categorizing spin systems
     if not args.json and inAnmr.get_Anmr_Active()[0] == 'H':
         inJCoups_origin: npt.NDArray[np.float64] = copy.deepcopy(inJCoups)
@@ -338,10 +340,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 # Delete Too Small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
                 # 1: keep and 0: neglect
                 # reset all inJCoups to zero
-                mat_filter_low_factor: npt.NDArray[np.int64] = np.zeros(
-                    (inSParams.size, inSParams.size), dtype=np.int64)
+                mat_filter_low_factor: npt.NDArray[np.uint8] = np.zeros(
+                    (inSParams.size, inSParams.size), dtype=np.uint8)
                 mat_filter_low_factor = (
-                    np.abs(inJCoups) > args.thr).astype(np.int64)
+                    np.abs(inJCoups) > args.thr).astype(np.uint8)
                 inJCoups[np.logical_not(mat_filter_low_factor)] = 0
                 del mat_filter_low_factor
 
@@ -354,24 +356,24 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                         inJCoups = np.insert(inJCoups, idx, inJCoups[idx], axis=0)  # nopep8
                 inHydrogen = [1]*len(inSParams)
                 mat_filter_low_factor = np.ones(
-                    (inSParams.size, inSParams.size), dtype=np.int64)
+                    (inSParams.size, inSParams.size), dtype=np.uint8)
                 np.fill_diagonal(mat_filter_low_factor, 0)
-                mat_filter_ab_quartet: npt.NDArray[np.int64] = copy.deepcopy(
+                mat_filter_ab_quartet: npt.NDArray[np.uint8] = copy.deepcopy(
                     mat_filter_low_factor)
             else:
                 # Step 1: Filter out small coupling constants based on threshold
                 # Delete Too Small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
                 # 1: keep and 0: neglect
-                mat_filter_low_factor: npt.NDArray[np.int64] = np.zeros(
-                    (inSParams.size, inSParams.size), dtype=np.int64)
+                mat_filter_low_factor: npt.NDArray[np.uint8] = np.zeros(
+                    (inSParams.size, inSParams.size), dtype=np.uint8)
                 inJCoups = copy.deepcopy(inJCoups_origin)
                 mat_filter_low_factor = (
-                    np.abs(inJCoups) > args.thr).astype(np.int64)
+                    np.abs(inJCoups) > args.thr).astype(np.uint8)
                 inJCoups[np.logical_not(mat_filter_low_factor)] = 0
 
                 # Step 2: Identify potential AB quartet systems
-                mat_filter_ab_quartet: npt.NDArray[np.int64] = np.zeros(
-                    (inSParams.size, inSParams.size), dtype=np.int64)
+                mat_filter_ab_quartet: npt.NDArray[np.uint8] = np.zeros(
+                    (inSParams.size, inSParams.size), dtype=np.uint8)
                 import math
                 for idx0, x in enumerate(inSParams):
                     for idy0, y in enumerate(inSParams):
@@ -410,6 +412,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
                 group: set[int] = set(np.array(x*(idx0+1)).nonzero()[0].tolist())  # return arg # nopep8 #idx0+1 is only for nozero
                 group.add(idx0)
                 idx0_ab_connect.append([idx0, group])
+            if args.verbose:
+                ic(idx0_ab_connect)
 
             # Merge overlapping spin system groups
             idx0_ab_group_sets = []
