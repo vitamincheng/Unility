@@ -257,9 +257,8 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, a
 
     x, y = mpl_plot(Normal_plist, lw=lw, limits=(
         args.start, args.end), lw_points=lw_points)
-    if not args.bobyqa:
-        np.savetxt(args.out, np.vstack((x, y)).T, fmt='%2.5f %12.5e')
-        print(f" the spectra is saved to : {args.out}")
+    np.savetxt(args.out, np.vstack((x, y)).T, fmt='%2.5f %12.5e')
+    print(f" the spectra is saved to : {args.out}")
     return np.vstack((x, y))
 
 

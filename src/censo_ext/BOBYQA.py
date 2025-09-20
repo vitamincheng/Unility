@@ -207,6 +207,7 @@ def Scan_single_Peak(args) -> None:
     print(f"  {in_set=}")
     print(" ==== Start single_peak ====")
     for nSerial in in_set:
+        print("")
         if args.verbose:
             ic(nSerial)
         intp: npt.NDArray[np.int64] = np.argwhere(
@@ -222,8 +223,8 @@ def Scan_single_Peak(args) -> None:
         x0: npt.NDArray[np.float64] = np.array(Data_Chemical_Shift)
         lower: npt.NDArray[np.float64] = x0 - limit_border
         upper: npt.NDArray[np.float64] = x0 + limit_border
-        if args.verbose:
-            ic(x0.tolist())
+
+        print(f"{x0=}")
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
             lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
         print(f"{soln.f=} {soln.x=}")
@@ -265,7 +266,7 @@ def Scan_group_Peaks(args) -> None:
     for Permutation in Permutations:
         x0: npt.NDArray[np.float64] = np.array([x[1] for x in Data])[
             list(Permutation)]
-        print(f"  {x0=}")
+        print(f"\n  {x0=}")
         idx_keys = [x[2] for x in Data]
         if args.verbose:
             ic(idx_keys)
@@ -277,12 +278,14 @@ def Scan_group_Peaks(args) -> None:
         solution_f.append(soln.f)
         solution_x0.append(soln.x)
 
-    print(f"{solution_f=}")
+    print(f"\n{solution_f=}")
     argsmin: int = min(range(len(solution_f)), key=solution_f.__getitem__)
     list_x0: list[float] = solution_x0[argsmin]
-    print(f"{list_x0=}")
 
     # After Permutations, the best choice x0 is calculated again and get output.dat or anmr.dat
+
+    print("\n The best choice x0 is calculation again")
+    print(f"{list_x0=}")
     x0 = np.array(list_x0)
     limit_tiny: float = 0.0001
     lower = x0 - limit_tiny

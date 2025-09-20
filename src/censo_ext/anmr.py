@@ -26,7 +26,7 @@ ________________________________________________________________________________
 | Start    : -start start ppm of plotting spectra [default from data]
 | End      : -end end ppm of plotting spectra [default from data]
 | ref      : reference standard - see .anmrrc file
-| BOBYQA   : -b --bobyqa BOBYQA mode (only use numpy) [default False]
+| BOBYQA   : -b --bobyqa BOBYQA mode [default False]
 | JSON     : -j --json Read the raw data of every single peak [if is -1(All)]
 | ascal    : -ascal chemical shift scaling a if the reference is absent [pending]
 | bscal    : -bcsal chemical shift scaling b if the reference is absent [pending]
@@ -180,7 +180,7 @@ def cml() -> argparse.Namespace:
         "--bobyqa",
         dest="bobyqa",
         action="store_true",
-        help="BOBYQA mode (only use numpy) [default False]",
+        help="BOBYQA mode [default False]",
     )
 
     parser.add_argument(
