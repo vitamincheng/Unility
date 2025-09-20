@@ -9,7 +9,7 @@ memory = Memory(location, compress=True, verbose=0)
 
 
 @memory.cache
-def Pauil_matrix(nspins: int) -> npt.NDArray[np.complex128]:
+def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.complex128]]:
     sigma_x: npt.NDArray[np.complex128] = np.array([[0, 1 / 2], [1 / 2, 0]])
     sigma_y: npt.NDArray[np.complex128] = np.array([[0, -1j / 2], [1j / 2, 0]])
     sigma_z: npt.NDArray[np.complex128] = np.array([[1 / 2, 0], [0, -1 / 2]])
@@ -35,7 +35,12 @@ def Pauil_matrix(nspins: int) -> npt.NDArray[np.complex128]:
         L[0][n] = Lx_current
         L[1][n] = Ly_current
         L[2][n] = Lz_current
-    return L
+
+    L_T: npt.NDArray[np.complex128] = L.transpose(1, 0, 2, 3)
+    Lproduct: npt.NDArray[np.complex128] = np.tensordot(
+        L_T, L, axes=((1, 3), (0, 2))).swapaxes(1, 2).astype(np.complex128)
+
+    return L, Lproduct
 
 
 @memory.cache
@@ -82,10 +87,8 @@ def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArra
         - T: Transition matrix for intensity calculations (float64)
     """
 
-    L: npt.NDArray[np.complex128] = Pauil_matrix(len(v))
-    L_T: npt.NDArray[np.complex128] = L.transpose(1, 0, 2, 3)
-    Lproduct: npt.NDArray[np.complex128] = np.tensordot(
-        L_T, L, axes=((1, 3), (0, 2))).swapaxes(1, 2).astype(np.complex128)
+    L, Lproduct = Pauil_matrix(len(v))
+    T: npt.NDArray[np.uint8] = T_matrix(len(v))
 
     Lz = L[2]  # array of Lz operators
     H: npt.NDArray[np.complex128] = np.tensordot(
@@ -95,7 +98,6 @@ def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArra
     scalars: npt.NDArray[np.float64] = 0.5 * J
     H += np.tensordot(scalars, Lproduct, axes=2)
 
-    T: npt.NDArray[np.uint8] = T_matrix(len(v))
     return H, T
 
 

@@ -135,6 +135,6 @@ def test_anmr_C_average_on_json_on() -> None:
     delete_all_files(Dir_Ergo_C / Path("peaks.json"), Dir_Ergo_C/Path(outFile))
 
 
-# if __name__ == "__main__":
-#    import cProfile
-#    cProfile.run("test_anmr_from_raw_data()", sort="cumtime")
+if __name__ == "__main__":
+    import cProfile
+    cProfile.run("test_anmr_H_from_raw_data()", sort="cumtime")
