@@ -10,6 +10,20 @@ memory = Memory(location, compress=True, verbose=0)
 
 @memory.cache
 def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.complex128]]:
+    """
+    Create Pauli matrices for a given number of spins.
+
+    This function generates the standard Pauli matrices (sigma_x, sigma_y, sigma_z) 
+    scaled by 1/2, which are fundamental operators in quantum mechanics for describing 
+    spin-1/2 particles.
+
+    Args:
+        nspins: Number of spins in the system
+
+    Returns:
+        Tuple containing the three Pauli matrices (sigma_x, sigma_y, sigma_z)
+    """
+
     sigma_x: npt.NDArray[np.complex128] = np.array([[0, 1 / 2], [1 / 2, 0]])
     sigma_y: npt.NDArray[np.complex128] = np.array([[0, -1j / 2], [1j / 2, 0]])
     sigma_z: npt.NDArray[np.complex128] = np.array([[1 / 2, 0], [0, -1 / 2]])
@@ -45,6 +59,20 @@ def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[n
 
 @memory.cache
 def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.uint8]:
+    """
+    Generate interaction matrix F for spin systems.
+
+    This function creates a matrix that represents interactions between spins 
+    in a quantum system, typically used in the context of quantum Hamiltonians.
+
+    Args:
+        nspins: Number of spins in the system
+        idx0_nspins: Index parameter used in bit manipulation for interaction calculation
+
+    Returns:
+        Matrix F representing spin interactions
+    """
+
     n: int = 2 ** nspins
     F: npt.NDArray[np.uint8] = np.zeros((n, n), dtype=np.uint8)
     idx: int = int(2**(nspins-idx0_nspins-1))
@@ -59,6 +87,19 @@ def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.uint8]:
 
 @memory.cache
 def T_matrix(nspins: int) -> npt.NDArray[np.uint8]:
+    """
+    Generate transition matrix T for spin systems.
+
+    This function creates a binary matrix that indicates which states can transition 
+    to each other in a quantum spin system, where transitions occur when only one 
+    spin flips (Hamming distance of 1).
+
+    Args:
+        nspins: Number of spins in the system
+
+    Returns:
+        Matrix T representing possible spin transitions
+    """
 
     n: int = 2 ** nspins
     T: npt.NDArray[np.uint8] = np.zeros((n, n), dtype=np.uint8)
