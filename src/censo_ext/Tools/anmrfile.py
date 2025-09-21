@@ -34,7 +34,7 @@ class Anmrrc():
         Initialize the Anmrrc object by reading and parsing a .anmrrc file.
 
         Args:
-            DirFile (Path): The path to the .anmrrc file to be parsed.
+            DirFile (Path | str): The path to the .anmrrc file to be parsed.
                 This file contains NMR reference data including atomic numbers,
                 calculated shielding values, experimental shifts, and active status.
 
@@ -230,7 +230,8 @@ class Anmr():
         Initialize the Anmr object.
 
         Args:
-            Directory (Path, optional): The directory containing NMR data files. Defaults to Path(".").
+            Directory (Path | str): The directory containing NMR data files. Defaults to Path(".").
+            verbose (bool, optional): Enable verbose output. Defaults to False.
         """
         self.__Dir: Path = Path(Dir)
         self.__verbose: bool = verbose
@@ -307,12 +308,14 @@ class Anmr():
 
     def method_read_anmrrc(self, file: Path | str = Path(".anmrrc")) -> None:
         """Read .anmrrc setting file from censo.
-        Args:
-            fileName (Path, optional): Name of the .anmrrc file. Defaults to Path(".anmrrc").
 
-        Raises:
-            FileNotFoundError: If the specified .anmrrc file does not exist.
-            Exception: If there are issues parsing the .anmrrc file.
+        This method reads and parses a .anmrrc configuration file, storing the
+        parsed parameters in the internal `self.__AnmrParams` attribute as an
+        `Anmrrc` object.
+
+        Args:
+            file (Path | str): Name of the .anmrrc file. Defaults to Path(".anmrrc").
+                The file path is relative to the directory specified by `self.__Dir`.
 
         Example:
             >>> reader = AnmrFile()
@@ -322,6 +325,7 @@ class Anmr():
         Note:
             The method sets the internal parameter `self.__AnmrParams` to an
             `Anmrrc` object created from the parsed file.
+            Raises FileNotFoundError if the specified file does not exist.
         """
         file = Path(file)
         DirFile: Path = self.__Dir / file
@@ -1190,6 +1194,13 @@ class OrcaSJ():
         Initialize the OrcaSJ object.
 
         This class holds data from ORCA's chemical shielding and coupling constant outputs.
+
+        Attributes:
+            JCoups (npt.NDArray[np.float64]): Coupling constants data.
+            SParams (dict[int, float]): Shielding parameters.
+            Anisotropy (dict[int, float]): Anisotropy values.
+            CONFSerialNums (int): Configuration serial numbers.
+            idx1Atoms (dict[int, str]): Mapping of atom indices to atom names.
         """
         self.JCoups: npt.NDArray[np.float64]
         self.SParams: dict[int, float] = {}

@@ -142,6 +142,21 @@ def cml() -> argparse.Namespace:
 
 
 def cal_RMSD_coord(args, xyzFile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDArray[np.float64]:
+    """Calculate RMSD coordinates for specified atoms across conformations.
+
+    This function computes the squared distance matrix for a given set of atoms
+    across multiple molecular conformations, which is used for factor analysis.
+
+    Args:
+        args: Command-line arguments containing filtering options.
+            Expected attributes include remove_idx, add_idx, bond_broken, and ignore_Hydrogen.
+        xyzFile: GeometryXYZs object containing the molecular geometries.
+        idx1_cal: List of atom indices (1-based) to calculate RMSD for.
+
+    Returns:
+        npt.NDArray[np.float64]: Array of squared distances between atoms across conformations.
+    """
+
     # start from 0 to num-1
     idx0_cal: list[int] = [x-1 for x in idx1_cal]
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz

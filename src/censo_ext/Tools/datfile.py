@@ -23,7 +23,7 @@ class CensoDat():
         Initialize the CensoDat object.
 
         Args:
-            file (Path): Path to the dat file. Defaults to Path("anmr.dat").
+            file (Path | str): Path to the dat file. Defaults to Path("anmr.dat").
 
         Raises:
             FileNotFoundError: If the specified file does not exist.

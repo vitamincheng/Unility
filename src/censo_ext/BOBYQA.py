@@ -112,6 +112,21 @@ Ref_TMS: float = 31.820
 
 
 def rosenbrock(x0) -> float:
+    """Objective function for BOBYQA optimization of NMR chemical shifts.
+
+    This function updates the chemical shift parameters in ORCA input files,
+    runs NMR calculation (either externally via anmr.sh or internally via anmr.py),
+    and returns the sum of squared differences between calculated and reference
+    NMR spectra.
+
+    Args:
+        x0: Array of parameter values to optimize. For single peak optimization,
+            this contains one value. For group peak optimization, it contains
+            multiple values corresponding to different peaks.
+
+    Returns:
+        float: Sum of squared differences between calculated and reference NMR spectra.
+    """
     #
     # Average/NMR/orcaS-BOBYQA.out for setting
     # Average/NMR/orcaS.out        for anmr.py   (internal)
@@ -199,6 +214,19 @@ def rosenbrock(x0) -> float:
 
 
 def Scan_single_Peak(args) -> None:
+    """Perform BOBYQA optimization for individual NMR peaks.
+
+    This function iterates through all unique peak serial numbers in the ORCA
+    input file, optimizes each peak individually using the BOBYQA algorithm,
+    and prints optimization progress and results.
+
+    Args:
+        args: Command-line arguments containing optimization settings.
+            Expected attributes include verbose for detailed output.
+
+    Returns:
+        None: This function performs optimization but doesn't return a value.
+    """
     import pybobyqa
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileBOBYQA)
@@ -232,6 +260,21 @@ def Scan_single_Peak(args) -> None:
 
 
 def Scan_group_Peaks(args) -> None:
+    """Perform BOBYQA optimization for groups of coupled NMR peaks.
+
+    This function identifies peak groups (serial numbers >= 1000) in the ORCA
+    input file, performs permutation-based optimization of all possible peak
+    ordering combinations, and selects the best configuration based on minimum
+    objective function value. It then performs a final refinement with tight
+    bounds around the best solution.
+
+    Args:
+        args: Command-line arguments containing optimization settings.
+            Expected attributes include verbose for detailed output.
+
+    Returns:
+        None: This function performs optimization but doesn't return a value.
+    """
     import pybobyqa
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileBOBYQA)
@@ -297,6 +340,21 @@ def Scan_group_Peaks(args) -> None:
 
 
 def Create_BOBYQA(args) -> None:
+    """Create initial BOBYQA input file from ORCA output.
+
+    This function reads the original ORCA chemical shift file and creates a
+    modified version with an additional column for BOBYQA optimization control.
+    The third column determines how each peak will be optimized:
+    - Values 0-99: Individual peak optimization
+    - Values >= 1000: Group peak optimization (all peaks with same number optimized together)
+
+    Args:
+        args: Command-line arguments (not used in this function).
+
+    Returns:
+        None: This function creates a file and exits the program.
+    """
+
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileOrcaS)
     OrcaS_Table = np.insert(OrcaS_Table, 2, 0, axis=1)

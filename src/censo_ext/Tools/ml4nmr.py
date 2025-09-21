@@ -49,7 +49,7 @@ def read_mol_neighbors(DirFileName: Path | str) -> tuple[Atoms | list[Atoms], di
     """Read molecule from .xyz file and return atoms object with neighbor list.
 
     Args:
-        DirFileName: Path to the .xyz file containing molecular coordinates
+        DirFileName (Path | str): Path to the .xyz file containing molecular coordinates
 
     Returns:
         Tuple of (mol, neighbors) where:
@@ -65,10 +65,16 @@ def read_mol_neighbors(DirFileName: Path | str) -> tuple[Atoms | list[Atoms], di
         - Neighbor list is built using ASE's neighborlist module
         - Atom indices in returned dictionaries start from 1 (not 0)
         - H atoms must have exactly one neighbor; otherwise raises ValueError
+        - The function checks for valid file existence before processing
 
     Example:
         >>> mol, neighbors = read_mol_neighbors("molecule.xyz")
         >>> print(neighbors[1])  # Get neighbors of atom 1
+
+    Warning:
+    This function will raise a ValueError if any hydrogen atom in the molecule
+    does not have exactly one neighbor, as this would indicate an invalid molecular
+    structure for the intended use case.
     """
 
     # read the .xyz coordinates from the molecular structures
@@ -107,7 +113,7 @@ def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conforme
     orders for carbon atoms based on the number of hydrogen neighbors.
 
     Args:
-        DirfileName: Path to the .xyz file containing molecular coordinates.
+        DirfileName (Path | str):  Path to the .xyz file containing molecular coordinates.
             Defaults to "crest_conformers.xyz".
 
     Returns:
@@ -115,6 +121,15 @@ def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conforme
         - mol: ASE Atoms object representing the molecule
         - idx_neighbors: Dictionary mapping atom indices to arrays of neighboring atom indices
         - idx1_BondOrder: Dictionary mapping carbon atom indices to their bond orders
+
+    Example:
+        >>> mol, neighbors, bond_orders = read_mol_neighbors_bond_order("molecule.xyz")
+        >>> print(bond_orders[6])  # Get bond order of carbon atom 6
+
+    Note:
+         This function only calculates bond orders for carbon atoms based on 
+         the number of hydrogen neighbors. Other atom types are not considered
+         in the bond order calculation.
     """
 
     # read the .xyz coordinates from the molecular structures

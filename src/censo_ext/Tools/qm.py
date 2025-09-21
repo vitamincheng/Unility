@@ -260,7 +260,8 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     return normalize_peaklist(peaklist, nIntergals)
 
 
-def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int, args: argparse.Namespace, Active_range: int) -> npt.NDArray:
+def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int,
+               args: argparse.Namespace, Active_range: int) -> npt.NDArray[np.float64]:
     """
     Generate and save a plot of the NMR spectrum.
 
