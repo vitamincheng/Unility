@@ -228,6 +228,23 @@ def cml() -> argparse.Namespace:
 
 
 def setup_anmr(args: argparse.Namespace) -> Anmr:
+    """Set up and return an Anmr object by reading required files.
+
+    This function creates an Anmr object and reads the necessary configuration
+    files including the .anmrrc file and nucleotide information file.
+
+    Args:
+        args (argparse.Namespace): Command line arguments containing:
+            - dir (str): Directory path for the Anmr object
+            - verbose (bool): Verbose output flag
+
+    Returns:
+        Anmr: Configured Anmr object with loaded files
+
+    Example:
+        >>> args = parser.parse_args()
+        >>> anmr_obj = setup_anmr(args)
+    """
     # Create an Anmr object and read required files
     # Import necessary modules for processing
     from censo_ext.Tools.anmrfile import Anmr
@@ -238,6 +255,23 @@ def setup_anmr(args: argparse.Namespace) -> Anmr:
 
 
 def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
+    """Process average ORCA SJ data based on existing files or generate new ones.
+
+    This function checks if average ORCA SJ data exists and loads it if requested.
+    If not, it processes all ORCA files to generate the average data.
+
+    Args:
+        inAnmr (Anmr): Anmr object containing the data to process
+        args (argparse.Namespace): Command line arguments containing:
+            - average (bool): Flag to indicate if averaging should be done
+            - bobyqa (bool): Flag to indicate if bobyqa method should be used
+
+    Raises:
+        FileNotFoundError: If there's an issue with loading existing average ORCA SJ data
+
+    Example:
+        >>> process_average_data(anmr_obj, args)
+    """
     if inAnmr.get_avg_orcaSJ_Exist() and args.average:
         if not inAnmr.method_load_avg_orcaSJ(bobyqa_bool=args.bobyqa):
             raise FileNotFoundError(
@@ -251,22 +285,47 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
         inAnmr.method_save_avg_orcaSJ()
 
 
-def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64],
-                                                                            list[int], int | None, int | None, argparse.Namespace]:
+def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
+    -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[int],
+             int | None, int | None, argparse.Namespace]:
+    """Preprocess spin system data for NMR analysis based on active nuclear element.
 
-    inSParams: npt.NDArray[np.float64]
-    inJCoups: npt.NDArray[np.float64]
-    inHydrogen: list[int]
-    Active_range: int | None
-    dpi: int | None
+    This function extracts spin parameters and coupling constants from the Anmr object
+    and processes them according to the active nuclear element (C or H). It handles
+    different processing workflows for carbon and hydrogen nuclei, including:
+    - Reading molecular structure for carbon
+    - Identifying equivalent hydrogens for hydrogen
+    - Setting appropriate ranges and DPI values
+    - Validating data consistency
 
-    # Extract spin parameters and coupling constants
+    Args:
+        inAnmr (Anmr): Anmr object containing the NMR data to process
+        args (argparse.Namespace): Command line arguments containing:
+            - mf (float): Multiplication factor for spin parameters
+            - lw (float): Line width parameter
+            - thr (float): Threshold parameter
+
+    Returns:
+        tuple: A tuple containing:
+            - inSParams (npt.NDArray[np.float64]): Spin parameters array
+            - inJCoups (npt.NDArray[np.float64]): Coupling constants array
+            - inHydrogen (list[int]): List of hydrogen atom indices
+            - Active_range (int | None): Active range for the spectrum
+            - dpi (int | None): Dots per inch for plotting
+            - args (argparse.Namespace): Updated arguments
+
+    Raises:
+        ValueError: If there are inconsistencies in the ORCA data files
+        SystemExit: If unsupported active nuclear elements are encountered
+
+    Example:
+        >>> s_params, j_coups, hydrogen, range_val, dpi_val, updated_args = preprocess_spin_system(anmr_obj, args)
+    """
+
+    # Extract spin parameters and coupling constants from the Anmr object
     inSParams: npt.NDArray[np.float64] = np.array(
         list(inAnmr.avg_orcaSJ.SParams.values()))*args.mf
-
-    # Get coupling constants and atom information
     inJCoups: npt.NDArray[np.float64] = np.array(inAnmr.avg_orcaSJ.JCoups)
-    # in_idx1Atoms: dict[int, str] = inAnmr.avg_orcaSJ.idx1Atoms
 
     # Initialize variables for processing based on active nuclear element
     dpi: int | None = None
@@ -279,46 +338,24 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) -> tuple[npt.
         if idx1 == 1:  # only one Active nuclear element
             inAnmr.method_filter_active_orcaSJ(Active)
             if Active == 'C':
-                # Carbon processing - read molecular structure
-                from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
-                *_, bond_order = read_mol_neighbors_bond_order(
-                    inAnmr.get_Dir() / inFile)
+                # Carbon processing - read molecular structure using ML4NMR tool
+                inHydrogen, Active_range, dpi = _process_carbon_spin_system(
+                    inAnmr, args, inFile)
 
-                # For C/CH/CH2/CH3 from 0 1 2 3 to 1 2 3 4 for Carbon spectra
-                inHydrogen = [value+1 for value in bond_order.values()]
-                Active_range = 200
-                dpi = 500
-                if not args.lw:
-                    args.lw = 20
-                if not args.thr:
-                    args.thr = args.lw * 0.3
+                # Set all coupling constants to zero for carbon processing
                 inJCoups = np.zeros_like(inJCoups)
 
+                # validate that the atom types match between ORCA files
                 if set(inAnmr.avg_orcaSJ.idx1Atoms.values()) != set(Active):
                     raise ValueError(
                         "  Yours Average orcaS.out and orcaJ.out have something errors !!!")
 
             elif Active == 'H':
-                # Hydrogen processing - identify equivalent hydrogens
-                idx1_nMagEqvHydrogens: dict[int, int] = {}
-                for key in inAnmr.avg_orcaSJ.idx1Atoms.keys():
-                    idx1_nMagEqvHydrogens[key] = inAnmr.nMagnetEqvs[key]
-                for y in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
-                        inAnmr.get_Dir()/inFile):
-                    if y in idx1_nMagEqvHydrogens.keys():
-                        del idx1_nMagEqvHydrogens[y]
-                        # del in_idx1Atoms[y]
+                # Hydrogen processing - identify equivalent hydrogens from magnetization data
+                inHydrogen, Active_range, dpi = _process_hydrogen_spin_system(
+                    inAnmr, args, inFile)
 
-                inHydrogen = [
-                    value for value in idx1_nMagEqvHydrogens.values()]
-
-                Active_range = 10
-                dpi = 10000
-                if not args.lw:
-                    args.lw = 1
-                if not args.thr:
-                    args.thr = args.lw * 0.3
-
+                # Validate that the atom types match between ORCA files
                 if set(inAnmr.avg_orcaSJ.idx1Atoms.values()) != set(Active):
                     raise ValueError(
                         "  Your orcaS.out have Something error !!!")
@@ -335,149 +372,243 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) -> tuple[npt.
     return inSParams, inJCoups, inHydrogen, Active_range, dpi, args
 
 
-def process_qm_spins_system(inParameter, idx0_ab_group_sets: list[set[int]], mat_filter_multi: npt.NDArray[np.uint8],
-                            inAnmr: Anmr, args: argparse.Namespace) -> list[tuple[float, float]]:
-    # Low level QM model
-    # see https://nmrsim.readthedocs.io/en/latest/index.html
-    #
-    import censo_ext.Tools.qm as qm
-    inSParams, inJCoups, inHydrogen = inParameter
-    idx0_peaks_range: list[int] = []
-    accPeaks: list[list[tuple[float, float]]] = []
-    if not args.json and inAnmr.get_Anmr_Active()[0] == 'H':
-        print("")
-        print(" ===== Processing =====")
-        print(" the group of calculate spectra :", len(idx0_ab_group_sets))
-        print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
+def _process_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFile: Path) -> tuple[list[int], int, int]:
+    """Process carbon spin system data.
 
-        if len(inSParams*inHydrogen) <= args.mss:
-            idx0_ab_group = list(idx0_ab_group_sets[0])
+    Args:
+        inAnmr (Anmr): Anmr object containing the NMR data
+        args (argparse.Namespace): Command line arguments
+        inFile (Path): Input file path for molecular structure
+
+    Returns:
+        tuple[list[int], int, int]: Hydrogen counts, Active range, and DPI values
+    """
+    from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
+    *_, bond_order = read_mol_neighbors_bond_order(
+        inAnmr.get_Dir() / inFile)
+
+    # For C/CH/CH2/CH3 from 0 1 2 3 to 1 2 3 4 for Carbon spectra
+    # Convert bond order values to hydrogen counts (add 1 to each value)
+    inHydrogen = [value+1 for value in bond_order.values()]
+    Active_range = 200
+    dpi = 500
+    if not args.lw:
+        args.lw = 20
+    if not args.thr:
+        args.thr = args.lw * 0.3
+
+    return inHydrogen, Active_range, dpi
+
+
+def _process_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFile: Path) -> tuple[list[int], int, int]:
+    """Process hydrogen spin system data.
+
+    Args:
+        inAnmr (Anmr): Anmr object containing the NMR data
+        args (argparse.Namespace): Command line arguments
+        inFile (Path): Input file path for molecular structure
+
+    Returns:
+        tuple[list[int], int, int]: Hydrogen counts, Active range, and DPI values
+    """
+    idx1_nMagEqvHydrogens: dict[int, int] = {}
+    for key in inAnmr.avg_orcaSJ.idx1Atoms.keys():
+        idx1_nMagEqvHydrogens[key] = inAnmr.nMagnetEqvs[key]
+
+    # Remove hydrogen atoms that are part of acid groups
+    for y in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
+            inAnmr.get_Dir()/inFile):
+        if y in idx1_nMagEqvHydrogens.keys():
+            del idx1_nMagEqvHydrogens[y]
+
+    # Extract hydrogen counts for each equivalent group
+    inHydrogen = [
+        value for value in idx1_nMagEqvHydrogens.values()]
+
+    Active_range = 10
+    dpi = 10000
+    if not args.lw:
+        args.lw = 1
+    if not args.thr:
+        args.thr = args.lw * 0.3
+
+    return inHydrogen, Active_range, dpi
+
+
+def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter_multi, inAnmr, args) -> tuple[list[int], list[list[tuple[float, float]]]]:
+    """Process QM hydrogen spin system data.
+
+    Args:
+        inParameter: Input parameters for the calculation
+        idx0_ab_group_sets: Sets of AB group indices
+        mat_filter_multi: Multiplier matrix filter
+        inAnmr: Anmr object containing the NMR data
+        args: Command line arguments
+
+    Returns:
+        tuple[list[int], list[list[tuple[float, float]]]]: Index range and peak lists
+    """
+
+    from censo_ext.Tools.qm import qm_base, qm_full, qm_multiplet
+    accPeaks: list[list[tuple[float, float]]] = []
+    inSParams, inJCoups, inHydrogen = inParameter
+    print("")
+    print(" ===== Processing =====")
+    print(" the group of calculate spectra :", len(idx0_ab_group_sets))
+    print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
+
+    if len(inSParams*inHydrogen) <= args.mss:
+        idx0_ab_group = list(idx0_ab_group_sets[0])
+        v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
+        J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
+
+        for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
+            mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
+                int).tolist()
+            idx0_ab_group: list[int] = list(idx0_ab_group_set)
+            idx1_ab_group: set[int] = set(a+1 for a in idx0_ab_group_set)
+            mat_multi_x_idx0: list[int] = [
+                idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
+            print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
+                a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
+
+        QM_Base: list[tuple[float, float]] = qm_full(v=list(
+            v), J=J, nIntergals=len(inHydrogen), args=args)
+        from nmrsim.math import normalize_peaklist
+        QM_Multiplet = normalize_peaklist(QM_Base, len(inHydrogen))
+        accPeaks.append(QM_Multiplet)
+
+    else:
+        for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
+
+            mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
+                int).tolist()
+            idx0_ab_group: list[int] = list(idx0_ab_group_set)
+            idx1_ab_group: set[int] = set(a+1 for a in idx0_ab_group_set)
+            mat_multi_x_idx0: list[int] = [
+                idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
+            print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
+                a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
+
             v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
             J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
 
-            for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
-                mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
-                    int).tolist()
-                idx0_ab_group: list[int] = list(idx0_ab_group_set)
-                idx1_ab_group: set[int] = set(a+1 for a in idx0_ab_group_set)
-                mat_multi_x_idx0: list[int] = [
-                    idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
-                print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
-                    a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
+            QM_Base: list[tuple[float, float]] = qm_base(v=list(
+                v), J=J, nIntergals=inHydrogen[idx0_ab_group.index(idx0)], idx0_nspins=idx0_ab_group.index(idx0), args=args)
 
-            QM_Base: list[tuple[float, float]] = qm.qm_full(v=list(
-                v), J=J, nIntergals=len(inHydrogen), args=args)
-            from nmrsim.math import normalize_peaklist
-            QM_Multiplet = normalize_peaklist(QM_Base, len(inHydrogen))
-            accPeaks.append(QM_Multiplet)
+            QM_Multiplet: list[tuple[float, float]] = []
+            for z in QM_Base:
+                multiplicity: list[int] = list(
+                    set(mat_multi_x_idx0).difference(idx0_ab_group_set))
+                inJ: list[tuple[float, int]] = []
+                for a in multiplicity:
+                    if np.fabs(inSParams[idx0]-inSParams[a]) > 0.1:
+                        inJ.append((inJCoups[idx0][a], inHydrogen[a]))
 
-        else:
-            for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
-
-                mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
-                    int).tolist()
-                idx0_ab_group: list[int] = list(idx0_ab_group_set)
-                idx1_ab_group: set[int] = set(a+1 for a in idx0_ab_group_set)
-                mat_multi_x_idx0: list[int] = [
-                    idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
-                print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
-                    a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
-
-                v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
-                J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
-
-                QM_Base: list[tuple[float, float]] = qm.qm_base(v=list(
-                    v), J=J, nIntergals=inHydrogen[idx0_ab_group.index(idx0)], idx0_nspins=idx0_ab_group.index(idx0), args=args)
-
-                QM_Multiplet: list[tuple[float, float]] = []
-                for z in QM_Base:
-                    multiplicity: list[int] = list(
-                        set(mat_multi_x_idx0).difference(idx0_ab_group_set))
-                    inJ: list[tuple[float, int]] = []
-                    for a in multiplicity:
-                        if np.fabs(inSParams[idx0]-inSParams[a]) > 0.1:
-                            inJ.append((inJCoups[idx0][a], inHydrogen[a]))
-
-                    if len(inJ) >= 1:
-                        tmp: npt.NDArray[np.float64] = np.array(
-                            qm.qm_multiplet(z[0], nIntergals=1, J=inJ))
-                        tmp.T[1] *= z[1]
-                        QM_Multiplet += tmp.tolist()
-                    elif len(inJ) == 0:
-                        QM_Multiplet = QM_Base
-                    else:
-                        raise ValueError(
-                            "  inJ,  Exit and Close the program !!!")
-                from nmrsim.math import normalize_peaklist
-                QM_Multiplet = normalize_peaklist(
-                    QM_Multiplet, inHydrogen[idx0])
-
-                if len(accPeaks) == 0 and len(QM_Multiplet) == 0:
-                    pass
+                if len(inJ) >= 1:
+                    tmp: npt.NDArray[np.float64] = np.array(
+                        qm_multiplet(z[0], nIntergals=1, J=inJ))
+                    tmp.T[1] *= z[1]
+                    QM_Multiplet += tmp.tolist()
+                elif len(inJ) == 0:
+                    QM_Multiplet = QM_Base
                 else:
-                    accPeaks.append(QM_Multiplet)
+                    raise ValueError(
+                        "  inJ,  Exit and Close the program !!!")
+            from nmrsim.math import normalize_peaklist
+            QM_Multiplet = normalize_peaklist(
+                QM_Multiplet, inHydrogen[idx0])
 
-        import json
-        with open(inAnmr.get_Dir()/Path("peaks.json"), "w") as jsonFile:
-            json.dump(accPeaks, jsonFile)
+            if len(accPeaks) == 0 and len(QM_Multiplet) == 0:
+                pass
+            else:
+                accPeaks.append(QM_Multiplet)
 
+    import json
+    with open(inAnmr.get_Dir()/Path("peaks.json"), "w") as jsonFile:
+        json.dump(accPeaks, jsonFile)
+
+    idx0_peaks_range = [*range(len(accPeaks))]
+    return idx0_peaks_range, accPeaks
+
+
+def _process_qm_carbon_spin_system(inParameter, inAnmr) -> list[list[tuple[float, float]]]:
+    """Process QM carbon spin system data.
+
+    Args:
+        inParameter: Input parameters for the calculation
+        inAnmr: Anmr object containing the NMR data
+
+    Returns:
+        list[list[tuple[float, float]]]: List of peak lists
+    """
+
+    inSParams, _, inHydrogen = inParameter
+    accPeaks: list[list[tuple[float, float]]] = []
+    for idx0, ppm in enumerate(inSParams):
+        dat: list = []
+        dat.append((float(ppm*(-1)), float(inHydrogen[idx0])))
+        accPeaks.append(dat)
+
+    import json
+    with open(inAnmr.get_Dir()/Path("peaks.json"), "w") as jsonFile:
+        json.dump(accPeaks, jsonFile)
+    return accPeaks
+
+
+def _process_qm_json_spin_system(inAnmr, args) -> tuple[list[int], list[list[tuple[float, float]]]]:
+    """Process QM JSON spin system data from ANMR.
+
+    This function reads peak data from a JSON file and returns the appropriate
+    range of peaks based on the provided arguments.
+
+    Args:
+        inAnmr: ANMR object containing directory information
+        args: Arguments object containing json parameter
+
+    Returns:
+        tuple[list[int], list[list[tuple[float, float]]]]: A tuple containing
+        the peak indices range and the actual peak data
+    """
+
+    accPeaks: list[list[tuple[float, float]]] = []
+    import json
+    with open(inAnmr.get_Dir()/Path("peaks.json"), "r") as jsonFile:
+        accPeaks = json.load(jsonFile)
+
+    if args.json[0] == -1:
         idx0_peaks_range = [*range(len(accPeaks))]
-
-    elif not args.json and inAnmr.get_Anmr_Active()[0] == 'C':
-        for idx0, ppm in enumerate(inSParams):
-            dat: list = []
-            dat.append((float(ppm*(-1)), float(inHydrogen[idx0])))
-            accPeaks.append(dat)
-
-        import json
-        with open(inAnmr.get_Dir()/Path("peaks.json"), "w") as jsonFile:
-            json.dump(accPeaks, jsonFile)
     else:
-        import json
-        with open(inAnmr.get_Dir()/Path("peaks.json"), "r") as jsonFile:
-            accPeaks = json.load(jsonFile)
-
-        if args.json[0] == -1:
-            idx0_peaks_range = [*range(len(accPeaks))]
-        else:
-            idx0_peaks_range = args.json
-
-    finalPeaks: list[tuple[float, float]] = []
-
-    if inAnmr.get_Anmr_Active()[0] == 'H':
-        for idx0, peak in enumerate(accPeaks):
-            if idx0 in idx0_peaks_range:
-                finalPeaks += peak
-    elif inAnmr.get_Anmr_Active()[0] == 'C':
-        for peak in accPeaks:
-            finalPeaks += peak
-    else:
-        raise ValueError("  Something Wrong in your get_anmr_Active()")
-
-    return finalPeaks
+        idx0_peaks_range = args.json
+    return idx0_peaks_range, accPeaks
 
 
-def generate_final_spectrum(finalPeaks: list[tuple[float, float]], inAnmr: Anmr, dpi: int | None,
-                            Active_range: int | None, args: argparse.Namespace) -> npt.NDArray[np.float64]:
-
-    print("")
-    print(" ===== Processing to plotting spectra =====")
-    print(" Wait a minutes ...")
-    args.out = str(inAnmr.get_Dir()/Path(args.out))
-
-    if dpi and Active_range:
-        print(" All done ...")
-        from censo_ext.Tools import qm
-        return qm.print_plot(in_plist=finalPeaks, dpi=dpi, nIntergals=1, args=args, Active_range=Active_range)
-    else:
-        print("  dpi and Active_range is wrong")
-        print("  Exit and Close the program !!!")
-        exit(0)
-
-
-# def process_AB_quartet(inSParams: npt.NDArray[np.float64], inJCoups: npt.NDArray[np.float64], inHydrogen: list[int],
 def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], inAnmr: Anmr, args: argparse.Namespace) \
         -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[int], list[set[int]], npt.NDArray[np.uint8]]:
+    """Process AB quartet spin systems for NMR spectrum simulation.
+
+    This function identifies and categorizes spin systems into AB quartets and multiplets
+    based on chemical shift differences and coupling constants. It handles the complex
+    logic of merging overlapping spin systems and adjusting thresholds automatically.
+
+    Args:
+        inParameter (list[npt.NDArray[np.float64] | list[int]]): Input parameters including
+            chemical shifts, coupling constants, and hydrogen counts
+        inAnmr (Anmr): ANMR object containing directory and magnetization information
+        args (argparse.Namespace): Command line arguments with processing parameters
+
+    Returns:
+        tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[int], list[set[int]], npt.NDArray[np.uint8]]:
+        - Chemical shifts array
+        - Coupling constants matrix  
+        - Hydrogen counts list
+        - Spin system group sets
+        - Multiplet filter matrix
+
+    Example:
+        >>> params = [shifts, couplings, hydrogens]
+        >>> result = process_AB_quartet(params, anmr_obj, args)
+    """
 
     # Initialize variables for AB quartet detection and processing
     idx0_ab_group_sets: list[set[int]] = []
@@ -682,6 +813,44 @@ def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], i
     return inSParams, inJCoups, inHydrogen, idx0_ab_group_sets, mat_filter_multi
 
 
+def generate_final_spectrum(finalPeaks: list[tuple[float, float]], inAnmr: Anmr, dpi: int | None,
+                            Active_range: int | None, args: argparse.Namespace) -> npt.NDArray[np.float64]:
+    """Generate and plot the final spectrum from peaks data.
+
+    This function processes peak data to create a spectrum plot. It handles
+    the plotting configuration based on provided parameters and returns the
+    resulting spectrum array.
+
+    Args:
+        finalPeaks (list[tuple[float, float]]): List of peak data as (frequency, intensity) tuples
+        inAnmr (Anmr): ANMR object containing directory information
+        dpi (int | None): DPI setting for the plot output
+        Active_range (int | None): Active range parameter for plotting
+        args (argparse.Namespace): Command line arguments namespace
+
+    Returns:
+        npt.NDArray[np.float64]: Array containing the final spectrum data
+
+    Example:
+        >>> peaks = [(100.0, 0.5), (200.0, 0.8)]
+        >>> result = generate_final_spectrum(peaks, anmr_obj, 300, 10, args)
+    """
+
+    print("")
+    print(" ===== Processing to plotting spectra =====")
+    print(" Wait a minutes ...")
+    args.out = str(inAnmr.get_Dir()/Path(args.out))
+
+    if dpi and Active_range:
+        print(" All done ...")
+        from censo_ext.Tools import qm
+        return qm.print_plot(in_plist=finalPeaks, dpi=dpi, nIntergals=1, args=args, Active_range=Active_range)
+    else:
+        print("  dpi and Active_range is wrong")
+        print("  Exit and Close the program !!!")
+        exit(0)
+
+
 def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.float64]:
 
     if args == argparse.Namespace():
@@ -702,8 +871,28 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     *inParameter, idx0_ab_group_sets, mat_filter_multi = process_AB_quartet(
         inParameter, inAnmr=inAnmr, args=args)
 
-    finalPeaks: list[tuple[float, float]] = process_qm_spins_system(inParameter, idx0_ab_group_sets=idx0_ab_group_sets,
-                                                                    mat_filter_multi=mat_filter_multi, inAnmr=inAnmr, args=args)
+    idx0_peaks_range: list[int] = []
+    accPeaks: list[list[tuple[float, float]]]
+    if not args.json and inAnmr.get_Anmr_Active()[0] == 'H':
+        idx0_peaks_range, accPeaks = _process_qm_hydrogen_spin_system(
+            inParameter, idx0_ab_group_sets, mat_filter_multi, inAnmr, args)
+    elif not args.json and inAnmr.get_Anmr_Active()[0] == 'C':
+        accPeaks = _process_qm_carbon_spin_system(inParameter, inAnmr)
+    elif args.json:
+        idx0_peaks_range, accPeaks = _process_qm_json_spin_system(inAnmr, args)
+    else:
+        raise ValueError("  Something Wrong in your get_anmr_Active()")
+
+    finalPeaks: list[tuple[float, float]] = []
+    if inAnmr.get_Anmr_Active()[0] == 'H':
+        for idx0, peak in enumerate(accPeaks):
+            if idx0 in idx0_peaks_range:
+                finalPeaks += peak
+    elif inAnmr.get_Anmr_Active()[0] == 'C':
+        for peak in accPeaks:
+            finalPeaks += peak
+    else:
+        raise ValueError("  Something Wrong in your get_anmr_Active()")
 
     return generate_final_spectrum(finalPeaks=finalPeaks, inAnmr=inAnmr, dpi=dpi,
                                    Active_range=Active_range, args=args)
