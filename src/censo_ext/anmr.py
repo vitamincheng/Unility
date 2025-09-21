@@ -280,6 +280,13 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
         # Process all ORCA files and generate average data
         inAnmr.method_read_enso()
         inAnmr.method_read_folder_orcaSJ()
+        for idx1, Active in enumerate(inAnmr.get_Anmr_Active(), 1):
+            if idx1 == 1:  # only one Active nuclear element
+                inAnmr.method_filter_active_orcaSJ(Active)
+            elif idx1 > 1:
+                print("  Only for ONE Active Nuclear element, waiting to build")
+                print("  Exit and Close the program !!!")
+                exit(0)
         inAnmr.method_update_equiv_orcaSJ()
         inAnmr.method_avg_orcaSJ()
         inAnmr.method_save_avg_orcaSJ()
@@ -322,6 +329,9 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
         >>> s_params, j_coups, hydrogen, range_val, dpi_val, updated_args = preprocess_spin_system(anmr_obj, args)
     """
 
+    inAnmr.avg_orcaSJ.method_print_orcaS()
+    inAnmr.avg_orcaSJ.method_print_orcaJ()
+
     # Extract spin parameters and coupling constants from the Anmr object
     inSParams: npt.NDArray[np.float64] = np.array(
         list(inAnmr.avg_orcaSJ.SParams.values()))*args.mf
@@ -336,10 +346,9 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
     # Process different nuclear element (C or H)
     for idx1, Active in enumerate(inAnmr.get_Anmr_Active(), 1):
         if idx1 == 1:  # only one Active nuclear element
-            inAnmr.method_filter_active_orcaSJ(Active)
             if Active == 'C':
                 # Carbon processing - read molecular structure using ML4NMR tool
-                inHydrogen, Active_range, dpi = _process_carbon_spin_system(
+                inHydrogen, Active_range, dpi = _preprocess_carbon_spin_system(
                     inAnmr, args, inFile)
 
                 # Set all coupling constants to zero for carbon processing
@@ -352,7 +361,7 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
 
             elif Active == 'H':
                 # Hydrogen processing - identify equivalent hydrogens from magnetization data
-                inHydrogen, Active_range, dpi = _process_hydrogen_spin_system(
+                inHydrogen, Active_range, dpi = _preprocess_hydrogen_spin_system(
                     inAnmr, args, inFile)
 
                 # Validate that the atom types match between ORCA files
@@ -372,7 +381,7 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
     return inSParams, inJCoups, inHydrogen, Active_range, dpi, args
 
 
-def _process_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFile: Path) -> tuple[list[int], int, int]:
+def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFile: Path) -> tuple[list[int], int, int]:
     """Process carbon spin system data.
 
     Args:
@@ -400,7 +409,7 @@ def _process_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFile: 
     return inHydrogen, Active_range, dpi
 
 
-def _process_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFile: Path) -> tuple[list[int], int, int]:
+def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFile: Path) -> tuple[list[int], int, int]:
     """Process hydrogen spin system data.
 
     Args:

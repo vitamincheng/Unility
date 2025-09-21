@@ -81,13 +81,16 @@ class Anmrrc():
         match: re.Match[str] | None = re.search(
             "(.*) XH acid atoms", lines[0])
 
-        for x in match.group(1).split():  # type: ignore
-            from censo_ext.Tools.utility import function_is_int
-            if function_is_int(x):
-                self.acid_atoms_NoShow.append(int(x))
-            else:
-                raise ValueError(
-                    " Your .anmrrc file about 'XH acid atoms' haves omething wrong !!!")
+        if match is None:
+            pass
+        else:
+            for x in match.group(1).split():  # type: ignore
+                from censo_ext.Tools.utility import function_is_int
+                if function_is_int(x):
+                    self.acid_atoms_NoShow.append(int(x))
+                else:
+                    raise ValueError(
+                        " Your .anmrrc file about 'XH acid atoms' haves omething wrong !!!")
 
         match = re.search(
             "mf= (.*) lw= (.*) J= (.*) S= (.*) T= (.*)", lines[1])
@@ -427,22 +430,23 @@ class Anmr():
         print(" ===== Finished the Average of all folder orcaS.out and orcaJ.out =====")
 
     def method_filter_active_orcaSJ(self, Active: str) -> None:
+
         del_idx1_Atoms: list[int] = [
-            key for key, value in self.avg_orcaSJ.idx1Atoms.items() if value != Active]
-        arg_del_idx1_Atoms: list[int] = [arg-1 for arg, idx1_atom in enumerate(
-            self.avg_orcaSJ.idx1Atoms) if idx1_atom in del_idx1_Atoms]
+            key for key, value in self.orcaSJ[0].idx1Atoms.items() if value != Active]
+        intp = np.sort(np.array(list(self.orcaSJ[0].idx1Atoms.keys())))
+        arg_del_idx0_Atoms = np.array(intp).searchsorted(del_idx1_Atoms)
         if len(del_idx1_Atoms) != 0:
             print(" ===== Filter the Active Atom of SParams and JCoups =====")
-            for x in del_idx1_Atoms[::-1]:
-                if x in self.avg_orcaSJ.idx1Atoms:
-                    del self.avg_orcaSJ.idx1Atoms[x]
-                if x in self.avg_orcaSJ.SParams:
-                    del self.avg_orcaSJ.SParams[x]
-            for x in arg_del_idx1_Atoms[::-1]:
-                self.avg_orcaSJ.JCoups = np.delete(
-                    self.avg_orcaSJ.JCoups, x, 0)
-                self.avg_orcaSJ.JCoups = np.delete(
-                    self.avg_orcaSJ.JCoups, x, 1)
+            for _orcaSJ in self.orcaSJ:
+                for x in del_idx1_Atoms[::-1]:
+                    if x in _orcaSJ.idx1Atoms:
+                        del _orcaSJ.idx1Atoms[x]
+                    if x in _orcaSJ.SParams:
+                        del _orcaSJ.SParams[x]
+                for x in arg_del_idx0_Atoms[::-1]:
+                    _orcaSJ.JCoups = np.delete(_orcaSJ.JCoups, x, 0)
+                    _orcaSJ.JCoups = np.delete(_orcaSJ.JCoups, x, 1)
+            # if self.__verbose:
             print(" ===== Finished the Filter of Active Atom of SParams and JCoups =====")
 
     def method_update_equiv_orcaSJ(self) -> None:
@@ -573,6 +577,7 @@ class Anmr():
                         if idy0 not in idx0_AtomsDelete:
                             idx0_AtomsDelete.append(idy0)
                         del orcaSJ.SParams[SParam]
+                        del orcaSJ.idx1Atoms[SParam]
 
             # Delete orcaSJ orcaJCoups in acid_atoms_NoShow
             idx0_AtomsDelete.sort
@@ -629,9 +634,8 @@ class Anmr():
 
         if len(dirNames) == 0:
             raise ValueError("  Your CONFXX is not Exist !!!")
-
         from tqdm import tqdm
-        for idx0, name in enumerate(tqdm(dirNames)):
+        for idx0, name in enumerate((dirNames)):
             file_orcaS: Path = Dir / Path(name + "/NMR/orcaS.out")  # nopep8
             file_orcaJ: Path = Dir / Path(name + "/NMR/orcaJ.out")  # nopep8
             if file_orcaS.exists() and file_orcaJ.exists():
@@ -1328,7 +1332,6 @@ class OrcaSJ():
             - self.SParams: Dictionary mapping atom indices to shielding constants
             - self.Anisotropy: Dictionary mapping atom indices to anisotropy values
         """
-
         IsExist(file)
 
         start_idx: int
