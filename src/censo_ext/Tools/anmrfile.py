@@ -635,10 +635,10 @@ class Anmr():
         if len(dirNames) == 0:
             raise ValueError("  Your CONFXX is not Exist !!!")
         from tqdm import tqdm
-        for idx0, name in enumerate((dirNames)):
+        for idx0, name in enumerate(tqdm(dirNames)):
             file_orcaS: Path = Dir / Path(name + "/NMR/orcaS.out")  # nopep8
             file_orcaJ: Path = Dir / Path(name + "/NMR/orcaJ.out")  # nopep8
-            if file_orcaS.exists() and file_orcaJ.exists():
+            if file_orcaS.exists():  # For Carbon, the orcaJ.out maybe be neglected, so delete the file_orcaJ.exists()
                 if self.__verbose:
                     print(f"{idx0}  :  {file_orcaS}")
                     print(f"{idx0}  :  {file_orcaJ}")
@@ -646,9 +646,9 @@ class Anmr():
                 iter: OrcaSJ = OrcaSJ()
                 iter.CONFSerialNums = int(name.replace('CONF', ''))
                 if not iter.method_read_orcaS(file=file_orcaS):
-                    print(" Something wrong in your orcaS.out")
+                    print(" Your orcaS.out is missing or broken")
                 if not iter.method_read_orcaJ(file=file_orcaJ):
-                    print(" Something wrong in your orcaJ.out")
+                    print(" Your orcaJ.out is missing or broken")
                 self.orcaSJ.append(iter)
 
     def get_avg_orcaSJ_Exist(self) -> bool:

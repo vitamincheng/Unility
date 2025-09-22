@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import numpy.typing as npt
+from numba import jit
 import argparse
 from icecream import ic
 from joblib import Memory
@@ -281,8 +282,8 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int,
     from nmrsim.math import normalize_peaklist
     plist: npt.NDArray[np.float64] = np.array(in_plist)
     plist.T[0] = plist.T[0] / args.mf
-    Normal_plist: list[tuple[float, float]
-                       ] = normalize_peaklist(plist.tolist(), nIntergals)
+    Normal_plist: list[tuple[float, float]] = normalize_peaklist(
+        plist.tolist(), nIntergals)
     if args.verbose:
         ic(plist)
         ic(Normal_plist)
@@ -291,20 +292,19 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int,
     if not args.end:
         args.end = (plist.T)[0].max() + Active_range * 0.1
 
-    args.start = round(args.start, 4)
-    args.end = round(args.end, 4)
+    limits = round(args.start, 4), round(args.end, 4)
 
     lw: float = args.lw * 2 / 1000
     lw_points: int = int((args.end - args.start) * dpi)+1
 
-    x, y = mpl_plot(Normal_plist, lw=lw, limits=(
-        args.start, args.end), lw_points=lw_points)
-    np.savetxt(args.out, np.vstack((x, y)).T, fmt='%2.5f %12.5e')
+    xy_curve = mpl_plot(Normal_plist, lw=lw,
+                        limits=limits, lw_points=lw_points)
+    np.savetxt(args.out, np.vstack(xy_curve).T, fmt='%2.5f %12.5e')
     print(f" the spectra is saved to : {args.out}")
-    return np.vstack((x, y))
+    return np.vstack(xy_curve)
 
 
-def mpl_plot(plist, limits: tuple[float, float], lw=1.0, lw_points=200_000) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+def mpl_plot(plist: list[tuple[float, float]], limits: tuple[float, float], lw=1.0, lw_points=200_000) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """
     Generate a plot using lorentzian lineshape for NMR spectrum.
 
@@ -324,10 +324,9 @@ def mpl_plot(plist, limits: tuple[float, float], lw=1.0, lw_points=200_000) -> t
         - x: Array of x-coordinates
         - y: Array of y-coordinates
     """
-    from nmrsim.plt import low_high, add_lorentzians
     plist.sort()
     if limits:
-        l_limit, r_limit = low_high(limits)  # type: ignore
+        l_limit, r_limit = min(limits), max(limits)
     else:
         l_limit: float = plist[0][0] - 50
         r_limit: float = plist[-1][0] + 50
@@ -335,6 +334,20 @@ def mpl_plot(plist, limits: tuple[float, float], lw=1.0, lw_points=200_000) -> t
         float(l_limit), float(r_limit), lw_points).astype(np.float64)
     y: npt.NDArray[np.float64] = add_lorentzians(x, plist, lw)
     return x, y
+
+
+def add_lorentzians(linspace: npt.NDArray[np.float64], plist: list[tuple[float, float]], lw: float) -> npt.NDArray[np.float64]:
+    result: npt.NDArray[np.float64] = lorentz(
+        linspace, plist[0][0], plist[0][1], lw)
+    for v, i in plist[1:]:
+        result += lorentz(linspace, v, i, lw)
+    return result
+
+
+@jit
+def lorentz(v: npt.NDArray[np.float64], v0: float, Intensity: float, lw: float) -> npt.NDArray[np.float64]:
+    scaling_factor = 0.5 / lw
+    return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (v - v0) ** 2))
 
 
 def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
