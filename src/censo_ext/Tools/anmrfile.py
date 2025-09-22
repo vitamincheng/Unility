@@ -646,8 +646,12 @@ class Anmr():
                 iter.CONFSerialNums = int(name.replace('CONF', ''))
                 if not iter.method_read_orcaS(file=file_orcaS):
                     print(" Your orcaS.out is missing or broken")
-                if not iter.method_read_orcaJ(file=file_orcaJ):
+                from censo_ext.Tools.utility import IsExist_bool
+                if IsExist_bool(file_orcaJ):
+                    iter.method_read_orcaJ(file=file_orcaJ)
+                else:
                     print(" Your orcaJ.out is missing or broken")
+                    iter.method_read_orcaJ(file=file_orcaJ)
                 self.orcaSJ.append(iter)
 
     def get_avg_orcaSJ_Exist(self) -> bool:
@@ -1239,7 +1243,10 @@ class OrcaSJ():
         """
 
         # print(f" method_read_orcaJ {file}")
-        IsExist(file)
+        if not IsExist_bool(file):
+            nShapes = len(self.SParams)
+            self.JCoups = np.zeros((nShapes, nShapes))
+            return True
 
         start_idx: int
         end_idx: int

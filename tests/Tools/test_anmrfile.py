@@ -9,11 +9,11 @@ import filecmp
 
 
 def test_anmrfile_miss_args() -> None:
-
+    # only check orcaS() function, For Carbon orcaJ.out is not necessary
     Missing: OrcaSJ = OrcaSJ()
-    fileName: Path = Path("orcaJ.out")
+    fileName: Path = Path("orcaS.out")
     with pytest.raises(FileNotFoundError) as e:
-        Missing.method_read_orcaJ()
+        Missing.method_read_orcaS()
     assert str(e.value) == f"  The file {fileName} is not Exist ..."
 
 

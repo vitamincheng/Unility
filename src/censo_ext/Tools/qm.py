@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import numpy.typing as npt
-from numba import jit
+#from numba import jit
 import argparse
 from icecream import ic
 from joblib import Memory
@@ -344,7 +344,7 @@ def add_lorentzians(linspace: npt.NDArray[np.float64], plist: list[tuple[float, 
     return result
 
 
-@jit
+#@jit
 def lorentz(v: npt.NDArray[np.float64], v0: float, Intensity: float, lw: float) -> npt.NDArray[np.float64]:
     scaling_factor = 0.5 / lw
     return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (v - v0) ** 2))
