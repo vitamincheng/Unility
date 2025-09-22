@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# import filecmp
 import pytest
 from censo_ext.Tools.utility import delete_all_files
 from pathlib import Path

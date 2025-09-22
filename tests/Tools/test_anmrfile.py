@@ -4,6 +4,7 @@ from censo_ext.Tools.anmrfile import Anmr
 from censo_ext.Tools.anmrfile import OrcaSJ
 import sys
 import os
+import shutil
 import filecmp
 
 
@@ -57,12 +58,20 @@ def test_anmrfile_anmrrc() -> None:
 
 
 def test_anmrfile_get_avg_orcaSJ_Exist() -> None:
+
     # For Hydrogen
-    file: Anmr = Anmr("tests/data/34.Ergocalciferol/04.Hydrogen")
+    Dir: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen")
+    file: Anmr = Anmr(Dir)
+    shutil.copytree(Dir/Path("Average_backup"), Dir/Path("Average"))
     assert file.get_avg_orcaSJ_Exist()
+    shutil.rmtree(Dir/Path("Average"), ignore_errors=True)
+
     # for Carbon
-    file: Anmr = Anmr("tests/data/34.Ergocalciferol/07.Carbon")
+    Dir: Path = Path("tests/data/34.Ergocalciferol/07.Carbon")
+    file: Anmr = Anmr(Dir)
+    shutil.copytree(Dir/Path("Average_backup"), Dir/Path("Average"))
     assert file.get_avg_orcaSJ_Exist()
+    shutil.rmtree(Dir/Path("Average"), ignore_errors=True)
 
 
 def test_anmrfile_read_enso_miss_args() -> None:
