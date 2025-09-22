@@ -111,7 +111,7 @@ FileBOBYQA: Path = Path("Average/NMR/orcaS-BOBYQA.out")
 Ref_TMS: float = 31.820
 
 
-def rosenbrock(x0) -> float:
+def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
     """Objective function for BOBYQA optimization of NMR chemical shifts.
 
     This function updates the chemical shift parameters in ORCA input files,
@@ -182,7 +182,7 @@ def rosenbrock(x0) -> float:
                 " call anmr.sh process have something wrong !!!")
 
         os.chdir(cwd)
-        Dat_Cal: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
+        dat_Cal: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
 
     elif not prog:
         # print("Internal python: anmr.py")
@@ -197,20 +197,20 @@ def rosenbrock(x0) -> float:
         anmr.main(args=argparse.Namespace(**x))
         sys.stdout = sys.__stdout__
 
-        Dat_Cal: CensoDat = CensoDat(file=Directory/Path(x["out"]))
+        dat_Cal: CensoDat = CensoDat(file=Directory/Path(x["out"]))
     else:
         raise ValueError("Something wrong in your argument")
 
-    Dat_Cal.method_normalize_dat()
+    dat_Cal.method_normalize_dat()
     global Dat_Ref
     try:
-        Diff: CensoDat = Dat_Cal - Dat_Ref  # type: ignore
+        dat_diff: CensoDat = dat_Cal - dat_Ref  # type: ignore
     except NameError:
-        Dat_Ref = CensoDat(file=Directory/Dat_fileName)
-        Dat_Ref.method_normalize_dat()
-        Diff: CensoDat = Dat_Cal - Dat_Ref
+        dat_Ref = CensoDat(file=Directory/Dat_fileName)
+        dat_Ref.method_normalize_dat()
+        dat_diff: CensoDat = dat_Cal - dat_Ref
 
-    return np.sum(np.square(Diff.get_Dat()))
+    return np.sum(np.square(dat_diff.get_Dat()))
 
 
 def Scan_single_Peak(args) -> None:
@@ -230,31 +230,30 @@ def Scan_single_Peak(args) -> None:
     import pybobyqa
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileBOBYQA)
-    in_set: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
-    in_set = {x for x in in_set if x < 1000 and x >= 1}
-    print(f"  {in_set=}")
+    in_sets: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
+    in_sets = {x for x in in_sets if x < 1000 and x >= 1}
+    print(f"  {in_sets=}")
     print(" ==== Start single_peak ====")
-    for nSerial in in_set:
+    for in_set in in_sets:
         print("")
         if args.verbose:
-            ic(nSerial)
+            ic(in_set)
         intp: npt.NDArray[np.int64] = np.argwhere(
-            OrcaS_Table.T[2] == nSerial).flatten()
-        Data_Chemical_Shift: list[float] = list(
+            OrcaS_Table.T[2] == in_set).flatten()
+        Data_SParams: list[float] = list(
             map(float, np.atleast_1d(OrcaS_Table.T[1][intp[0]])))
         if args.verbose:
-            ic(Data_Chemical_Shift)
+            ic(Data_SParams)
             ic(intp)
 
         global idx_keys
         idx_keys = list(intp)
-        x0: npt.NDArray[np.float64] = np.array(Data_Chemical_Shift)
-        lower: npt.NDArray[np.float64] = x0 - limit_border
-        upper: npt.NDArray[np.float64] = x0 + limit_border
+        x0: npt.NDArray[np.float64] = np.array(Data_SParams)
+        bounds = x0 - limit_border, x0 + limit_border
 
         print(f"{x0=}")
-        soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
-            lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
+        soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=bounds,
+                              scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
         print(f"{soln.f=} {soln.x=}")
     print(" ==== Finished single_peak ====")
 
@@ -279,28 +278,28 @@ def Scan_group_Peaks(args) -> None:
     OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
         Directory / FileBOBYQA)
 
-    in_set: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
-    in_set = {x for x in in_set if x >= 1000}
-    if len(in_set) == 0:
+    in_sets: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
+    in_sets = {x for x in in_sets if x >= 1000}
+    if len(in_sets) == 0:
         return
 
     print(" ==== Start group_peaks ====")
-    print(f"  {in_set=}")
+    print(f"  {in_sets=}")
 
     # Data structure of idx, Chemical_Shift, idx_atoms
     Data: list[list] = []
 
-    for nSerial in in_set:
+    for in_set in in_sets:
         intp: npt.NDArray[np.int64] = np.argwhere(
-            OrcaS_Table.T[2] == nSerial).flatten()
+            OrcaS_Table.T[2] == in_set).flatten()
         Data.append(
-            [nSerial, OrcaS_Table.T[1][intp[0]], intp])
+            [in_set, OrcaS_Table.T[1][intp[0]], intp])
 
     if args.verbose:
         ic(Data)
     nNumbers: int = len(Data)
     from itertools import permutations
-    Permutations: list[tuple] = list(permutations(
+    Permutations: list[tuple[int, ...]] = list(permutations(
         [*range(0, nNumbers)], nNumbers))
     solution_f: list = []
     solution_x0: list = []
@@ -313,10 +312,9 @@ def Scan_group_Peaks(args) -> None:
         idx_keys = [x[2] for x in Data]
         if args.verbose:
             ic(idx_keys)
-        lower = x0 - limit_border
-        upper = x0 + limit_border
-        soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
-            lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
+        bounds = x0 - limit_border, x0 + limit_border
+        soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=bounds,
+                              scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
         print(f"{soln.f=} {soln.x=}")
         solution_f.append(soln.f)
         solution_x0.append(soln.x)
@@ -331,10 +329,9 @@ def Scan_group_Peaks(args) -> None:
     print(f"{list_x0=}")
     x0 = np.array(list_x0)
     limit_tiny: float = 0.0001
-    lower = x0 - limit_tiny
-    upper = x0 + limit_tiny
-    soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=(
-        lower, upper), scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
+    bounds_tiny = x0 - limit_tiny, x0 + limit_tiny
+    soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=bounds_tiny,
+                          scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
 
     print(" ==== Finished group_peaks ====")
 
@@ -345,7 +342,7 @@ def Create_BOBYQA(args) -> None:
     This function reads the original ORCA chemical shift file and creates a
     modified version with an additional column for BOBYQA optimization control.
     The third column determines how each peak will be optimized:
-    - Values 0-99: Individual peak optimization
+    - Values 1-99: Individual peak optimization
     - Values >= 1000: Group peak optimization (all peaks with same number optimized together)
 
     Args:
