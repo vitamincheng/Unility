@@ -71,7 +71,7 @@ def cml():
     parser.add_argument(
         "-v",
         "--verbose",
-        dest="berbose",
+        dest="verbose",
         action="store_true",
         help="Verbose mode and show the detail of calculation [default False]",
     )

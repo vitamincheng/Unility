@@ -446,7 +446,6 @@ class Anmr():
                 for x in arg_del_idx0_Atoms[::-1]:
                     _orcaSJ.JCoups = np.delete(_orcaSJ.JCoups, x, 0)
                     _orcaSJ.JCoups = np.delete(_orcaSJ.JCoups, x, 1)
-            # if self.__verbose:
             print(" ===== Finished the Filter of Active Atom of SParams and JCoups =====")
 
     def method_update_equiv_orcaSJ(self) -> None:

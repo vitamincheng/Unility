@@ -357,12 +357,22 @@ def Create_BOBYQA(args) -> None:
     OrcaS_Table = np.insert(OrcaS_Table, 2, 0, axis=1)
     np.savetxt(Directory / FileBOBYQA,
                OrcaS_Table, fmt="%10d %10.5f %10d")
-    print(" Create the orcaS-BOBYQA.out file ")
-    print(" three column :         0 - Do nothing ")
-    print("                     1~99 - Use BOBYQA to calcuate and fit each chemical shift of each number")
-    print("               Above 1000 - Use BOBYQA to calucate and fit each chemical shift of all groups to find the peaks in one time")
-    print("                            Each chemical shift of the same number is assigned to the same by the first chemical shift")
-    print(" Run this program again")
+    descr = """
+________________________________________________________________________________
+| Create the orcaS-BOBYQA.out file 
+| three column :         0 - Do nothing 
+|                     1~99 - Use BOBYQA to calcuate and fit each chemical shift 
+|                            of each number
+|               Above 1000 - Use BOBYQA to calucate and fit each chemical shift 
+|                            of all groups to find the peaks in one time
+|                            
+|                            Each chemical shift of the same number is assigned 
+|                            to the same by the first chemical shift
+| Run this program again
+|_______________________________________________________________________________
+
+"""
+    print(descr)
     import sys
     sys.exit(0)
 

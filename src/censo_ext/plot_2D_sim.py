@@ -20,7 +20,7 @@ def Load_Directory(directory_H, directory_C) -> tuple[npt.NDArray[np.float64], n
 
     import censo_ext.anmr as anmr
     args_x: dict = {"auto": True, "average": True,
-                    "bobyqa": True, "mf": 500, "dir": directory_H, "thr": None, "json": [-1], "thrab": 0.025, "verobse": False,
+                    "bobyqa": True, "mf": 500, "dir": directory_H, "thr": None, "json": [-1], "thrab": 0.025, "verbose": False,
                     "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
     data_x = anmr.main(argparse.Namespace(**args_x)).T
     args_y: dict = {"auto": True, "average": True,
