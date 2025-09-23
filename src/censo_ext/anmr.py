@@ -681,8 +681,8 @@ def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], i
                 mat_filter_ab_quartet: npt.NDArray[np.uint8] = copy.deepcopy(
                     mat_filter_low_factor)
             else:
-                # Step 1: Filter out small coupling constants based on threshold
-                # Delete Too Small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
+                # Step 1: Filter out too small coupling constants based on threshold
+                # Delete too small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
                 # 1: keep and 0: neglect
                 mat_filter_low_factor: npt.NDArray[np.uint8] = np.zeros(
                     (inSParams.size, inSParams.size), dtype=np.uint8)
@@ -697,38 +697,42 @@ def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], i
                 import math
                 for idx0, x in enumerate(inSParams):
                     for idy0, y in enumerate(inSParams):
-                        if idx0 == idy0:
-                            mat_filter_ab_quartet[idx0][idy0] = 0
+
+                        # Check if two chemical shifts are very close (AB quartet condition)
+                        # if two chemical shift is very close, will perform AB quartet
+                        # if x-y == 0 the Ratio_J_Hz will crash
+                        # if the JCoups is negative, the peaks will prioritize to use normal QM calculation.
+                        # if the peaks which is not in AB Quartet and have positive nubmers will use Multiplet (nmrsim)
+                        # Normal the maximum of 3-JCoups is 18 Hz. If JCoups is set to 20 Hz, the delta Chemical Shift is set to 1.0 ppm
+                        # it will have 0.0004 ppm < 0.001 ppm (lw = 1)
+                        # If diff of two chemical shift AB quart is 0.006 ppm and the JCouping of J=20 Hz, it will produce 0.22 Hz
+                        # limits_min_ab = 0.005 is enough for almost condtions
+
+                        limits_min_ab: float = 0.005
+                        if (math.fabs(x-y) < limits_min_ab and mat_filter_low_factor[idx0][idy0] == 1) or (inJCoups[idx0][idy0] <= -args.thr):
+                            mat_filter_ab_quartet[idx0][idy0] = 1
                         else:
-                            # Check if two chemical shifts are very close (AB quartet condition)
-                            # If the JCoups is negative, the pwaks will prioritize to normal QM calculation
-                            # if two chemical shift is very close, will perform AB quartet
-                            # if x-y == 0 the Ratio_J_Hz will crash
-                            # if the JCoups is negative, will prioritize to use normal QM calculation.
-                            # if the peaks which is not AB Quartet and have positive nubmers will use Multiplet (nmrsim)
-                            # Normal the maximum of 3-JCoups is 18 Hz. If JCoups is set to 20 Hz, the delta Chemical Shift is set to 1.0 ppm
-                            # it will have 0.0004 ppm < 0.001 ppm (lw=1)
-                            if (math.fabs(x-y) < 0.0005 and mat_filter_low_factor[idx0][idy0] == 1) or (inJCoups[idx0][idy0] <= -args.thr):
+                            if math.fabs(x-y) < limits_min_ab:
+                                Ratio_J_Hz: float = 10000
+                            else:
+                                Ratio_J_Hz: float = math.fabs(
+                                    inJCoups[idx0][idy0]/(math.fabs(x-y)))
+                            if Ratio_J_Hz < args.thrab:
+                                mat_filter_ab_quartet[idx0][idy0] = 0
+                            elif Ratio_J_Hz >= args.thrab and mat_filter_low_factor[idx0][idy0] == 1:
                                 mat_filter_ab_quartet[idx0][idy0] = 1
                             else:
-                                if math.fabs(x-y) < 0.0005:
-                                    Ratio_J_Hz: float = 10000
-                                else:
-                                    Ratio_J_Hz: float = math.fabs(
-                                        inJCoups[idx0][idy0]/(math.fabs(x-y)))
-                                if Ratio_J_Hz < args.thrab:
-                                    mat_filter_ab_quartet[idx0][idy0] = 0
-                                elif Ratio_J_Hz >= args.thrab and mat_filter_low_factor[idx0][idy0] == 1:
-                                    mat_filter_ab_quartet[idx0][idy0] = 1
-                                else:
-                                    if mat_filter_low_factor[idx0][idy0] == 1:
-                                        raise ValueError(
-                                            f"{idx0} {x} {idy0} {y} was not found or is a directory")
+                                if mat_filter_low_factor[idx0][idy0] == 1:
+                                    raise ValueError(
+                                        f"{idx0} {x} {idy0} {y} was not found or is a directory")
 
             if args.verbose:
                 ic(mat_filter_ab_quartet)
+
             # Calculate which couplings are NOT part of AB quartets (multiplets)
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
+
+            # the atom connect relation of AB quaret
             idx0_ab_connect: list[list[int | set[int]]] = []
             for idx0, x in enumerate(mat_filter_ab_quartet):
                 group: set[int] = set(np.array(x*(idx0+1)).nonzero()[0].tolist())  # return arg # nopep8 #idx0+1 is only for nozero
@@ -792,6 +796,7 @@ def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], i
                 print(
                     "  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
 
+            # calculation the maximum length of the slice of AB quartet
             max_len_AB: int = 0
             for idx0, group_set in enumerate(idx0_ab_group_sets):
                 mat_multi_idx0: list[int] = [
