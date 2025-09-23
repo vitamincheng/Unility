@@ -18,9 +18,10 @@ ________________________________________________________________________________
 | mf       : -mf magnetic frequency of scan nmr [default 500.0]
 | lw       : -lw line width of scan nmr [1.0 for H, 20 for C]
 | auto     : -auto --auto automated to adjust the threshold of J and AB quartet [default False]
+| decoups  : -de --decoups deCoupings mode [defalut False]
 | average  : -av load the average folder data to plot spectra [default False]
 | thr      : -t -thr threshold of coupling constant (J) [default 0.30]
-| thrtab   : -tab -thrab threshold of AB quartet (J/d chemical shift) [default 0.025]
+| thrtab   : -tab -thrab threshold of AB quartet (JCoups / diff chemical shift) [default 0.020]
 | tbpent   : -tb threshold of AB quartet bond pententration distance [default 4]
 | mss      : -mss max of spin numbers [default 10]
 |            if your computer have slowly CPU, try to use mss 4 or 5.
@@ -124,8 +125,8 @@ def cml() -> argparse.Namespace:
         action="store",
         type=float,
         required=False,
-        default=0.025,
-        help="threshold of AB quartet (J/chemical shift) [default 0.025]",
+        default=0.020,
+        help="threshold of AB quartet (J/chemical shift) [default 0.020]",
     )
 
     parser.add_argument(
@@ -183,6 +184,14 @@ def cml() -> argparse.Namespace:
         dest="bobyqa",
         action="store_true",
         help="BOBYQA mode [default False]",
+    )
+
+    parser.add_argument(
+        "-de",
+        "--decoups",
+        dest="decoups",
+        action="store_true",
+        help="Decouplings mode [important] for carbon spectra [default False]",
     )
 
     parser.add_argument(
@@ -460,6 +469,7 @@ def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter
 
     from censo_ext.Tools.qm import qm_base, qm_full, qm_multiplet
     accPeaks: list[list[tuple[float, float]]] = []
+    inHydrogen: list[int]
     inSParams, inJCoups, inHydrogen = inParameter
     print("")
     print(" ===== Processing =====")
@@ -481,11 +491,12 @@ def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter
             print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
                 a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
 
-        QM_Base: list[tuple[float, float]] = qm_full(v=list(
+        QM_Bases: list[tuple[float, float]] = qm_full(v=list(
             v), J=J, nIntergals=len(inHydrogen), args=args)
         from nmrsim.math import normalize_peaklist
-        QM_Multiplet = normalize_peaklist(QM_Base, len(inHydrogen))
-        accPeaks.append(QM_Multiplet)
+        # QM_Multiplet = normalize_peaklist(QM_Base, len(inHydrogen))
+        # accPeaks.append(QM_Multiplet)
+        accPeaks.append(QM_Bases)
 
     else:
         for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
@@ -502,28 +513,35 @@ def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter
             v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
             J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
 
-            QM_Base: list[tuple[float, float]] = qm_base(v=list(
+            QM_Bases: list[tuple[float, float]] = qm_base(v=list(
                 v), J=J, nIntergals=inHydrogen[idx0_ab_group.index(idx0)], idx0_nspins=idx0_ab_group.index(idx0), args=args)
 
             QM_Multiplet: list[tuple[float, float]] = []
-            for z in QM_Base:
-                multiplicity: list[int] = list(
+            for QM_base in QM_Bases:
+                idx0_multiplicity: list[int] = list(
                     set(mat_multi_x_idx0).difference(idx0_ab_group_set))
-                inJ: list[tuple[float, int]] = []
-                for a in multiplicity:
-                    if np.fabs(inSParams[idx0]-inSParams[a]) > 0.1:
-                        inJ.append((inJCoups[idx0][a], inHydrogen[a]))
+                # Chemical Shift, the numbers of Hydrogen in inJ
+                inJCoups_multi: list[tuple[float, int]] = []
+                for idx_m in idx0_multiplicity:
+                    # this is not necessary, but the mat_multi_x_idx0 and idx_ab_group_set is OK
+                    if np.fabs(inSParams[idx0]-inSParams[idx_m]) > 0.1:
+                        inJCoups_multi.append(
+                            (inJCoups[idx0][idx_m], inHydrogen[idx_m]))
+                    else:
+                        print("something wrong!!!!")
+                        exit(0)
 
-                if len(inJ) >= 1:
+                if len(inJCoups_multi) >= 1:
                     tmp: npt.NDArray[np.float64] = np.array(
-                        qm_multiplet(z[0], nIntergals=1, J=inJ))
-                    tmp.T[1] *= z[1]
+                        qm_multiplet(QM_base[0], nIntergals=1, J=inJCoups_multi))
+                    tmp.T[1] *= QM_base[1]
                     QM_Multiplet += tmp.tolist()
-                elif len(inJ) == 0:
-                    QM_Multiplet = QM_Base
+                elif len(inJCoups_multi) == 0:
+                    QM_Multiplet = QM_Bases
                 else:
                     raise ValueError(
-                        "  inJ,  Exit and Close the program !!!")
+                        "  inJCoups_multi,  Exit and Close the program !!!")
+            # normalize_peaklist is necessary,beacuse QM_Multiplet not only one
             from nmrsim.math import normalize_peaklist
             QM_Multiplet = normalize_peaklist(
                 QM_Multiplet, inHydrogen[idx0])
@@ -688,13 +706,15 @@ def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], i
                             # if x-y == 0 the Ratio_J_Hz will crash
                             # if the JCoups is negative, will prioritize to use normal QM calculation.
                             # if the peaks which is not AB Quartet and have positive nubmers will use Multiplet (nmrsim)
+                            # Normal the maximum of 3-JCoups is 18 Hz. If JCoups is set to 20 Hz, the delta Chemical Shift is set to 1.0 ppm
+                            # it will have 0.0004 ppm < 0.001 ppm (lw=1)
                             if (math.fabs(x-y) < 0.0005 and mat_filter_low_factor[idx0][idy0] == 1) or (inJCoups[idx0][idy0] <= -args.thr):
                                 mat_filter_ab_quartet[idx0][idy0] = 1
                             else:
                                 if math.fabs(x-y) < 0.0005:
-                                    Ratio_J_Hz = 10000
+                                    Ratio_J_Hz: float = 10000
                                 else:
-                                    Ratio_J_Hz = math.fabs(
+                                    Ratio_J_Hz: float = math.fabs(
                                         inJCoups[idx0][idy0]/(math.fabs(x-y)))
                                 if Ratio_J_Hz < args.thrab:
                                     mat_filter_ab_quartet[idx0][idy0] = 0
@@ -852,8 +872,8 @@ def generate_final_spectrum(finalPeaks: list[tuple[float, float]], inAnmr: Anmr,
 
     if dpi and Active_range:
         print(" All done ...")
-        from censo_ext.Tools import qm
-        return qm.print_plot(in_plist=finalPeaks, dpi=dpi, nIntergals=1, args=args, Active_range=Active_range)
+        from censo_ext.Tools.qm import print_plot
+        return print_plot(in_plist=finalPeaks, dpi=dpi, args=args, Active_range=Active_range)
     else:
         print("  dpi and Active_range is wrong")
         print("  Exit and Close the program !!!")

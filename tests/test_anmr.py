@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import json
+import numpy as np
 import pytest
 from censo_ext.Tools.utility import delete_all_files
 from pathlib import Path
@@ -40,8 +42,6 @@ def test_anmr_H_from_raw_data() -> None:
     elif _system == "Darwin":
         compare: Path = Path("tests/compare/anmr_peaks_Ergo_H_Darwin.json")
 
-    import json
-    import numpy as np
     with open(Dir_Ergo_H / Path("peaks.json"), "r") as jsonFile:
         source = np.array(json.load(jsonFile)[0])
     with open(compare, "r") as jsonFile:  # type: ignore
@@ -76,10 +76,15 @@ def test_anmr_H_from_raw_data_EA() -> None:
     assert anmr.main(argparse.Namespace(**x)).shape == (2, 48310)
     if _system == "Linux":  # Need 2 min
         compare: Path = Path("tests/compare/anmr_peaks_EA_H_ubuntu.json")
-
     elif _system == "Darwin":  # Need 5 min
         compare: Path = Path("tests/compare/anmr_peaks_EA_H_Darwin.json")
-    assert filecmp.cmp(Dir_EA_H/Path("peaks.json"), compare)  # type: ignore
+
+    with open(Dir_EA_H / Path("peaks.json"), "r") as jsonFile:
+        source = np.array(json.load(jsonFile)[0])
+    with open(compare, "r") as jsonFile:  # type: ignore
+        denstination = np.array(json.load(jsonFile)[0])
+    np.testing.assert_allclose(
+        source, denstination, rtol=1e-14, atol=0)
     delete_all_files(Dir_EA_H / Path("peaks.json"), Dir_EA_H/Path(outFile))
 
 

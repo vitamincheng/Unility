@@ -318,9 +318,9 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     # Set local view
     if p_view is None:
         p_coord: npt.NDArray[np.float64] = copy.deepcopy(
-            p_all).astype(np.float64)
+            p_all)
         q_coord: npt.NDArray[np.float64] = copy.deepcopy(
-            q_all).astype(np.float64)
+            q_all)
 
     else:
         assert p_view is not None

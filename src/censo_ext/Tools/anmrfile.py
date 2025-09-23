@@ -244,6 +244,8 @@ class Anmr():
         # directory of orcaSJ
         self.orcaSJ: list[OrcaSJ] = []
         self.avg_orcaSJ = OrcaSJ()
+        self.nNums_orcaS: int = 0
+        self.nNums_orcaJ: int = 0
 
         # anmr_nucinfo
         # idx1 and numbers of Chemical Equivalent
@@ -637,22 +639,31 @@ class Anmr():
         for idx0, name in enumerate(tqdm(dirNames)):
             file_orcaS: Path = Dir / Path(name + "/NMR/orcaS.out")  # nopep8
             file_orcaJ: Path = Dir / Path(name + "/NMR/orcaJ.out")  # nopep8
-            if file_orcaS.exists():  # For Carbon, the orcaJ.out maybe be neglected, so delete the file_orcaJ.exists()
-                if self.__verbose:
-                    print(f"{idx0}  :  {file_orcaS}")
-                    print(f"{idx0}  :  {file_orcaJ}")
+            if self.__verbose:
+                print(f"{idx0}  :  {file_orcaS}")
+                print(f"{idx0}  :  {file_orcaJ}")
 
-                iter: OrcaSJ = OrcaSJ()
-                iter.CONFSerialNums = int(name.replace('CONF', ''))
-                if not iter.method_read_orcaS(file=file_orcaS):
-                    print(" Your orcaS.out is missing or broken")
-                from censo_ext.Tools.utility import IsExist_bool
-                if IsExist_bool(file_orcaJ):
-                    iter.method_read_orcaJ(file=file_orcaJ)
-                else:
-                    print(" Your orcaJ.out is missing or broken")
-                    iter.method_read_orcaJ(file=file_orcaJ)
-                self.orcaSJ.append(iter)
+            iter: OrcaSJ = OrcaSJ()
+            iter.CONFSerialNums = int(name.replace('CONF', ''))
+            if not iter.method_read_orcaS(file=file_orcaS):
+                print(" Your orcaS.out is missing or broken")
+            else:
+                self.nNums_orcaS += 1
+            from censo_ext.Tools.utility import IsExist_bool
+            if IsExist_bool(file_orcaJ):
+                iter.method_read_orcaJ(file=file_orcaJ)
+                self.nNums_orcaJ += 1
+            else:
+                print(" Your orcaJ.out is missing or broken")
+            self.orcaSJ.append(iter)
+        if self.nNums_orcaS == len(dirNames) and self.nNums_orcaJ == len(dirNames):
+            return
+        else:
+            print(
+                f"  {self.nNums_orcaS=}\n  {self.nNums_orcaJ=}\n  {len(dirNames)=}")
+            print("  Your NMR folder haven't the same numbers to folder numbers !!!")
+            print("  Exit and Close the program !!!")
+            exit(0)
 
     def get_avg_orcaSJ_Exist(self) -> bool:
         """

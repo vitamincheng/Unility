@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import numpy.typing as npt
-#from numba import jit
+# from numba import jit
 import argparse
 from icecream import ic
 from joblib import Memory
@@ -261,7 +261,7 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     return normalize_peaklist(peaklist, nIntergals)
 
 
-def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int,
+def print_plot(in_plist: list[tuple[float, float]], dpi: int,
                args: argparse.Namespace, Active_range: int) -> npt.NDArray[np.float64]:
     """
     Generate and save a plot of the NMR spectrum.
@@ -279,11 +279,12 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int, nIntergals: int,
     Returns:
         npt.NDArray: Array containing x and y coordinates of the plot data.
     """
-    from nmrsim.math import normalize_peaklist
     plist: npt.NDArray[np.float64] = np.array(in_plist)
     plist.T[0] = plist.T[0] / args.mf
-    Normal_plist: list[tuple[float, float]] = normalize_peaklist(
-        plist.tolist(), nIntergals)
+    Normal_plist = plist.tolist()
+    # from nmrsim.math import normalize_peaklist
+    # Normal_plist: list[tuple[float, float]] = normalize_peaklist(
+    #    plist.tolist(), nIntergals)
     if args.verbose:
         ic(plist)
         ic(Normal_plist)
@@ -344,7 +345,7 @@ def add_lorentzians(linspace: npt.NDArray[np.float64], plist: list[tuple[float, 
     return result
 
 
-#@jit
+# @jit
 def lorentz(v: npt.NDArray[np.float64], v0: float, Intensity: float, lw: float) -> npt.NDArray[np.float64]:
     scaling_factor = 0.5 / lw
     return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (v - v0) ** 2))
@@ -431,7 +432,7 @@ if __name__ == "__main__":
     R_peak: list = qm_full(v=v, J=J, nIntergals=1,
                            args=argparse.Namespace(**x))
     ic(len(R_peak))
-    print_plot(in_plist=R_peak, dpi=10000, nIntergals=2,
+    print_plot(in_plist=R_peak, dpi=10000,
                Active_range=10, args=argparse.Namespace(**x))
 
     R_peaks: list = []
@@ -442,5 +443,5 @@ if __name__ == "__main__":
 
     ic(R_peaks)
     ic(len(R_peaks))
-    print_plot(in_plist=R_peaks, dpi=10000, nIntergals=2,
+    print_plot(in_plist=R_peaks, dpi=10000,
                Active_range=10, args=argparse.Namespace(**x))

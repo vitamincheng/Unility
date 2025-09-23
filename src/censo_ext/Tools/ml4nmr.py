@@ -95,7 +95,7 @@ def read_mol_neighbors(DirFileName: Path | str) -> tuple[Atoms | list[Atoms], di
         # nl.get_neighbors(i) returns [0]: indices and [1]: offsets
         indices: npt.NDArray[np.int64] = nl.get_neighbors(idx)[0]
         # add 1 to key and to value to start counting of atoms at 1
-        idx1_neighbors[idx+1] = indices+1
+        idx1_neighbors[idx+1] = indices+int(1)
 
         # exit if an H atom has not exactly 1 neighbor
         if mol.get_atomic_numbers()[idx] == 1 and len(idx1_neighbors[idx+1]) != 1:  # type: ignore # nopep8
