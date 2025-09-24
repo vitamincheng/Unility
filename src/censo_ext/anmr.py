@@ -391,7 +391,7 @@ def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFil
         args.thr = args.lw * 0.3
     import math
     order = math.ceil(math.log10(50*10/args.lw))
-    dpi = int(math.pow(10, order))
+    dpi = int(math.pow(10, order)*2)
 
     return inHydrogen, Active_range, dpi
 

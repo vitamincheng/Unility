@@ -3,6 +3,7 @@ import argparse
 import numpy as np
 import numpy.typing as npt
 from censo_ext.Tools.utility import IsExists_DirFileName
+from censo_ext.Tools.utility import delete_all_files
 descr = """
 ________________________________________________________________________________
 | For Transform from dat to npz file and reverse 
@@ -44,10 +45,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             in_Data: npt.NDArray[np.float64] = np.genfromtxt(args.file)
             np.savez_compressed(fileName + ".npz", in_Data)
             print(f" the spectra is saved to : {fileName + '.npz'}")
+            delete_all_files(args.file)
         elif file_ext == "npz":
             in_Data: npt.NDArray[np.float64] = np.load(args.file)["arr_0"]
             np.savetxt(fileName + ".dat", in_Data, fmt='%2.5f %12.5e')
             print(f" the spectra is saved to : {fileName + '.dat'}")
+            delete_all_files(args.file)
         else:
             print("  The file is not supported for this system !!!")
             print("  Exit and Close the program !!!")
