@@ -289,9 +289,9 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int,
         ic(plist)
         ic(Normal_plist)
     if not args.start:
-        args.start = (plist.T)[0].min() - Active_range * 0.1
+        args.start = (plist.T)[0].min() - Active_range
     if not args.end:
-        args.end = (plist.T)[0].max() + Active_range * 0.1
+        args.end = (plist.T)[0].max() + Active_range
 
     limits = round(args.start, 4), round(args.end, 4)
 
@@ -439,7 +439,7 @@ if __name__ == "__main__":
                            args=argparse.Namespace(**x))
     ic(len(R_peak))
     print_plot(in_plist=R_peak, dpi=10000,
-               Active_range=10, args=argparse.Namespace(**x))
+               Active_range=20, args=argparse.Namespace(**x))
 
     R_peaks: list = []
     for idx in range(len(v)):
@@ -450,4 +450,4 @@ if __name__ == "__main__":
     ic(R_peaks)
     ic(len(R_peaks))
     print_plot(in_plist=R_peaks, dpi=10000,
-               Active_range=10, args=argparse.Namespace(**x))
+               Active_range=20, args=argparse.Namespace(**x))

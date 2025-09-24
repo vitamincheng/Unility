@@ -408,12 +408,14 @@ def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFil
     # For C/CH/CH2/CH3 from 0 1 2 3 to 1 2 3 4 for Carbon spectra
     # Convert bond order values to hydrogen counts (add 1 to each value)
     inHydrogen = [value+1 for value in bond_order.values()]
-    Active_range = 200
-    dpi = 500
+    Active_range = int(200*0.1)
     if not args.lw:
         args.lw = 20
     if not args.thr:
         args.thr = args.lw * 0.3
+    import math
+    order = math.ceil(math.log(50*10/args.lw, 10))
+    dpi = int(math.pow(10, order))
 
     return inHydrogen, Active_range, dpi
 
@@ -443,13 +445,15 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
     inHydrogen = [
         value for value in idx1_nMagEqvHydrogens.values()]
 
-    Active_range = 10
-    dpi = 10000
+    Active_range = int(20*0.1)
     if not args.lw:
         args.lw = 1
     if not args.thr:
         args.thr = args.lw * 0.3
 
+    import math
+    order = math.ceil(math.log(1000*10/args.lw, 10))
+    dpi = int(math.pow(10, order))
     return inHydrogen, Active_range, dpi
 
 
