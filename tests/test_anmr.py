@@ -112,7 +112,7 @@ def test_anmr_C_from_raw_data() -> None:
     x['average'] = False
     x['json'] = None
     x['dir'] = Dir_Ergo_C
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 17283)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 34565)
     if _system == "Linux":
         compare: Path = Path("tests/compare/anmr_peaks_Ergo_C_ubuntu.json")
     elif _system == "Darwin":
@@ -132,7 +132,7 @@ def test_anmr_C_average_on_json_off() -> None:
     x['average'] = True
     x['json'] = None
     x['dir'] = Dir_Ergo_C
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 17283)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 34565)
     # delete_all_files("tests/data/34.Ergocalciferol/07.Carbon/peaks.json")   # Normal is necessary to remove the peaks.json but next method need this file
 
 
@@ -140,7 +140,7 @@ def test_anmr_C_average_on_json_on() -> None:
     x['average'] = True
     x['json'] = [-1]
     x['dir'] = Dir_Ergo_C
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 17283)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 34565)
     delete_all_files(Dir_Ergo_C / Path("peaks.json"),
                      Dir_Ergo_C/Path(outFile), Dir_Ergo_C/Path(out_npz))
     shutil.rmtree(Dir_Ergo_C/Path("Average"), ignore_errors=True)
