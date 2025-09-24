@@ -383,14 +383,14 @@ def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFil
 
     # For C/CH/CH2/CH3 from 0 1 2 3 to 1 2 3 4 for Carbon spectra
     # Convert bond order values to hydrogen counts (add 1 to each value)
-    inHydrogen = [value+1 for value in bond_order.values()]
+    inHydrogen: list[int] = [value+1 for value in bond_order.values()]
     Active_range = int(200*0.1)
     if not args.lw:
         args.lw = 20
     if not args.thr:
         args.thr = args.lw * 0.3
     import math
-    order = math.ceil(math.log(50*10/args.lw, 10))
+    order = math.ceil(math.log10(50*10/args.lw))
     dpi = int(math.pow(10, order))
 
     return inHydrogen, Active_range, dpi
@@ -418,7 +418,7 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
             del idx1_nMagEqvHydrogens[y]
 
     # Extract hydrogen counts for each equivalent group
-    inHydrogen = [
+    inHydrogen: list[int] = [
         value for value in idx1_nMagEqvHydrogens.values()]
 
     Active_range = int(20*0.1)
@@ -428,7 +428,7 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
         args.thr = args.lw * 0.3
 
     import math
-    order = math.ceil(math.log(1000*10/args.lw, 10))
+    order = math.ceil(math.log10(1000*10/args.lw))
     dpi = int(math.pow(10, order))
     return inHydrogen, Active_range, dpi
 
@@ -584,7 +584,7 @@ def _process_qm_json_spin_system(inAnmr, args) -> tuple[list[int], list[list[tup
         accPeaks = json.load(jsonFile)
 
     if args.json[0] == -1:
-        idx0_peaks_range = [*range(len(accPeaks))]
+        idx0_peaks_range: list[int] = [*range(len(accPeaks))]
     else:
         idx0_peaks_range = args.json
     return idx0_peaks_range, accPeaks
