@@ -9,7 +9,7 @@ descr = """
 ________________________________________________________________________________
 | dat_normalized.py  
 | Usages   : dat_normalized.py <dat file> [options]
-| Input    : -i input file [default anmrh.dat]
+| Input    : -i input file [default anmr.dat]
 | Output   : -o output file [default output.dat]
 | [options]
 | Start    : -s --start start point in spectra [default -5]
@@ -35,8 +35,8 @@ def cml() -> argparse.Namespace:
         dest="file",
         action="store",
         required=False,
-        default="anmrh.dat",
-        help="Provide input_file name [default anmrh.dat]",
+        default="anmr.dat",
+        help="Provide input_file name [default anmr.dat]",
     )
 
     parser.add_argument(
@@ -78,7 +78,7 @@ def cml() -> argparse.Namespace:
         required=False,
         type=int,
         default=10000,
-        help="dpi 10000(for H), 500(for C) [default 10000]",
+        help="dpi 10000(for H), 100(for C) [default 10000]",
     )
 
     args: argparse.Namespace = parser.parse_args()

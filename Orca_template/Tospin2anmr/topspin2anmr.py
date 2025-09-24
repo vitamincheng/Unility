@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 from censo_ext.Tools.utility import save_simulation_spectra_file_dat_npz
-import sys
-from os.path import exists
 import argparse
 import numpy as np
-import numpy.typing as npt
 from sys import argv as sysargv
-# from icecream import ic
 
 descr = """
 ________________________________________________________________________________
@@ -18,16 +14,14 @@ ________________________________________________________________________________
 """
 
 
-# def cml():
-def cml():
+def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
         description="",
-        #        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
-    )  # argparse.RawDescriptionHelpFormatter) #,
+    )
 
     parser.add_argument(
         "-o",
@@ -48,7 +42,7 @@ def cml():
         help="Provide input_file name (from topspin) [default 1r]",
     )
 
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
     return args
 
 
@@ -63,99 +57,97 @@ def search_string_in_file(fileName, string_to_search):
     return list_of_results
 
 
-print(descr)  # Program description
-args = cml()
-print("    provided arguments: {}".format(" ".join(sysargv)))
-print("")
+def main(args: argparse.Namespace = argparse.Namespace()) -> None:
+
+    if args == argparse.Namespace():
+        args = cml()
+
+    print(descr)  # Program description
+    print("    provided arguments: {}".format(" ".join(sysargv)))
+    print("")
+
+    # start  = 16.00485
+    # end    = -3.990000
+    # ftsize = 16384
+    # step   = sw/ftsize
+    # Topspin
+    # start   Low field limit of spectrum (OFFSET)
+    # end
+    # sw      Spectral width (SW=SF1-SF2)
+    # ftsize  size of real spectrum (SI)
+    ################################################################
+
+    from censo_ext.Tools.utility import IsExist
+    IsExist("procs")
+
+    print("Reading the procs file ")
+    match_lines = search_string_in_file("procs", "ABSF1")
+    SF1 = float(match_lines[0][match_lines[0].find(" ")+1:])
+    print(match_lines[0])
+
+    match_lines = search_string_in_file("procs", "ABSF2")
+    SF2 = float(match_lines[0][match_lines[0].find(" ")+1:])
+    print(match_lines[0])
+
+    match_lines = search_string_in_file("procs", "$SI")
+    ftsize = float(match_lines[0][match_lines[0].find(" ")+1:])
+    print(match_lines[0])
+
+    # SF1    = 14.622
+    # SF2    = -2.6230
+    # ftsize = 512*1024
+
+    # print("Reading the procs file ")
+    # match_lines=search_string_in_file("procs", "SW_p")
+    # SW_p=float(match_lines[0][match_lines[0].find(" ")+1:])
+    # print(match_lines[0])
+    #
+    # match_lines=search_string_in_file("procs", "SF")
+    # SF=float(match_lines[0][match_lines[0].find(" ")+1:])
+    # print(match_lines[0])
+    #
+    # match_lines=search_string_in_file("procs", "$SI")
+    # ftsize=float(match_lines[0][match_lines[0].find(" ")+1:])
+    # print(match_lines[0])
+    #
+    #
+    # match_lines=search_string_in_file("procs", "$OFFSET")
+    # SF1=float(match_lines[0][match_lines[0].find(" ")+1:])
+    # print(match_lines[0])
+    #
+    # sw=SW_p/SF
+    #
+
+    sw = SF1-SF2
+
+    step = sw / ftsize
+    print(f"1 point of sw = {step}")
+    print()
+
+    print("Reading the 1r file ")
+    print()
+
+    i: int = 0
+    outData: list = []
+
+    with open(args.file, "rb") as f:
+        byte: bytes = f.read(4)
+        while byte:
+            # Do stuff with byte.
+            long: int = int.from_bytes(byte, byteorder='little', signed=True)
+            outData.append([SF1 - i*step, long])
+            i = i + 1
+            byte = f.read(4)
+
+    save_simulation_spectra_file_dat_npz(args.out, np.array(outData[::-1]))
+
+    print(f"Coversion to anmr file {args.out}")
+    print("Finished ...")
 
 
-# start  = 16.00485
-# end    = -3.990000
-# ftsize = 16384
-# step   = sw/ftsize
-# Topspin
-# start   Low field limit of spectrum (OFFSET)
-# end
-# sw      Spectral width (SW=SF1-SF2)
-# ftsize  size of real spectrum (SI)
-################################################################
+if __name__ == "__main__":
+    main()
 
-file_exists = exists("procs")
-
-if not file_exists:
-    print("procs, the file is not exist ...")
-    sys.exit()
-
-print("Reading the procs file ")
-match_lines = search_string_in_file("procs", "ABSF1")
-SF1 = float(match_lines[0][match_lines[0].find(" ")+1:])
-print(match_lines[0])
-
-match_lines = search_string_in_file("procs", "ABSF2")
-SF2 = float(match_lines[0][match_lines[0].find(" ")+1:])
-print(match_lines[0])
-
-match_lines = search_string_in_file("procs", "$SI")
-# match_lines=search_string_in_file("procs", "FTSIZE")
-ftsize = float(match_lines[0][match_lines[0].find(" ")+1:])
-print(match_lines[0])
-
-# SF1    = 14.622
-# SF2    = -2.6230
-# ftsize = 512*1024
-
-
-# print("Reading the procs file ")
-# match_lines=search_string_in_file("procs", "SW_p")
-# SW_p=float(match_lines[0][match_lines[0].find(" ")+1:])
-# print(match_lines[0])
-#
-# match_lines=search_string_in_file("procs", "SF")
-# SF=float(match_lines[0][match_lines[0].find(" ")+1:])
-# print(match_lines[0])
-#
-# match_lines=search_string_in_file("procs", "$SI")
-# ftsize=float(match_lines[0][match_lines[0].find(" ")+1:])
-# print(match_lines[0])
-#
-#
-# match_lines=search_string_in_file("procs", "$OFFSET")
-# SF1=float(match_lines[0][match_lines[0].find(" ")+1:])
-# print(match_lines[0])
-#
-# sw=SW_p/SF
-#
-
-sw = SF1-SF2
-
-step = sw / ftsize
-print(f"1 point of sw = {step}")
-print()
-
-print("Reading the 1r file ")
-print()
-
-i: int = 0
-outData: list = []
-
-infileName: str = args.file
-outfileName: str = args.out
-
-with open(infileName, "rb") as f:
-    byte = f.read(4)
-    while byte:
-        # Do stuff with byte.
-        long = int.from_bytes(byte, byteorder='little', signed=True)
-        outData.append([SF1-i*step, long])
-        i = i+1
-        byte = f.read(4)
-
-res: npt.NDArray[np.float64] = np.array(outData[::-1])
-# np.savetxt(outfileName, res, fmt='%2.5f %12.5e')
-save_simulation_spectra_file_dat_npz(outfileName, res)
-
-print(f"Coversion to anmr file ({outfileName})")
-print("Finished ...")
 
 # use interpolation function returned by `interp1d`
 # setting of plotting spectra

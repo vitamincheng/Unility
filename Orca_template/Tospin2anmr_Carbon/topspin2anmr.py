@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 from censo_ext.Tools.utility import save_simulation_spectra_file_dat_npz
-import sys
-from os.path import exists
 import argparse
 import numpy as np
 from sys import argv as sysargv
@@ -16,16 +14,14 @@ ________________________________________________________________________________
 """
 
 
-def cml():
-    # def cml():
+def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
         description="",
-        #        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
-    )  # argparse.RawDescriptionHelpFormatter) #,
+    )
 
     parser.add_argument(
         "-o",
@@ -46,7 +42,7 @@ def cml():
         help="Provide input_file format [default 1r]",
     )
 
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
     return args
 
 
@@ -61,55 +57,53 @@ def search_string_in_file(file_name, string_to_search):
     return list_of_results
 
 
-print(descr)
+def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
-args = cml()
-print("    provided arguments: {}".format(" ".join(sysargv)))
-print("")
+    if args == argparse.Namespace():
+        args = cml()
 
+    print(descr)
+    print("    provided arguments: {}".format(" ".join(sysargv)))
+    print("")
 
-file_exists = exists("procs")
+    from censo_ext.Tools.utility import IsExist
+    IsExist("procs")
 
-if not file_exists:
-    print("procs, the file is not exist ...")
-    sys.exit()
+    print("Reading the procs file ")
+    match_lines = search_string_in_file("procs", "ABSF1")
+    SF1 = float(match_lines[0][match_lines[0].find(" ")+1:])
+    print(match_lines[0])
 
-print("Reading the procs file ")
-match_lines = search_string_in_file("procs", "ABSF1")
-SF1 = float(match_lines[0][match_lines[0].find(" ")+1:])
-print(match_lines[0])
+    match_lines = search_string_in_file("procs", "ABSF2")
+    SF2 = float(match_lines[0][match_lines[0].find(" ")+1:])
+    print(match_lines[0])
 
-match_lines = search_string_in_file("procs", "ABSF2")
-SF2 = float(match_lines[0][match_lines[0].find(" ")+1:])
-print(match_lines[0])
+    match_lines = search_string_in_file("procs", "$SI")
+    ftsize = float(match_lines[0][match_lines[0].find(" ")+1:])
+    print(match_lines[0])
+    print()
 
-# match_lines=search_string_in_file("procs", "$FTSIZE")
-match_lines = search_string_in_file("procs", "$SI")
-ftsize = float(match_lines[0][match_lines[0].find(" ")+1:])
-print(match_lines[0])
-print()
+    sw = SF1-SF2
 
-sw = SF1-SF2
+    step = sw/ftsize
 
-step = sw/ftsize
+    print("Reading the 1r file ")
+    i: int = 0
+    outData = []
+    with open(args.file, "rb") as f:
+        byte: bytes = f.read(4)
+        while byte:
+            # Do stuff with byte.
+            long: int = int.from_bytes(byte, byteorder='little', signed=True)
+            outData.append([SF1 - i*step, long])
+            i = i+1
+            byte = f.read(4)
 
-print("Reading the 1r file ")
-i = 0
-outData = []
-with open(args.file, "rb") as f:
-    byte = f.read(4)
-    while byte:
-        # Do stuff with byte.
-        long = int.from_bytes(byte, byteorder='little', signed=True)
-        outData.append([SF1-i*step, long])
-        i = i+1
-        byte = f.read(4)
+    save_simulation_spectra_file_dat_npz(args.out, np.array(outData[::-1]))
 
-
-print("Coversion to anmr file (1r.dat)")
-
-reverse_Data = np.array(outData[::-1])
-save_simulation_spectra_file_dat_npz(args.out, reverse_Data)
+    print(f"Coversion to anmr file {args.out}")
+    print("Finished ...")
 
 
-print("Finished ...")
+if __name__ == "__main__":
+    main()
