@@ -2,6 +2,8 @@
 # from icecream import ic
 from pathlib import Path
 import shutil
+import numpy as np
+import numpy.typing as npt
 #
 # https://steam.oxxostudio.tw/category/python/library/shutil.html
 #
@@ -319,6 +321,14 @@ def prog_IsExist(Prog: str) -> bool:
         return True
     else:
         raise ValueError(f"{Prog}, the program is not Exist ...")
+
+
+def save_simulation_spectra_file_dat_npz(fileName: str, spectra: npt.NDArray):
+    np.savetxt(fileName, spectra, fmt='%2.5f %12.5e')
+    print(f" the spectra is saved to : {fileName}")
+    outfile = fileName.split(".")[0]+str(".npz")
+    np.savez_compressed(outfile, spectra)
+    print(f" the spectra is saved to : {outfile}")
 
 
 def save_figure(fileName: str = "nmrplot") -> None:

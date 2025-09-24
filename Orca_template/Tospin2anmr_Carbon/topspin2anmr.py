@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from censo_ext.Tools.utility import save_simulation_spectra_file_dat_npz
 import sys
 from os.path import exists
 import argparse
@@ -109,13 +110,10 @@ print("Coversion to anmr file (1r.dat)")
 
 # data=np.array(outfile)
 
-res = outData[::-1]
+res = np.array(outData[::-1])
 
-outfile_name = args.out
-np.savetxt(outfile_name, res, fmt='%2.5f %12.5e')
-
-
-# np.savetxt('1r.dat',data,fmt='%2.5e')
+# np.savetxt(args.out, res, fmt='%2.5f %12.5e')
+save_simulation_spectra_file_dat_npz(args.out, res)
 
 
 print("Finished ...")

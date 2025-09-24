@@ -151,8 +151,9 @@ def main():
                         (npData[-1][0], threshold), axis=0)
 
     if args.out:
-        np.savetxt(args.out, outData, fmt=' %2.6f %10.6e')
-        print(f" Saved to the {args.out} file")
+        # np.savetxt(args.out, outData, fmt=' %2.6f %10.6e')
+        from censo_ext.Tools.utility import save_simulation_spectra_file_dat_npz
+        save_simulation_spectra_file_dat_npz(args.out, outData)
 
     if args.print:
         print(outData)

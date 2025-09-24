@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from censo_ext.Tools.utility import save_simulation_spectra_file_dat_npz
 import re
 from icecream import ic
 import sys
@@ -147,6 +148,7 @@ for line in lines[idx0_lines_start:idx0_lines_end]:
 print(f"Coversion to anmr file {args.out}")
 
 res: npt.NDArray[np.float64] = np.array(outData[::-1])
-np.savetxt(f"{args.out}", res, fmt='%2.5f %12.5e')
+# np.savetxt(f"{args.out}", res, fmt='%2.5f %12.5e')
+save_simulation_spectra_file_dat_npz(args.out, res)
 
 print("Finished ...")

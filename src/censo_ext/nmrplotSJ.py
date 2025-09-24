@@ -499,7 +499,18 @@ if __name__ == "__main__":
     i = 0
     for file in args.file:
         try:
-            ppm, intensit = readinput(file, ppm, intensit, i)
+            ############################################################
+            # start
+            # add read .npz file
+            if file.split(".")[1] == "npz":
+                with np.load(file) as data:
+                    x, y = data['arr_0'].T
+                    ppm.append(x.tolist())
+                    intensit.append(y.tolist())
+            # end
+            ############################################################
+            else:
+                ppm, intensit = readinput(file, ppm, intensit, i)
         except IOError:
             print(
                 "    File: {} does not exist! Or Error while reading file! "

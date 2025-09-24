@@ -252,7 +252,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args.end, args.start = uc_1h.ppm_limits()
 
     output: npt.NDArray[np.float64] = np.vstack((ppm, np.real(data))).T[::-1]
-    np.savetxt("output.dat", output, fmt=" %12.5f  %12.5e")
+    # np.savetxt("output.dat", output, fmt=" %12.5f  %12.5e")
+    from censo_ext.Tools.utility import save_simulation_spectra_file_dat_npz
+    save_simulation_spectra_file_dat_npz("output.dat", output)
     from censo_ext.Tools.spectra import numpy_thr_mean_3
     threshold: float = numpy_thr_mean_3(
         data.astype(np.float64))*thr[channel]

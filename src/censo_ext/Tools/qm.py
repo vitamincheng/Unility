@@ -14,8 +14,8 @@ def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[n
     """
     Create Pauli matrices for a given number of spins.
 
-    This function generates the standard Pauli matrices (sigma_x, sigma_y, sigma_z) 
-    scaled by 1/2, which are fundamental operators in quantum mechanics for describing 
+    This function generates the standard Pauli matrices (sigma_x, sigma_y, sigma_z)
+    scaled by 1/2, which are fundamental operators in quantum mechanics for describing
     spin-1/2 particles.
 
     Args:
@@ -63,7 +63,7 @@ def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.uint8]:
     """
     Generate interaction matrix F for spin systems.
 
-    This function creates a matrix that represents interactions between spins 
+    This function creates a matrix that represents interactions between spins
     in a quantum system, typically used in the context of quantum Hamiltonians.
 
     Args:
@@ -91,8 +91,8 @@ def T_matrix(nspins: int) -> npt.NDArray[np.uint8]:
     """
     Generate transition matrix T for spin systems.
 
-    This function creates a binary matrix that indicates which states can transition 
-    to each other in a quantum spin system, where transitions occur when only one 
+    This function creates a binary matrix that indicates which states can transition
+    to each other in a quantum spin system, where transitions occur when only one
     spin flips (Hamming distance of 1).
 
     Args:
@@ -124,7 +124,7 @@ def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArra
         J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
 
     Returns:
-        tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]: 
+        tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]:
         - H: The total Hamiltonian matrix (complex128)
         - T: Transition matrix for intensity calculations (float64)
     """
@@ -147,7 +147,7 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
     """
     Calculate full spin system spectrum using quantum mechanical approach.
 
-    This function computes the complete energy eigenvalues and eigenvectors for a 
+    This function computes the complete energy eigenvalues and eigenvectors for a
     spin system, calculates intensities based on transition matrix, and normalizes
     the resulting peaklist.
 
@@ -203,7 +203,7 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
     """
     Calculate partial spin system spectrum for a specific spin.
 
-    This function computes the spectrum contribution from a single spin (idx0_nspins) 
+    This function computes the spectrum contribution from a single spin (idx0_nspins)
     by restricting transitions to only those involving that spin.
 
     Args:
@@ -300,8 +300,14 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int,
 
     xy_curve = mpl_plot(Normal_plist, lw=lw,
                         limits=limits, lw_points=lw_points)
-    np.savetxt(args.out, np.vstack(xy_curve).T, fmt='%2.5f %12.5e')
-    print(f" the spectra is saved to : {args.out}")
+    from censo_ext.Tools.utility import save_simulation_spectra_file_dat_npz
+    save_simulation_spectra_file_dat_npz(args.out, np.vstack(xy_curve).T)
+    # np.savetxt(args.out, np.vstack(xy_curve).T, fmt='%2.5f %12.5e')
+    # print(f" the spectra is saved to : {args.out}")
+    # outfile = args.out.split(".")[0]+str(".npz")
+    # np.savez_compressed(outfile, np.vstack(xy_curve).T)
+    # print(f" the spectra is saved to : {outfile}")
+
     return np.vstack(xy_curve)
 
 

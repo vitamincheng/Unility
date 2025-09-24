@@ -214,7 +214,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.out:
         output: npt.NDArray[np.float64] = np.vstack(
             (ppm, np.real(data))).T[::-1]
-        np.savetxt(args.out, output, fmt=" %12.5f  %12.5e")
+        # np.savetxt(args.out, output, fmt=" %12.5f  %12.5e")
+        from censo_ext.Tools.utility import save_simulation_spectra_file_dat_npz
+        save_simulation_spectra_file_dat_npz(args.out, output)
 
     from censo_ext.Tools.spectra import numpy_thr_mean_3
     threshold: float = numpy_thr_mean_3(data)*args.thr
@@ -405,7 +407,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             if ppm_peak < args.end and ppm_peak > args.start:
                 ax.scatter(ppm_peak, height, marker="o", color="r", s=100, alpha=0.5)  # type: ignore # nopep8
                 # ax.text(ppm, height + threshold*5, f"{contour_heights[n]:12.3f}" , ha="center", va="center",rotation=90)
-                ax.text(ppm_peak, height*1.05, str(cID), ha="center", va="center")
+                ax.text(ppm_peak, height*1.05, str(cID),
+                        ha="center", va="center")
             # print(f"{cID:6d} {ppm:>15.5f}")
 
     # draw the spectra
