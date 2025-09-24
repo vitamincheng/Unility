@@ -4,12 +4,14 @@ import numpy.typing as npt
 # from numba import jit
 import argparse
 from icecream import ic
-from joblib import Memory
-location = ".cache_Joblib"
-memory = Memory(location, compress=True, verbose=0)
+from cachier import cachier
+# from joblib import Memory
+# location = ".cache_Joblib"
+# memory = Memory(location, compress=True, verbose=0)
 
 
-@memory.cache
+# @memory.cache
+@cachier(separate_files=True)
 def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.complex128]]:
     """
     Create Pauli matrices for a given number of spins.
@@ -58,7 +60,8 @@ def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[n
     return L, Lproduct
 
 
-@memory.cache
+# @memory.cache
+@cachier(separate_files=True)
 def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.uint8]:
     """
     Generate interaction matrix F for spin systems.
@@ -86,7 +89,8 @@ def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.uint8]:
     return F
 
 
-@memory.cache
+# @memory.cache
+@cachier(separate_files=True)
 def T_matrix(nspins: int) -> npt.NDArray[np.uint8]:
     """
     Generate transition matrix T for spin systems.

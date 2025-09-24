@@ -28,4 +28,5 @@ dependencies = [
     "pyberny",
     "tblite",
     "tqdm",
+    "cachier",
 ]
