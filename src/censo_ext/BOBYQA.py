@@ -16,7 +16,7 @@ ________________________________________________________________________________
 | Dir      : -d the directory [default .]
 | Ref      : -r the actual reference file [default 1r.dat]
 | mf       : -mf magnetic frequency of scan nmr [default 500.0]
-| lw       : -lw line width of scan nmr [1.0 for H, 20 for C]
+| lw       : -lw line width of scan nmr [2.0 for H, 40 for C]
 | Limit    : -l limit border(ppm) [defalut 0.20]
 | Prog     : -p --prog Use external anmr execute file [default False]
 | verbose  : -v --verbose more detail [default False]
@@ -97,8 +97,8 @@ def cml() -> argparse.Namespace:
         action="store",
         type=float,
         required=False,
-        default=1,
-        help="line width of scan nmr [default 1.0 for H, 20.0 for C]",
+        default=2,
+        help="line width of scan nmr [default 2.0 for H, 40.0 for C]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -107,8 +107,6 @@ def cml() -> argparse.Namespace:
 
 FileOrcaS: Path = Path("Average/NMR/orcaS.out")
 FileBOBYQA: Path = Path("Average/NMR/orcaS-BOBYQA.out")
-
-Ref_TMS: float = 31.820
 
 
 def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
@@ -165,7 +163,7 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
             print("  Nucleus  Element    Isotropic     Anisotropy")
             print("  -------  -------  ------------   ------------")
         sys.stdout = sys.__stdout__
-        orcaS_Table.T[1] = orcaS_Table.T[1] + Ref_TMS
+        orcaS_Table.T[1] = orcaS_Table.T[1] + ref
         orcaS_Table.T[0] = orcaS_Table.T[0]-1
         orcaS_Table_File = Path("CONF1/NMR/orcaS-main.out")
         np.savetxt(orcaS_Table_File, orcaS_Table, fmt="%7d       H    %10.5f          0")  # type: ignore # nopep8
@@ -182,14 +180,14 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
                 " call anmr.sh process have something wrong !!!")
 
         os.chdir(cwd)
-        dat_Cal: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
+        dat_Sim: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
 
     elif not prog:
         # print("Internal python: anmr.py")
         np.savetxt(Directory/FileOrcaS, orcaS_Table, fmt="%10d %10.5f")
         import censo_ext.anmr as anmr
         x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': mf,
-                   'lw': lw, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025,
+                   'lw': lw, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.020,
                    'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, "verbose": False,
                    'mss': 10, 'auto': True, 'average': True, 'bobyqa': False}
         import sys
@@ -197,18 +195,18 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
         anmr.main(args=argparse.Namespace(**x))
         sys.stdout = sys.__stdout__
 
-        dat_Cal: CensoDat = CensoDat(file=Directory/Path(x["out"]))
+        dat_Sim: CensoDat = CensoDat(file=Directory/Path(x["out"]))
     else:
         raise ValueError("Something wrong in your argument")
 
-    dat_Cal.method_normalize_dat()
+    dat_Sim.method_normalize_dat()
     global Dat_Ref
     try:
         dat_diff: CensoDat = dat_Cal - dat_Ref  # type: ignore
     except NameError:
-        dat_Ref = CensoDat(file=Directory/Dat_fileName)
+        dat_Ref = CensoDat(file=Directory / Dat_fileName)
         dat_Ref.method_normalize_dat()
-        dat_diff: CensoDat = dat_Cal - dat_Ref
+        dat_diff: CensoDat = dat_Sim - dat_Ref
 
     return np.sum(np.square(dat_diff.get_Dat()))
 
@@ -386,7 +384,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     global Dat_fileName
     global limit_border
     global prog
-    global mf, lw
+    global mf, lw, ref
 
     if args == argparse.Namespace():
         args = cml()
@@ -406,6 +404,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     else:
         mf = args.mf
         lw = args.lw
+
+    from censo_ext.Tools.anmrfile import Anmr
+    inAnmr: Anmr = Anmr(Dir=args.dir, verbose=args.verbose)
+    inAnmr.method_read_anmrrc()
+    ref = inAnmr.get_Anmr_Reference_anmrrc()
 
     if IsExist_bool(Directory / FileOrcaS):                 # type: ignore # nopep8
         print(f"  {FileOrcaS} is exist")

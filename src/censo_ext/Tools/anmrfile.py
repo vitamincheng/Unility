@@ -279,6 +279,9 @@ class Anmr():
         """
         return self.__AnmrParams.Active
 
+    def get_Anmr_Reference_anmrrc(self) -> float:
+        return self.__AnmrParams.get_Reference_anmrrc()
+
     def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFile: Path | str = Path("crest_conformers.xyz")) -> list[int]:
         """
         Get the list of hydrogen atom indices to be removed based on acid atom settings.

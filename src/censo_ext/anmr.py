@@ -18,7 +18,7 @@ ________________________________________________________________________________
 | mf       : -mf magnetic frequency of scan nmr [default 500.0]
 | lw       : -lw line width of scan nmr [1.0 for H, 20 for C]
 | auto     : -auto --auto automated to adjust the threshold of J and AB quartet [default False]
-| decoups  : -de --decoups deCoupings mode [defalut False]
+| decoups  : -de --decoups deCoupings mode [defalut False][pending]
 | average  : -av load the average folder data to plot spectra [default False]
 | thr      : -t -thr threshold of coupling constant (J) [default 0.30]
 | thrtab   : -tab -thrab threshold of AB quartet (JCoups / diff chemical shift) [default 0.020]
@@ -31,8 +31,6 @@ ________________________________________________________________________________
 | ref      : reference standard - see .anmrrc file
 | BOBYQA   : -b --bobyqa BOBYQA mode [default False]
 | JSON     : -j --json Read the raw data of every single peak [if is -1(All)]
-| ascal    : -ascal chemical shift scaling a if the reference is absent [pending]
-| bscal    : -bcsal chemical shift scaling b if the reference is absent [pending]
 |______________________________________________________________________________
 """
 
@@ -84,28 +82,6 @@ def cml() -> argparse.Namespace:
         type=float,
         required=False,
         help="line width of scan nmr [default 1.0 for H, 20.0 for C]",
-    )
-
-    parser.add_argument(
-        "-ascal",
-        dest="ascal",
-        action="store",
-        type=float,
-        required=False,
-        help="chemical shift scaling a, "
-        "For   "
-        "For   ",
-    )
-
-    parser.add_argument(
-        "-bscal",
-        dest="bscal",
-        action="store",
-        type=float,
-        required=False,
-        help="chemical shift scaling b, "
-        "For  "
-        "For  ",
     )
 
     parser.add_argument(
@@ -191,7 +167,7 @@ def cml() -> argparse.Namespace:
         "--decoups",
         dest="decoups",
         action="store_true",
-        help="Decouplings mode [important] for carbon spectra [default False]",
+        help="Decouplings mode [important] for carbon spectra [default False][pending]",
     )
 
     parser.add_argument(
