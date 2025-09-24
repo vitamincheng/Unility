@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import numpy as np
+import numpy.typing as npt
 from censo_ext.Tools.utility import IsExists_DirFileName
 descr = """
 ________________________________________________________________________________
@@ -35,18 +36,18 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml()
     if args.file:
         path, file = IsExists_DirFileName(args.file)
-        file_split = file.split(".")
-        file_ext = file_split[1]
-        fileName = file_split[0]
+        file_split: list[str] = file.split(".")
+        file_ext: str = file_split[1]
+        fileName: str = file_split[0]
 
         if file_ext == "dat":
-            in_Data = np.genfromtxt(args.file)
-            np.savez_compressed(fileName+".npz", in_Data)
-            print(f" the spectra is saved to : {fileName+'.npz'}")
+            in_Data: npt.NDArray[np.float64] = np.genfromtxt(args.file)
+            np.savez_compressed(fileName + ".npz", in_Data)
+            print(f" the spectra is saved to : {fileName + '.npz'}")
         elif file_ext == "npz":
-            in_Data = np.load(args.file)
-            np.savetxt(fileName+".dat", in_Data["arr_0"], fmt='%2.5f %12.5e')
-            print(f" the spectra is saved to : {fileName+'.dat'}")
+            in_Data: npt.NDArray[np.float64] = np.load(args.file)["arr_0"]
+            np.savetxt(fileName + ".dat", in_Data, fmt='%2.5f %12.5e')
+            print(f" the spectra is saved to : {fileName + '.dat'}")
         else:
             print("  The file is not supported for this system !!!")
             print("  Exit and Close the program !!!")

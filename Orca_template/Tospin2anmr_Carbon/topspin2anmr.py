@@ -108,12 +108,8 @@ with open(args.file, "rb") as f:
 
 print("Coversion to anmr file (1r.dat)")
 
-# data=np.array(outfile)
-
-res = np.array(outData[::-1])
-
-# np.savetxt(args.out, res, fmt='%2.5f %12.5e')
-save_simulation_spectra_file_dat_npz(args.out, res)
+reverse_Data = np.array(outData[::-1])
+save_simulation_spectra_file_dat_npz(args.out, reverse_Data)
 
 
 print("Finished ...")

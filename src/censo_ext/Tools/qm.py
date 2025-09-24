@@ -302,12 +302,6 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int,
                         limits=limits, lw_points=lw_points)
     from censo_ext.Tools.utility import save_simulation_spectra_file_dat_npz
     save_simulation_spectra_file_dat_npz(args.out, np.vstack(xy_curve).T)
-    # np.savetxt(args.out, np.vstack(xy_curve).T, fmt='%2.5f %12.5e')
-    # print(f" the spectra is saved to : {args.out}")
-    # outfile = args.out.split(".")[0]+str(".npz")
-    # np.savez_compressed(outfile, np.vstack(xy_curve).T)
-    # print(f" the spectra is saved to : {outfile}")
-
     return np.vstack(xy_curve)
 
 
