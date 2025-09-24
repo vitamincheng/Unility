@@ -38,6 +38,7 @@ def BOBYQA_init():
 def BOBYQA_final_remove_files():
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(DirName / "output.dat",
+                     DirName / "output.npz",
                      DirName / "peaks.json",
                      DirName / "Average/NMR/orcaA.out",
                      DirName / "Average/NMR/orcaJ.out",
