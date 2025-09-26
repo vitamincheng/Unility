@@ -3,7 +3,6 @@
 from pathlib import Path
 import shutil
 import numpy as np
-import numpy.typing as npt
 #
 # https://steam.oxxostudio.tw/category/python/library/shutil.html
 #
@@ -323,7 +322,7 @@ def prog_IsExist(Prog: str) -> bool:
         raise ValueError(f"{Prog}, the program is not Exist ...")
 
 
-def save_simulation_spectra_file_npz(fileName: str, spectra: npt.NDArray) -> None:
+def save_simulation_spectra_file_npz(fileName: str, *spectra) -> None:
     # np.savetxt(fileName, spectra, fmt='%2.5f %12.5e')
     # print(f" the spectra is saved to : {fileName}")
     output: str = Path(fileName).name

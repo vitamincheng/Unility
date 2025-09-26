@@ -185,17 +185,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(f"    provided arguments: {" ".join(sysargv)}")
 
     if not args.path:
-        # args.path = "FAD/2/pdata/1/"
-        # args.path = "../../bmse000510/nmr/set01/1H/pdata/1"
-        # args.path = "../../bmse000510/nmr/set01/13C/pdata/1"
-        # args.path = "../../bmse000510/nmr/set01/DEPT_90/pdata/1"
-        args.path = "../../bmse000510/nmr/set01/DEPT_135/pdata/1"
+        args.path = "../../Simulation/bmse000510/nmr/set01/1H/pdata/1"
+        # args.path = "../../Simulation/bmse000510/nmr/set01/13C/pdata/1"
+        # args.path = "../../Simulation/bmse000510/nmr/set01/DEPT_90/pdata/1"
+        # args.path = "../../Simulation/bmse000510/nmr/set01/DEPT_135/pdata/1"
     dic, data = ng.bruker.read_pdata(args.path)
     udic: dict = ng.bruker.guess_udic(dic, data)
 
     C = ng.convert.converter()
     C.from_bruker(dic, data, udic)
-    pipe_fid_filename = ".1d_pipe.fid"
+    pipe_fid_filename: str = ".1d_pipe.fid"
     ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
     dic, data = ng.pipe.read(pipe_fid_filename)
     data = data.real*args.phase  # type: ignore

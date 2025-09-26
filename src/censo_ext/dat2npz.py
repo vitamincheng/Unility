@@ -48,6 +48,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             delete_all_files(args.file)
         elif file_ext == "npz":
             in_Data: npt.NDArray[np.float64] = np.load(args.file)["arr_0"]
+            a, *b = in_Data.shape
+            if a == 1:
+                in_Data = in_Data[0]
             np.savetxt(fileName + ".dat", in_Data, fmt='%2.5f %12.5e')
             print(f" the spectra is saved to : {fileName + '.dat'}")
             delete_all_files(args.file)
