@@ -27,4 +27,4 @@ def test_spectra_numpy_thr_mean_3():
 
 def test_spectra_find_nearest():
     excepted = (22, 19)
-    assert (find_nearest(list(inSample), 24)) == excepted
+    assert (find_nearest(inSample, 24)) == excepted

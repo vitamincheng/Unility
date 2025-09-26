@@ -806,7 +806,7 @@ def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], i
             idx0_ab_group: list[int] = list(idx0_ab_group_set)
             if len(set(list(inSParams[idx0_ab_group]))) == 1:
                 from censo_ext.Tools.spectra import find_nearest
-                _, Move_idx0 = find_nearest(list(inSParams[idx0_ab_group]),
+                _, Move_idx0 = find_nearest(inSParams[idx0_ab_group],
                                             inSParams[idx0_ab_group[0]])
                 arg = np.argwhere(
                     inSParams[:] == inSParams[int(Move_idx0)])[0]

@@ -43,7 +43,7 @@ def numpy_thr(x_in: npt.NDArray[np.float64], multi: float) -> float:
     return (median - start_mean*20/19+median)*multi
 
 
-def find_nearest(x_in: list[float], value) -> tuple[float, int]:
+def find_nearest(x_in: list[float] | npt.NDArray[np.float64], value) -> tuple[float, int]:
     """Finds the nearest value in a list to a given value.
 
     Args:

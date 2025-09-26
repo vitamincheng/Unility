@@ -132,7 +132,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         app_list: list[float] = []
         peaks_list = [x[1] for x in np_data]
         for x in peaks_list:
-            value, _ = find_nearest(list(peaks_np), x)
+            value, _ = find_nearest(peaks_np, x)
             app_list.append(value)
         # ic(app_list)
 
