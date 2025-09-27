@@ -48,10 +48,12 @@ def test_FactorAnalysis_F_bond_broken() -> None:
 
 
 def test_FactorAnalysis_F_bond_broken_incl_H() -> None:
+    # ignore_Hydrogen must be True Under FactorAnalysis
     x: dict = {"file": inFile, "factor": 0.50, "opt": False, "thr": 2,
                "bond_broken": [40, 44], "ignore_Hydrogen": False, "Analysis": None,
                "remove_idx": None, "add_idx": None, "Filter": True}
 
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(SystemExit) as e:
         FactorAnalysis.main(argparse.Namespace(**x))
-    assert str(e.value) == " Only support under ignore Hydrogen condition "
+    assert e.type is SystemExit
+    assert e.value.code == 0  # for argparse error

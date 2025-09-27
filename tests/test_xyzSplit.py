@@ -24,27 +24,30 @@ def test_xyzSplit_miss_cuts():
     x: dict = {"file": inFile, "cuts": None,
                "atoms": [52, 55], "out": outFile, "print": False}
 
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(SystemExit) as e:
         xyzSplit.main(argparse.Namespace(**x))
-    assert str(e.value) == " Please input your atoms that you want to split "
+    assert e.type is SystemExit
+    assert e.value.code == 0    # for argprarse wrong
 
 
 def test_xyzSplit_miss_atoms():
     x: dict = {"file": inFile, "cuts": 12,
                "atoms": None, "out": outFile, "print": False}
 
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(SystemExit) as e:
         xyzSplit.main(argparse.Namespace(**x))
-    assert str(e.value) == " Please input your atoms that you want to split "
+    assert e.type is SystemExit
+    assert e.value.code == 0    # for argprarse wrong
 
 
 def test_xyzSplit_miss_cuts_atoms():
     x: dict = {"file": inFile, "cuts": None,
                "atoms": None, "out": outFile, "print": False}
 
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(SystemExit) as e:
         xyzSplit.main(argparse.Namespace(**x))
-    assert str(e.value) == " Please input your atoms that you want to split "
+    assert e.type is SystemExit
+    assert e.value.code == 0    # for argprarse wrong
 
 
 def test_xyzSplit_miss():

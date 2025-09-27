@@ -739,7 +739,7 @@ def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], i
                             bond_penetration += 1
                     idx0_ab_group_sets.append(group)
                 else:
-                    raise ValueError("  idx0_ab_group_sets is bugs !!!")
+                    raise ValueError("  idx0_ab_group_sets have bugs !!!")
 
             if len(inSParams*inHydrogen) > args.mss:
                 # Handle CH3 equivalent groups manually (symmetry considerations)

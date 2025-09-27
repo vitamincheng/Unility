@@ -293,9 +293,9 @@ class Geometry():
             else:
                 self.comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
         else:
-            raise ValueError(
-                f"{comments} Something wrong in your xyz file !!! ")
-
+            print(f"{comments} Something wrong in your xyz file !!! ")
+            print("  Exit and Close the program !!!")
+            exit(1)
         self.method_rewrite_comment()
         return
 
@@ -396,7 +396,9 @@ class GeometryXYZs():
                     xyzFile.Sts[idx] + xyzFile.Sts[-1])
             return geometryXYZs
         else:
-            raise ValueError("Too much xyzs structures in your xyz file")
+            print("  Too much xyzs structures in your xyz file")
+            print("  Exit and Close the program !!!")
+            exit(0)
 
     def method_idx_molecules_xyzs(self, idx1: int = 1) -> bool:
         """
@@ -422,8 +424,9 @@ class GeometryXYZs():
             if self.Sts[idx1+idx].method_molecules_separation_xyz(x):
                 pass
             else:
-                raise ValueError(
-                    " Something wrong in your Molecule Separation xyz file")
+                print("  Something wrong in your Molecule Separation xyz file")
+                print("  Exit and Close the program !!!")
+                exit(1)
 
         path: Path = Path("Separation")
         if not path.exists():
@@ -436,11 +439,9 @@ class GeometryXYZs():
 
     def method_Sts_extend(self, Sts_: list[Geometry]) -> None:
         raise NotImplementedError("Under Construct")
-        # self.Sts.extend(Sts_)
 
     def method_Sts_append(self, St: Geometry) -> None:
         raise NotImplementedError("Under Construct")
-        # self.Sts.append(St)
 
     def method_read_xyz(self) -> None:
         """Read XYZ file and populate the GeometryXYZs collection.

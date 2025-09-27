@@ -210,7 +210,9 @@ class Anmrrc():
         if reference:
             return reference
         else:
-            raise ValueError("No reference in your .anmrrc file")
+            print("  No reference in your .anmrrc file")
+            print("  Exit and Close the program !!!")
+            exit(0)
 
 
 class Anmr():
@@ -379,8 +381,9 @@ class Anmr():
 
         print(" ===== Average of all folder orcaS.out and orcaJ.out =====")
         if len(self.nChemEqvs) == 0 or len(self.nMagnetEqvs) == 0 or self.enso.size == 0:
-            raise FileNotFoundError(
-                " Need to read the anmr_nucinfo and anmr_enso enso ")
+            print("  Need to read the anmr_nucinfo and anmr_enso enso ")
+            print("  Exit and Close the program !!!")
+            exit(0)
         else:
             # for Normal of weight of anmr_enso
             weight: npt.NDArray[np.float64] = self.enso['BW']
@@ -389,7 +392,9 @@ class Anmr():
                 np.int64)
 
             if np.sum(switch) == 0:
-                raise ValueError(" anmr_enso: Table - ONOFF is Zero ")
+                print("  anmr_enso: Table - ONOFF is Zero ")
+                print("  Exit and Close the program !!!")
+                exit(0)
 
             weight = weight*switch
             weight = weight / np.sum(weight)
@@ -484,8 +489,9 @@ class Anmr():
         print(" Replace the equivalent of Sparams and JCoups")
 
         if len(self.nChemEqvs) == 0 or len(self.nMagnetEqvs) == 0 or self.enso.size == 0:
-            raise FileNotFoundError(
-                " Need to read the anmr_nucinfo and anmr_enso enso ")
+            print("  Need to read the anmr_nucinfo and anmr_enso enso ")
+            print("  Exit and Close the program !!!")
+            exit(0)
         else:
             print(" ===== Update the equivalent of SParams and JCoups =====")
 
@@ -637,7 +643,9 @@ class Anmr():
         del idx
 
         if len(dirNames) == 0:
-            raise ValueError("  Your CONFXX is not Exist !!!")
+            print("  Your CONFXX is not Exist !!!")
+            print("  Exit and Close the program !!!")
+            exit(0)
         from tqdm import tqdm
         for idx0, name in enumerate(tqdm(dirNames)):
             file_orcaS: Path = Dir / Path(name + "/NMR/orcaS.out")  # nopep8
@@ -1142,7 +1150,9 @@ class Anmr():
 
         self.enso = np.genfromtxt(file, names=True)
         if len(self.enso.dtype) != 8:                                       # type:ignore
-            raise FileNotFoundError("something wrong in your anmr_enso file")
+            print("  something wrong in your anmr_enso file")
+            print("  Exit and Close the program !!!")
+            exit(0)
 
     def method_print_enso(self) -> None:
         """Print ENSO data in a formatted table.
@@ -1300,7 +1310,8 @@ class OrcaSJ():
             print("This program is not work with before orca 5.0 ")
 
         if start_idx == 0 or end_idx == 0:
-            raise ValueError(f"{file}, the data of the file is some error ...")
+            raise ValueError(
+                f"{file}, the data of the file have some error ...")
 
         for x in range(start_idx, end_idx+1):
             Data_str.append(lines[x].rstrip())
@@ -1383,7 +1394,9 @@ class OrcaSJ():
                 if re.search(r"CHEMICAL SHIELDING SUMMARY", line):
                     start_idx = idx0 + 6
         else:
-            raise ValueError(" This program is not work with before orca 5.0 ")
+            print(" This program is not work with before orca 5.0 ")
+            print("  Exit and Close the program !!!")
+            exit(0)
 
         for x in range(start_idx, end_idx+1):
             DataS.append(lines[x].rstrip())

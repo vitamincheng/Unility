@@ -289,7 +289,9 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
             p_view, q_view = index, index
 
         else:
-            raise ValueError(" Only support under ignore Hydrogen condition ")
+            print("  Only support under ignore Hydrogen condition ")
+            print("  Exit and Close the program !!!")
+            exit(0)
     else:
         pass
 

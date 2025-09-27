@@ -119,7 +119,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if idx0_lines_start == 0 or idx0_lines_end == 0:
         print("  Your jdx format file have something wrong !!!")
-        print("  Close and exit the program !!!")
+        print("  Exit and Close the program !!!")
         exit(0)
 
     idx0_lines_start += 1

@@ -69,7 +69,9 @@ class CensoDat():
             censoDat.__dat[:, 1] = np.subtract(
                 self.__dat[:, 1], other.__dat[:, 1])
         else:
-            raise ValueError(" Two dat file is not the same scale")
+            print("  Two dat file is not the same scale")
+            print("  Exit and Close the program !!!")
+            exit(0)
         return censoDat
 
     def __repr__(self) -> str:
