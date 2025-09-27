@@ -4,7 +4,7 @@ import os
 import sys
 import argparse
 import subprocess
-from censo_ext.Tools.utility import delete_all_files, IsExist_bool
+from censo_ext.Tools.utility import delete_all_files, IsExist_bool, print_descr
 from pathlib import Path
 
 descr = """
@@ -75,6 +75,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
+    print_descr(descr)
 
     inFile = Path(args.file)
     outFile = Path(args.out)

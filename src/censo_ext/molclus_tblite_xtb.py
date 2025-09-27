@@ -1,4 +1,5 @@
-#!/usr/bin/env python.12
+#!/usr/bin/env python
+from censo_ext.Tools.utility import print_descr
 from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 from pathlib import Path
@@ -113,6 +114,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
+    print_descr(descr)
 
     single_traj_Name = Path(".solo.xyz")
     inFile = Path(args.file)

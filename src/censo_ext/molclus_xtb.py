@@ -3,6 +3,7 @@ from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import subprocess
 from pathlib import Path
+from censo_ext.Tools.utility import print_descr
 descr = """
 ________________________________________________________________________________
 | For GFN-xTB of molecules of xyz file  
@@ -111,6 +112,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
+
+    print_descr(descr)
 
     single_traj_Name = Path(".solo.xyz")
     temp_isomer_Name = Path(".isomers.xyz")

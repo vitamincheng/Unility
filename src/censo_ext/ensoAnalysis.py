@@ -3,12 +3,12 @@ import argparse
 import numpy as np
 import numpy.typing as npt
 import math
-# from icecream import ic
-from sys import argv as sysargv
 from pathlib import Path
+from censo_ext.Tools.utility import print_descr
 
 descr = """
 ________________________________________________________________________________
+| Analysis the enso file using entropy  
 | Usage   : ensoAnalysis.py <enso file> [Options]
 | Input   : -i input file [default anmr_enso]
 | [Options]
@@ -135,8 +135,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-        print(descr)  # Program description
-        print(f"    provided arguments: {" ".join(sysargv)}")
+    print_descr(descr)
 
     from censo_ext.Tools.utility import IsExist_bool
     from censo_ext.Tools.Parameter import Eh, Rcal

@@ -6,11 +6,11 @@ import numpy as np
 import numpy.typing as npt
 from pathlib import Path
 import subprocess
-from censo_ext.Tools.utility import IsExist_bool
+from censo_ext.Tools.utility import IsExist_bool, print_descr
 
 descr = """
 ________________________________________________________________________________
-| BOBYQA.py
+| using BOBYQA method to fit
 | Usages   : BOBYQA.py [options]
 | [options]
 | Dir      : -d the directory [default .]
@@ -387,6 +387,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
+    print_descr(descr)
+
     if args.dir:                            # default .
         Directory = Path(args.dir)
     if args.ref:                            # default 1r.dat

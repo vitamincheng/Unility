@@ -3,13 +3,12 @@ import nmrglue as ng
 from nmrglue.fileio.fileiobase import unit_conversion
 import numpy as np
 import numpy.typing as npt
-from sys import argv as sysargv
 import argparse
+from censo_ext.Tools.utility import print_descr
 
 
 descr = """
 ________________________________________________________________________________
-|                                                       vitamin.cheng@gmail.com
 | Usage: ng2npz.py <geometry> [options]
 | Transform Bruker fid file to npz file using nmrglue module
 | [Options]
@@ -93,8 +92,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # read in the Bruker data
     if args == argparse.Namespace():
         args = cml()
-    print(descr)  # Program description
-    print(f"    provided arguments: {" ".join(sysargv)}")
+    print_descr(descr)
 
     if not args.path:
         args.path = "../../Simulation/bmse000510/nmr/set01/1H/pdata/1"

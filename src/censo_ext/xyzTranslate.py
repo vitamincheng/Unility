@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import argparse
-# import os
 import numpy as np
 from pathlib import Path
-# from icecream import ic
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 

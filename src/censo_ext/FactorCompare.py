@@ -3,8 +3,7 @@ import argparse
 import os
 import numpy as np
 import numpy.typing as npt
-from sys import argv as sysargv
-# from icecream import ic
+from censo_ext.Tools.utility import print_descr
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 descr = """
@@ -181,8 +180,7 @@ def Factor_xyzCompare(args) -> None:
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml()
-    print(descr)  # Program description
-    print(f"    provided arguments: {" ".join(sysargv)}")
+    print_descr(descr)
 
     if args.file is None or len(args.file) != 2:
         print("  Your input files are wrong (two input file) !!!")

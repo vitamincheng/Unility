@@ -51,7 +51,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             a, *b = in_Data.shape
             if a == 1:
                 in_Data = in_Data[0]
-            np.savetxt(fileName + ".dat", in_Data, fmt='%2.5f %12.5e')
+            np.savetxt(fileName + ".dat", in_Data, fmt='%12.6f  %12.6e')
             print(f" the spectra is saved to : {fileName + '.dat'}")
             delete_all_files(args.file)
         else:

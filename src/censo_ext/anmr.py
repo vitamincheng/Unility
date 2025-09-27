@@ -7,10 +7,11 @@ from icecream import ic
 from pathlib import Path
 
 from censo_ext.Tools.anmrfile import Anmr
+from censo_ext.Tools.utility import print_descr
 
 descr = """
 ________________________________________________________________________________
-| anmr.py
+| To simulation the spectra of nmr
 | Usages   : anmr.py [options]
 | [options]
 | Output   : -o output file [default output.npz]
@@ -869,6 +870,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
     if args == argparse.Namespace():
         args = cml()
+    print_descr(descr)
 
     # Setup
     inAnmr: Anmr = setup_anmr(args=args)

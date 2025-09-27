@@ -4,9 +4,8 @@ import os
 import shutil
 from pathlib import Path
 # from icecream import ic
-from censo_ext.Tools.utility import delete_all_files
+from censo_ext.Tools.utility import delete_all_files, print_descr
 from censo_ext.Tools.utility import copy_file
-from sys import argv as sysargv
 
 descr = """
 ________________________________________________________________________________
@@ -151,8 +150,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print(descr)  # Program description
-    print(f"    provided arguments: {" ".join(sysargv)}")
+    print_descr(descr)
 
     p = Path(args.file)
     fileName: str = p.name

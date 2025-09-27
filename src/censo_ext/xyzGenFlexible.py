@@ -2,12 +2,11 @@
 import argparse
 import os
 import sys
-# from graph import Graph
 import numpy as np
 import numpy.typing as npt
 from icecream import ic
+from censo_ext.Tools.utility import print_descr
 from censo_ext.Tools.xyzfile import GeometryXYZs
-from sys import argv as sysargv
 from pathlib import Path
 
 descr = """
@@ -201,8 +200,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print(descr)  # Program description
-    print(f"    provided arguments: {" ".join(sysargv)}")
+    print_descr(descr)
 
     _, circleMols, residualMols, Bond_order, atomsCN = read_data(
         args)

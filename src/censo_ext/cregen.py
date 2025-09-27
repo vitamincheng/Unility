@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import argparse
-from sys import argv as sysargv
 import subprocess
 from pathlib import Path
+from censo_ext.Tools.utility import print_descr
 
 descr = """
 ________________________________________________________________________________
@@ -99,9 +99,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    # if not args.print :
-    print(descr)  # Program description
-    print(f"    provided arguments: {" ".join(sysargv)}")
+    print_descr(descr)
 
     inFile: Path = Path(args.file)
     outFile: Path = Path(args.out)

@@ -1,14 +1,166 @@
-
 from __future__ import annotations
 from scipy.interpolate import interp1d
 from typing import Self
-import sys
 import numpy as np
 import numpy.typing as npt
 from pathlib import Path
-
 from censo_ext.Tools.utility import IsExist
 # from dataclasses import dataclass
+
+
+class unit_conversion():
+
+    def __init__(self, in_ppm: npt.NDArray[np.float64]) -> None:
+        self.in_ppm: npt.NDArray[np.float64] = in_ppm
+        self.args_ppm: dict = {idx: ppm for idx,
+                               ppm in enumerate(in_ppm)}
+        self.ppm_args: dict = {ppm: idx for idx,
+                               ppm in enumerate(in_ppm)}
+
+    def index(self, ppm) -> int:
+        from censo_ext.Tools.spectra import find_nearest
+        value, index = find_nearest(self.in_ppm, ppm)
+        return index
+
+    def ppm(self, index) -> float:
+        return float(self.args_ppm[index])
+
+    def ppm_scale(self) -> npt.NDArray[np.float64]:
+        return self.in_ppm
+
+    def ppm_limits(self) -> tuple[float, float]:
+        return float(self.in_ppm.min()), float(self.in_ppm.max())
+
+
+class Peaks_npz():
+    """Class fo handling Peaks of NMR data files(npz format).
+    """
+
+    def __init__(self, uc: unit_conversion, file: Path | str = Path("peaks.npz")) -> None:
+        # IsExist(file)
+        self.__fileName: Path = Path(file)
+        self.__peaks: npt.NDArray = np.array(
+            [], dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
+        self.__uc = uc
+
+    def method_delete_cID(self, cIDs: list[int]):
+        for cID in cIDs:
+            if cID in self.__peaks['cID']:
+                self.__peaks = self.__peaks[self.__peaks['cID'] != cID]
+            else:
+                print("your delete element is wrong cID")
+                exit(0)
+
+    def method_merge_cID(self, cIDs: list[int]):
+
+        min_cID: int = np.array(cIDs).min()
+        start, end = -99999, 99999
+        for cID in sorted(cIDs):
+            if cID in self.__peaks['cID']:
+                args_x: npt.NDArray[np.intp] = np.argwhere(
+                    self.__peaks['cID'] == cID)
+                if start < self.__peaks[args_x[0]]['Start']:
+                    start: float = self.__peaks[args_x[0]
+                                                ]['Start'].max().astype(float)
+                if end > self.__peaks[args_x[0]]['End']:
+                    end: float = self.__peaks[args_x[0]
+                                              ]['End'].min().astype(float)
+            else:
+                print("  Your merge element is wrong cID")
+                exit(0)
+
+        # assign the new cID of data
+        args_x = np.argwhere(self.__peaks['cID'] == min_cID)
+        Total_intensit = 0
+        for cID in cIDs:
+            Total_intensit += np.sum(
+                self.__peaks[self.__peaks['cID'] == cID]['Area'])
+
+        # Remove unnecessary entry
+        for cID in cIDs:
+            if (cID in self.__peaks['cID']):
+                self.__peaks = self.__peaks[self.__peaks['cID'] != cID]
+
+        self.__peaks = np.insert(
+            self.__peaks, args_x[0], (min_cID, start, end, Total_intensit))
+
+    def method_cut_cID(self, cID, intensit):
+        # use ng.peakpick.pick from y_heighest 0.90 to down to two different peaks
+        if cID in self.__peaks['cID']:
+            args_x = np.argwhere(self.__peaks['cID'] == cID)
+            l_peaks: float = self.__peaks[args_x][0]['Start'][0].astype(
+                float)
+            r_peaks: float = self.__peaks[args_x][0]['End'][0].astype(
+                float)
+            min: int = self.__uc.index(l_peaks)
+            max: int = self.__uc.index(r_peaks)
+            if min > max:
+                min, max = max, min
+            import nmrglue as ng
+            y_highest = intensit[min:max+1].max()
+            ratio: float = 0.90
+            cut_peaks: npt.NDArray = np.array([])
+            while (1):
+                cut_peaks = ng.peakpick.pick(
+                    data=intensit[min:max+1], pthres=y_highest*ratio, algorithm="downward")
+                if (len(cut_peaks) >= 2):
+                    break
+                else:
+                    ratio -= 0.10
+            sorted_cut_peaks = np.sort(cut_peaks, order='VOL')
+            start = int(sorted_cut_peaks['X_AXIS'][-1] + min)
+            end = int(sorted_cut_peaks['X_AXIS'][-2] + min)
+            cut_argmin: np.intp = np.argmin(intensit[start:end + 1])
+            cut_center: float = self.__uc.ppm(start + cut_argmin)
+
+            # remove the old entry and add two additional entry
+            self.__peaks = self.__peaks[self.__peaks['cID'] != cID]
+
+            self.__peaks = np.insert(
+                self.__peaks, args_x[0], (cID, cut_center, r_peaks, intensit[min:start+cut_argmin].sum()))
+            self.__peaks = np.insert(
+                self.__peaks, args_x[0], (self.__peaks['cID'].max() + 1, l_peaks, cut_center, intensit[start+cut_argmin:max].sum()))
+        else:
+            print("your merge element is wrong cID")
+            exit(1)
+
+    def method_integrate(self, intensit):
+        out_Data: list = []
+        for cID, start, end, _ in self.__peaks:  # type: ignore
+            min: int = self.__uc.index(start)
+            max: int = self.__uc.index(end)
+            if min > max:
+                min, max = max, min
+
+            # extract the peak
+            peak_int = intensit[min:max + 1]
+            peak_scale = self.__uc.ppm_scale()[min:max + 1]
+            out_Data.append((cID, peak_int, peak_scale))
+        return out_Data
+
+    def method_load_Data(self, in_Data: list | npt.NDArray[np.float64]):
+        self.__peaks = np.array(
+            in_Data, dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
+
+    def method_read_file(self, fileName: Path | str):
+        file = Path(fileName)
+        from censo_ext.Tools.utility import IsExists_DirFileName
+        path, Name = IsExists_DirFileName(file)
+        self.__fileName = Path(Name)
+        file_split: list[str] = Name.split(".")
+        file_ext: str = file_split[1]
+
+        if file_ext == "npz":
+            in_Data = np.load(file)['arr_0']
+            self.__peaks = in_Data
+
+    def method_print(self):
+        print(self.__fileName)
+        print(self.__peaks)
+
+    def method_save(self):
+        from censo_ext.Tools.utility import save_simulation_spectra_file_npz
+        save_simulation_spectra_file_npz(self.__fileName, self.__peaks)
 
 
 class CensoDat():
@@ -86,18 +238,6 @@ class CensoDat():
             exit(0)
         return censoDat
 
-    def __repr__(self) -> str:
-        """
-        Return string representation of the data.
-
-        Returns:
-            str: Formatted string showing all data points.
-        """
-        Str: str = ""
-        for x in self.__dat:
-            Str += f'{x[0]:>12.6f}  {x[1]:>12.6e}\n'
-        return Str
-
     def method_save_dat(self) -> None:
         """Save the data to file.
 
@@ -113,11 +253,7 @@ class CensoDat():
             IOError: If there is an issue opening or writing to the file.
             FileNotFoundError: If the specified file path does not exist.
         """
-
-        with open(self.__fileName, "w") as f:
-            sys.stdout = f
-            print(self, end="")
-        sys.stdout = sys.__stdout__
+        np.savetxt(self.__fileName, self.__dat, fmt='%12.6f  %12.6e')
 
     def method_normalize_dat(self, start: float = -5.0, end: float = 15.0, dpi: int = 10000, highest: int = 10000) -> None:
         """Normalize the data to a specific range.

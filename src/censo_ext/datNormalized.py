@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-# from icecream import ic
 import argparse
 from pathlib import Path
-from sys import argv as sysargv
-# from scipy.signal import argrelmax, argrelmin
+from censo_ext.Tools.utility import print_descr
 
 descr = """
 ________________________________________________________________________________
@@ -89,8 +87,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print(descr)  # Program description
-    print(f"    provided arguments: {" ".join(sysargv)}")
+    print_descr(descr)
+
     inFile: Path = Path(args.file)
     outFile: Path = Path(args.out)
     if inFile:

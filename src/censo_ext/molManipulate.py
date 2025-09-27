@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import argparse
-from sys import argv as sysargv
-# from icecream import ic
+from censo_ext.Tools.utility import print_descr
 from censo_ext.Tools.xyzfile import GeometryXYZs
 
 
@@ -65,8 +64,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print(descr)  # Program description
-    print(f"    provided arguments: {" ".join(sysargv)}")
+    print_descr(descr)
 
     if args.separate:
         inFile: GeometryXYZs = GeometryXYZs()

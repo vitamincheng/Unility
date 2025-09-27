@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 from scipy.spatial.transform import Rotation as R
 import argparse
-# import os
 from pathlib import Path
 import numpy as np
 import numpy.typing as npt
+from censo_ext.Tools.utility import print_descr
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 descr = """
@@ -92,6 +92,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
+    print_descr(descr)
 
     from censo_ext.Tools.utility import IsExist
     inFile = Path(args.file)

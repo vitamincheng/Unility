@@ -5,6 +5,7 @@ from sys import argv as sysargv
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 import numpy.typing as npt
+from censo_ext.Tools.utility import print_descr
 from censo_ext.Tools.xyzfile import GeometryXYZs
 # from icecream import ic
 from pathlib import Path
@@ -150,6 +151,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
+    print_descr(descr)
 
     inFile = Path(args.file)
     outFile = Path(args.out)

@@ -2,9 +2,7 @@
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 import argparse
-# import os
-from sys import argv as sysargv
-# from icecream import ic
+from censo_ext.Tools.utility import print_descr
 descr = """
 ________________________________________________________________________________
 | Reorder the Serial No. in xyz file
@@ -83,8 +81,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml()
     if not args.print:
-        print(descr)  # Program description
-        print(f"    provided arguments: {" ".join(sysargv)}")
+        print_descr(descr)
 
     inFile = Path(args.file)
     outFile = Path(args.out)

@@ -2,13 +2,13 @@
 import argparse
 import numpy as np
 import numpy.typing as npt
-from icecream import ic
 import matplotlib.pyplot as plt
 import nmrglue as ng
-from censo_ext.Tools.utility import IsExist_bool
+from censo_ext.Tools.datfile import CensoDat, Peaks_npz, unit_conversion
+from censo_ext.Tools.utility import IsExist_bool, print_descr
+
 descr = """
 ________________________________________________________________________________
-|                                                      vitamin.cheng@gmail.com
 | For generate orcaS.BOBYQA or Intergal of spectra  
 | Usages   : BOBYQA_guess.py <geometry> [options]
 | [options]
@@ -161,40 +161,11 @@ def cml() -> argparse.Namespace:
 peaks_fileName = "peaks.npz"
 
 
-class unit_conversion():
-
-    def __init__(self, in_ppm: npt.NDArray[np.float64]) -> None:
-        self.in_ppm: npt.NDArray[np.float64] = in_ppm
-        self.args_ppm: dict = {idx: ppm for idx,
-                               ppm in enumerate(in_ppm)}
-        self.ppm_args: dict = {ppm: idx for idx,
-                               ppm in enumerate(in_ppm)}
-
-    def index(self, ppm) -> int:
-        from censo_ext.Tools.spectra import find_nearest
-        value, index = find_nearest(self.in_ppm, ppm)
-        return index
-
-    def ppm(self, index) -> float:
-        return float(self.args_ppm[index])
-
-    def ppm_scale(self) -> npt.NDArray[np.float64]:
-        return self.in_ppm
-
-    def ppm_limits(self) -> tuple[float, float]:
-        return float(self.in_ppm.min()), float(self.in_ppm.max())
-
-
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
+
     if args == argparse.Namespace():
         args = cml()
-    import sys
-    if (len(sys.argv) == 1):
-        print(descr)
-        print("    provided arguments: {}".format(" ".join(sys.argv)))
-        exit(0)
-    else:
-        print("    provided arguments: {}".format(" ".join(sys.argv)))
+    print_descr(descr)
 
     if args.auto and args.manual:
         print("  For both args.auto and args.manual only for one mode")
@@ -202,19 +173,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if IsExist_bool(args.file):
 
-        in_Data: npt.NDArray[np.float64] = np.load(args.file)["arr_0"]
-        a, *b = in_Data.shape
-        if a == 1:
-            in_Data = in_Data[0]
-        ppm: npt.NDArray[np.float64] = in_Data.T[0]
-        intensit: npt.NDArray[np.float64] = in_Data.T[1]
+        censo: CensoDat = CensoDat(args.file)
+        in_Data = censo.get_Dat().T
+        ppm: npt.NDArray[np.float64] = in_Data[0]
+        intensit: npt.NDArray[np.float64] = in_Data[1]
 
         y_heighest: np.float64 = np.max(intensit)
         y_lowest: np.float64 = np.min(intensit)
 
         from censo_ext.Tools.spectra import numpy_thr_mean_3
-        threshold: float = numpy_thr_mean_3(intensit)*args.thr
-        threshold += y_heighest * 0.01
+        thres: float = numpy_thr_mean_3(intensit)*args.thr
+        thres += y_heighest * 0.01
 
         uc: unit_conversion = unit_conversion(ppm)
 
@@ -234,13 +203,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
                             top=0.90, wspace=0.05, hspace=0.05)
 
-        np_peaks: npt.NDArray = np.array(
-            [], dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
+        peaks: Peaks_npz = Peaks_npz(uc)
 
         ng_1r_peaks = ng.peakpick.pick(
-            data=intensit, pthres=threshold, algorithm="downward")
+            data=intensit, pthres=thres, algorithm="downward")
 
-        # Automatically Intergate the peaks
+        # Automatically Integate the peaks
         if args.auto:
             peak_list: list = []
             sorted_cID_peaks: npt.NDArray = np.sort(ng_1r_peaks, order='cID')
@@ -277,118 +245,41 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     new_cID.append(cID)
                     peak_list.append((cID, l_peak, r_peak, peak.sum()))
 
-            np_peaks = np.array(
-                peak_list, dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
-            ic(np_peaks)
+            peaks.method_load_Data(peak_list)
+            print("  ========== Automated Data ==========")
+            peaks.method_print()
 
-        # Intergrate the peaks if manually fixed the peaks.npz file
+        # Integrate the peaks if manually fixed the peaks.npz file
         if args.manual:
-            in_Data = np.load(peaks_fileName)["arr_0"]
-            a, *b = in_Data.shape
-            if a == 2:
-                np_peaks = in_Data[1][0]
-            else:
-                np_peaks = in_Data[0]
-            ic(np_peaks)
+            peaks.method_read_file(peaks_fileName)
+            print("  ========== Before ==========")
+            peaks.method_print()
 
             # Delete peaks if manually read the file
             if args.delete:
-                for x in args.delete:
-                    if x in np_peaks['cID']:
-                        np_peaks = np_peaks[np_peaks['cID'] != x]
-                    else:
-                        print("your delete element is wrong cID")
-                        exit(0)
+                peaks.method_delete_cID(args.delete)
 
             # Merge peaks if manually read the file
             if args.merge:
-                min_cID: int = np.array(args.merge).min()
-                start, end = -99999, 99999
-                for x in sorted(args.merge):
-                    if x in np_peaks['cID']:
-                        args_x: npt.NDArray[np.intp] = np.argwhere(
-                            np_peaks['cID'] == x)
-                        if start < np_peaks[args_x[0]]['Start']:
-                            start: float = np_peaks[args_x[0]
-                                                    ]['Start'].max().astype(float)
-                        if end > np_peaks[args_x[0]]['End']:
-                            end: float = np_peaks[args_x[0]
-                                                  ]['End'].min().astype(float)
-                    else:
-                        print("  Your merge element is wrong cID")
-                        exit(0)
-
-                # assign the new cID of data
-                args_x = np.argwhere(np_peaks['cID'] == min_cID)
-                min: int = uc.index(start)
-                max: int = uc.index(end)
-                Total_intensit = 0
-                for x in args.merge:
-                    Total_intensit += np.sum(
-                        np_peaks[np_peaks['cID'] == x]['Area'])
-
-                # Remove unnecessary entry
-                for x in args.merge:
-                    if (x in np_peaks['cID']):
-                        np_peaks = np_peaks[np_peaks['cID'] != x]
-
-                np_peaks = np.insert(
-                    np_peaks, args_x[0], (min_cID, start, end, Total_intensit))
+                peaks.method_merge_cID(args.merge)
 
             # Cut peak if manually read the file
-            # use ng.peakpick.pick from y_heighest 0.99 to down to two different peaks
             if args.cut:
-                if args.cut in np_peaks['cID']:
-                    args_x = np.argwhere(np_peaks['cID'] == args.cut)
-                    l_peaks: float = np_peaks[args_x][0]['Start'][0].astype(
-                        float)
-                    r_peaks: float = np_peaks[args_x][0]['End'][0].astype(
-                        float)
-                    min: int = uc.index(l_peaks)
-                    max: int = uc.index(r_peaks)
-                    if min > max:
-                        min, max = max, min
-                    cut_peaks = ng.peakpick.pick(
-                        data=intensit[min:max+1], pthres=threshold, algorithm="downward")
-                    sorted_cut_peaks = np.sort(cut_peaks, order='VOL')
-
-                    end = int(sorted_cut_peaks['X_AXIS'][-1] + min)
-                    start = int(sorted_cut_peaks['X_AXIS'][-2] + min)
-                    cut_argmin: np.intp = np.argmin(intensit[start:end + 1])
-                    cut_center: float = uc.ppm(start + cut_argmin)
-
-                    # remove the old entry and add two additional entry
-                    np_peaks = np_peaks[np_peaks['cID'] != args.cut]
-
-                    np_peaks = np.insert(
-                        np_peaks, args_x[0], (args.cut, cut_center, r_peaks, intensit[min:start+cut_argmin].sum()))
-                    np_peaks = np.insert(
-                        np_peaks, args_x[0], (np_peaks['cID'].max() + 1, l_peaks, cut_center, intensit[start+cut_argmin:max].sum()))
-                else:
-                    print("your merge element is wrong cID")
-                    exit(1)
+                peaks.method_cut_cID(args.cut, intensit)
 
             if args.delete or args.cut or args.merge:
-                ic(np_peaks)
+                print("  ========== After ==========")
+                peaks.method_print()
 
         # Draw the intergral lines and cID of peaks
+        # Plot the integration lines, limits and cID of peaks
         if args.auto or args.manual:
-            for cID, start, end, _ in np_peaks:  # type: ignore
-                min: int = uc.index(start)
-                max: int = uc.index(end)
-                if min > max:
-                    min, max = max, min
-
-                # extract the peak
-                peak = intensit[min:max + 1]
-                peak_scale: npt.NDArray[np.float64] = uc.ppm_scale()[
-                    min:max + 1]
-
-                # plot the integration lines, limits and cID of peaks
-                ax.plot(peak_scale, peak.cumsum() /
-                        100./4 + peak.max()*0.8, 'g-')
+            Data = peaks.method_integrate(intensit)
+            for cID, peak_int, peak_scale in Data:
+                ax.plot(peak_scale, peak_int.cumsum() /
+                        100./4 + peak_int.max()*0.8, 'g-')
                 # ax.plot(peak_scale, [0] * len(peak_scale), 'r-')
-                ax.text(peak_scale[0], 0.5 * peak.sum() / 100./4 + peak.max()*0.8, cID,
+                ax.text(peak_scale[0], 0.5 * peak_int.sum() / 100./4 + peak_int.max()*0.8, cID,
                         fontsize=8)
 
         # add markers for peak positions. It is only for preview.
@@ -412,8 +303,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         # draw the threshold line and text and for adjust threshold for next time
         if args.auto:
-            plt.hlines(threshold, args.end, args.start, linestyles="--")  # type: ignore # nopep8
-            ax.text(args.start, threshold*1.02, f"thr = {threshold:>10.3f}",
+            plt.hlines(thres, args.end, args.start, linestyles="--")  # type: ignore # nopep8
+            ax.text(args.start, thres*1.02, f"thr = {thres:>10.3f}",
                     ha="center", va="center")
 
         if args.show:
@@ -441,8 +332,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             plt.show()
 
         if args.save:
-            from censo_ext.Tools.utility import save_simulation_spectra_file_npz
-            save_simulation_spectra_file_npz(peaks_fileName, np_peaks)
+            peaks.method_save()
 
 
 if __name__ == "__main__":

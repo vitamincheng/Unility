@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from censo_ext.Tools.xyzfile import GeometryXYZs
+from censo_ext.Tools.utility import print_descr
 import argparse
 import subprocess
 # from icecream import ic
@@ -94,6 +95,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
 
     if args == argparse.Namespace():
         args = cml()
+    print_descr(descr)
 
     inFile = Path(args.file)
     single_xyz_name = Path(".temp.xyz")
