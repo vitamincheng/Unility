@@ -11,7 +11,7 @@ _system: str = platform.system()
 DirName: Path = Path(
     "tests/data/31.Cyclohexanone/03.Censo_for_Hydrogen_(revTPSS)")
 DirCompare: Path = Path("tests/compare/BOBYQA")
-RefDat: Path = Path("1r_h.dat")
+RefDat: Path = Path("1r_h.npz")
 args_Normal: dict = {"dir": DirName, "ref": RefDat, "mf": 500,
                      "lw": 1, "limit": 0.20, "verbose": False}
 
@@ -20,7 +20,7 @@ def anmr_init():
     # Create Average/NMR/orcaS.out and Average/NMR/orcaS_BOBYQA.out file
     args_x: dict = {"auto": True, "average": False, "dir": DirName, "bobyqa": False, "mf": 500,
                     "lw": None, "thr": None, "json": None, "thrab": 0.025, "tb": 4, "mss": 9, "verbose": False,
-                    "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
+                    "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.npz"}
     args = argparse.Namespace(**args_x)
     anmr.main(args)
 
@@ -90,8 +90,8 @@ def test_BOBYQA_single():
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
     args_Normal['prog'] = None
     BOBYQA.main(argparse.Namespace(**args_Normal))
-    assert filecmp.cmp(DirName / Path("output.dat"),
-                       DirCompare / Path("orcaS-BOBYQA-anmrpy.dat"))
+    assert filecmp.cmp(DirName / Path("output.npz"),
+                       DirCompare / Path("orcaS-BOBYQA-single-anmrpy.npz"))
     BOBYQA_final_remove_files()
 
 
@@ -108,7 +108,7 @@ def test_BOBYQA_single_external_prog(monkeypatch):
     monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
     BOBYQA.main(argparse.Namespace(**args_Normal))
     assert filecmp.cmp(DirName / Path("anmr.dat"),
-                       DirCompare / Path("orcaS-BOBYQA-anmr.dat"))
+                       DirCompare / Path("orcaS-BOBYQA-single-anmr.dat"))
     BOBYQA_final_remove_files()
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(DirName / "anmr.dat",
@@ -127,8 +127,8 @@ def test_BOBYQA_group():
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
     args_Normal['prog'] = None
     BOBYQA.main(argparse.Namespace(**args_Normal))
-    assert filecmp.cmp(DirName / Path("output.dat"),
-                       DirCompare / Path("orcaS-BOBYQA-group-anmrpy.dat"))
+    assert filecmp.cmp(DirName / Path("output.npz"),
+                       DirCompare / Path("orcaS-BOBYQA-group-anmrpy.npz"))
     BOBYQA_final_remove_files()
 
 

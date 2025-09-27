@@ -13,7 +13,7 @@ ________________________________________________________________________________
 | anmr.py
 | Usages   : anmr.py [options]
 | [options]
-| Output   : -o output file [default output.dat]
+| Output   : -o output file [default output.npz]
 | Dir      : -D the directory of input files(CONF) [default .]
 | mf       : -mf magnetic frequency of scan nmr [default 500.0]
 | lw       : -lw line width of scan nmr [1.0 for H, 20 for C]
@@ -50,8 +50,8 @@ def cml() -> argparse.Namespace:
         dest="out",
         action="store",
         required=False,
-        default="output.dat",
-        help="Provide output_file name [default output.dat]",
+        default="output.npz",
+        help="Provide output_file name [default output.npz]",
     )
 
     parser.add_argument(

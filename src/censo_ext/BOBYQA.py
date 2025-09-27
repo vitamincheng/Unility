@@ -14,7 +14,7 @@ ________________________________________________________________________________
 | Usages   : BOBYQA.py [options]
 | [options]
 | Dir      : -d the directory [default .]
-| Ref      : -r the actual reference file [default 1r.dat]
+| Ref      : -r the actual reference file [default 1r.dat or 1r.npz]
 | mf       : -mf magnetic frequency of scan nmr [default 500.0]
 | lw       : -lw line width of scan nmr [2.0 for H, 40 for C]
 | Limit    : -l limit border(ppm) [defalut 0.20]
@@ -50,7 +50,7 @@ def cml() -> argparse.Namespace:
         action="store",
         required=False,
         default="1r.dat",
-        help="Provide ref file(dat) name [1r.dat]",
+        help="Provide ref file(dat/npz) name [1r.dat or 1r.npz]",
     )
 
     parser.add_argument(
@@ -186,7 +186,7 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
         # print("Internal python: anmr.py")
         np.savetxt(Directory/FileOrcaS, orcaS_Table, fmt="%10d %10.5f")
         import censo_ext.anmr as anmr
-        x: dict = {'out': 'output.dat', "dir": Directory, "json": None, 'mf': mf,
+        x: dict = {'out': 'output.npz', "dir": Directory, "json": None, 'mf': mf,
                    'lw': lw, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.020,
                    'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, "verbose": False,
                    'mss': 10, 'auto': True, 'average': True, 'bobyqa': False}
@@ -371,8 +371,7 @@ ________________________________________________________________________________
 
 """
     print(descr)
-    import sys
-    sys.exit(0)
+    exit(0)
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

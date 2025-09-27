@@ -18,7 +18,7 @@ class CensoDat():
     and saving spectral data with various processing capabilities.
     """
 
-    def __init__(self, file: Path | str = Path("anmr.dat")) -> None:
+    def __init__(self, file: Path | str = Path("anmr.npz")) -> None:
         """
         Initialize the CensoDat object.
 
@@ -38,11 +38,23 @@ class CensoDat():
             The dat file should contain two columns: chemical_shift and amplitude.
             The data is loaded using numpy's genfromtxt function.
         """
+        # self.__dat [[chemical_shift, amplitude],[...]]
 
         IsExist(file)
         self.__fileName: Path = Path(file)
-        self.__dat: npt.NDArray[np.float64] = np.genfromtxt(file)
-        # self.__dat [[chemical_shift, amplitude],[...]]
+        from censo_ext.Tools.utility import IsExists_DirFileName
+        path, fileName = IsExists_DirFileName(file)
+        file_split: list[str] = fileName.split(".")
+        file_ext: str = file_split[1]
+
+        if file_ext == "dat":
+            self.__dat: npt.NDArray[np.float64] = np.genfromtxt(file)
+        elif file_ext == "npz":
+            in_Data = np.load(file)['arr_0']
+            a, *b = in_Data.shape
+            if a == 1:
+                in_Data = in_Data[0]
+            self.__dat: npt.NDArray[np.float64] = in_Data
 
     def __len__(self) -> int:
         """
