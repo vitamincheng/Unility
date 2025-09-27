@@ -13,7 +13,7 @@ ________________________________________________________________________________
 | using BOBYQA method to fit
 | Usages   : BOBYQA.py [options]
 | [options]
-| Dir      : -d the directory [default .]
+| Dir      : -d the Dir [default .]
 | Ref      : -r the actual reference file [default 1r.dat or 1r.npz]
 | mf       : -mf magnetic frequency of scan nmr [default 500.0]
 | lw       : -lw line width of scan nmr [2.0 for H, 40 for C]
@@ -105,8 +105,37 @@ def cml() -> argparse.Namespace:
     return args
 
 
-FileOrcaS: Path = Path("Average/NMR/orcaS.out")
-FileBOBYQA: Path = Path("Average/NMR/orcaS-BOBYQA.out")
+class global_variable():
+    Dir: Path
+    ref_dat: Path
+    limit: float
+    prog: bool
+    mf: float
+    lw: float
+    ref: float
+    idx_keys: list
+    DirFileOrcaS: Path
+    DirFileBOBYQA: Path
+    DirFileAnmr: Path
+    DirFileRef_dat: Path
+
+    def __init__(self):
+        self.FileOrcaS: Path = Path("Average/NMR/orcaS.out")
+        self.FileBOBYQA: Path = Path("Average/NMR/orcaS-BOBYQA.out")
+        self.FileAnmr: Path = Path("anmr.dat")
+
+    def method_update_Dir(self):
+        try:
+            self.DirFileOrcaS = self.Dir / self.FileOrcaS
+            self.DirFileBOBYQA = self.Dir / self.FileBOBYQA
+            self.DirFileAnmr = self.Dir / self.FileAnmr
+            self.DirFileRef_dat = self.Dir / self.ref_dat
+        except NameError:
+            print("  self.Dir is not defined.")
+            exit(1)
+
+
+g_var = global_variable()
 
 
 def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
@@ -131,27 +160,26 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
     # CONF1/NMR/orcaS.out          for anmr      (external)
     #
     from censo_ext.Tools.datfile import CensoDat
-    orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-        Directory / FileBOBYQA)
+    orcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(g_var.DirFileBOBYQA)
 
     if len(x0) == 1:
         # single peak
-        for idx_key in idx_keys:
+        for idx_key in g_var.idx_keys:
             orcaS_Table[idx_key][1] = x0[0]
     else:
         # group peaks
-        for idx0, loop in enumerate(idx_keys):
+        for idx0, loop in enumerate(g_var.idx_keys):
             for idx_key in loop:  # type: ignore
                 orcaS_Table[idx_key][1] = x0[idx0]
 
-    np.savetxt(Directory/FileBOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
+    np.savetxt(g_var.DirFileBOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
     orcaS_Table = np.delete(orcaS_Table, 2, axis=1)
 
-    if prog:
+    if g_var.prog:
         # print("External program: anmr")
         import sys
         cwd: Path = Path.cwd()
-        os.chdir(Directory)
+        os.chdir(g_var.Dir)
         template_inp: Path = Path("CONF1/NMR/orcaS.out")
         with open(template_inp, "w") as f:
             sys.stdout = f
@@ -163,12 +191,13 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
             print("  Nucleus  Element    Isotropic     Anisotropy")
             print("  -------  -------  ------------   ------------")
         sys.stdout = sys.__stdout__
-        orcaS_Table.T[1] = orcaS_Table.T[1] + ref
+        orcaS_Table.T[1] = orcaS_Table.T[1] + g_var.ref
         orcaS_Table.T[0] = orcaS_Table.T[0]-1
         orcaS_Table_File = Path("CONF1/NMR/orcaS-main.out")
-        np.savetxt(orcaS_Table_File, orcaS_Table, fmt="%7d       H    %10.5f          0")  # type: ignore # nopep8
+        np.savetxt(orcaS_Table_File, orcaS_Table,
+                   fmt="%7d       H    %10.5f          0")
         subprocess.call(
-            "cat CONF1/NMR/orcaS-main.out >> CONF1/NMR/orcaS.out", shell=True)
+            f"cat {orcaS_Table_File} >> CONF1/NMR/orcaS.out", shell=True)
         subprocess.call(f"rm {orcaS_Table_File}", shell=True)
 
         sys.stdout = open(os.devnull, 'w')
@@ -180,14 +209,14 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
                 " call anmr.sh process have something wrong !!!")
 
         os.chdir(cwd)
-        dat_Sim: CensoDat = CensoDat(file=Directory/Path("anmr.dat"))
+        dat_Sim: CensoDat = CensoDat(file=g_var.DirFileAnmr)
 
-    elif not prog:
+    elif not g_var.prog:
         # print("Internal python: anmr.py")
-        np.savetxt(Directory/FileOrcaS, orcaS_Table, fmt="%10d %10.5f")
+        np.savetxt(g_var.DirFileOrcaS, orcaS_Table, fmt="%10d %10.5f")
         import censo_ext.anmr as anmr
-        x: dict = {'out': 'output.npz', "dir": Directory, "json": None, 'mf': mf,
-                   'lw': lw, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.020,
+        x: dict = {'out': 'output.npz', "dir": g_var.Dir, "json": None, 'mf': g_var.mf,
+                   'lw': g_var.lw, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.020,
                    'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, "verbose": False,
                    'mss': 10, 'auto': True, 'average': True, 'bobyqa': False}
         import sys
@@ -195,16 +224,15 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
         anmr.main(args=argparse.Namespace(**x))
         sys.stdout = sys.__stdout__
 
-        dat_Sim: CensoDat = CensoDat(file=Directory/Path(x["out"]))
+        dat_Sim: CensoDat = CensoDat(file=g_var.Dir/Path(x["out"]))
     else:
         raise ValueError("Something wrong in your argument")
 
     dat_Sim.method_normalize_dat()
-    global Dat_Ref
     try:
         dat_diff: CensoDat = dat_Cal - dat_Ref  # type: ignore
     except NameError:
-        dat_Ref = CensoDat(file=Directory / Dat_fileName)
+        dat_Ref = CensoDat(file=g_var.DirFileRef_dat)
         dat_Ref.method_normalize_dat()
         dat_diff: CensoDat = dat_Sim - dat_Ref
 
@@ -226,8 +254,7 @@ def Scan_single_Peak(args) -> None:
         None: This function performs optimization but doesn't return a value.
     """
     import pybobyqa
-    OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-        Directory / FileBOBYQA)
+    OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(g_var.DirFileBOBYQA)
     in_sets: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
     in_sets = {x for x in in_sets if x < 1000 and x >= 1}
     print(f"  {in_sets=}")
@@ -238,16 +265,15 @@ def Scan_single_Peak(args) -> None:
             ic(in_set)
         intp: npt.NDArray[np.int64] = np.argwhere(
             OrcaS_Table.T[2] == in_set).flatten()
-        Data_SParams: list[float] = list(
+        SParams: list[float] = list(
             map(float, np.atleast_1d(OrcaS_Table.T[1][intp[0]])))
         if args.verbose:
-            ic(Data_SParams)
+            ic(SParams)
             ic(intp)
 
-        global idx_keys
-        idx_keys = list(intp)
-        x0: npt.NDArray[np.float64] = np.array(Data_SParams)
-        bounds = x0 - limit_border, x0 + limit_border
+        g_var.idx_keys = list(intp)
+        x0: npt.NDArray[np.float64] = np.array(SParams)
+        bounds = x0 - g_var.limit, x0 + g_var.limit
 
         print(f"{x0=}")
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=bounds,
@@ -273,8 +299,7 @@ def Scan_group_Peaks(args) -> None:
         None: This function performs optimization but doesn't return a value.
     """
     import pybobyqa
-    OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-        Directory / FileBOBYQA)
+    OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(g_var.DirFileBOBYQA)
 
     in_sets: set[int] = set(OrcaS_Table.T[2].astype(int).tolist())
     in_sets = {x for x in in_sets if x >= 1000}
@@ -301,16 +326,15 @@ def Scan_group_Peaks(args) -> None:
         [*range(0, nNumbers)], nNumbers))
     solution_f: list = []
     solution_x0: list = []
-    global idx_keys
 
     for Permutation in Permutations:
         x0: npt.NDArray[np.float64] = np.array([x[1] for x in Data])[
             list(Permutation)]
         print(f"\n  {x0=}")
-        idx_keys = [x[2] for x in Data]
+        g_var.idx_keys = [x[2] for x in Data]
         if args.verbose:
-            ic(idx_keys)
-        bounds = x0 - limit_border, x0 + limit_border
+            ic(g_var.idx_keys)
+        bounds = x0 - g_var.limit, x0 + g_var.limit
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=bounds,
                               scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
         print(f"{soln.f=} {soln.x=}")
@@ -350,11 +374,9 @@ def Create_BOBYQA(args) -> None:
         None: This function creates a file and exits the program.
     """
 
-    OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(
-        Directory / FileOrcaS)
+    OrcaS_Table: npt.NDArray[np.float64] = np.genfromtxt(g_var.DirFileOrcaS)
     OrcaS_Table = np.insert(OrcaS_Table, 2, 0, axis=1)
-    np.savetxt(Directory / FileBOBYQA,
-               OrcaS_Table, fmt="%10d %10.5f %10d")
+    np.savetxt(g_var.DirFileBOBYQA, OrcaS_Table, fmt="%10d %10.5f %10d")
     descr = """
 ________________________________________________________________________________
 | Create the orcaS-BOBYQA.out file 
@@ -379,61 +401,58 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Average/NMR/orcaS.out for anmr.py   (internal)
     # CONF1/NMR/orcaS.out for anmr        (external)
 
-    global Directory
-    global Dat_fileName
-    global limit_border
-    global prog
-    global mf, lw, ref
-
     if args == argparse.Namespace():
         args = cml()
     print_descr(descr)
 
-    if args.dir:                            # default .
-        Directory = Path(args.dir)
-    if args.ref:                            # default 1r.dat
-        Dat_fileName = args.ref
+    if args.dir and args.ref:               # default args.dir="." and args.ref="1r.dat"
+        g_var.Dir = Path(args.dir)
+        g_var.ref_dat = Path(args.ref)
+        g_var.method_update_Dir()
     if args.limit:                          # default 0.20 ppm
-        limit_border = args.limit
+        g_var.limit = args.limit
     if args.prog:
-        prog = args.prog
+        g_var.prog = args.prog
     else:
-        prog = False
+        g_var.prog = False
     if not args.mf or not args.lw:
-        print("  Your args.mf or args.lw Have something wrong !!!")
+        print("  Args.mf or args.lw is not set !!!")
+        print("  Exit and Close the program !!!")
         exit(1)
     else:
-        mf = args.mf
-        lw = args.lw
+        g_var.mf = args.mf
+        g_var.lw = args.lw
 
     from censo_ext.Tools.anmrfile import Anmr
     inAnmr: Anmr = Anmr(Dir=args.dir, verbose=args.verbose)
     inAnmr.method_read_anmrrc()
-    ref = inAnmr.get_Anmr_Reference_anmrrc()
+    g_var.ref = inAnmr.get_Anmr_Reference_anmrrc()
 
-    if IsExist_bool(Directory / FileOrcaS):                 # type: ignore # nopep8
-        print(f"  {FileOrcaS} is exist")
-        if IsExist_bool(Directory / FileBOBYQA):            # type: ignore # nopep8
-            print(f"  {FileBOBYQA} is exist")
-            if prog:
+    if IsExist_bool(g_var.DirFileOrcaS):
+        print(f"  {g_var.FileOrcaS} is exist")
+        if IsExist_bool(g_var.DirFileBOBYQA):
+            print(f"  {g_var.FileBOBYQA} is exist")
+            if g_var.prog:
                 cwd: Path = Path.cwd()
-                os.chdir(Directory)  # type: ignore
+                os.chdir(g_var.Dir)
                 print(" Need to build the new CONF* system")
                 print(" And copy your CONF* to /Backup/CONF*")
                 print(" And create a new CONF1 (copy from /Backup/CONF1)")
                 print(" Modify from /Average/NMR/orcaS.out")
                 Res = input("Are you Sure to Continue ?? (Y/N)")
-                if Res == "Y":
+                if Res == "Y" or Res == "y":
                     subprocess.call("mkdir backup", shell=True)
                     subprocess.call("mv CONF* backup", shell=True)
                     subprocess.call("cp -r backup/CONF1/ .", shell=True)
+                else:
+                    print("  Exit and Close the program !!!")
+                    exit(0)
                 os.chdir(cwd)
             Scan_single_Peak(args)
             Scan_group_Peaks(args)
-            if prog:
+            if g_var.prog:
                 cwd: Path = Path.cwd()
-                os.chdir(Directory)  # type: ignore
-
+                os.chdir(g_var.Dir)
                 subprocess.call("rm -rf CONF1", shell=True)
                 subprocess.call("mv backup/CONF* .", shell=True)
                 subprocess.call("rmdir backup", shell=True)
@@ -442,7 +461,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             Create_BOBYQA(args)
     else:
         raise FileNotFoundError(
-            f"{Directory/FileOrcaS} is not exist !!!")  # type: ignore # nopep8
+            f"{g_var.DirFileOrcaS} is not exist !!!")  # type: ignore # nopep8
 
 
 if __name__ == "__main__":
