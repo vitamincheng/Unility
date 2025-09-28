@@ -304,8 +304,8 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int,
 
     xy_curve = mpl_plot(Normal_plist, lw=lw,
                         limits=limits, lw_points=lw_points)
-    from censo_ext.Tools.utility import save_simulation_spectra_file_npz
-    save_simulation_spectra_file_npz(args.out, np.vstack(xy_curve).T)
+    from censo_ext.Tools.utility import save_simulation_spectra_file
+    save_simulation_spectra_file(args.out, np.vstack(xy_curve).T)
     return np.vstack(xy_curve)
 
 

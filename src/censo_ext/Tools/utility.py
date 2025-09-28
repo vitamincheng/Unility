@@ -322,17 +322,15 @@ def prog_IsExist(Prog: str) -> bool:
         raise ValueError(f"{Prog}, the program is not Exist ...")
 
 
-def save_simulation_spectra_file_npz(fileName: Path | str, spectra) -> None:
-    # np.savetxt(fileName, spectra, fmt='%2.5f %12.5e')
-    # print(f" the spectra is saved to : {fileName}")
+def save_simulation_spectra_file(fileName: Path | str, spectra) -> None:
+
     output: str = Path(fileName).name
-    if Path(fileName).parents:
-        path = Path(fileName).parents[0]
-    else:
-        path: Path = Path("")
-    outfile: Path = path / Path(output.split(".")[0]+str(".npz"))
-    np.savez_compressed(outfile, spectra)
-    print(f" the spectra is saved to : {outfile}")
+    if output.split(".")[-1] == "npz":
+        np.savez_compressed(fileName, spectra)
+        print(f" the spectra is saved to : {fileName}")
+    if output.split(".")[-1] == "dat":
+        np.savetxt(fileName, spectra, fmt='%12.6f  %12.6e')
+        print(f" the spectra is saved to : {fileName}")
 
 
 def print_descr(descr):

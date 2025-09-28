@@ -7,8 +7,8 @@ descr = """
 ________________________________________________________________________________
 | dat_normalized.py  
 | Usages   : dat_normalized.py <dat file> [options]
-| Input    : -i input file [default anmr.dat]
-| Output   : -o output file [default output.dat]
+| Input    : -i input dat/npz file [default anmr.dat]
+| Output   : -o output dat file [default output.dat]
 | [options]
 | Start    : -s --start start point in spectra [default -5]
 | End      : -e --end end point in spectra [default 15]
@@ -34,7 +34,7 @@ def cml() -> argparse.Namespace:
         action="store",
         required=False,
         default="anmr.dat",
-        help="Provide input_file name [default anmr.dat]",
+        help="Provide input dat/npz file name [default anmr.dat]",
     )
 
     parser.add_argument(
@@ -44,7 +44,7 @@ def cml() -> argparse.Namespace:
         action="store",
         required=False,
         default="output.dat",
-        help="Provide output_file name [default output.dat]",
+        help="Provide output dat file name [default output.dat]",
     )
 
     parser.add_argument(

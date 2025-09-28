@@ -10,20 +10,18 @@ from censo_ext.Tools.utility import IsExist_bool, print_descr
 descr = """
 ________________________________________________________________________________
 | For generate orcaS.BOBYQA or Intergal of spectra  
-| Usages   : BOBYQA_guess.py <geometry> [options]
+| Usages    : BOBYQA_guess.py <geometry> [options]
 | [options]
-| File     : -i input npz file [default 1r.npz]
-| Auto     : --atuo Automated mode and read the input npz file [default False]
-| Manual   : -m --manual Manual mode and read the peaks.npz [default False]
-| Save     : --save To save peaks.npz [default False]
-| Show     : -show --show Show spectra on screen [default false]
-| Start    : -start Start point of chemical shift [default from data] 
-| End      : -end End point of chemical shift [default from data]
-| threshold: -t -thr threshold of peaks [default 1.0]
-| phase    : -p --phase phase of spectra (1 to -1) [default 1.0]
-| Delete   : --delete Delete specific cID peaks
-| Merge    : --merge Merge cID peaks to one peak
-| Cut      : --cut Cut cID peak to two peaks by lowest point
+| File      : -i input dat/npz file [default 1r.npz]
+| Auto      : --atuo Automated mode and read the input dat/npz file [default False]
+| Manual    : -m --manual Manual mode and read the peaks.npz [default False]
+| Save      : --save To save peaks.npz [default False]
+| Show      : -show --show Show spectra on screen [default false]
+| threshold : -t -thr threshold of peaks [default 1.0]
+| phase     : -p --phase phase of spectra (1 to -1) [default 1.0]
+| Delete    : --delete Delete specific cID peaks
+| Merge     : --merge Merge cID peaks to one peak
+| Cut       : --cut Cut cID peak to two peaks by lowest point
 |______________________________________________________________________________
 """
 
@@ -72,26 +70,6 @@ def cml() -> argparse.Namespace:
         dest="show",
         action="store_true",
         help="Show the spectra on screen [default False]",
-    )
-
-    parser.add_argument(
-        "-start",
-        dest="start",
-        action="store",
-        type=float,
-        required=False,
-        default=None,
-        help="start point of chemical shift [default from data]",
-    )
-
-    parser.add_argument(
-        "-end",
-        dest="end",
-        action="store",
-        type=float,
-        required=False,
-        default=None,
-        help="end point of chemical shift [default from data]",
     )
 
     parser.add_argument(
@@ -187,15 +165,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         uc: unit_conversion = unit_conversion(ppm)
 
-        if args.start is None or args.end is None:
-            args.start, args.end = uc.ppm_limits()
-        elif args.start and args.end:
-            if args.start > args.end:
-                args.start, args.end = args.end, args.start
-        else:
-            print("  Args.start or args.end have wroing !!!")
-            print("  Exit and Close to the program !!!")
-            exit(0)
+        args_start, args_end = uc.ppm_limits()
 
         # plot and indicate all peaks
         fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
@@ -294,8 +264,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 height: float = intensit[int(idx_peaks)]
                 ppm_peak: float = uc.ppm(idx_peaks)
 
-                min: int = uc.index(args.start)
-                max: int = uc.index(args.end)
+                min: int = uc.index(args_start)
+                max: int = uc.index(args_end)
                 if ppm_peak < max and ppm_peak > min:
                     ax.scatter(ppm_peak, height, marker="o", color="r", s=100, alpha=0.5)  # type: ignore # nopep8
                     ax.text(ppm_peak, height*1.05, str(cID),
@@ -303,8 +273,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         # draw the threshold line and text and for adjust threshold for next time
         if args.auto:
-            plt.hlines(thres, args.end, args.start, linestyles="--")  # type: ignore # nopep8
-            ax.text(args.start, thres*1.02, f"thr = {thres:>10.3f}",
+            plt.hlines(thres, args_end, args_start, linestyles="--")  # type: ignore # nopep8
+            ax.text(args_start, thres*1.02, f"thr = {thres:>10.3f}",
                     ha="center", va="center")
 
         if args.show:
@@ -312,7 +282,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             plt.plot(uc.ppm_scale(), intensit, 'b', linewidth=1)
 
             # draw the x axis
-            plt.xlim(args.end, args.start)
+            plt.xlim(args_end, args_start)
             ax.spines["right"].set_visible(False)
             ax.spines["top"].set_visible(False)
             ax.spines["left"].set_visible(False)

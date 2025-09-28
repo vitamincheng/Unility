@@ -9,7 +9,7 @@ def test_anmrfile_miss_args() -> None:
     with pytest.raises(FileNotFoundError) as e:
         Missing = CensoDat()                # noqa: F841
     assert str(
-        e.value) == "  The file anmr.npz is not Exist ..."
+        e.value) == "  The file anmr.dat is not Exist ..."
 
 
 def test_anmrfile_Censo() -> None:

@@ -151,8 +151,8 @@ def main():
                         (npData[-1][0], threshold), axis=0)
 
     if args.out:
-        from censo_ext.Tools.utility import save_simulation_spectra_file_npz
-        save_simulation_spectra_file_npz(args.out, outData)
+        from censo_ext.Tools.utility import save_simulation_spectra_file
+        save_simulation_spectra_file(args.out, outData)
 
     if args.print:
         print(outData)

@@ -9,7 +9,7 @@ ________________________________________________________________________________
 | For Transform from dat to npz file and reverse 
 | Usages   : dat2npz.py <geometry> [options]
 | [options]
-| input    : -i input dat or npz file 
+| input    : -i input dat/npz file for Transfer to other file extension 
 |______________________________________________________________________________
 """
 
@@ -26,7 +26,7 @@ def cml() -> argparse.Namespace:
         dest="file",
         action="store",
         required=True,
-        help="Provide one input dat or npz file",
+        help="Provide one input dat/npz file",
     )
     args: argparse.Namespace = parser.parse_args()
     return args
@@ -35,10 +35,11 @@ def cml() -> argparse.Namespace:
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml()
+
     if args.file:
         path, file = IsExists_DirFileName(args.file)
         file_split: list[str] = file.split(".")
-        file_ext: str = file_split[1]
+        file_ext: str = file_split[-1]
         fileName: str = file_split[0]
 
         if file_ext == "dat":

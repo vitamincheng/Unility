@@ -213,8 +213,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.out:
         output: npt.NDArray[np.float64] = np.vstack(
             (ppm, np.real(data))).T[::-1]
-        from censo_ext.Tools.utility import save_simulation_spectra_file_npz
-        save_simulation_spectra_file_npz(args.out, output)
+        from censo_ext.Tools.utility import save_simulation_spectra_file
+        save_simulation_spectra_file(args.out, output)
 
     from censo_ext.Tools.spectra import numpy_thr_mean_3
     threshold: float = numpy_thr_mean_3(data)*args.thr

@@ -121,8 +121,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args.end, args.start = uc.ppm_limits()
 
     output: npt.NDArray[np.float64] = np.vstack((ppm, np.real(data))).T[::-1]
-    from censo_ext.Tools.utility import save_simulation_spectra_file_npz
-    save_simulation_spectra_file_npz(args.out, output)
+    from censo_ext.Tools.utility import save_simulation_spectra_file
+    save_simulation_spectra_file(args.out, output)
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(pipe_fid_fileName)
 

@@ -159,8 +159,8 @@ class Peaks_npz():
         print(self.__peaks)
 
     def method_save(self):
-        from censo_ext.Tools.utility import save_simulation_spectra_file_npz
-        save_simulation_spectra_file_npz(self.__fileName, self.__peaks)
+        from censo_ext.Tools.utility import save_simulation_spectra_file
+        save_simulation_spectra_file(self.__fileName, self.__peaks)
 
 
 class CensoDat():
@@ -170,7 +170,7 @@ class CensoDat():
     and saving spectral data with various processing capabilities.
     """
 
-    def __init__(self, file: Path | str = Path("anmr.npz")) -> None:
+    def __init__(self, file: Path | str = Path("anmr.dat")) -> None:
         """
         Initialize the CensoDat object.
 
@@ -253,7 +253,14 @@ class CensoDat():
             IOError: If there is an issue opening or writing to the file.
             FileNotFoundError: If the specified file path does not exist.
         """
-        np.savetxt(self.__fileName, self.__dat, fmt='%12.6f  %12.6e')
+
+        output: str = Path(self.__fileName).name
+        if output.split(".")[-1] == "npz":
+            np.savez_compressed(self.__fileName, self.__dat)
+            print(f" the spectra is saved to : {self.__fileName}")
+        if output.split(".")[-1] == "dat":
+            np.savetxt(self.__fileName, self.__dat, fmt='%12.6f  %12.6e')
+            print(f" the spectra is saved to : {self.__fileName}")
 
     def method_normalize_dat(self, start: float = -5.0, end: float = 15.0, dpi: int = 10000, highest: int = 10000) -> None:
         """Normalize the data to a specific range.
