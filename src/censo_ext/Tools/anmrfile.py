@@ -259,6 +259,9 @@ class Anmr():
         # idx1 and neighbors index of Magnetic Equivalent
         self.NeighborMangetEqvs: dict[int, list[int]] = {}
 
+        # For the data of Average Directory
+        self.avg_data: Average_Directory = Average_Directory(self.__Dir)
+
     def get_Dir(self) -> Path:
         """
         Get the directory path.
@@ -693,17 +696,18 @@ class Anmr():
             bool: True if all average orcaSJ files exist in the Average/NMR directory,
                   False if any of the files are missing.
         """
+        return self.avg_data.Exist()
 
-        avg_Dir: Path = Path("Average/NMR")
-        file_avg_orcaS: Path = self.__Dir / avg_Dir / Path("orcaS.out")
-        file_avg_orcaJ: Path = self.__Dir / avg_Dir / Path("orcaJ.out")
-        file_avg_orcaAtoms: Path = self.__Dir / avg_Dir / Path("orcaA.out")
+        # avg_Dir: Path = Path("Average/NMR")
+        # file_avg_orcaS: Path = self.__Dir / avg_Dir / Path("orcaS.out")
+        # file_avg_orcaJ: Path = self.__Dir / avg_Dir / Path("orcaJ.out")
+        # file_avg_orcaAtoms: Path = self.__Dir / avg_Dir / Path("orcaA.out")
 
-        if IsExist_bool(file_avg_orcaS) and IsExist_bool(file_avg_orcaAtoms) and \
-           IsExist_bool(file_avg_orcaJ):
-            return True
-        else:
-            return False
+        # if IsExist_bool(file_avg_orcaS) and IsExist_bool(file_avg_orcaAtoms) and \
+        #   IsExist_bool(file_avg_orcaJ):
+        #    return True
+        # else:
+        #    return False
 
     def method_load_avg_orcaSJ(self, bobyqa_bool) -> bool:
         """
@@ -742,32 +746,37 @@ class Anmr():
             - Average/NMR/orcaA.out
         """
 
-        from censo_ext.Tools.utility import jsonKeys2int, load_dict_orcaS
-        avg_Dir: Path = Path("Average/NMR")
-        if self.get_avg_orcaSJ_Exist():
-            # Check the name of file
-            if bobyqa_bool:
-                file_avg_orcaS: Path = self.__Dir / \
-                    avg_Dir/Path("orcaS-BOBYQA.out")
-            else:
-                file_avg_orcaS: Path = self.__Dir / \
-                    avg_Dir/Path("orcaS.out")
-            file_avg_orcaJ: Path = self.__Dir/avg_Dir/Path("orcaJ.out")
-            file_avg_orcaAtoms: Path = self.__Dir / \
-                avg_Dir/Path("orcaA.out")
+        Result: bool = self.avg_data.method_load_files(bobyqa_bool)
+        self.avg_orcaSJ.idx1Atoms = self.avg_data.idx1Atoms
+        self.avg_orcaSJ.SParams = self.avg_data.SParams
+        self.avg_orcaSJ.JCoups = self.avg_data.JCoups
+        return Result
+        # from censo_ext.Tools.utility import jsonKeys2int, load_dict_orcaS
+        # avg_Dir: Path = Path("Average/NMR")
+        # if self.get_avg_orcaSJ_Exist():
+        #    # Check the name of file
+        #    if bobyqa_bool:
+        #        file_avg_orcaS: Path = self.__Dir / \
+        #            avg_Dir/Path("orcaS-BOBYQA.out")
+        #    else:
+        #        file_avg_orcaS: Path = self.__Dir / \
+        #            avg_Dir/Path("orcaS.out")
+        #    file_avg_orcaJ: Path = self.__Dir/avg_Dir/Path("orcaJ.out")
+        #    file_avg_orcaAtoms: Path = self.__Dir / \
+        #        avg_Dir/Path("orcaA.out")
 
-            # load the data of file
-            import json
-            with open(file_avg_orcaAtoms) as f:
-                self.avg_orcaSJ.idx1Atoms = json.loads(
-                    f.read(), object_pairs_hook=jsonKeys2int)
+        #    # load the data of file
+        #    import json
+        #    with open(file_avg_orcaAtoms) as f:
+        #        self.avg_orcaSJ.idx1Atoms = json.loads(
+        #            f.read(), object_pairs_hook=jsonKeys2int)
 
-            self.avg_orcaSJ.SParams = load_dict_orcaS(
-                file_avg_orcaS)
-            self.avg_orcaSJ.JCoups = np.loadtxt(file_avg_orcaJ)
-            return True
-        else:
-            return False
+        #    self.avg_orcaSJ.SParams = load_dict_orcaS(
+        #        file_avg_orcaS)
+        #    self.avg_orcaSJ.JCoups = np.loadtxt(file_avg_orcaJ)
+        #    return True
+        # else:
+        #    return False
 
     def method_save_adjust_avg_orcaS(self) -> None:
         """
@@ -801,19 +810,23 @@ class Anmr():
             - orcaJ.out: Coupling constants
             - orcaA.out: Atom indices
         """
-        avg_Dir: Path = Path("Average/NMR")
-        avg_orcaS: Path = self.__Dir / avg_Dir / Path("orcaS.out")      # nopep8
-        avg_orcaJ: Path = self.__Dir / avg_Dir / Path("orcaJ.out")      # nopep8
-        avg_orcaAtoms: Path = self.__Dir / avg_Dir / Path("orcaA.out")  # nopep8
+        self.avg_data.idx1Atoms = self.avg_orcaSJ.idx1Atoms
+        self.avg_data.SParams = self.avg_orcaSJ.SParams
+        self.avg_data.JCoups = self.avg_orcaSJ.JCoups
+        self.avg_data.method_save_files()
+        # avg_Dir: Path = Path("Average/NMR")
+        # avg_orcaS: Path = self.__Dir / avg_Dir / Path("orcaS.out")      # nopep8
+        # avg_orcaJ: Path = self.__Dir / avg_Dir / Path("orcaJ.out")      # nopep8
+        # avg_orcaAtoms: Path = self.__Dir / avg_Dir / Path("orcaA.out")  # nopep8
 
-        (self.__Dir / avg_Dir).mkdir(parents=True, exist_ok=True)
+        # (self.__Dir / avg_Dir).mkdir(parents=True, exist_ok=True)
 
-        from censo_ext.Tools.utility import save_dict_orcaS
-        save_dict_orcaS(avg_orcaS, self.avg_orcaSJ.SParams)
-        import json
-        with open(avg_orcaAtoms, 'w') as f:
-            f.write(json.dumps(self.avg_orcaSJ.idx1Atoms))
-        np.savetxt(avg_orcaJ, self.avg_orcaSJ.JCoups, fmt="%10.5f")
+        # from censo_ext.Tools.utility import save_dict_orcaS
+        # save_dict_orcaS(avg_orcaS, self.avg_orcaSJ.SParams)
+        # import json
+        # with open(avg_orcaAtoms, 'w') as f:
+        #    f.write(json.dumps(self.avg_orcaSJ.idx1Atoms))
+        # np.savetxt(avg_orcaJ, self.avg_orcaSJ.JCoups, fmt="%10.5f")
 
     def method_save_folder_orcaSJ(self) -> None:
         """
@@ -1477,3 +1490,52 @@ class OrcaSJ():
             for idy0 in range(self.JCoups[0].size):
                 print(f'{(self.JCoups[idx0][idy0]):>8.3f}', end="")
             print("")
+
+
+class Average_Directory():
+
+    def __init__(self, Dir: Path = Path(".")) -> None:
+        self.__Dir: Path = Dir
+        self.__avg_Dir: Path = Path("Average/NMR")
+        self.__file_orcaS: Path = self.__Dir / self.__avg_Dir / Path("orcaS.out")  # nopep8
+        self.__file_orcaJ: Path = self.__Dir / self.__avg_Dir / Path("orcaJ.out")  # nopep8
+        self.__file_orcaA: Path = self.__Dir / self.__avg_Dir / Path("orcaA.out")  # nopep8
+        self.SParams: dict
+        self.JCoups: npt.NDArray
+        self.idx1Atoms: dict
+
+    def method_load_files(self, bobyqa_bool: bool) -> bool:
+        from censo_ext.Tools.utility import jsonKeys2int, load_dict_orcaS
+        if self.Exist():
+            # Check the name of file
+            if bobyqa_bool:
+                self.__file_orcaS = self.__Dir / self.__avg_Dir/Path("orcaS-BOBYQA.out")  # nopep8
+
+            # load the data of file
+            import json
+            with open(self.__file_orcaA) as f:
+                self.idx1Atoms = json.loads(
+                    f.read(), object_pairs_hook=jsonKeys2int)
+
+            self.SParams = load_dict_orcaS(self.__file_orcaS)
+            # for recovery
+            self.__file_orcaS: Path = self.__Dir / self.__avg_Dir / Path("orcaS.out")  # nopep8
+            self.JCoups = np.loadtxt(self.__file_orcaJ)
+            return True
+        else:
+            return False
+
+    def method_save_files(self) -> None:
+        (self.__Dir / self.__avg_Dir).mkdir(parents=True, exist_ok=True)
+        from censo_ext.Tools.utility import save_dict_orcaS
+        save_dict_orcaS(self.__file_orcaS, self.SParams)
+        import json
+        with open(self.__file_orcaA, 'w') as f:
+            f.write(json.dumps(self.idx1Atoms))
+        np.savetxt(self.__file_orcaJ, self.JCoups, fmt="%10.5f")
+
+    def Exist(self) -> bool:
+        if IsExist_bool(self.__file_orcaS) and IsExist_bool(self.__file_orcaA) and IsExist_bool(self.__file_orcaJ):  # nopep8
+            return True
+        else:
+            return False
