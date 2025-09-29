@@ -4,6 +4,7 @@ import numpy as np
 import numpy.typing as npt
 import matplotlib.pyplot as plt
 import nmrglue as ng
+from pathlib import Path
 from censo_ext.Tools.datfile import CensoDat, Peaks_npz, unit_conversion
 from censo_ext.Tools.utility import IsExist_bool, print_descr
 
@@ -14,6 +15,7 @@ ________________________________________________________________________________
 | [options]
 | File      : -i input dat/npz file [default 1r.npz]
 | Auto      : --atuo Automated mode and read the input dat/npz file [default False]
+| Basic     : --basic Only one time for threshold under automated mode [default False]
 | Manual    : -m --manual Manual mode and read the peaks.npz [default False]
 | Save      : --save To save peaks.npz [default False]
 | Show      : -show --show Show spectra on screen [default false]
@@ -55,6 +57,13 @@ def cml() -> argparse.Namespace:
         dest="auto",
         action="store_true",
         help="Automatically integrate the peaks [default False]",
+    )
+
+    parser.add_argument(
+        "--basic",
+        dest="basic",
+        action="store_true",
+        help="Only one time for threshold under automated mode [default False]",
     )
 
     parser.add_argument(
@@ -156,13 +165,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         ppm: npt.NDArray[np.float64] = in_Data[0]
         intensit: npt.NDArray[np.float64] = in_Data[1]
 
-        y_heighest: np.float64 = np.max(intensit)
-        y_lowest: np.float64 = np.min(intensit)
+        y_heighest: float = float(np.max(intensit))
+        y_lowest: float = float(np.min(intensit))
 
         from censo_ext.Tools.spectra import numpy_thr_mean_3
         thres: float = numpy_thr_mean_3(intensit)*args.thr
         thres += y_heighest * 0.01
-
+        thres_baseline: float = thres
         uc: unit_conversion = unit_conversion(ppm)
 
         args_start, args_end = uc.ppm_limits()
@@ -180,48 +189,95 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         # Automatically Integate the peaks
         if args.auto:
+
+            FileOrcaS: Path = Path("Average/NMR/orcaS.out")
+            if IsExist_bool(FileOrcaS):
+                OrcaS: npt.NDArray[np.float64] = np.genfromtxt(FileOrcaS)
+                in_S: list[int] = list(OrcaS.T[0].astype(int))
+                from censo_ext.Tools.anmrfile import Anmr
+                inAnmr: Anmr = Anmr()
+                inAnmr.method_read_nucinfo()
+                ChemEqvs: dict[int, list[int]] = {key: value for key,
+                                                  value in inAnmr.NeighborChemEqvs.items() if key in in_S}
+                Groups: list[list[int]] = list(
+                    sorted(value) for value in ChemEqvs.values())
+                unique_group = []
+                for item in Groups:
+                    if item not in unique_group:
+                        unique_group.append(item)
+                nGroups: int = len(unique_group)
+            else:
+                print("Only use --basic for one parameter under Automated mode")
+                args.basic = True
+                nGroups = 0
+
             peak_list: list = []
-            sorted_cID_peaks: npt.NDArray = np.sort(ng_1r_peaks, order='cID')
-            new_cID: list[int] = []
-            for cID in sorted_cID_peaks['cID']:
-                args_cID: npt.NDArray[np.intp] = (
-                    np.argwhere(sorted_cID_peaks['cID'] == cID))
-                r_Axis: float = float(
-                    sorted_cID_peaks[args_cID.min()]['X_AXIS'])
-                l_Axis: float = float(
-                    sorted_cID_peaks[args_cID.max()]['X_AXIS'])
-                r_LW: float = float(sorted_cID_peaks[args_cID.min()]['X_LW'])
-                l_LW: float = float(sorted_cID_peaks[args_cID.max()]['X_LW'])
 
-                if l_LW <= 1.0:
-                    l_LW = 1
-                if r_LW <= 1.0:
-                    r_LW = 1
-                l_LW_thr: float = 120/l_LW
-                r_LW_thr: float = 120/r_LW
+            while (1):
+                peak_list = []
+                sorted_cID_peaks: npt.NDArray = np.sort(
+                    ng_1r_peaks, order='cID')
+                new_cID: list[int] = []
+                for cID in sorted_cID_peaks['cID']:
+                    args_cID: npt.NDArray[np.intp] = (
+                        np.argwhere(sorted_cID_peaks['cID'] == cID))
+                    r_Axis: float = float(
+                        sorted_cID_peaks[args_cID.min()]['X_AXIS'])
+                    l_Axis: float = float(
+                        sorted_cID_peaks[args_cID.max()]['X_AXIS'])
+                    r_LW: float = float(
+                        sorted_cID_peaks[args_cID.min()]['X_LW'])
+                    l_LW: float = float(
+                        sorted_cID_peaks[args_cID.max()]['X_LW'])
 
-                l_peak: float = uc.ppm(l_Axis)+(l_LW/10000)*l_LW_thr
-                r_peak: float = uc.ppm(r_Axis)-(r_LW/10000)*r_LW_thr
+                    if l_LW <= 1.0:
+                        l_LW = 1
+                    if r_LW <= 1.0:
+                        r_LW = 1
+                    l_LW_thr: float = 120/l_LW
+                    r_LW_thr: float = 120/r_LW
 
-                min: int = uc.index(l_peak)
-                max: int = uc.index(r_peak)
-                if min > max:
-                    min, max = max, min
+                    l_peak: float = uc.ppm(l_Axis)+(l_LW/10000)*l_LW_thr
+                    r_peak: float = uc.ppm(r_Axis)-(r_LW/10000)*r_LW_thr
 
-                # extract the peak
-                peak: npt.NDArray[np.float64] = intensit[min:max + 1]
+                    min: int = uc.index(l_peak)
+                    max: int = uc.index(r_peak)
+                    if min > max:
+                        min, max = max, min
 
-                if cID not in new_cID:
-                    new_cID.append(cID)
-                    peak_list.append((cID, l_peak, r_peak, peak.sum()))
+                    # extract the peak
+                    peak: npt.NDArray[np.float64] = intensit[min:max + 1]
 
-            peaks.method_load_Data(peak_list)
+                    if cID not in new_cID:
+                        new_cID.append(cID)
+                        peak_list.append(
+                            (int(cID), l_peak, r_peak, float(peak.sum())))
+
+                print("threshold : ", thres)
+                for x in peak_list:
+                    print(x)
+                print("")
+                peaks.method_load_Data(peak_list)
+
+                if args.basic is True:
+                    break
+                if nGroups == len(peak_list):
+                    break
+                else:  # find the smallest of len(peak_list)
+                    if thres > y_heighest*0.7:
+                        break
+                    else:
+                        thres += thres_baseline
+                        ng_1r_peaks = ng.peakpick.pick(
+                            data=intensit, pthres=thres, algorithm="downward")
+
             print("  ========== Automated Data ==========")
+            print("Numbers of peaks : ", len(peaks))
             peaks.method_print()
 
         # Integrate the peaks if manually fixed the peaks.npz file
         if args.manual:
-            peaks.method_read_file(peaks_fileName)
+            peaks.method_read_file()
             print("  ========== Before ==========")
             peaks.method_print()
 

@@ -43,6 +43,9 @@ class Peaks_npz():
             [], dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
         self.__uc = uc
 
+    def __len__(self):
+        return len(self.__peaks)
+
     def method_delete_cID(self, cIDs: list[int]):
         for cID in cIDs:
             if cID in self.__peaks['cID']:
@@ -142,8 +145,8 @@ class Peaks_npz():
         self.__peaks = np.array(
             in_Data, dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
 
-    def method_read_file(self, fileName: Path | str):
-        file = Path(fileName)
+    def method_read_file(self):
+        file = Path(self.__fileName)
         from censo_ext.Tools.utility import IsExists_DirFileName
         path, Name = IsExists_DirFileName(file)
         self.__fileName = Path(Name)
@@ -153,6 +156,11 @@ class Peaks_npz():
         if file_ext == "npz":
             in_Data = np.load(file)['arr_0']
             self.__peaks = in_Data
+
+    def get_cIDs_center_peaks(self):
+        first = self.__peaks['cID']
+        second = (self.__peaks['Start']+self.__peaks['End'])/2
+        return np.stack((first, second))
 
     def method_print(self):
         print(self.__fileName)

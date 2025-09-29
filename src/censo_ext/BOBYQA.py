@@ -172,7 +172,7 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
             for idx_key in loop:  # type: ignore
                 orcaS_Table[idx_key][1] = x0[idx0]
 
-    np.savetxt(g_var.DirFileBOBYQA, orcaS_Table, fmt="%10d %10.5f %10d")
+    np.savetxt(g_var.DirFileBOBYQA, orcaS_Table, fmt="%10d   %10.5f %10d")
     orcaS_Table = np.delete(orcaS_Table, 2, axis=1)
 
     if g_var.prog:

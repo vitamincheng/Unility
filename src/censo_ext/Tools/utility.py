@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # from icecream import ic
+import numpy.typing as npt
 from pathlib import Path
 import shutil
 import numpy as np
@@ -355,3 +356,43 @@ def save_figure(fileName: str = "nmrplot") -> None:
     import matplotlib.pyplot as plt
     plt.savefig(f"{fileName}.pdf", dpi=300)
     plt.savefig(f"{fileName}.svg")
+
+
+def SVD(first_array: npt.NDArray, second_array: npt.NDArray):
+
+    first_column_array = first_array.reshape(-1, 1)
+    U, S, VT = np.linalg.svd(first_column_array, full_matrices=False)
+    xtilde = VT.T @ np.linalg.inv(np.diag(S)
+                                  ) @ U.T @ second_array
+    print(xtilde)
+
+
+def cosine_similarity(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np.float64] | list) -> float:
+    """
+    Calculates the cosine similarity between two vectors using NumPy.
+    """
+    # Ensure inputs are NumPy arrays
+    vec1 = np.array(vec1)
+    vec2 = np.array(vec2)
+
+    if len(vec1) != len(vec2):
+        print(f"{vec1=}")
+        print(f"{vec2=}")
+        print("  Two vector of your input file is not the same length")
+        exit(0)
+
+    # Calculate dot product
+    dot_product = np.dot(vec1, vec2)
+
+    # Calculate magnitudes (L2 norms)
+    from numpy.linalg import norm
+    magnitude_vec1 = norm(vec1)
+    magnitude_vec2 = norm(vec2)
+
+    # Handle division by zero if either magnitude is zero
+    if magnitude_vec1 == 0 or magnitude_vec2 == 0:
+        return 0.0  # Or raise an error, depending on desired behavior
+
+    # Calculate cosine similarity
+    cosine_similarity = float(dot_product / (magnitude_vec1 * magnitude_vec2))
+    return cosine_similarity
