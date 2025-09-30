@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 import matplotlib.pyplot as plt
 import nmrglue as ng
-from pathlib import Path
+from censo_ext.Tools.anmrfile import AD_Normal
 from censo_ext.Tools.datfile import CensoDat, Peaks_npz, unit_conversion
 from censo_ext.Tools.utility import IsExist_bool, print_descr
 
@@ -190,15 +190,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # Automatically Integate the peaks
         if args.auto:
 
-            FileOrcaS: Path = Path("Average/NMR/orcaS.out")
-            if IsExist_bool(FileOrcaS):
-                OrcaS: npt.NDArray[np.float64] = np.genfromtxt(FileOrcaS)
-                in_S: list[int] = list(OrcaS.T[0].astype(int))
+            AD_normal: AD_Normal = AD_Normal()
+            if (AD_normal.Exist()):
+                AD_normal.method_load_files()
+                if isinstance(AD_normal.SParams, dict):
+                    idx1_orcaS: list[int] = list(
+                        map(int, AD_normal.SParams.keys()))
+                else:
+                    print("dict")
+                    exit(1)
                 from censo_ext.Tools.anmrfile import Anmr
                 inAnmr: Anmr = Anmr()
                 inAnmr.method_read_nucinfo()
                 ChemEqvs: dict[int, list[int]] = {key: value for key,
-                                                  value in inAnmr.NeighborChemEqvs.items() if key in in_S}
+                                                  value in inAnmr.NeighborChemEqvs.items() if key in idx1_orcaS}
                 Groups: list[list[int]] = list(
                     sorted(value) for value in ChemEqvs.values())
                 unique_group = []

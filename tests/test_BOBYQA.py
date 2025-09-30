@@ -72,7 +72,7 @@ def test_BOBYQA_miss_orcaS_file():
 
 
 def test_BOBYQA_blank_file():
-    # run block orcaS_BOBYQA file
+    # run blank orcaS_BOBYQA file
     anmr_init()
     BOBYQA_init()
 

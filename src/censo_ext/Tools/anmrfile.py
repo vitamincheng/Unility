@@ -260,7 +260,7 @@ class Anmr():
         self.NeighborMangetEqvs: dict[int, list[int]] = {}
 
         # For the data of Average Directory
-        self.avg_data: Average_Directory = Average_Directory(self.__Dir)
+        self.avg_data: AD_Normal = AD_Normal(self.__Dir)
 
     def get_Dir(self) -> Path:
         """
@@ -745,10 +745,15 @@ class Anmr():
             - Average/NMR/orcaJ.out
             - Average/NMR/orcaA.out
         """
-
-        Result: bool = self.avg_data.method_load_files(bobyqa_bool)
+        # self.avg_data.method_BOBYQA_mode(bobyqa_bool)
+        Result: bool = self.avg_data.method_load_files()
         self.avg_orcaSJ.idx1Atoms = self.avg_data.idx1Atoms
-        self.avg_orcaSJ.SParams = self.avg_data.SParams
+        if isinstance(self.avg_data.SParams, dict):
+            self.avg_orcaSJ.SParams = self.avg_data.SParams
+        else:
+            print("  The tpye of your SParams have something wrong !!!")
+            print("  Exit and Close the program !!!")
+            exit(1)
         self.avg_orcaSJ.JCoups = self.avg_data.JCoups
         return Result
         # from censo_ext.Tools.utility import jsonKeys2int, load_dict_orcaS
@@ -1492,50 +1497,95 @@ class OrcaSJ():
             print("")
 
 
-class Average_Directory():
+class Average_Directory(object):
 
     def __init__(self, Dir: Path = Path(".")) -> None:
-        self.__Dir: Path = Dir
-        self.__avg_Dir: Path = Path("Average/NMR")
-        self.__file_orcaS: Path = self.__Dir / self.__avg_Dir / Path("orcaS.out")  # nopep8
-        self.__file_orcaJ: Path = self.__Dir / self.__avg_Dir / Path("orcaJ.out")  # nopep8
-        self.__file_orcaA: Path = self.__Dir / self.__avg_Dir / Path("orcaA.out")  # nopep8
-        self.SParams: dict
+        self._Dir: Path = Dir / Path("Average/NMR")
+        self._file_orcaS: Path
+        self._file_orcaJ: Path = self._Dir / Path("orcaJ.out")  # nopep8
+        self._file_orcaA: Path = self._Dir / Path("orcaA.out")  # nopep8
+        self.SParams: dict | npt.NDArray
         self.JCoups: npt.NDArray
         self.idx1Atoms: dict
 
-    def method_load_files(self, bobyqa_bool: bool) -> bool:
-        from censo_ext.Tools.utility import jsonKeys2int, load_dict_orcaS
-        if self.Exist():
-            # Check the name of file
-            if bobyqa_bool:
-                self.__file_orcaS = self.__Dir / self.__avg_Dir/Path("orcaS-BOBYQA.out")  # nopep8
+    def method_print_file(self):
+        print(self._file_orcaA)
+        print(self._file_orcaS)
+        print(self._file_orcaJ)
 
-            # load the data of file
+    def method_load_files(self) -> bool:
+        from censo_ext.Tools.utility import jsonKeys2int
+        if self.Exist():   # all three files must be exists
+
+            # load the orcaA file
             import json
-            with open(self.__file_orcaA) as f:
+            with open(self._file_orcaA) as f:
                 self.idx1Atoms = json.loads(
                     f.read(), object_pairs_hook=jsonKeys2int)
 
-            self.SParams = load_dict_orcaS(self.__file_orcaS)
-            # for recovery
-            self.__file_orcaS: Path = self.__Dir / self.__avg_Dir / Path("orcaS.out")  # nopep8
-            self.JCoups = np.loadtxt(self.__file_orcaJ)
+            # self.SParams = load_dict_orcaS(self.__file_orcaS)
+            lines: list = open(self._file_orcaS, "r").readlines()
+            if len(lines[0].split()) == 2:
+                Data: dict[int, float] = {}
+                for x in lines:
+                    Data[int(x.split()[0])] = float(x.split()[1])
+                self.SParams = Data
+            elif len(lines[0].split()) == 3:
+                self.SParams = np.loadtxt(self._file_orcaS)
+            else:
+                print("  The type of your SParams have something wrong !!!")
+                print("  Exit and Close the program !!!")
+                exit(1)
+
+            # load the Joups file
+            self.JCoups = np.loadtxt(self._file_orcaJ)
             return True
         else:
             return False
 
     def method_save_files(self) -> None:
-        (self.__Dir / self.__avg_Dir).mkdir(parents=True, exist_ok=True)
-        from censo_ext.Tools.utility import save_dict_orcaS
-        save_dict_orcaS(self.__file_orcaS, self.SParams)
+        (self._Dir).mkdir(parents=True, exist_ok=True)
+        if isinstance(self.SParams, dict):
+            with open(self._file_orcaS, 'w') as f:
+                for key, value in self.SParams.items():
+                    f.write('%10d %12.5f \n' % (key, value))
+        elif isinstance(self.SParams, np.ndarray):
+            if self.SParams.shape[1] == 3:
+                np.savetxt(self._file_orcaS, self.SParams,
+                           fmt="%10d   %10.5f %10d")
+            elif self.SParams.shape[1] == 2:
+                np.savetxt(self._file_orcaS, self.SParams,
+                           fmt="%10d   %10.5f")
+            else:
+                print("  The type of your SParams.shape have someting wrong !!!!")
+                print("  Exit and Close the program !!!")
+                exit(1)
+
+        else:
+            print("  The type of your SParams have someting wrong !!!!")
+            print("  Exit and Close the program !!!")
+            exit(1)
+
         import json
-        with open(self.__file_orcaA, 'w') as f:
+        with open(self._file_orcaA, 'w') as f:
             f.write(json.dumps(self.idx1Atoms))
-        np.savetxt(self.__file_orcaJ, self.JCoups, fmt="%10.5f")
+
+        np.savetxt(self._file_orcaJ, self.JCoups, fmt="%10.5f")
 
     def Exist(self) -> bool:
-        if IsExist_bool(self.__file_orcaS) and IsExist_bool(self.__file_orcaA) and IsExist_bool(self.__file_orcaJ):  # nopep8
+        if IsExist_bool(self._file_orcaS) and IsExist_bool(self._file_orcaA) and IsExist_bool(self._file_orcaJ):  # nopep8
             return True
         else:
             return False
+
+
+class AD_Normal(Average_Directory):
+    def __init__(self, Dir: Path = Path(".")) -> None:
+        super().__init__(Dir)
+        self._file_orcaS = self._Dir / Path("orcaS.out")  # nopep8
+
+
+class AD_BOBYQA(Average_Directory):
+    def __init__(self, Dir: Path = Path(".")) -> None:
+        super().__init__(Dir)
+        self._file_orcaS = self._Dir / Path("orcaS-BOBYQA.out")  # nopep8

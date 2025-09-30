@@ -187,39 +187,39 @@ def jsonKeys2int(x) -> dict:
     return {int(k): v for k, v in x}
 
 
-def save_dict_orcaS(inFile: Path | str, Data: dict) -> None:
-    """Save a dictionary to a file in orcaS format.
+# def save_dict_orcaS(inFile: Path | str, Data: dict) -> None:
+#    """Save a dictionary to a file in orcaS format.
+#
+#    Each key-value pair is written on a new line, formatted as an integer key and a float value.
+#
+#    Args:
+#        fileName (Path): The path to the output file.
+#        Data (dict): The dictionary to save.
+#    """
+#    inFile = Path(inFile)
+#    with open(inFile, 'w') as f:
+#        for key, value in Data.items():
+#            f.write('%10d %12.5f \n' % (key, value))
 
-    Each key-value pair is written on a new line, formatted as an integer key and a float value.
 
-    Args:
-        fileName (Path): The path to the output file.
-        Data (dict): The dictionary to save.
-    """
-    inFile = Path(inFile)
-    with open(inFile, 'w') as f:
-        for key, value in Data.items():
-            f.write('%10d %12.5f \n' % (key, value))
-
-
-def load_dict_orcaS(inFile: Path | str) -> dict:
-    """Load a dictionary from a file in orcaS format.
-
-    Each line is expected to contain an integer key and a float value, separated by whitespace.
-
-    Args:
-        fileName (Path): The path to the input file.
-
-    Returns:
-        dict: A dictionary with integer keys and float values.
-    """
-    inFile = Path(inFile)
-    IsExist(inFile)
-    lines: list = open(inFile, "r").readlines()
-    Data: dict[int, float] = {}
-    for x in lines:
-        Data[int(x.split()[0])] = float(x.split()[1])
-    return Data
+# def load_dict_orcaS(inFile: Path | str) -> dict:
+#    """Load a dictionary from a file in orcaS format.
+#
+#    Each line is expected to contain an integer key and a float value, separated by whitespace.
+#
+#    Args:
+#        fileName (Path): The path to the input file.
+#
+#    Returns:
+#        dict: A dictionary with integer keys and float values.
+#    """
+#    inFile = Path(inFile)
+#    IsExist(inFile)
+#    lines: list = open(inFile, "r").readlines()
+#    Data: dict[int, float] = {}
+#    for x in lines:
+#        Data[int(x.split()[0])] = float(x.split()[1])
+#    return Data
 
 
 def IsExist(inFile: Path | str) -> None:

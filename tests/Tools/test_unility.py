@@ -101,6 +101,7 @@ def test_unility_delete_all_files():
         assert not file.exists()
 
 
+'''
 def test_unility_save_dict_orcaS():
     from censo_ext.Tools.utility import save_dict_orcaS
 
@@ -124,3 +125,4 @@ def test_unility_load_dict_orcaS():
     loaded_data = load_dict_orcaS(source)
 
     assert loaded_data == data
+'''

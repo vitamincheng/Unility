@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-from censo_ext.Tools.utility import IsExist_bool, cosine_similarity
+from censo_ext.Tools.anmrfile import AD_BOBYQA, AD_Normal
+from censo_ext.Tools.utility import cosine_similarity, print_descr
 import argparse
 import numpy as np
 import numpy.typing as npt
-from pathlib import Path
 descr = """
 ________________________________________________________________________________
 | For Generation of OrcaS.BOBYQA
@@ -36,7 +36,7 @@ def cml() -> argparse.Namespace:
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml()
-    # print_descr(descr)
+    print_descr(descr)
 
     from censo_ext.Tools.datfile import Peaks_npz, unit_conversion
     blank: npt.NDArray = np.array([])
@@ -46,17 +46,23 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     peaks.method_read_file()
     peaks.method_print()
 
-    FileOrcaS: Path = Path("Average/NMR/orcaS.out")
-    if IsExist_bool(FileOrcaS):
-        OrcaS: npt.NDArray[np.float64] = np.genfromtxt(FileOrcaS)
-        print(f"\n{FileOrcaS}\n{OrcaS}")
+    AD_normal: AD_Normal = AD_Normal()
 
-        in_S: list[int] = list(map(int, OrcaS.T[0]))
+    if (AD_normal.Exist()):
+        AD_normal.method_load_files()
+        if isinstance(AD_normal.SParams, dict):
+            OrcaS = np.array(list(AD_normal.SParams.items()))
+            print(f"\n{AD_normal._file_orcaS}\n{OrcaS}")
+            in_SParams: list[int] = list(map(int, AD_normal.SParams.keys()))
+        else:
+            print("The OrcaS.out in Averaage Directory is not dict")
+            exit(1)
         from censo_ext.Tools.anmrfile import Anmr
         inAnmr: Anmr = Anmr()
         inAnmr.method_read_nucinfo()
-        ChemEqvs: dict[int, list[int]] = {key: value for key,
-                                          value in inAnmr.NeighborChemEqvs.items() if key in in_S}
+        ChemEqvs: dict[int, list[int]] = {key: value for key, value in
+                                          inAnmr.NeighborChemEqvs.items()
+                                          if key in in_SParams}
         Groups: list[list[int]] = list(
             sorted(value) for value in ChemEqvs.values())
         unique_group: list[list[int]] = []
@@ -75,7 +81,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         sorted_SParams: npt.NDArray[np.float64] = np.array(sorted(Sim_SParams))
         real_peaks: npt.NDArray[np.float64] = peaks.get_cIDs_center_peaks()
-        print(sorted_SParams)
+        print(f"\nSorted SParams : \n{sorted_SParams}")
 
         from itertools import combinations
         combs = list(combinations(
@@ -93,15 +99,19 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             args_combs)]
         print(f"The best of the array : {ordered_orcaS}")
         OrcaS_BOBYQA = np.insert(OrcaS, 2, 0, axis=1)
+
         for idx, x in enumerate(ordered_orcaS):
             intp = np.where(OrcaS.T[1] == -x)
             OrcaS_BOBYQA.T[1][intp] = -real_peaks[1][idx]
             OrcaS_BOBYQA.T[2][intp] = idx+1
 
-        FileBOBYQA: Path = Path("Average/NMR/orcaS-BOBYQA.out")
-        np.savetxt(FileBOBYQA, OrcaS_BOBYQA, fmt="%10d   %10.5f %10d")
+        AD_bobyqa: AD_BOBYQA = AD_BOBYQA()
+        AD_bobyqa.JCoups = AD_normal.JCoups
+        AD_bobyqa.idx1Atoms = AD_normal.idx1Atoms
+        AD_bobyqa.SParams = OrcaS_BOBYQA
+        AD_bobyqa.method_save_files()
         print("\nThe data is saved to orcaS-BOBYQA.out file")
-        print(f"{FileBOBYQA}\n{OrcaS_BOBYQA}")
+        print(f"{AD_bobyqa._file_orcaS}\n{AD_bobyqa.SParams}")
         print("  ========== End ==========")
 
     else:
