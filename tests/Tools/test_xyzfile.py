@@ -7,9 +7,10 @@ import filecmp
 def test_xyzfile_read_xyz_miss_args():
     fileName: Path = Path("tests/test.xyz")
     xyzFile = GeometryXYZs(fileName)
-    with pytest.raises(FileNotFoundError) as e:
+    with pytest.raises(SystemExit) as e:
         xyzFile.method_read_xyz()
-    assert str(e.value) == f"  The file {fileName} is not Exist ..."
+    assert e.type is SystemExit
+    assert e.value.code == 0
 
 
 @pytest.mark.parametrize(argnames="input_Path,len_Sts_file,energy1,energy2",

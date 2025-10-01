@@ -502,7 +502,7 @@ if __name__ == "__main__":
             ############################################################
             # start
             # add read .npz file
-            if file.split(".")[1] == "npz":
+            if file.split(".")[-1] == "npz":
                 with np.load(file) as data:
                     x, y = data['arr_0'].T
                     ppm.append(x.tolist())

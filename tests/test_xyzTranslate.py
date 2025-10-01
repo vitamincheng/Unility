@@ -68,7 +68,7 @@ def test_xyzTranslate_miss_file():
     with pytest.raises(SystemExit) as e:
         xyzTranslate.main(argparse.Namespace(**x))
     assert e.type is SystemExit
-    assert e.value.code == 1    # try and exception
+    assert e.value.code == 0    # try and exception
 
 
 # if __name__ == "__main__":

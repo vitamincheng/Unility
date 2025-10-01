@@ -35,9 +35,10 @@ def test_xyzSerial_filename_miss():
                "keep": True, "out": outFile, "print": False}
 
     args = argparse.Namespace(**x)
-    with pytest.raises(FileNotFoundError) as e:
+    with pytest.raises(SystemExit) as e:
         xyzSerial.main(args)
-    assert str(e.value) == f"  The file {x['file']} is not Exist ..."
+    assert e.type is SystemExit
+    assert e.value.code == 0
 
 
 def test_xyzSerial_miss():

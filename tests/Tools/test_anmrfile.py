@@ -11,10 +11,10 @@ import filecmp
 def test_anmrfile_miss_args() -> None:
     # only check orcaS() function, For Carbon orcaJ.out is not necessary
     Missing: OrcaSJ = OrcaSJ()
-    fileName: Path = Path("orcaS.out")
-    with pytest.raises(FileNotFoundError) as e:
+    with pytest.raises(SystemExit) as e:
         Missing.method_read_orcaS()
-    assert str(e.value) == f"  The file {fileName} is not Exist ..."
+    assert e.type is SystemExit
+    assert e.value.code == 0
 
 
 def test_anmrfile_read_OrcaSJ() -> None:
@@ -79,9 +79,10 @@ def test_anmrfile_read_enso_miss_args() -> None:
     Dir: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen")
     File: Path = Path("anmr_enso_error")
     anmr: Anmr = Anmr(Dir)
-    with pytest.raises(FileNotFoundError) as e:
+    with pytest.raises(SystemExit) as e:
         anmr.method_read_enso(File)
-    assert str(e.value) == f"  The file {Dir/File} is not Exist ..."
+    assert e.type is SystemExit
+    assert e.value.code == 0
 
 
 def test_anmrfile_read_print_enso() -> None:

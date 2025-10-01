@@ -12,15 +12,17 @@ idx_neighbors: dict[int, npt.NDArray[np.int64]]
 
 def test_m4nmr_miss_args():
     FileName: Path = Path("tests/data/crest_conformers0000.xyz")
-    with pytest.raises(FileNotFoundError) as e:
+    with pytest.raises(SystemExit) as e:
         mol, idx_neighbors = read_mol_neighbors(
             FileName)
-    assert str(e.value) == f"  The file {FileName} is not Exist ..."
+    assert e.type is SystemExit
+    assert e.value.code == 0
 
-    with pytest.raises(FileNotFoundError) as e:
+    with pytest.raises(SystemExit) as e:
         mol, idx_neighbors, bond_order = read_mol_neighbors_bond_order(
             FileName)
-    assert str(e.value) == f"  The file {FileName} is not Exist ..."
+    assert e.type is SystemExit
+    assert e.value.code == 0
 
 
 def test_m4nmr_read_mol_neighbors():

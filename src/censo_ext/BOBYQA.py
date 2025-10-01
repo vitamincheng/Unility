@@ -182,7 +182,7 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
         template_inp: Path = Path("CONF1/NMR/orcaS.out")
         with open(template_inp, "w") as f:
             sys.stdout = f
-        template = """
+            template = """
 --------------------------------
 CHEMICAL SHIELDING SUMMARY (ppm)
 --------------------------------
@@ -191,8 +191,8 @@ CHEMICAL SHIELDING SUMMARY (ppm)
   Nucleus  Element    Isotropic     Anisotropy
   -------  -------  ------------   ------------
 """
-        print(template)
-        sys.stdout = sys.__stdout__
+            print(template)
+            sys.stdout = sys.__stdout__
         SParams_exec.T[1] = SParams_exec.T[1] + g_var.ref
         SParams_exec.T[0] = SParams_exec.T[0]-1
         file_orcaS_main = Path("CONF1/NMR/orcaS-main.out")
@@ -474,6 +474,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 if __name__ == "__main__":
     main()
 
+# pytest
+#
+#
 # standard test
 # BOBYQA.py -d tests/data/06.EthylAcetate/03.Censo -r 1r.dat
 # BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) -r 1r_h.dat
@@ -486,3 +489,4 @@ if __name__ == "__main__":
 # BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS)
 # rewrite orcaS-BOBYQA.out file and run below BOBYQA.py by use external program
 # BOBYQA.py -d tests/data/31.Cyclohexanone/03.Censo_For_Hydorgen(revTPSS) -r 1r_h.dat -p
+#

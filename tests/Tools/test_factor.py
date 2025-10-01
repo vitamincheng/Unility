@@ -11,10 +11,10 @@ def test_factor_analysis_miss_args():
                "replace": False, "factor": 0.5}
     args = argparse.Namespace(**x)
 
-    with pytest.raises(FileNotFoundError) as e:
+    with pytest.raises(SystemExit) as e:
         method_factor_analysis(args)
-    # for argparse error
-    assert str(e.value) == f"  The file {x["file"]} is not Exist ..."
+    assert e.type is SystemExit
+    assert e.value.code == 0
 
 
 def test_factor_analysis():

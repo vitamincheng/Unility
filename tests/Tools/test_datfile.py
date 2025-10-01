@@ -5,14 +5,14 @@ import filecmp
 from censo_ext.Tools.datfile import CensoDat
 
 
-def test_anmrfile_miss_args() -> None:
-    with pytest.raises(FileNotFoundError) as e:
+def test_datfile_miss_args() -> None:
+    with pytest.raises(SystemExit) as e:
         Missing = CensoDat()                # noqa: F841
-    assert str(
-        e.value) == "  The file anmr.dat is not Exist ..."
+    assert e.type is SystemExit
+    assert e.value.code == 0
 
 
-def test_anmrfile_Censo() -> None:
+def test_datfile_Censo() -> None:
     anmrFile: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen/anmr.dat")
     infile: CensoDat = CensoDat(anmrFile)
     assert len(infile) == 77868

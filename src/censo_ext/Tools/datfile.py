@@ -156,6 +156,10 @@ class Peaks_npz():
         if file_ext == "npz":
             in_Data = np.load(file)['arr_0']
             self.__peaks = in_Data
+        else:
+            print("  File extension is .npz file !!!")
+            print("  Exit and Close the program !!!")
+            exit(0)
 
     def get_cIDs_center_peaks(self):
         first = self.__peaks['cID']
@@ -203,9 +207,8 @@ class CensoDat():
         IsExist(file)
         self.__fileName: Path = Path(file)
         from censo_ext.Tools.utility import IsExists_DirFileName
-        path, fileName = IsExists_DirFileName(file)
-        file_split: list[str] = fileName.split(".")
-        file_ext: str = file_split[1]
+        _, fileName = IsExists_DirFileName(file)
+        file_ext: str = fileName.split(".")[-1]
 
         if file_ext == "dat":
             self.__dat: npt.NDArray[np.float64] = np.genfromtxt(file)
@@ -262,11 +265,11 @@ class CensoDat():
             FileNotFoundError: If the specified file path does not exist.
         """
 
-        output: str = Path(self.__fileName).name
-        if output.split(".")[-1] == "npz":
+        ext: str = Path(self.__fileName).name.split(".")[-1]
+        if ext == "npz":
             np.savez_compressed(self.__fileName, self.__dat)
             print(f" the spectra is saved to : {self.__fileName}")
-        if output.split(".")[-1] == "dat":
+        if ext == "dat":
             np.savetxt(self.__fileName, self.__dat, fmt='%12.6f  %12.6e')
             print(f" the spectra is saved to : {self.__fileName}")
 
