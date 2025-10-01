@@ -152,7 +152,7 @@ def cml() -> argparse.Namespace:
         "--average",
         dest="average",
         action="store_true",
-        help="Load the averager foler data to plot spectra when use auto argument [default False]",
+        help="Load the Average/NMR/ folder data to plot spectra even use --auto argument [default False]",
     )
 
     parser.add_argument(
