@@ -50,8 +50,8 @@ def cml() -> argparse.Namespace:
         dest="ref",
         action="store",
         required=False,
-        default="1r.dat",
-        help="Provide ref file(dat/npz) name [1r.dat or 1r.npz]",
+        default="1r.npz",
+        help="Provide ref file(dat/npz) name [default 1r.npz]",
     )
 
     parser.add_argument(
@@ -232,7 +232,7 @@ CHEMICAL SHIELDING SUMMARY (ppm)
 
     dat_Sim.method_normalize_dat()
     try:
-        dat_diff: CensoDat = dat_Cal - dat_Ref  # type: ignore
+        dat_diff: CensoDat = dat_Sim - dat_Ref  # type: ignore
     except NameError:
         dat_Ref = CensoDat(file=g_var.DirFileRef_dat)
         dat_Ref.method_normalize_dat()

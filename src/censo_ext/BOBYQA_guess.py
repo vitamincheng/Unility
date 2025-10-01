@@ -217,7 +217,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 nGroups = 0
 
             peak_list: list = []
-
+            last_peaks: int = 0
             while (1):
                 peak_list = []
                 sorted_cID_peaks: npt.NDArray = np.sort(
@@ -259,6 +259,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                             (int(cID), l_peak, r_peak, float(peak.sum())))
 
                 print("threshold : ", thres)
+                print("Excepted  : ", nGroups)
+                print("Real Num  : ", len(peak_list))
+
                 for x in peak_list:
                     print(x)
                 print("")
@@ -268,6 +271,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     break
                 if nGroups == len(peak_list):
                     break
+                elif len(peak_list) < last_peaks:
+                    break
+                elif len(peak_list) > last_peaks:
+                    last_peaks = len(peak_list)
                 else:  # find the smallest of len(peak_list)
                     if thres > y_heighest*0.7:
                         break
