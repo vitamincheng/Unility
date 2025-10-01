@@ -113,7 +113,7 @@ class global_variable():
     prog: bool
     mf: float
     lw: float
-    ref: float
+    ref: float = 31.820
     idx_keys: list
     AD_bobyqa: AD_BOBYQA
     AD_normal: AD_Normal
@@ -182,16 +182,13 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
         template_inp: Path = Path("CONF1/NMR/orcaS.out")
         with open(template_inp, "w") as f:
             sys.stdout = f
-            template = """
---------------------------------
-CHEMICAL SHIELDING SUMMARY (ppm)
---------------------------------
-
-
-  Nucleus  Element    Isotropic     Anisotropy
-  -------  -------  ------------   ------------
-"""
-            print(template)
+            print("--------------------------------")
+            print("CHEMICAL SHIELDING SUMMARY (ppm)")
+            print("--------------------------------")
+            print("")
+            print("")
+            print("  Nucleus  Element    Isotropic     Anisotropy")
+            print("  -------  -------  ------------   ------------")
             sys.stdout = sys.__stdout__
         SParams_exec.T[1] = SParams_exec.T[1] + g_var.ref
         SParams_exec.T[0] = SParams_exec.T[0]-1
