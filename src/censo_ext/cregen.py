@@ -113,7 +113,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         subprocess.call(f"cp {inFile} {isomers}", shell=True)
         print(f"  cp {inFile} {isomers}")
 
-    prog = "crest"
+    prog: str = "crest"
     from censo_ext.Tools.utility import prog_IsExist
     prog_IsExist(prog)
 

@@ -400,25 +400,21 @@ def cosine_similarity(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np
 def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12) -> npt.NDArray[np.int64]:
     from icecream import ic
     sorted_data = np.array(sorted_data)
-    ic.disable()
-    ic(sorted_data)
+    # ic(sorted_data)
     delta: npt.NDArray[np.float64] = np.diff(sorted_data)
     idx0_sorted_delta: npt.NDArray[np.float64] = delta.argsort()[::-1]
-    ic(delta)
-    ic(idx0_sorted_delta)
-    ic(delta[list(idx0_sorted_delta)])
-    ic(len(delta))
-    print("")
-    print("")
+    # ic(delta)
+    # ic(idx0_sorted_delta)
+    # ic(delta[list(idx0_sorted_delta)])
+    # ic(len(delta))
     for length in range(1, len(delta)//2):
         idx0_cut: npt.NDArray[np.float64] = idx0_sorted_delta[:length]
-        ic(idx0_sorted_delta[:length])
+        # ic(idx0_sorted_delta[:length])
         idx0_cut = np.insert(idx0_cut, 0, -1)
         idx0_cut = np.insert(idx0_cut, 0, len(delta))
         idx0_cut.sort()
         cut_diff: npt.NDArray[np.float64] = np.diff(idx0_cut)
-        ic(int(np.max(cut_diff)), idx0_cut, cut_diff)
-        print("")
+        # ic(int(np.max(cut_diff)), idx0_cut, cut_diff)
         if int(np.max(cut_diff)) <= max_number:
             result: npt.NDArray[np.int64] = np.array([])
             Max: int = int(np.max(cut_diff))
@@ -441,8 +437,7 @@ def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12)
                 for x in range(int(d)):
                     result = np.append(result, Max-1)
                 result = np.append(result, c)
-            ic(result)
-            ic.enable()
+            # ic(result)
             return result.astype(np.int64)
             # return cut_diff
     print("  You should adjust the max_number to fit !!!")

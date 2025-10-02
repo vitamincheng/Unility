@@ -37,7 +37,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml()
 
     if args.file:
-        path, file = IsExists_DirFileName(args.file)
+        _, file = IsExists_DirFileName(args.file)
         file_split: list[str] = file.split(".")
         file_ext: str = file_split[-1]
         fileName: str = file_split[0]

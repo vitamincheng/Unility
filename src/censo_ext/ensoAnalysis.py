@@ -254,7 +254,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Average of CONFS
     # For after degeneracy and reduce the Gibbs free energy of ensemble
     avg_nums = int(np.sum(anmr_enso['ONOFF']))
-    avg_fraction = 1/avg_nums
+    avg_fraction: float = 1/avg_nums
 
     print(f" the name of input file          : {inFile}")
     print(f" the name of input file energy   : {backupFile}")

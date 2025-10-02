@@ -9,12 +9,12 @@ from censo_ext.Tools.datfile import CensoDat, Peaks_npz, unit_conversion
 from censo_ext.Tools.utility import IsExist_bool, print_arguments
 
 descr = """
-________________________________________________________________________________
-| For generate orcaS.BOBYQA or Intergal of spectra  
+_______________________________________________________________________________
+| For generate the peak.npz for orcaS-BOBYQA.out or Integral of spectra  
 | Usages    : BOBYQA_guess.py <geometry> [options]
 | [options]
 | File      : -i input dat/npz file [default 1r.npz]
-| Auto      : --atuo Automated mode and read the input dat/npz file [default False]
+| Auto      : --atuo Automated mode and read dat/npz file [default False]
 | Basic     : --basic Only one time for threshold under automated mode [default False]
 | Manual    : -m --manual Manual mode and read the peaks.npz [default False]
 | Save      : --save To save peaks.npz [default False]
@@ -49,7 +49,7 @@ def cml() -> argparse.Namespace:
         action="store",
         required=False,
         default="1r.npz",
-        help="Provide one input npz file [default 1r.npz]",
+        help="Provide input one npz file [default 1r.npz]",
     )
 
     parser.add_argument(
@@ -208,7 +208,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                                                   value in inAnmr.NeighborChemEqvs.items() if key in idx1_orcaS}
                 Groups: list[list[int]] = list(
                     sorted(value) for value in ChemEqvs.values())
-                unique_group = []
+                unique_group: list = []
                 for item in Groups:
                     if item not in unique_group:
                         unique_group.append(item)
