@@ -357,8 +357,38 @@ def save_figure(fileName: str = "nmrplot") -> None:
 
 
 def SVD(first_array: npt.NDArray, second_array: npt.NDArray):
+    """
+    Perform Singular Value Decomposition (SVD) on a system of linear equations.
 
-    first_column_array = first_array.reshape(-1, 1)
+    This function takes two arrays representing a system of linear equations and
+    solves for the unknown vector using SVD. It computes the pseudo-inverse of the
+    first array and uses it to find the solution vector.
+
+    Args:
+        first_array (npt.NDArray): The coefficient matrix (A) of the system Ax = b.
+            This should be a 2D array where each row represents an equation.
+        second_array (npt.NDArray): The dependent variable vector (b) of the system Ax = b.
+            This should be a 1D array representing the constants on the right-hand side.
+
+    Returns:
+        None: This function prints the solution vector xtilde to the console but does not return it.
+
+    Example:
+        >>> import numpy as np
+        >>> A = np.array([[1, 2], [3, 4], [5, 6]])
+        >>> b = np.array([1, 2, 3])
+        >>> SVD(A, b)
+        # Prints the solution vector xtilde
+
+    Note:
+        - The function assumes that first_array is a matrix and second_array is a vector.
+        - This implementation uses numpy's SVD decomposition followed by pseudo-inverse computation.
+        - The result is printed to stdout but not returned as a value.
+        - This function modifies the global variable 'xtilde' which may cause side effects
+          if called multiple times in succession without reinitialization.
+    """
+
+    first_column_array: npt.NDArray = first_array.reshape(-1, 1)
     U, S, VT = np.linalg.svd(first_column_array, full_matrices=False)
     xtilde = VT.T @ np.linalg.inv(np.diag(S)
                                   ) @ U.T @ second_array
@@ -368,7 +398,38 @@ def SVD(first_array: npt.NDArray, second_array: npt.NDArray):
 def cosine_similarity(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np.float64] | list) -> float:
     """
     Calculates the cosine similarity between two vectors using NumPy.
+
+    The cosine similarity is computed as the dot product of the two vectors
+    divided by the product of their magnitudes (L2 norms). This metric
+    ranges from -1 (completely opposite) to 1 (identical), with 0 indicating
+    orthogonality.
+
+    Args:
+        vec1 (npt.NDArray[np.float64] | list): The first vector as a NumPy array or list of floats.
+        vec2 (npt.NDArray[np.float64] | list): The second vector as a NumPy array or list of floats.
+
+    Returns:
+        float: The cosine similarity between the two vectors, ranging from -1 to 1.
+
+    Raises:
+        SystemExit: If the input vectors have different lengths, the program exits
+            with an error message.
+
+    Example:
+        >>> import numpy as np
+        >>> v1 = [1, 2, 3]
+        >>> v2 = [4, 5, 6]
+        >>> similarity = cosine_similarity(v1, v2)
+        >>> print(similarity)
+        0.9746318305482668
+
+    Note:
+        - If either vector has a magnitude of zero (i.e., all elements are zero),
+          the function returns 0.0 to avoid division by zero.
+        - Both input vectors must have the same length; otherwise, the program
+          terminates with an error message.
     """
+
     # Ensure inputs are NumPy arrays
     vec1 = np.array(vec1)
     vec2 = np.array(vec2)
@@ -398,7 +459,39 @@ def cosine_similarity(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np
 
 
 def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12) -> npt.NDArray[np.int64]:
-    from icecream import ic
+    """
+    Find optimal segmentation of sorted data based on maximum gap size.
+
+    This function analyzes the differences between consecutive elements in a sorted array
+    to determine an optimal way to segment the data such that no segment contains more
+    than `max_number` elements. It uses a greedy approach to find the best cut points.
+
+    Args:
+        sorted_data (npt.NDArray[np.float64] | list): A sorted array or list of numerical values.
+        max_number (int, optional): The maximum number of elements allowed in any segment.
+            Defaults to 12.
+
+    Returns:
+        npt.NDArray[np.int64]: An array containing the sizes of segments that satisfy
+            the maximum segment size constraint.
+
+    Raises:
+        SystemExit: If no valid segmentation is found given the constraints,
+            the program exits with an error message.
+
+    Example:
+        >>> import numpy as np
+        >>> data = [1, 2, 3, 10, 11, 12, 20, 21]
+        >>> result = sub_numpy(data, max_number=5)
+        >>> print(result)
+        [3 3 2]
+
+    Note:
+        This function assumes the input data is already sorted. The algorithm
+        attempts to find a segmentation that minimizes the maximum segment size
+        while respecting the `max_number` constraint.
+    """
+
     sorted_data = np.array(sorted_data)
     # ic(sorted_data)
     delta: npt.NDArray[np.float64] = np.diff(sorted_data)

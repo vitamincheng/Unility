@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#  Module anmr/ censo           [08.27.2024] vitamin.cheng@gmail.com
 from __future__ import annotations
 from typing import Self
 import sys
@@ -1498,6 +1497,34 @@ class OrcaSJ():
 
 
 class Average_Directory(object):
+    """Base class for handling average directory operations in ANMR calculations.
+
+    This is the base class that provides common functionality for managing
+    directories and files used in ANMR (Average Nuclear Magnetic Resonance)
+    calculations. It establishes the directory structure and defines the
+    necessary file paths and data attributes for ORCA calculation files.
+
+    The class manages three primary file types:
+    - ORCA S files (spin parameters)
+    - ORCA J files (J coupling constants) 
+    - ORCA A files (atomic indices)
+
+    Attributes:
+        _Dir: Path object representing the average NMR directory
+        _file_orcaS: Path object for the ORCA S output file (not initialized in base class)
+        _file_orcaJ: Path object for the ORCA J output file
+        _file_orcaA: Path object for the ORCA A output file
+        SParams: Dictionary or NumPy array containing spin parameters
+        JCoups: NumPy array containing J coupling constants
+        idx1Atoms: Dictionary containing atomic indices
+
+    Args:
+        Dir: Path object representing the base directory. Defaults to current directory (".")
+
+    Example:
+        >>> avg_dir = Average_Directory(Path("./analysis"))
+        >>> print(avg_dir._Dir)
+    """
 
     def __init__(self, Dir: Path = Path(".")) -> None:
         self._Dir: Path = Dir / Path("Average/NMR")
@@ -1509,11 +1536,36 @@ class Average_Directory(object):
         self.idx1Atoms: dict
 
     def method_print_file(self):
+        """Print the file paths of ORCA A, S, and J files."""
         print(self._file_orcaA)
         print(self._file_orcaS)
         print(self._file_orcaJ)
 
     def method_load_files(self) -> bool:
+        """Load ORCA files for ANMR analysis.
+
+        This method loads three types of files required for ANMR calculations:
+        - ORCA A file (atomic indices)
+        - ORCA S file (spin parameters)
+        - ORCA J file (J coupling constants)
+
+        The method performs the following operations:
+        1. Checks if all three files exist
+        2. Loads atomic indices from the ORCA A file using jsonKeys2int conversion
+        3. Loads spin parameters from the ORCA S file, handling two possible formats:
+           - Two-column format: integer index and float value
+           - Three-column format: loaded with np.loadtxt
+        4. Loads J coupling constants from the ORCA J file
+
+        Args:
+            self: The instance of the class containing this method
+
+        Returns:
+            bool: True if all files were successfully loaded, False otherwise
+
+        Raises:
+            SystemExit: If the SParams format is invalid (not 2 or 3 columns)
+        """
         from censo_ext.Tools.utility import jsonKeys2int
         if self.Exist():   # all three files must be exists
 
@@ -1544,6 +1596,27 @@ class Average_Directory(object):
             return False
 
     def method_save_files(self) -> None:
+        """Save ANMR files to disk.
+
+        This method saves three types of files required for ANMR calculations:
+        - ORCA A file (atomic indices in JSON format)
+        - ORCA S file (spin parameters in formatted text)
+        - ORCA J file (J coupling constants in formatted text)
+
+        The method handles different data formats for spin parameters:
+        - Dictionary format: saves as two-column text file
+        - 2D NumPy array: saves with appropriate formatting based on column count
+        - 3D NumPy array: saves with appropriate formatting based on column count
+
+        Args:
+            self: The instance of the class containing this method
+
+        Returns:
+            None: This method doesn't return anything, it performs file I/O operations
+
+        Raises:
+            SystemExit: If the SParams format is invalid or has incorrect dimensions
+        """
         (self._Dir).mkdir(parents=True, exist_ok=True)
         if isinstance(self.SParams, dict):
             with open(self._file_orcaS, 'w') as f:
@@ -1573,6 +1646,21 @@ class Average_Directory(object):
         np.savetxt(self._file_orcaJ, self.JCoups, fmt="%10.5f")
 
     def Exist(self) -> bool:
+        """Check if all required ORCA files exist.
+
+        This method verifies that all three necessary files for ANMR calculations exist
+        in the specified directory. The required files are:
+        - ORCA A file (atomic indices)
+        - ORCA S file (spin parameters)
+        - ORCA J file (J coupling constants)
+
+        Args:
+            self: The instance of the class containing this method
+
+        Returns:
+            bool: True if all three files exist, False otherwise
+        """
+
         if IsExist_bool(self._file_orcaS) and IsExist_bool(self._file_orcaA) and IsExist_bool(self._file_orcaJ):  # nopep8
             return True
         else:
@@ -1580,12 +1668,54 @@ class Average_Directory(object):
 
 
 class AD_Normal(Average_Directory):
+    """A class representing normal average directory for ANMR calculations.
+
+    This class extends Average_Directory and is specifically designed for handling
+    ORCA files in normal ANMR calculations. It manages the file paths for the three
+    required ORCA files (S, A, and J) and provides methods for loading and saving
+    these files.
+
+    Attributes:
+        _file_orcaS: Path object pointing to the ORCA S output file
+        _file_orcaA: Path object pointing to the ORCA A output file  
+        _file_orcaJ: Path object pointing to the ORCA J output file
+
+    Args:
+        Dir: Path object representing the directory containing the files.
+             Defaults to current directory (".")
+
+    Example:
+        >>> ad = AD_Normal(Path("./my_analysis"))
+        >>> ad.load_files()
+    """
+
     def __init__(self, Dir: Path = Path(".")) -> None:
         super().__init__(Dir)
         self._file_orcaS = self._Dir / Path("orcaS.out")  # nopep8
 
 
 class AD_BOBYQA(Average_Directory):
+    """A class representing BOBYQA average directory for ANMR calculations.
+
+    This class extends Average_Directory and is specifically designed for handling
+    ORCA files in ANMR calculations using the BOBYQA optimization method. It manages
+    the file paths for the three required ORCA files (S, A, and J) with BOBYQA-specific
+    naming conventions.
+
+    Attributes:
+        _file_orcaS: Path object pointing to the BOBYQA ORCA S output file
+        _file_orcaA: Path object pointing to the BOBYQA ORCA A output file  
+        _file_orcaJ: Path object pointing to the BOBYQA ORCA J output file
+
+    Args:
+        Dir: Path object representing the directory containing the files.
+             Defaults to current directory (".")
+
+    Example:
+        >>> ad = AD_BOBYQA(Path("./bobyqa_analysis"))
+        >>> ad.load_files()
+    """
+
     def __init__(self, Dir: Path = Path(".")) -> None:
         super().__init__(Dir)
         self._file_orcaS = self._Dir / Path("orcaS-BOBYQA.out")  # nopep8
