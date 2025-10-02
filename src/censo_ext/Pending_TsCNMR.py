@@ -2,9 +2,8 @@
 from pathlib import Path
 import argparse
 import numpy as np
-from sys import argv as sysargv
-# from icecream import ic
-
+import numpy.typing as npt
+from censo_ext.Tools.utility import print_arguments
 descr = """
 ________________________________________________________________________________
 |                                          [08.18.2024] vitamin.cheng@gmail.com
@@ -17,8 +16,6 @@ ________________________________________________________________________________
 |            (depend on different numbers of C-H and will show in nmrplot.py)  
 | Verbose  : -v verbose mode and show the detail 
 | Print    : -p print the final result on screen
-| Packages : Tools
-| Module   : anmrfile.py / ml4nmr.py / ASE library
 |______________________________________________________________________________
 """
 
@@ -84,7 +81,6 @@ def cml():
 
 Scan_width = 32 * 1024
 Size_Frq = 238.8955
-# LLimit_height = 0.1
 Width_pp = Size_Frq / Scan_width
 TMS_ppm = 14.5154
 TMS_points = TMS_ppm / Width_pp
@@ -95,7 +91,7 @@ HMHM = FWHM / 2
 ########## END GLOBAL DECLARATIONS ##########
 
 
-def Set_Peak_full_Spectra(x, multi, npData):
+def Set_Peak_full_Spectra(x, multi, npData) -> None:
     for idx in range(Scan_width):
         npData[idx] = npData[idx] + \
             Lorentzian_Distribution(x-(idx*Width_pp-TMS_ppm), HMHM)*((multi+1))
@@ -105,11 +101,10 @@ def Lorentzian_Distribution(dx, mu):
     return 1 / 3.1415926 * (mu / (dx*dx + mu+mu))
 
 
-def main():
-    args = cml()
-    if not args.print:
-        print(descr)  # Program description
-        print(f"    provided arguments: {" ".join(sysargv)}")
+def main(args: argparse.Namespace = argparse.Namespace()) -> None:
+    if args == argparse.Namespace():
+        args = cml()
+    print_arguments()
 
     if not Path(args.file).exists:
         print(f"    {args.file} , the file is not exist ...")
@@ -121,17 +116,17 @@ def main():
         print(f" Reading the {args.file} file ")
 
     import censo_ext.Tools.anmrfile as anmrfile
-    anmrSJ = anmrfile.Anmr()
-    anmrSJ.method_read_anmrSJ(args.file)
+    inAnmr = anmrfile.Anmr()
+    inAnmr.method_read_anmrSJ(args.file)
 
     if args.extra:
         import censo_ext.Tools.ml4nmr as ml4nmr
         mol, neighbors, bond_order = ml4nmr.read_mol_neighbors_bond_order(
             args.extra)
-        List_nProton = [x for x in bond_order.values()]
+        List_nProton: list[int] = [x for x in bond_order.values()]
 
-    List_ppm = [ppm[3] for ppm in anmrSJ.anmrS]
-    npData = np.zeros((Scan_width, 2))
+    List_ppm: list[float] = [ppm[3] for ppm in inAnmr.anmrS]
+    npData: npt.NDArray = np.zeros((Scan_width, 2))
 
     for idx in range(len(List_ppm)):
         if args.extra:
@@ -144,11 +139,12 @@ def main():
 
     npData.T[0] = np.arange(Scan_width)*Width_pp-TMS_ppm
 
-    threshold = 0.001
-    outData = npData[np.logical_not(npData[:, 1] < threshold)]
-    outData = np.insert(outData, 0, (npData[0][0], threshold), axis=0)
-    outData = np.insert(outData, len(outData),
-                        (npData[-1][0], threshold), axis=0)
+    threshold: float = 0.001
+    outData: npt.NDArray = npData[np.logical_not(npData[:, 1] < threshold)]
+    outData: npt.NDArray = np.insert(
+        outData, 0, (npData[0][0], threshold), axis=0)
+    outData: npt.NDArray = np.insert(outData, len(outData),
+                                     (npData[-1][0], threshold), axis=0)
 
     if args.out:
         from censo_ext.Tools.utility import save_simulation_spectra_file

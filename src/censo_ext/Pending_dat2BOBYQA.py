@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 import argparse
-# from icecream import ic
-from sys import argv as sysargv
 import numpy as np
 import numpy.typing as npt
 from pathlib import Path
+from censo_ext.Tools.utility import print_arguments
 
 descr = """
 ________________________________________________________________________________
@@ -102,39 +101,37 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print(descr)  # Program description
-    print(f"    provided arguments: {" ".join(sysargv)}")
+    print_arguments()
 
     if args.file:
         from censo_ext.Tools.utility import IsExist
         IsExist(args.file)
+
         from censo_ext.Tools.datfile import CensoDat
         inDat: CensoDat = CensoDat(args.file)
         inDat.method_normalize_dat(
             start=args.start, end=args.end, dpi=args.dpi)
-        # inDat.set_fileName(args.out)
-        # inDat.method_save_dat()
+
         from scipy.signal import find_peaks
         x: npt.NDArray[np.float64] = inDat.get_Dat()
+
         from censo_ext.Tools.spectra import numpy_thr
         thr: float = numpy_thr(x.T[1], args.thr)
         peaks, _ = find_peaks(x.T[1], thr)
         peaks_np: npt.NDArray[np.float64] = x.T[0][peaks]*(-1)
-        # ic(peaks_np)
 
         DirFileName: Path = args.dir / Path("Average/NMR/orcaS.out")
         from censo_ext.Tools.utility import IsExists_DirFileName
         IsExists_DirFileName(DirFileName)
-        np_data = np.genfromtxt(DirFileName)
-        # ic(np_data)
+        np_data: npt.NDArray = np.genfromtxt(DirFileName)
+
         from censo_ext.Tools.spectra import find_nearest
 
         app_list: list[float] = []
-        peaks_list = [x[1] for x in np_data]
-        for x in peaks_list:
+        peaks: list = [x[1] for x in np_data]
+        for x in peaks:
             value, _ = find_nearest(peaks_np, x)
             app_list.append(value)
-        # ic(app_list)
 
 
 if __name__ == "__main__":

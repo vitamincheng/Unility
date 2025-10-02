@@ -269,8 +269,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 min, max = max, min
 
             # extract the peak
-            peak = data[min:max + 1]
-            peak_list.append((cID, l_peak, r_peak, peak.sum()))
+            peak_list.append((cID, l_peak, r_peak, data[min:max+1].sum()))
 
         np_peaks = np.array(
             peak_list, dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
@@ -299,7 +298,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 else:
                     print("  Delete element is wrong cID")
                     print("  Exit and Close the program !!!")
-                    ic()
                     exit(1)
 
         if args.merge:
@@ -320,7 +318,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 else:
                     print("your merge element is wrong cID")
                     print("  Exit and Close the program !!!")
-                    ic()
                     exit(1)
             # ic(min_cID, start, end)
 

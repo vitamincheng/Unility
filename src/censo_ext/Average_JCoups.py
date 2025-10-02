@@ -2,23 +2,16 @@
 import argparse
 import numpy as np
 import numpy.typing as npt
-# import matplotlib.pyplot as plt
-from sys import argv as sysargv
-# from icecream import ic
 from pathlib import Path
 from censo_ext.Tools.utility import delete_all_files
-from censo_ext.Tools.utility import IsExist_bool
+from censo_ext.Tools.utility import IsExist_bool, print_arguments
 
 descr = """
 ________________________________________________________________________________
-|                                          [08.17.2024] vitamin.cheng@gmail.com 
-| Purpose : some JCoup constant is not average in Eqv. atom in anmr program    
-|           So overwrite the orcaJ.out file for average JCoup constant
-| Default : Overwrite orcaJ.out and backup the old data to orcaJ.out.backup           
-| Recover : -r Copy the orcaJ.out.backup to orcaJ.out [default False] 
-| Needed  : orcaJ.out in each CONF folder, coord, anmrh.out, anmr_nucinfo   
-| Package : Tools                  
-| Module  : anmrfile.py 
+| Purpose : some JCoup constant in Eqv. atom in anmr program are not averge values,
+|           so overwrite the orcaJ.out file to get average JCoup constant
+| Default : Overwrite the orcaJ.out and backup the old data to orcaJ.out.backup
+| Recover : -r Copy the orcaJ.out.backup to orcaJ.out [default False]
 |______________________________________________________________________________
 """
 
@@ -47,13 +40,13 @@ def cml():
 def Atom_Equivalent(file: Path | str = Path("anmrh.out")) -> list:
     file = Path(file)
     from censo_ext.Tools.anmrfile import Anmr
-    anmr = Anmr()
-    anmr.method_read_anmrSJ(file)
-    DataJ: list = anmr.anmrS
-    anmr.method_read_nucinfo()
+    inAnmr: Anmr = Anmr()
+    inAnmr.method_read_anmrSJ(file)
+    SParams: list = inAnmr.anmrS
+    inAnmr.method_read_nucinfo()
     AtomEqv: list = []
-    for x in [a[1] for a in DataJ]:
-        AtomEqv.append(anmr.NeighborMangetEqvs[x])
+    for x in [a[1] for a in SParams]:
+        AtomEqv.append(inAnmr.NeighborMangetEqvs[x])
     return AtomEqv
 
 
@@ -63,14 +56,15 @@ def function_read_orcaJ(file: Path = Path("orcaJ.out")) -> npt.NDArray[np.float6
     if single_orcaSJ.method_read_orcaJ(file):
         return single_orcaSJ.JCoups
     else:
-        raise ValueError("  Someting wrong in your orcaJ.out file")
+        print("  orcaJ.out file have something wrong !!!")
+        print("  Exit and Close the program !!!")
+        exit(0)
 
 
-if __name__ == "__main__":
-
-    args: argparse.Namespace = cml()
-    print(f"    provided arguments: {" ".join(sysargv)}")
-    print(descr)
+def main(args: argparse.Namespace = argparse.Namespace()) -> None:
+    if args == argparse.Namespace():
+        args = cml()
+    print_arguments()
 
     if args.recover:
         Dir: Path = Path.cwd()
@@ -172,4 +166,8 @@ if __name__ == "__main__":
                         outfile.write(
                             f" Total            0.000            0.000            0.000  iso= {str(JCoup[i][j]):.5f}\n")
 
-            print(f" Directory of saved file: {dirName}/NMR/orcaJ.out")
+            print(f" Directory of saved file: {orcaJ_File}")
+
+
+if __name__ == "__main__":
+    main()

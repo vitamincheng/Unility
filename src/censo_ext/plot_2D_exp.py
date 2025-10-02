@@ -6,9 +6,7 @@ from censo_ext.Tools.spectra import numpy_thr
 from sys import argv as sysargv
 import nmrglue as ng
 import argparse
-# import os
 import numpy as np
-# import sys
 
 descr = """
 ________________________________________________________________________________

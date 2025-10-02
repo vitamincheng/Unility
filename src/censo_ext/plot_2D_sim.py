@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 import argparse
 from icecream import ic
-# import nmrglue as ng
+from censo_ext.Tools.utility import print_arguments
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
@@ -163,23 +163,20 @@ def plot_target(ax) -> None:
 def main(args=argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         pass
-    # hidden = True
+    print_arguments()
 
     directory_H: str = "Test/34.Ergocalciferol/04.Hydrogen"
     directory_C: str = "Test/34.Ergocalciferol/07.Carbon"
     data_x, data_y = Load_Directory(directory_H, directory_C)
 
-    # data_x, data_y = Load_dat(
-    #    directory_H + "/output.dat", directory_C+"/output.dat")
-
     ax = plot_2D_basic(data_x, data_y)
     bond_order, neighbor, idxAtoms_H, idxAtoms_C = plot_2D_slice(
         ax, data_x, data_y)
-    # plot_target(ax)
+
     print_report(bond_order, neighbor, idxAtoms_H, idxAtoms_C)
     from censo_ext.Tools.utility import save_figure
     save_figure()
-    # if hidden == False:
+
     ax.set_xlim(max(data_x.T[0]), min(data_x.T[0]))
     ax.set_ylim(max(data_y.T[0]), min(data_y.T[0]))
     plt.show()
