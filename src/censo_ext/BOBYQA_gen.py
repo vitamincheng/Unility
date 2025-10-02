@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 from censo_ext.Tools.anmrfile import AD_BOBYQA, AD_Normal
-from censo_ext.Tools.utility import cosine_similarity, print_descr
+from censo_ext.Tools.utility import cosine_similarity, print_arguments
 import argparse
 import numpy as np
 import numpy.typing as npt
+descr = """
+"""
 
 
 def cml() -> argparse.Namespace:
     """ Get args object from commandline interface. Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description="",
+        description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS)
     parser.add_argument(
@@ -49,7 +51,7 @@ def cml() -> argparse.Namespace:
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml()
-    print_descr()
+    print_arguments()
 
     from censo_ext.Tools.datfile import Peaks_npz, unit_conversion
     blank: npt.NDArray = np.array([])

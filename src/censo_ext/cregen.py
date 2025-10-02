@@ -2,7 +2,7 @@
 import argparse
 import subprocess
 from pathlib import Path
-from censo_ext.Tools.utility import print_descr
+from censo_ext.Tools.utility import print_arguments
 
 descr = """
 ________________________________________________________________________________
@@ -99,7 +99,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print_descr(descr)
+    print_arguments()
 
     inFile: Path = Path(args.file)
     outFile: Path = Path(args.out)

@@ -2,7 +2,7 @@
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 import argparse
-from censo_ext.Tools.utility import print_descr
+from censo_ext.Tools.utility import print_arguments
 descr = """
 ________________________________________________________________________________
 | Reorder the Serial No. in xyz file
@@ -21,7 +21,7 @@ def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description="",
+        description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
     )
@@ -81,7 +81,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml()
     if not args.print:
-        print_descr(descr)
+        print_arguments()
 
     inFile = Path(args.file)
     outFile = Path(args.out)

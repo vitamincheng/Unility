@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from censo_ext.Tools.xyzfile import GeometryXYZs
-from censo_ext.Tools.utility import print_descr
+from censo_ext.Tools.utility import print_arguments
 import argparse
 import subprocess
 # from icecream import ic
@@ -27,7 +27,7 @@ def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description="",
+        description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
     )
@@ -95,7 +95,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
 
     if args == argparse.Namespace():
         args = cml()
-    print_descr(descr)
+    print_arguments()
 
     inFile = Path(args.file)
     single_xyz_name = Path(".temp.xyz")

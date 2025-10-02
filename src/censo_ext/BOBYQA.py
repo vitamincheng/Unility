@@ -7,7 +7,7 @@ import numpy.typing as npt
 from pathlib import Path
 import subprocess
 from censo_ext.Tools.anmrfile import AD_BOBYQA, AD_Normal
-from censo_ext.Tools.utility import print_descr
+from censo_ext.Tools.utility import print_arguments
 
 descr = """
 ________________________________________________________________________________
@@ -29,7 +29,7 @@ def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description="",
+        description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
     )
@@ -405,7 +405,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print_descr(descr)
+    print_arguments()
 
     if args.dir and args.ref:               # default args.dir="." and args.ref="1r.dat"
         g_var.Dir = Path(args.dir)

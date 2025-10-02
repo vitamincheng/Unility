@@ -4,7 +4,7 @@ import os
 import shutil
 from pathlib import Path
 # from icecream import ic
-from censo_ext.Tools.utility import delete_all_files, print_descr
+from censo_ext.Tools.utility import delete_all_files, print_arguments
 from censo_ext.Tools.utility import copy_file
 
 descr = """
@@ -24,7 +24,7 @@ def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description="",
+        description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
     )
@@ -150,7 +150,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print_descr(descr)
+    print_arguments()
 
     p = Path(args.file)
     fileName: str = p.name

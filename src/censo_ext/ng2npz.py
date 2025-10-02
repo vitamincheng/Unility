@@ -4,7 +4,7 @@ from nmrglue.fileio.fileiobase import unit_conversion
 import numpy as np
 import numpy.typing as npt
 import argparse
-from censo_ext.Tools.utility import print_descr
+from censo_ext.Tools.utility import print_arguments
 
 
 descr = """
@@ -25,7 +25,7 @@ def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description="",
+        description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
         add_help=False
@@ -92,7 +92,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # read in the Bruker data
     if args == argparse.Namespace():
         args = cml()
-    print_descr(descr)
+    print_arguments()
 
     if not args.path:
         args.path = "../../Simulation/bmse000510/nmr/set01/1H/pdata/1"

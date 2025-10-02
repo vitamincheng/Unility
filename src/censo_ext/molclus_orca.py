@@ -4,7 +4,7 @@ import os
 import sys
 import argparse
 import subprocess
-from censo_ext.Tools.utility import delete_all_files, IsExist_bool, print_descr
+from censo_ext.Tools.utility import delete_all_files, IsExist_bool, print_arguments
 from pathlib import Path
 
 descr = """
@@ -24,7 +24,7 @@ def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description="",
+        description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
     )
@@ -75,7 +75,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print_descr(descr)
+    print_arguments()
 
     inFile = Path(args.file)
     outFile = Path(args.out)

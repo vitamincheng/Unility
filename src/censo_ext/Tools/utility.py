@@ -337,20 +337,10 @@ def save_simulation_spectra_file(fileName: Path | str, spectra) -> None:
         print(f" the spectra is saved to : {fileName}")
 
 
-def print_descr(descr=""):
-
+def print_arguments():
     import sys
     print("    provided arguments: {}".format(" ".join(sys.argv)))
     print("")
-    # import sys
-    # if (len(sys.argv) == 1):
-    #    print(descr)
-    #    print("    provided arguments: {}".format(" ".join(sys.argv)))
-    #    print("")
-    #    exit(0)
-    # else:
-    #    print("    provided arguments: {}".format(" ".join(sys.argv)))
-    #    print("")
 
 
 def save_figure(fileName: str = "nmrplot") -> None:

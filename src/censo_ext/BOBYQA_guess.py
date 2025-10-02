@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import nmrglue as ng
 from censo_ext.Tools.anmrfile import AD_Normal
 from censo_ext.Tools.datfile import CensoDat, Peaks_npz, unit_conversion
-from censo_ext.Tools.utility import IsExist_bool, print_descr
+from censo_ext.Tools.utility import IsExist_bool, print_arguments
 
 descr = """
 ________________________________________________________________________________
@@ -39,7 +39,7 @@ useit = """\
 def cml() -> argparse.Namespace:
     """ Get args object from commandline interface. Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description="",
+        description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS)
     parser.add_argument(
@@ -152,7 +152,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print_descr(descr)
+    print_arguments()
 
     if args.auto and args.manual:
         print("  For both args.auto and args.manual only for one mode")

@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 import numpy as np
 import numpy.typing as npt
-from censo_ext.Tools.utility import print_descr
+from censo_ext.Tools.utility import print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from sys import argv as sysargv
 descr = """
@@ -27,7 +27,7 @@ def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description="",
+        description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
     )
@@ -92,7 +92,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print_descr(descr)
+    print_arguments()
 
     from censo_ext.Tools.utility import IsExist
     inFile = Path(args.file)
