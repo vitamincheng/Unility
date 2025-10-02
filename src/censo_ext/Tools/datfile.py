@@ -51,7 +51,8 @@ class Peaks_npz():
             if cID in self.__peaks['cID']:
                 self.__peaks = self.__peaks[self.__peaks['cID'] != cID]
             else:
-                print("your delete element is wrong cID")
+                print("  Delete element is wrong cID")
+                print("  Exit and Close the program !!!")
                 exit(0)
 
     def method_merge_cID(self, cIDs: list[int]):
@@ -69,7 +70,8 @@ class Peaks_npz():
                     end: float = self.__peaks[args_x[0]
                                               ]['End'].min().astype(float)
             else:
-                print("  Your merge element is wrong cID")
+                print("  Merge element is wrong cID")
+                print("  Exit and Close the program !!!")
                 exit(0)
 
         # assign the new cID of data
@@ -124,7 +126,8 @@ class Peaks_npz():
             self.__peaks = np.insert(
                 self.__peaks, args_x[0], (self.__peaks['cID'].max() + 1, l_peaks, cut_center, intensit[start+cut_argmin:max].sum()))
         else:
-            print("your merge element is wrong cID")
+            print("  Merge element is wrong cID")
+            print("  Exit and Close the program !!!")
             exit(1)
 
     def method_integrate(self, intensit):

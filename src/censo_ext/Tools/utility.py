@@ -250,6 +250,7 @@ def IsExist(inFile: Path | str) -> None:
     if not IsExists:
 
         print(f"  The file {inFile} is not Exist ...")
+        print("  Exit and Close the program !!!")
         exit(0)
         # raise FileNotFoundError(f"  The file {inFile} is not Exist ...")
 
@@ -376,6 +377,7 @@ def cosine_similarity(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np
         print(f"{vec1=}")
         print(f"{vec2=}")
         print("  Two vector of your input file is not the same length")
+        print("  Exit and Close the program !!!")
         exit(0)
 
     # Calculate dot product
@@ -444,4 +446,5 @@ def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12)
             return result.astype(np.int64)
             # return cut_diff
     print("  You should adjust the max_number to fit !!!")
+    print("  Exit and Close the program !!!")
     exit(0)

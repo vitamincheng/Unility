@@ -156,6 +156,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args.auto and args.manual:
         print("  For both args.auto and args.manual only for one mode")
+        print("  Exit and Close the program !!!")
         exit(0)
 
     if IsExist_bool(args.file):
@@ -197,8 +198,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     idx1_orcaS: list[int] = list(
                         map(int, AD_normal.SParams.keys()))
                 else:
-                    print("dict")
-                    exit(1)
+                    print("  The format of orcaS.out is not dict !!!")
+                    print("  Exit and Close the program !!!")
+                    exit(0)
                 from censo_ext.Tools.anmrfile import Anmr
                 inAnmr: Anmr = Anmr()
                 inAnmr.method_read_nucinfo()

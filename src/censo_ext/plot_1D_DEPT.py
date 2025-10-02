@@ -157,6 +157,7 @@ def Compare_two_dict(CH1: dict, CH2: dict, StAtoms: dict, Label: int) -> None:
             #    exit(0)
         else:
             print("some peaks is more than 0.02 ppm")
+            print("  Exit and Close the program !!!")
             ic()
             exit(0)
 

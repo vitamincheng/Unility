@@ -70,7 +70,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             print(f"\n{AD_normal._file_orcaS}\n{OrcaS}")
             in_SParams: list[int] = list(map(int, AD_normal.SParams.keys()))
         else:
-            print("The OrcaS.out in Averaage Directory is not dict")
+            print("  The OrcaS.out in Averaage Directory is not dict format !!!")
+            print("  Exit and Close the program !!!")
             exit(1)
         from censo_ext.Tools.anmrfile import Anmr
         inAnmr: Anmr = Anmr()
@@ -100,7 +101,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # print(f"{len(sorted_SParams)=}")
         # print(f"{len(real_peaks.T)=}")
         if len(sorted_SParams) < len(real_peaks.T):
-            print("  The numbers of real peaks are more than the numbers of calculation")
+            print(
+                "  The numbers of real peaks are more than the numbers of simulation in normal")
+            print("  Exit and Close the program !!!")
             exit(0)
         from censo_ext.Tools.utility import sub_numpy
         nGroups: npt.NDArray[np.int64] = sub_numpy(
@@ -180,9 +183,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("\nThe data is saved to orcaS-BOBYQA.out file")
         print(f"{AD_bobyqa._file_orcaS}\n{AD_bobyqa.SParams}")
         print("  ========== End ==========")
-
-    else:
-        exit(0)
 
 
 if __name__ == "__main__":

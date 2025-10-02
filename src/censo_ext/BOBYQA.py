@@ -131,6 +131,7 @@ class global_variable():
             self.AD_normal.method_load_files()  # all three files are or not exists
         except NameError:
             print("  self.Dir is not defined.")
+            print("  Exit and Close the program !!!")
             exit(1)
 
 
@@ -449,6 +450,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     subprocess.call("mv CONF* backup", shell=True)
                     subprocess.call("cp -r backup/CONF1/ .", shell=True)
                 else:
+                    print("  Your choice is not 'Y' or 'y' ...")
                     print("  Exit and Close the program !!!")
                     exit(0)
                 os.chdir(cwd)

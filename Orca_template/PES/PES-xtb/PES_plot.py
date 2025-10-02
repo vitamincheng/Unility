@@ -20,9 +20,7 @@ file_exists = exists(filename)
 if file_exists:
     np_inData = np.genfromtxt(filename)
 else:
-    import subprocess
     ic(filename)
-    subprocess.call("pwd", shell=True)
     ic()
     exit(1)
 Z = np_inData.reshape((dimension, dimension))

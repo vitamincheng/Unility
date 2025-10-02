@@ -297,7 +297,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 if x in np_peaks['cID']:
                     np_peaks = np_peaks[np_peaks['cID'] != x]
                 else:
-                    print("your delete element is wrong cID")
+                    print("  Delete element is wrong cID")
+                    print("  Exit and Close the program !!!")
                     ic()
                     exit(1)
 
@@ -318,6 +319,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     # ic(np_peaks[args_x][0])
                 else:
                     print("your merge element is wrong cID")
+                    print("  Exit and Close the program !!!")
                     ic()
                     exit(1)
             # ic(min_cID, start, end)
@@ -371,7 +373,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 np_peaks = np.insert(
                     np_peaks, args_x[0], (args.cut, l_peaks, cut_center, data[start+cut_argmin:max].sum()))
             else:
-                print("your merge element is wrong cID")
+                print("  Merge element is wrong cID")
+                print("  Exit and Close the program !!!")
                 ic()
                 exit(1)
 
