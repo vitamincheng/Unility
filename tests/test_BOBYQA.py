@@ -8,8 +8,7 @@ import filecmp
 import platform
 
 _system: str = platform.system()
-DirName: Path = Path(
-    "tests/data/31.Cyclohexanone/03.Censo_for_Hydrogen_(revTPSS)")
+DirName: Path = Path("tests/data/31.Cyclohexanone/03.Censo_for_Hydrogen_(revTPSS)")  # nopep8
 DirCompare: Path = Path("tests/compare/BOBYQA")
 RefDat: Path = Path("1r_h.npz")
 args_Normal: dict = {"dir": DirName, "ref": RefDat, "mf": 500,
@@ -112,10 +111,7 @@ def test_BOBYQA_single_external_prog(monkeypatch):
     BOBYQA_final_remove_files()
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(DirName / "anmr.dat",
-                     DirName / "anmr.out",
-                     DirName / "tmpanmr.1",
-                     DirName / "tmpanmr_frag.av",
-                     DirName / "tmpanmr_full.av")
+                     DirName / "anmr.out")
 
 
 @pytest.mark.slow
@@ -148,7 +144,8 @@ def test_BOBYQA_group_external_prog(monkeypatch):
                        DirCompare / Path("orcaS-BOBYQA-group-anmr.dat"))
     from censo_ext.Tools.utility import delete_all_files
     BOBYQA_final_remove_files()
-    delete_all_files(DirName / "anmr.dat", DirName / "anmr.out")
+    delete_all_files(DirName / "anmr.dat",
+                     DirName / "anmr.out")
 
 
 if __name__ == "__main__":

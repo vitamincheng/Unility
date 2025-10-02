@@ -278,7 +278,7 @@ def Scan_single_Peak(args) -> None:
 
         print(f"{x0=}")
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=bounds,
-                              scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
+                              scaling_within_bounds=True, rhobeg=0.01, rhoend=0.001)
         print(f"{soln.f=} {soln.x=}")
     print("  ========== Finished single_peak ==========")
 
