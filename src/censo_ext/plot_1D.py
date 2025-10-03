@@ -1,10 +1,10 @@
 #! /usr/bin/env python
+from censo_ext.Tools.utility import print_arguments
 from icecream import ic
 import nmrglue as ng
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
-from sys import argv as sysargv
 import argparse
 
 # global variable
@@ -12,25 +12,9 @@ peaks_fileName = "plot_1D.peaks"
 
 descr = """
 ________________________________________________________________________________
-|                                          [10.05.2024] vitamin.cheng@gmail.com
 | Usage: plot_1D.py <geometry> [options]
 | For Plot 1D sepctra in experiments using nmrglue module
-| [Options]
-| Input     : -i the pdata path(under 1r folder) [required]
-| Output    : -o the output dat file (from 1r folder convert dat file)
-| Start     : -start start point of chemical shift [default from data]
-| End       : -end end point of chemical shift [default from data]
-| threshold : -thr threshold of peaks [default 1.0]
-| phase     : -p --phase [default 1.0]
-| auto      : --auto Automatically integrate the peaks [default false]
-| save      : --save Saved the automatically integratal of the peaks
-|              to plot_1D_peaks.out file [default false]
-| manual    : -m --manual manually integrate and use plot_1D_peaks.out file
-|             [default false]
-| merge     : --manual --merge  Merge cID peaks to one peak
-| delete    : --manual --delete Delete All cID peaks
-| cut       : --manual --cut Cut cID peaks in two peaks by lowest point 
-| Hidden    : -h show the plot [default False]
+| For bruker file or jcamp-dx file and convert to dat/npz file
 |______________________________________________________________________________
 """
 useit = """
@@ -49,16 +33,27 @@ def cml() -> argparse.Namespace:
         description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
-        add_help=False
+        add_help=True
     )
-
     parser.add_argument(
         "-i",
         "--input",
+        dest="file",
+        action="store",
+        type=str,
+        required=False,
+        default=None,
+        help="Provide the file of your jcamp-dx ",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--dir",
         dest="path",
         action="store",
         type=str,
         required=False,
+        default=None,
         help="Provide the path of your pdata (under 1r folder) ",
     )
 
@@ -69,7 +64,7 @@ def cml() -> argparse.Namespace:
         action="store",
         type=str,
         required=False,
-        help="Provide the filename of output ",
+        help="Provide the filename of output files(dat/npz) ",
     )
 
     parser.add_argument(
@@ -165,11 +160,10 @@ def cml() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-h",
-        "--hidden",
-        dest="hidden",
+        "--show",
+        dest="show",
         action="store_true",
-        help="Show the plot [default True]",
+        help="Show the spectra in screen [default False]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -177,28 +171,45 @@ def cml() -> argparse.Namespace:
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
-
-    # read in the Bruker data
     if args == argparse.Namespace():
         args = cml()
-    print(descr)  # Program description
-    print(f"    provided arguments: {" ".join(sysargv)}")
+    print_arguments()
 
-    if not args.path:
+    if args.path is None and args.file is None:
+
+        # For test
         args.path = "../../Simulation/bmse000510/nmr/set01/1H/pdata/1"
         # args.path = "../../Simulation/bmse000510/nmr/set01/13C/pdata/1"
         # args.path = "../../Simulation/bmse000510/nmr/set01/DEPT_90/pdata/1"
         # args.path = "../../Simulation/bmse000510/nmr/set01/DEPT_135/pdata/1"
-    dic, data = ng.bruker.read_pdata(args.path)
-    udic: dict = ng.bruker.guess_udic(dic, data)
 
-    C = ng.convert.converter()
-    C.from_bruker(dic, data, udic)
-    pipe_fid_filename: str = ".1d_pipe.fid"
-    ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
-    dic, data = ng.pipe.read(pipe_fid_filename)
+        # args.file = "../../Simulation/@@Exapmles/38.Ergocalciferol(Vitamin D2)/HMDB0000900_nmroned_1593_from_nmrml.jdx"
+
+        # This is Normal Mode
+        # print("  Only for one parameters in ars.path and args.file")
+        # print("  Exit and Close the program !!!")
+        # exit(0)
+
+    if args.path is not None:
+        dic, data = ng.bruker.read_pdata(args.path)
+        udic: dict = ng.bruker.guess_udic(dic, data)
+        C = ng.convert.converter()
+        C.from_bruker(dic, data, udic)
+        pipe_fid_filename: str = ".1d_pipe.fid"
+        ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
+        dic, data = ng.pipe.read(pipe_fid_filename)
+
+    if args.file is not None:
+        dic, data = ng.jcampdx.read(args.file)
+        dic = ng.jcampdx.guess_udic(dic, data)
+        C = ng.convert.converter()
+        C.from_universal(dic, data)
+        pipe_fid_filename: str = ".1d_pipe.fid"
+        ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
+        dic, data = ng.pipe.read(pipe_fid_filename)
+
     data = data.real*args.phase  # type: ignore
-    uc = ng.pipe.make_uc(dic, data)
+    uc = ng.pipe.make_uc(dic, data)  # type: ignore
 
     # end ---------+--------- start
     # args.end                args.start
@@ -437,9 +448,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     fig.text(0.5, 0.04, "$\\delta$ / ppm", ha="center", fontsize=12)
 
     from censo_ext.Tools.utility import save_figure
+    from censo_ext.Tools.utility import delete_all_files
+    delete_all_files(pipe_fid_filename)  # type: ignore
     save_figure()
 
-    if not args.hidden:
+    if args.show:
         plt.show()
 
 

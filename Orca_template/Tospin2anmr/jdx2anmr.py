@@ -8,9 +8,8 @@ import numpy as np
 
 descr = """
 ________________________________________________________________________________
-|                                          [01.06.2023] vitamin.cheng@gmail.com
 | Input  : 1r.jdx file (JCAMP-DX format file)                                  
-| Output : 1r.dat (Read by anmr program)                                       
+| Output : 1r.dat (Read by nmrplot.py)                                       
 |______________________________________________________________________________
 """
 
@@ -62,7 +61,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print(descr)  # Program description
     print(f"    provided arguments: {" ".join(sysargv)}")
 
     # start  = 16.00485

@@ -6,9 +6,8 @@ from sys import argv as sysargv
 
 descr = """
 ________________________________________________________________________________
-|                                          [01.06.2023] vitamin.cheng@gmail.com
 | Input  : 1r file and procs (from Topspin)                                   
-| Output : 1r.dat                                       
+| Output : 1r.dat (Read by nmrplot.py)                                      
 | Need   : procs                                                                              
 |______________________________________________________________________________
 """
