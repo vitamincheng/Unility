@@ -418,7 +418,7 @@ class Multiplet:
         return self._peaklist
 
 
-def multiplet(signal, JCoups, delta) -> list:
+def multiplet(signal: tuple[float, int], JCoups: list[tuple[float, int]], delta: list[float]) -> list[tuple[float, float]]:
     res: list = [signal]
     for idx, JCoup in enumerate(JCoups):
         for _ in range(JCoup[1]):
@@ -426,10 +426,10 @@ def multiplet(signal, JCoups, delta) -> list:
     return reduce_peaks(res)
 
 
-def reduce_peaks(plist_, tolerance=0.000) -> list:
-    res: list = []
-    work: list = []  # an accumulator of peaks to be added
-    plist: list = sorted(plist_)
+def reduce_peaks(plist_: list[tuple[float, float]], tolerance=0.02) -> list[tuple[float, float]]:
+    res: list[tuple[float, float]] = []
+    work: list[tuple[float, float]] = []  # an accumulator of peaks to be added
+    plist: list[tuple[float, float]] = sorted(plist_)
     for peak in plist:
         if not work:
             work.append(peak)
@@ -445,7 +445,7 @@ def reduce_peaks(plist_, tolerance=0.000) -> list:
     return res
 
 
-def add_peaks(plist):
+def add_peaks(plist: list[tuple[float, float]]) -> tuple[float, float]:
     v_total = 0
     i_total = 0
     for v, i in plist:
@@ -454,19 +454,19 @@ def add_peaks(plist):
     return v_total / len(plist), i_total
 
 
-def _doublet(plist, J, c) -> list:  # -> list[Any]:
+def _doublet(plist: list[tuple[float, int]], JCoups, delta) -> list[tuple[float, float]]:
     # see http://www.ebyte.it/library/docs/kts/KTS_isoAB_Geometry.html
     # if c is positive, peaks must be the left of doublet is more low and the right is more high
     # if c is negative, peaks must be the left of doublet is more high and the right is more low
     #
-    k_small: float = 1-J/(J+c)
-    k_large: float = 1+J/(J+c)
+    k_small: float = 1 - JCoups / (JCoups + delta)
+    k_large: float = 1 + JCoups / (JCoups + delta)
     res: list = []
-    for v, i in plist:
+    for v, intensit in plist:
         # the left of doublet if J is positive
-        res.append((v + J / 2, i / 2 * k_small))
+        res.append((v + JCoups / 2, intensit / 2 * k_small))
         # the right of doublet if J is positive
-        res.append((v - J / 2, i / 2 * k_large))
+        res.append((v - JCoups / 2, intensit / 2 * k_large))
     return res
 
 
