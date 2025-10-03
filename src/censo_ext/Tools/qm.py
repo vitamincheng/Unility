@@ -5,12 +5,8 @@ import numpy.typing as npt
 import argparse
 from icecream import ic
 from cachier import cachier
-# from joblib import Memory
-# location = ".cache_Joblib"
-# memory = Memory(location, compress=True, verbose=0)
 
 
-# @memory.cache
 @cachier(separate_files=True)
 def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.complex128]]:
     """
@@ -60,7 +56,6 @@ def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[n
     return L, Lproduct
 
 
-# @memory.cache
 @cachier(separate_files=True)
 def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.uint8]:
     """
@@ -89,7 +84,6 @@ def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.uint8]:
     return F
 
 
-# @memory.cache
 @cachier(separate_files=True)
 def T_matrix(nspins: int) -> npt.NDArray[np.uint8]:
     """
@@ -402,84 +396,40 @@ def qm_multiplet(v: float | int, nIntergals, J: list[tuple[float, int]], delta: 
     Returns:
         list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
     """
-    # from nmrsim import Multiplet
     return Multiplet(v, nIntergals, J, delta).peaklist()
 
 
 class Multiplet:
 
-    def __init__(self, v: float, Intensit: int, J: list[tuple[float, int]], delta: list[float], w=0.5):
-        self.v = v
-        self.Intensit = Intensit
-        self.J = J
-        self.delta = delta
-        self.w = w
-        self._peaklist = multiplet((v, Intensit), J, delta)
+    def __init__(self, v: float, nIntergals: int, J: list[tuple[float, int]], delta: list[float], w=0.5):
+        self.v: float = v
+        self.nIntergals: int = nIntergals
+        self.J: list[tuple[float, int]] = J
+        self.delta: list[float] = delta
+        self.w: float = w
+        self._peaklist: list = multiplet((v, nIntergals), J, delta)
 
-    def _refresh(self):
-        self._peaklist = multiplet((self.v, self.Intensit), self.J, self.delta)
+    def _refresh(self) -> None:
+        self._peaklist = multiplet(
+            (self.v, self.nIntergals), self.J, self.delta)
 
-    def peaklist(self):
-        """
-        Return a peaklist for the multiplet.
-
-        Returns
-        -------
-        [(float, float)...]
-            List of (frequency, intensity) peaks.
-        """
+    def peaklist(self) -> list:
         self._refresh()
         return self._peaklist
 
 
-def multiplet(signal, couplings, delta):
-    """
-    Splits a set of signals into first-order multiplets.
-
-    Parameters
-    ---------
-    signal : (float, float)
-        a (frequency (Hz), intensity) tuple;
-    couplings : [(float, int)...]
-        A list of (*J*, # of nuclei) tuples. The order of the tuples in
-        couplings does not matter.
-        e.g. to split a signal into a *dt, J* = 8, 5 Hz, use:
-        ``couplings = [(8, 2), (5, 3)]``
-
-    Returns
-    -------
-    [(float, float)...]
-        a sorted peaklist for the multiplet that results from splitting the
-        signal by each J.
-    """
-    res = [signal]
-    for idx, coupling in enumerate(couplings):
-        for _ in range(coupling[1]):
-            res = _doublet(res, coupling[0], delta[idx])
-    # return sorted(reduce_peaks(res))
+def multiplet(signal, JCoups, delta) -> list:
+    res: list = [signal]
+    for idx, JCoup in enumerate(JCoups):
+        for _ in range(JCoup[1]):
+            res = _doublet(res, JCoup[0], delta[idx])
     return reduce_peaks(res)
 
 
-def reduce_peaks(plist_, tolerance=0.001):
-    """
-    Takes a list of (x, y) tuples and adds together tuples whose values are
-    within a certain tolerance limit.
-
-    Parameters
-    ---------
-    plist_ : [(float, float)...]
-        A list of (x, y) tuples
-    tolerance : float
-        tuples that differ in x by <= tolerance are combined using `add_peaks`
-
-    Returns
-    -------
-    [(float, float)...]
-        a list of (x, y) tuples where all x values differ by > `tolerance`
-    """
-    res = []
-    work = []  # an accumulator of peaks to be added
-    plist = sorted(plist_)
+def reduce_peaks(plist_, tolerance=0.000) -> list:
+    res: list = []
+    work: list = []  # an accumulator of peaks to be added
+    plist: list = sorted(plist_)
     for peak in plist:
         if not work:
             work.append(peak)
@@ -492,25 +442,10 @@ def reduce_peaks(plist_, tolerance=0.001):
             work = [peak]
     if work:  # process any remaining work after for loop
         res.append(add_peaks(work))
-
     return res
 
 
 def add_peaks(plist):
-    """
-    Reduces a list of (frequency, intensity) tuples to an
-    (average frequency, total intensity) tuple.
-
-    Parameters
-    ----------
-    plist: [(float, float)...]
-        a list of (frequency, intensity) tuples
-
-    Returns
-    -------
-    (float, float)
-        a tuple of (average frequency, total intensity)
-    """
     v_total = 0
     i_total = 0
     for v, i in plist:
@@ -519,33 +454,15 @@ def add_peaks(plist):
     return v_total / len(plist), i_total
 
 
-def _doublet(plist, J, c):  # -> list[Any]:
-    """
-    Applies a *J* coupling to each signal in a list of (frequency, intensity)
-    signals, creating two half-intensity signals at +/- *J*/2.
-
-    Parameters
-    ---------
-    plist : [(float, float)...]
-        a list of (frequency{Hz}, intensity) tuples.
-    J : float
-        The coupling constant in Hz.
-
-    Returns
-    -------
-    [(float, float)...]
-        a list of (frequency, intensity) tuples.
-
-    """
+def _doublet(plist, J, c) -> list:  # -> list[Any]:
     # see http://www.ebyte.it/library/docs/kts/KTS_isoAB_Geometry.html
     # if c is positive, peaks must be the left of doublet is more low and the right is more high
     # if c is negative, peaks must be the left of doublet is more high and the right is more low
     #
-    k_small = 1-J/(J+c)
-    k_large = 1+J/(J+c)
-    res = []
+    k_small: float = 1-J/(J+c)
+    k_large: float = 1+J/(J+c)
+    res: list = []
     for v, i in plist:
-        print(v, J, c)
         # the left of doublet if J is positive
         res.append((v + J / 2, i / 2 * k_small))
         # the right of doublet if J is positive
