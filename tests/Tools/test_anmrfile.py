@@ -62,14 +62,16 @@ def test_anmrfile_get_avg_orcaSJ_Exist() -> None:
     # For Hydrogen
     Dir: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen")
     file: Anmr = Anmr(Dir)
-    shutil.copytree(Dir/Path("Average_backup"), Dir/Path("Average"))
+    shutil.copytree(Dir/Path("Average_backup"), Dir /
+                    Path("Average"), dirs_exist_ok=True)
     assert file.get_avg_orcaSJ_Exist()
     shutil.rmtree(Dir/Path("Average"), ignore_errors=True)
 
     # for Carbon
     Dir: Path = Path("tests/data/34.Ergocalciferol/07.Carbon")
     file: Anmr = Anmr(Dir)
-    shutil.copytree(Dir/Path("Average_backup"), Dir/Path("Average"))
+    shutil.copytree(Dir/Path("Average_backup"), Dir /
+                    Path("Average"), dirs_exist_ok=True)
     assert file.get_avg_orcaSJ_Exist()
     shutil.rmtree(Dir/Path("Average"), ignore_errors=True)
 
