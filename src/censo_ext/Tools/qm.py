@@ -325,7 +325,7 @@ def mpl_plot(plist: list[tuple[float, float]], limits: tuple[float, float], lw=1
         limits (tuple, optional): x-axis limits as (min, max) tuple.
 
     Returns:
-        tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]: 
+        tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         - x: Array of x-coordinates
         - y: Array of y-coordinates
     """
@@ -366,7 +366,7 @@ def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins,
         v (list[float]): List of resonance frequencies in Hz for each spin.
         J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
         nIntergals (int): The total number of intensities to generate.
-        idx0_nspins (int): Index of the spin to calculate spectrum for (0-based), 
+        idx0_nspins (int): Index of the spin to calculate spectrum for (0-based),
                           used in partial calculations.
         args (argparse.Namespace): Command line arguments containing plotting parameters.
 
@@ -387,11 +387,11 @@ def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins,
     return plist
 
 
-def qm_multiplet(v: float | int, nIntergals, J: list[tuple[float, int]]) -> list[tuple[float, float]]:
+def qm_multiplet(v: float | int, nIntergals, J: list[tuple[float, int]], delta: list[float]) -> list[tuple[float, float]]:
     """
     Calculate multiplet spectrum using nmrsim library.
 
-    This function generates a multiplet spectrum for a single spin system 
+    This function generates a multiplet spectrum for a single spin system
     with specified coupling constants and number of peaks.
 
     Args:
@@ -402,8 +402,155 @@ def qm_multiplet(v: float | int, nIntergals, J: list[tuple[float, int]]) -> list
     Returns:
         list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
     """
-    from nmrsim import Multiplet
-    return Multiplet(v, nIntergals, J).peaklist()
+    # from nmrsim import Multiplet
+    return Multiplet(v, nIntergals, J, delta).peaklist()
+
+
+class Multiplet:
+
+    def __init__(self, v: float, Intensit: int, J: list[tuple[float, int]], delta: list[float], w=0.5):
+        self.v = v
+        self.Intensit = Intensit
+        self.J = J
+        self.delta = delta
+        self.w = w
+        self._peaklist = multiplet((v, Intensit), J, delta)
+
+    def _refresh(self):
+        self._peaklist = multiplet((self.v, self.Intensit), self.J, self.delta)
+
+    def peaklist(self):
+        """
+        Return a peaklist for the multiplet.
+
+        Returns
+        -------
+        [(float, float)...]
+            List of (frequency, intensity) peaks.
+        """
+        self._refresh()
+        return self._peaklist
+
+
+def multiplet(signal, couplings, delta):
+    """
+    Splits a set of signals into first-order multiplets.
+
+    Parameters
+    ---------
+    signal : (float, float)
+        a (frequency (Hz), intensity) tuple;
+    couplings : [(float, int)...]
+        A list of (*J*, # of nuclei) tuples. The order of the tuples in
+        couplings does not matter.
+        e.g. to split a signal into a *dt, J* = 8, 5 Hz, use:
+        ``couplings = [(8, 2), (5, 3)]``
+
+    Returns
+    -------
+    [(float, float)...]
+        a sorted peaklist for the multiplet that results from splitting the
+        signal by each J.
+    """
+    res = [signal]
+    for idx, coupling in enumerate(couplings):
+        for _ in range(coupling[1]):
+            res = _doublet(res, coupling[0], delta[idx])
+    # return sorted(reduce_peaks(res))
+    return reduce_peaks(res)
+
+
+def reduce_peaks(plist_, tolerance=0.001):
+    """
+    Takes a list of (x, y) tuples and adds together tuples whose values are
+    within a certain tolerance limit.
+
+    Parameters
+    ---------
+    plist_ : [(float, float)...]
+        A list of (x, y) tuples
+    tolerance : float
+        tuples that differ in x by <= tolerance are combined using `add_peaks`
+
+    Returns
+    -------
+    [(float, float)...]
+        a list of (x, y) tuples where all x values differ by > `tolerance`
+    """
+    res = []
+    work = []  # an accumulator of peaks to be added
+    plist = sorted(plist_)
+    for peak in plist:
+        if not work:
+            work.append(peak)
+            continue
+        if peak[0] - work[-1][0] <= tolerance:
+            work.append(peak)
+            continue
+        else:
+            res.append(add_peaks(work))
+            work = [peak]
+    if work:  # process any remaining work after for loop
+        res.append(add_peaks(work))
+
+    return res
+
+
+def add_peaks(plist):
+    """
+    Reduces a list of (frequency, intensity) tuples to an
+    (average frequency, total intensity) tuple.
+
+    Parameters
+    ----------
+    plist: [(float, float)...]
+        a list of (frequency, intensity) tuples
+
+    Returns
+    -------
+    (float, float)
+        a tuple of (average frequency, total intensity)
+    """
+    v_total = 0
+    i_total = 0
+    for v, i in plist:
+        v_total += v
+        i_total += i
+    return v_total / len(plist), i_total
+
+
+def _doublet(plist, J, c):  # -> list[Any]:
+    """
+    Applies a *J* coupling to each signal in a list of (frequency, intensity)
+    signals, creating two half-intensity signals at +/- *J*/2.
+
+    Parameters
+    ---------
+    plist : [(float, float)...]
+        a list of (frequency{Hz}, intensity) tuples.
+    J : float
+        The coupling constant in Hz.
+
+    Returns
+    -------
+    [(float, float)...]
+        a list of (frequency, intensity) tuples.
+
+    """
+    # see http://www.ebyte.it/library/docs/kts/KTS_isoAB_Geometry.html
+    # if c is positive, peaks must be the left of doublet is more low and the right is more high
+    # if c is negative, peaks must be the left of doublet is more high and the right is more low
+    #
+    k_small = 1-J/(J+c)
+    k_large = 1+J/(J+c)
+    res = []
+    for v, i in plist:
+        print(v, J, c)
+        # the left of doublet if J is positive
+        res.append((v + J / 2, i / 2 * k_small))
+        # the right of doublet if J is positive
+        res.append((v - J / 2, i / 2 * k_large))
+    return res
 
 
 if __name__ == "__main__":
@@ -422,9 +569,9 @@ if __name__ == "__main__":
     v: list[float] = [480, 645, 645, 645, 645, 480]
     J: npt.NDArray[np.float64] = np.array([[0.00000,      7.12744,      7.12267,     -0.22011,   -0.21844,     -0.02230],
                                            [7.12744,      0.00000,    -13.32467,
-                                            6.11500,    6.85267,     -0.21511],
+                                          6.11500,    6.85267,     -0.21511],
                                            [7.12267,    -13.32467,      0.00000,
-                                            6.81333,    6.12033,     -0.21878],
+                                          6.81333,    6.12033,     -0.21878],
                                            [-0.22011,      6.11500,      6.81333,
                                             0.00000, -13.32433,      7.12589],
                                            [-0.21844,      6.85267,      6.12033,    -
