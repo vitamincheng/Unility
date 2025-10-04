@@ -424,7 +424,7 @@ def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFil
     if not args.thr:
         args.thr = args.lw * 0.3
     order = int(np.ceil(np.log10(50*10/args.lw)))
-    dpi = int(np.pow(10, order)*2)
+    dpi = int(np.power(10, order)*2)
 
     return inHydrogen, Active_range, dpi
 
@@ -461,7 +461,7 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
         args.thr = args.lw * 0.3
 
     order = int(np.ceil(np.log10(1000*10/args.lw)))
-    dpi = int(np.pow(10, order))
+    dpi = int(np.power(10, order))
     return inHydrogen, Active_range, dpi
 
 
