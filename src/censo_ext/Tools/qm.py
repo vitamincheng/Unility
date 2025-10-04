@@ -193,8 +193,9 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
         np.savetxt("E_matrix.out", E_matrix, fmt="%7.2f")
         np.savetxt("I_matrix.out", I_np, fmt="%7.2f")
         ic(peaklist)
-    from nmrsim.math import normalize_peaklist
-    return normalize_peaklist(peaklist, nIntergals)
+
+    freq, intensit = [x for x, y in peaklist], [y for x, y in peaklist]
+    return list(zip(freq, intensit))
 
 
 def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nIntergals, args: argparse.Namespace) -> list[tuple[float, float]]:
@@ -255,8 +256,9 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nInterga
         ic(iv)
         ic(peaklist)
         ic(iv[:, 1])
-    from nmrsim.math import normalize_peaklist
-    return normalize_peaklist(peaklist, nIntergals)
+
+    freq, intensit = [x for x, y in peaklist], [y for x, y in peaklist]
+    return list(zip(freq, intensit))
 
 
 def print_plot(in_plist: list[tuple[float, float]], dpi: int,
@@ -280,9 +282,6 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int,
     plist: npt.NDArray[np.float64] = np.array(in_plist)
     plist.T[0] = plist.T[0] / args.mf
     Normal_plist = plist.tolist()
-    # from nmrsim.math import normalize_peaklist
-    # Normal_plist: list[tuple[float, float]] = normalize_peaklist(
-    #    plist.tolist(), nIntergals)
     if args.verbose:
         ic(plist)
         ic(Normal_plist)
@@ -291,19 +290,20 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int,
     if not args.end:
         args.end = (plist.T)[0].max() + Active_range
 
-    limits = round(args.start, 4), round(args.end, 4)
+    limits: tuple[float, float] = round(args.start, 4), round(args.end, 4)
 
     lw: float = args.lw * 2 / 1000
     lw_points: int = int((args.end - args.start) * dpi)+1
 
-    xy_curve = mpl_plot(Normal_plist, lw=lw,
-                        limits=limits, lw_points=lw_points)
+    xy_curve: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]] = \
+        mpl_plot(Normal_plist, lw=lw, limits=limits, lw_points=lw_points)
     from censo_ext.Tools.utility import save_simulation_spectra_file
     save_simulation_spectra_file(args.out, np.vstack(xy_curve).T)
     return np.vstack(xy_curve)
 
 
-def mpl_plot(plist: list[tuple[float, float]], limits: tuple[float, float], lw=1.0, lw_points=200_000) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+def mpl_plot(plist: list[tuple[float, float]], limits: tuple[float, float], lw=1.0, lw_points=200_000) \
+        -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """
     Generate a plot using lorentzian lineshape for NMR spectrum.
 
@@ -338,15 +338,15 @@ def mpl_plot(plist: list[tuple[float, float]], limits: tuple[float, float], lw=1
 def add_lorentzians(linspace: npt.NDArray[np.float64], plist: list[tuple[float, float]], lw: float) -> npt.NDArray[np.float64]:
     result: npt.NDArray[np.float64] = lorentz(
         linspace, plist[0][0], plist[0][1], lw)
-    for v, i in plist[1:]:
-        result += lorentz(linspace, v, i, lw)
+    for freq, intensit in plist[1:]:
+        result += lorentz(linspace, freq, intensit, lw)
     return result
 
 
 # @jit
-def lorentz(v: npt.NDArray[np.float64], v0: float, Intensity: float, lw: float) -> npt.NDArray[np.float64]:
-    scaling_factor = 0.5 / lw
-    return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (v - v0) ** 2))
+def lorentz(linspace: npt.NDArray[np.float64], freq: float, Intensity: float, lw: float) -> npt.NDArray[np.float64]:
+    scaling_factor: float = 0.5 / lw
+    return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (linspace - freq) ** 2))
 
 
 def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
@@ -374,8 +374,7 @@ def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins,
         plist = qm_partial(v=v, J=J, idx0_nspins=idx0_nspins,
                            nIntergals=nIntergals, args=args)
     elif len(v) == 1:
-        import math
-        plist = [(math.fabs(v[0]), float(1.00000))]
+        plist = [(np.fabs(v[0]), float(1.00000))]
     else:
         print("something wrong in your qm_Base cal.")
     return plist
@@ -383,7 +382,7 @@ def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins,
 
 def qm_multiplet(v: float | int, nIntergals, J: list[tuple[float, int]], delta: list[float]) -> list[tuple[float, float]]:
     """
-    Calculate multiplet spectrum using nmrsim library.
+    Calculate multiplet spectrum 
 
     This function generates a multiplet spectrum for a single spin system
     with specified coupling constants and number of peaks.

@@ -213,6 +213,39 @@ def cml() -> argparse.Namespace:
     return args
 
 
+def _normalize(intensities, n=1):
+    """
+    Scale a list of intensities so that they sum to the total number of
+    nuclei.
+
+    Parameters
+    ---------
+    intensities : [float...]
+        A list of intensities.
+    n : int (optional)
+        Number of nuclei (default = 1).
+    """
+    factor = n / sum(intensities)
+    intensities[:] = [factor * i for i in intensities]
+
+
+def normalize_peaklist(peaklist, n=1):
+    """
+    Normalize the intensities in a peaklist so that total intensity equals
+    value n (nominally the number of nuclei giving rise to the signal).
+
+    Parameters
+    ---------
+    peaklist : [(float, float)...]
+        a list of (frequency, intensity) tuples.
+    n : int or float (optional)
+        total intensity to normalize to (default = 1).
+    """
+    freq, intensit = [x for x, y in peaklist], [y for x, y in peaklist]
+    _normalize(intensit, n)
+    return list(zip(freq, intensit))
+
+
 def setup_anmr(args: argparse.Namespace) -> Anmr:
     """Set up and return an Anmr object by reading required files.
 
@@ -390,9 +423,8 @@ def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFil
         args.lw = 20
     if not args.thr:
         args.thr = args.lw * 0.3
-    import math
-    order = math.ceil(math.log10(50*10/args.lw))
-    dpi = int(math.pow(10, order)*2)
+    order = int(np.ceil(np.log10(50*10/args.lw)))
+    dpi = int(np.pow(10, order)*2)
 
     return inHydrogen, Active_range, dpi
 
@@ -428,9 +460,8 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
     if not args.thr:
         args.thr = args.lw * 0.3
 
-    import math
-    order = math.ceil(math.log10(1000*10/args.lw))
-    dpi = int(math.pow(10, order))
+    order = int(np.ceil(np.log10(1000*10/args.lw)))
+    dpi = int(np.pow(10, order))
     return inHydrogen, Active_range, dpi
 
 
@@ -474,9 +505,6 @@ def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter
 
         QM_Bases: list[tuple[float, float]] = qm_full(v=list(
             v), J=J, nIntergals=len(inHydrogen), args=args)
-        from nmrsim.math import normalize_peaklist
-        # QM_Multiplet = normalize_peaklist(QM_Base, len(inHydrogen))
-        # accPeaks.append(QM_Multiplet)
         accPeaks.append(QM_Bases)
 
     else:
@@ -524,10 +552,9 @@ def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter
                 else:
                     raise ValueError(
                         "  inJCoups_multi,  Exit and Close the program !!!")
+
             # normalize_peaklist is necessary,beacuse QM_Multiplet not only one
-            from nmrsim.math import normalize_peaklist
-            QM_Multiplet = normalize_peaklist(
-                QM_Multiplet, inHydrogen[idx0])
+            QM_Multiplet = normalize_peaklist(QM_Multiplet, inHydrogen[idx0])
 
             if len(accPeaks) == 0 and len(QM_Multiplet) == 0:
                 pass
@@ -677,7 +704,6 @@ def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], i
                 # Step 2: Identify potential AB quartet systems
                 mat_filter_ab_quartet: npt.NDArray[np.uint8] = np.zeros(
                     (inSParams.size, inSParams.size), dtype=np.uint8)
-                import math
                 for idx0, x in enumerate(inSParams):
                     for idy0, y in enumerate(inSParams):
 
@@ -685,21 +711,21 @@ def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], i
                         # if two chemical shift is very close, will perform AB quartet
                         # if x-y == 0 the Ratio_J_Hz will crash
                         # if the JCoups is negative, the peaks will prioritize to use normal QM calculation.
-                        # if the peaks which is not in AB Quartet and have positive nubmers will use Multiplet (nmrsim)
+                        # if the peaks which is not in AB Quartet and have positive nubmers will use Multiplet
                         # Normal the maximum of 3-JCoups is 18 Hz. If JCoups is set to 20 Hz, the delta Chemical Shift is set to 1.0 ppm
                         # it will have 0.0004 ppm < 0.001 ppm (lw = 1)
                         # If diff of two chemical shift AB quart is 0.006 ppm and the JCouping of J=20 Hz, it will produce 0.22 Hz
                         # limits_min_ab = 0.005 is enough for almost condtions
 
                         limits_min_ab: float = 0.005
-                        if (math.fabs(x-y) < limits_min_ab and mat_filter_low_factor[idx0][idy0] == 1) or (inJCoups[idx0][idy0] <= -args.thr):
+                        if (np.fabs(x-y) < limits_min_ab and mat_filter_low_factor[idx0][idy0] == 1) or (inJCoups[idx0][idy0] <= -args.thr):
                             mat_filter_ab_quartet[idx0][idy0] = 1
                         else:
-                            if math.fabs(x-y) < limits_min_ab:
+                            if np.fabs(x-y) < limits_min_ab:
                                 Ratio_J_Hz: float = 10000
                             else:
-                                Ratio_J_Hz: float = math.fabs(
-                                    inJCoups[idx0][idy0]/(math.fabs(x-y)))
+                                Ratio_J_Hz: float = np.fabs(
+                                    inJCoups[idx0][idy0]/(np.fabs(x-y)))
                             if Ratio_J_Hz < args.thrab:
                                 mat_filter_ab_quartet[idx0][idy0] = 0
                             elif Ratio_J_Hz >= args.thrab and mat_filter_low_factor[idx0][idy0] == 1:

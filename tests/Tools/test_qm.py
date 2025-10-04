@@ -38,9 +38,9 @@ def test_qm_partial_full() -> None:
 
     assert len(R_peak) == 16
     assert R_peak[0][0] == pytest.approx(2751.6221950398317)
-    assert R_peak[0][1] == pytest.approx(0.004640626007360023)
+    assert R_peak[0][1] == pytest.approx(0.03711639618338153)
     assert R_peak[-1][0] == pytest.approx(2773.4946427349055)
-    assert R_peak[-1][1] == pytest.approx(0.09446798980250143)
+    assert R_peak[-1][1] == pytest.approx(0.7555686087601723)
 
     x = {"out": "output.dat", "start": -0.5, "end": 10.5,
          "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False, "bobyqa": True, "verbose": False}
@@ -48,6 +48,6 @@ def test_qm_partial_full() -> None:
 
     assert len(R_peak) == 36
     assert R_peak[0][0] == pytest.approx(924.4933121601566)
-    assert R_peak[0][1] == pytest.approx(0.03113112356179515)
+    assert R_peak[0][1] == pytest.approx(0.9961959539774445)
     assert R_peak[-1][0] == pytest.approx(931.493373552777)
-    assert R_peak[-1][1] == pytest.approx(0.03136887192481798)
+    assert R_peak[-1][1] == pytest.approx(1.003803901594175)

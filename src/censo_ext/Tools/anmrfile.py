@@ -1308,8 +1308,7 @@ class OrcaSJ():
             for idx0, line in enumerate(lines):
                 if re.search(r"Number of nuclei for epr/nmr", line):
                     nNuclei = int(line.split()[-1])
-                    import math
-                    nLines = (math.ceil(nNuclei/6))*(nNuclei+1)
+                    nLines = int(np.ceil(nNuclei/6))*(nNuclei+1)
 
                 if re.search(r"SUMMARY OF ISOTROPIC COUPLING CONSTANTS", line):
                     start_idx = idx0 + 2

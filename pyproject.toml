@@ -24,7 +24,6 @@ dependencies = [
     "pointgroup",
     "graph-theory",
     "nmrglue",
-    "nmrsim",
     "pyberny",
     "tblite",
     "tqdm",

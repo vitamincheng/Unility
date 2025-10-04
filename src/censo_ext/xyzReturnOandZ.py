@@ -181,8 +181,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         dxyz: npt.NDArray[np.float64] = xyzFile.Sts[idx_St].coord[p_idx-1].copy()
         xyzFile.Sts[idx_St].coord -= dxyz  # type: ignore
-        import math
-        z_axis = (0, 0, math.sqrt(
+        z_axis = (0, 0, np.sqrt(
             np.sum(np.square(xyzFile.Sts[idx_St].coord[q_idx-1]))))
 
         rotation_axis = xyzFile.Sts[idx_St].coord[q_idx-1] + z_axis

@@ -2,7 +2,6 @@
 import argparse
 import numpy as np
 import numpy.typing as npt
-import math
 from pathlib import Path
 from censo_ext.Tools.utility import print_arguments
 
@@ -267,7 +266,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(" (1) Gibbs Free Energy of ensemble of average CONFS from Entropy ")
         print("")
         print(f"     Weight of every CONFS           : {avg_fraction: .4f}")
-    avg_wlnw = math.log(avg_fraction)*(avg_fraction)
+    avg_wlnw = np.log(avg_fraction)*(avg_fraction)
 
     if args.verbose:
         print(f"     Weight*ln(weight) for one CONF  : {avg_wlnw: .4f}")
