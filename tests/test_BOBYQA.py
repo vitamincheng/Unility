@@ -90,7 +90,7 @@ def test_BOBYQA_single():
     args_Normal['prog'] = None
     BOBYQA.main(argparse.Namespace(**args_Normal))
     assert filecmp.cmp(DirName / Path("output.npz"),
-                       DirCompare / Path("orcaS-BOBYQA-single-anmrpy.npz"))
+                       DirCompare / Path("single-anmrpy.npz"))
     BOBYQA_final_remove_files()
 
 
@@ -107,7 +107,7 @@ def test_BOBYQA_single_external_prog(monkeypatch):
     monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
     BOBYQA.main(argparse.Namespace(**args_Normal))
     assert filecmp.cmp(DirName / Path("anmr.dat"),
-                       DirCompare / Path("orcaS-BOBYQA-single-anmr.dat"))
+                       DirCompare / Path("single-anmr.dat"))
     BOBYQA_final_remove_files()
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(DirName / "anmr.dat",
@@ -124,7 +124,7 @@ def test_BOBYQA_group():
     args_Normal['prog'] = None
     BOBYQA.main(argparse.Namespace(**args_Normal))
     assert filecmp.cmp(DirName / Path("output.npz"),
-                       DirCompare / Path("orcaS-BOBYQA-group-anmrpy.npz"))
+                       DirCompare / Path("group-anmrpy.npz"))
     BOBYQA_final_remove_files()
 
 
@@ -141,7 +141,7 @@ def test_BOBYQA_group_external_prog(monkeypatch):
     monkeypatch.setattr('sys.stdin', StringIO('Y\n'))
     BOBYQA.main(argparse.Namespace(**args_Normal))
     assert filecmp.cmp(DirName / Path("anmr.dat"),
-                       DirCompare / Path("orcaS-BOBYQA-group-anmr.dat"))
+                       DirCompare / Path("group-anmr.dat"))
     from censo_ext.Tools.utility import delete_all_files
     BOBYQA_final_remove_files()
     delete_all_files(DirName / "anmr.dat",
