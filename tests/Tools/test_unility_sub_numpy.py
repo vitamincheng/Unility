@@ -2,7 +2,6 @@
 
 import numpy as np
 import pytest
-from unittest.mock import patch
 from censo_ext.Tools.utility import sub_numpy
 
 
@@ -26,7 +25,7 @@ def test_sub_numpy_single_segment():
     """Test when all data fits in one segment."""
     data = [1, 2, 3, 4, 5]
     result = sub_numpy(data, max_number=10)
-    expected = np.array([4, 1])
+    expected = np.array([5])
     np.testing.assert_array_equal(result, expected)
 
 

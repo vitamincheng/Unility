@@ -187,41 +187,6 @@ def jsonKeys2int(x) -> dict:
     return {int(k): v for k, v in x}
 
 
-# def save_dict_orcaS(inFile: Path | str, Data: dict) -> None:
-#    """Save a dictionary to a file in orcaS format.
-#
-#    Each key-value pair is written on a new line, formatted as an integer key and a float value.
-#
-#    Args:
-#        fileName (Path): The path to the output file.
-#        Data (dict): The dictionary to save.
-#    """
-#    inFile = Path(inFile)
-#    with open(inFile, 'w') as f:
-#        for key, value in Data.items():
-#            f.write('%10d %12.5f \n' % (key, value))
-
-
-# def load_dict_orcaS(inFile: Path | str) -> dict:
-#    """Load a dictionary from a file in orcaS format.
-#
-#    Each line is expected to contain an integer key and a float value, separated by whitespace.
-#
-#    Args:
-#        fileName (Path): The path to the input file.
-#
-#    Returns:
-#        dict: A dictionary with integer keys and float values.
-#    """
-#    inFile = Path(inFile)
-#    IsExist(inFile)
-#    lines: list = open(inFile, "r").readlines()
-#    Data: dict[int, float] = {}
-#    for x in lines:
-#        Data[int(x.split()[0])] = float(x.split()[1])
-#    return Data
-
-
 def IsExist(inFile: Path | str) -> None:
     """Check if a file exists and raise FileNotFoundError if it doesn't.
 
@@ -479,13 +444,21 @@ def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12)
     Example:
         >>> data = [1.0, 2.0, 3.0, 10.0, 15.0]
         >>> sub_numpy(data, max_number=5)
-        array([2, 3, 5])
+        array([3, 2])
 
     Note:
         The function uses a greedy approach to find the best subdivision by
         examining all possible cuts up to half the length of the data.
     """
     sorted_data = np.array(sorted_data)
+
+    if len(sorted_data) < 3:
+        print("  sorted_data is not more than 3 !!!")
+        print("  Exit and Close the program !!!")
+        exit(0)
+
+    if len(sorted_data) < max_number:
+        return np.array([len(sorted_data)])
     # from icecream import ic
     # ic(sorted_data)
     delta: npt.NDArray[np.float64] = np.diff(sorted_data)
@@ -541,6 +514,6 @@ def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12)
             # ic(result)
             return result.astype(np.int64)
             # return cut_diff
-    print("  You should adjust the max_number to fit !!!")
+    print("  Adjust the max_number to fit !!!")
     print("  Exit and Close the program !!!")
     exit(0)
