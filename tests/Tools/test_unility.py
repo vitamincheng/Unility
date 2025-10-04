@@ -101,30 +101,3 @@ def test_unility_delete_all_files():
     delete_all_files(*files_to_delete)
     for file in files_to_delete:
         assert not file.exists()
-
-
-'''
-def test_unility_save_dict_orcaS():
-    from censo_ext.Tools.utility import save_dict_orcaS
-
-    data = {1: 2.3456789}
-    source: Path = Path("/tmp/test_dict.txt")
-    save_dict_orcaS(source, data)
-
-    lines: list[str] = open(source).readlines()
-    assert len(lines) == 1
-    assert lines[0].strip() == "1      2.34568"
-
-
-def test_unility_load_dict_orcaS():
-    from censo_ext.Tools.utility import load_dict_orcaS
-    data = {1: 2.3456789}
-    source: Path = Path("/tmp/test_dict.txt")
-
-    with open(source, 'w') as f:
-        f.write('1      2.3456789\n')
-
-    loaded_data = load_dict_orcaS(source)
-
-    assert loaded_data == data
-'''

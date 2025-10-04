@@ -40,9 +40,11 @@ def test_anmr_H_from_raw_data() -> None:
     # assert anmr.main(argparse.Namespace(**x)).shape == (2, 77868)
     assert anmr.main(argparse.Namespace(**x)).shape == (2, 97868)
     if _system == "Linux":
-        compare: Path = Path("tests/compare/anmr_peaks_Ergo_H_ubuntu.json")
+        compare: Path = Path(
+            "tests/compare/anmr_H_from_raw_data_Ergo_ubuntu.json")
     elif _system == "Darwin":
-        compare: Path = Path("tests/compare/anmr_peaks_Ergo_H_Darwin.json")
+        compare: Path = Path(
+            "tests/compare/anmr_H_from_raw_data_Ergo_Darwin.json")
 
     with open(Dir_Ergo_H / Path("peaks.json"), "r") as jsonFile:
         source = np.array(json.load(jsonFile)[0])
@@ -77,9 +79,11 @@ def test_anmr_H_from_raw_data_EA() -> None:
     x['dir'] = Dir_EA_H
     assert anmr.main(argparse.Namespace(**x)).shape == (2, 68310)
     if _system == "Linux":  # Need 2 min
-        compare: Path = Path("tests/compare/anmr_peaks_EA_H_ubuntu.json")
+        compare: Path = Path(
+            "tests/compare/anmr_H_from_raw_data_EA_ubuntu.json")
     elif _system == "Darwin":  # Need 5 min
-        compare: Path = Path("tests/compare/anmr_peaks_EA_H_Darwin.json")
+        compare: Path = Path(
+            "tests/compare/anmr_H_from_raw_data_EA_Darwin.json")
 
     with open(Dir_EA_H / Path("peaks.json"), "r") as jsonFile:
         source = np.array(json.load(jsonFile)[0])
@@ -114,9 +118,11 @@ def test_anmr_C_from_raw_data() -> None:
     x['dir'] = Dir_Ergo_C
     assert anmr.main(argparse.Namespace(**x)).shape == (2, 34565)
     if _system == "Linux":
-        compare: Path = Path("tests/compare/anmr_peaks_Ergo_C_ubuntu.json")
+        compare: Path = Path(
+            "tests/compare/anmr_C_from_raw_data_Ergo_ubuntu.json")
     elif _system == "Darwin":
-        compare: Path = Path("tests/compare/anmr_peaks_Ergo_C_Darwin.json")
+        compare: Path = Path(
+            "tests/compare/anmr_C_from_raw_data_Ergo_Darwin.json")
 
     import json
     import numpy as np

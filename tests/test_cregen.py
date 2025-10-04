@@ -27,9 +27,9 @@ def test_cregen_crest():
 
     compare: Path = Path("")
     if _system == "Linux":
-        compare = Path("tests/compare/cregen_cluster.xyz")
+        compare = Path("tests/compare/cregen_crest_ubuntu.xyz")
     elif _system == "Darwin":  # No crest under Darwin system
-        compare = Path("tests/compare/cregen_cluster_Darwin.xyz")
+        compare = Path("tests/compare/cregen_crest_Darwin.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")

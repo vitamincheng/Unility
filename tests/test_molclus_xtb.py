@@ -36,9 +36,9 @@ def test_xtb_alpb_opt():
 
     xtb.main(args)
     if _system == "Darwin":
-        compare: Path = Path("tests/compare/molclus_xtb_1_Darwin.xyz")
+        compare: Path = Path("tests/compare/molclus_xtb_alpb_opt_Darwin.xyz")
     elif _system == "Linux":
-        compare: Path = Path("tests/compare/molclus_xtb_1.xyz")
+        compare: Path = Path("tests/compare/molclus_xtb_alpb_opt_ubuntu.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
@@ -59,9 +59,9 @@ def test_xtb_gbsa_opt():
 
     xtb.main(args)
     if _system == "Darwin":
-        compare: Path = Path("tests/compare/molclus_xtb_2_Darwin.xyz")
+        compare: Path = Path("tests/compare/molclus_xtb_gbsa_opt_Darwin.xyz")
     elif _system == "Linux":
-        compare: Path = Path("tests/compare/molclus_xtb_2.xyz")
+        compare: Path = Path("tests/compare/molclus_xtb_gbsa_opt_ubuntu.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
@@ -82,9 +82,9 @@ def test_xtb_alpb():
     xtb.main(args)
 
     if _system == "Darwin":
-        compare: Path = Path("tests/compare/molclus_xtb_3_Darwin.xyz")
+        compare: Path = Path("tests/compare/molclus_xtb_alpb_Darwin.xyz")
     elif _system == "Linux":
-        compare: Path = Path("tests/compare/molclus_xtb_3.xyz")
+        compare: Path = Path("tests/compare/molclus_xtb_alpb_ubuntu.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
@@ -102,9 +102,9 @@ def test_xtb_gbsa():
     xtb.main(args)
 
     if _system == "Darwin":
-        compare: Path = Path("tests/compare/molclus_xtb_4_Darwin.xyz")
+        compare: Path = Path("tests/compare/molclus_xtb_gbsa_Darwin.xyz")
     elif _system == "Linux":
-        compare: Path = Path("tests/compare/molclus_xtb_4.xyz")
+        compare: Path = Path("tests/compare/molclus_xtb_gbsa_ubuntu.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")

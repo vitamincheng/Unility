@@ -58,7 +58,8 @@ def test_ensoAnalysis_Hydrogen_new_read():
     Path(file_anmr_backup).unlink()
 
     out_enso: Path = Path("average_enso")
-    compare: Path = Path("tests/compare/test_average_enso")
+    compare: Path = Path(
+        "tests/compare/ensoAnalysis_Hydrogen_average_enso")
     assert filecmp.cmp(out_enso, compare)
     out_enso.unlink()
 
@@ -86,7 +87,7 @@ def test_ensoAnalysis_Hydrogen_new_read_miss_args():
     Path(file_anmr_backup).unlink()
 
     out_enso: Path = Path("average_enso")
-    compare: Path = Path("tests/compare/test_average_enso")
+    compare: Path = Path("tests/compare/ensoAnalysis_Hydrogen_average_enso")
     assert filecmp.cmp(out_enso, compare)
     out_enso.unlink()
 
@@ -114,7 +115,7 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
     Path(file_anmr_backup).unlink()
 
     out_enso: Path = Path("average_enso")
-    compare: Path = Path("tests/compare/test_average_enso")
+    compare: Path = Path("tests/compare/ensoAnalysis_Hydrogen_average_enso")
     assert filecmp.cmp(out_enso, compare)
     out_enso.unlink()
 

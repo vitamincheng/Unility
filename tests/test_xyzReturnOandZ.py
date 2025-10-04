@@ -28,7 +28,7 @@ def test_xyzReturnOandZ():
     if _system == 'Darwin':
         compare: Path = Path("tests/compare/xyzReturnOandZ_Darwin.xyz")
     elif _system == "Linux":
-        compare: Path = Path("tests/compare/xyzReturnOandZ.xyz")
+        compare: Path = Path("tests/compare/xyzReturnOandZ_ubuntu.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
@@ -45,7 +45,7 @@ def test_xyzReturnOandZ_auto():
     if _system == 'Darwin':
         compare: Path = Path("tests/compare/xyzReturnOandZ_auto_Darwin.xyz")
     elif _system == "Linux":
-        compare: Path = Path("tests/compare/xyzReturnOandZ_auto.xyz")
+        compare: Path = Path("tests/compare/xyzReturnOandZ_auto_ubuntu.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")

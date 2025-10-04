@@ -76,10 +76,10 @@ def test_xyzfile_comment_keep(input_Path: Path, compare_str1: str, compare_str2:
 
 
 @pytest.mark.parametrize(argnames="input_bool,input_Path,compare_filename",
-                         argvalues=[(True, Path("tests/data/crest_conformers.xyz"), "tests/compare/xyzfile-1.xyz"),
+                         argvalues=[(True, Path("tests/data/crest_conformers.xyz"), "tests/compare/xyzfile_save_xyz_1.xyz"),
                                     (True, Path("tests/data/isomers.xyz"),
-                                     "tests/compare/xyzfile-2.xyz"),
-                                    (False, Path("tests/data/isomers.xyz"), "tests/compare/xyzfile-1.xyz")])
+                                     "tests/compare/xyzfile_save_xyz_2.xyz"),
+                                    (False, Path("tests/data/isomers.xyz"), "tests/compare/xyzfile_save_xyz_1.xyz")])
 def test_xyzfile_save_xyz(input_bool: bool, input_Path: Path, compare_filename: str):
     xyzFile: GeometryXYZs = GeometryXYZs(input_Path)
     xyzFile.method_read_xyz()

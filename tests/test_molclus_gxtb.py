@@ -29,9 +29,9 @@ def test_gxtb_alpb_opt():
     gxtb.main(args)
 
     if _system == "Darwin":
-        compare: Path = Path("tests/compare/molclus_gxtb_1_Darwin.xyz")
+        compare: Path = Path("tests/compare/molclus_gxtb_alpb_opt_Darwin.xyz")
     elif _system == "Linux":
-        compare: Path = Path("tests/compare/molclus_gxtb_1.xyz")
+        compare: Path = Path("tests/compare/molclus_gxtb_alpb_opt_ubuntu.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
@@ -48,9 +48,9 @@ def test_gxtb_gbsa_opt():
 
     if _system == "Darwin":
         # gxtb is not work in Darwin system
-        compare: Path = Path("tests/compare/molclus_gxtb_2_Darwin.xyz")
+        compare: Path = Path("tests/compare/molclus_gxtb_gbsa_opt_Darwin.xyz")
     elif _system == "Linux":
-        compare: Path = Path("tests/compare/molclus_gxtb_2.xyz")
+        compare: Path = Path("tests/compare/molclus_gxtb_gbsa_opt_ubuntu.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
@@ -66,9 +66,9 @@ def test_gxtb_alpb():
     gxtb.main(args)
 
     if _system == "Darwin":
-        compare: Path = Path("tests/compare/molclus_gxtb_3_Darwin.xyz")
+        compare: Path = Path("tests/compare/molclus_gxtb_alpb_Darwin.xyz")
     elif _system == "Linux":
-        compare: Path = Path("tests/compare/molclus_gxtb_3.xyz")
+        compare: Path = Path("tests/compare/molclus_gxtb_alpb_ubuntu.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
@@ -86,9 +86,9 @@ def test_gxtb_gbsa():
 
     if _system == "Darwin":
         # gxtb is not work in Darwin system
-        compare: Path = Path("tests/compare/molclus_gxtb_4_Darwin.xyz")
+        compare: Path = Path("tests/compare/molclus_gxtb_gbsa_Darwin.xyz")
     elif _system == "Linux":
-        compare: Path = Path("tests/compare/molclus_gxtb_4.xyz")
+        compare: Path = Path("tests/compare/molclus_gxtb_gbsa_ubuntu.xyz")
     else:
         pytest.raises(
             ValueError, match="OS system only can run under Darwin or Linux")
