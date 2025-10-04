@@ -60,7 +60,7 @@ def IsExists_DirFileName(DirFile: Path | str) -> tuple[Path, str]:
 
     Note:
         If the provided path has no parent directory (e.g., a relative path like "file.txt"),
-        this function will return the current directory as the parent and the filename 
+        this function will return the current directory as the parent and the filename
         as the name component.
     """
 
@@ -459,77 +459,85 @@ def cosine_similarity(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np
 
 
 def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12) -> npt.NDArray[np.int64]:
-    """
-    Find optimal segmentation of sorted data based on maximum gap size.
+    """Find optimal subdivision points for sorted data based on delta analysis.
 
-    This function analyzes the differences between consecutive elements in a sorted array
-    to determine an optimal way to segment the data such that no segment contains more
-    than `max_number` elements. It uses a greedy approach to find the best cut points.
+    This function analyzes the differences between consecutive elements in sorted data
+    to determine optimal subdivision points. It attempts to distribute the largest
+    gaps evenly across the data while respecting a maximum segment size constraint.
 
     Args:
-        sorted_data (npt.NDArray[np.float64] | list): A sorted array or list of numerical values.
-        max_number (int, optional): The maximum number of elements allowed in any segment.
-            Defaults to 12.
+        sorted_data: A sorted array or list of float64 values to be subdivided.
+        max_number: Maximum allowed size for any segment (default: 12).
 
     Returns:
-        npt.NDArray[np.int64]: An array containing the sizes of segments that satisfy
-            the maximum segment size constraint.
+        An array of integers representing optimal subdivision points.
 
     Raises:
-        SystemExit: If no valid segmentation is found given the constraints,
-            the program exits with an error message.
+        SystemExit: If no valid subdivision is found within the given constraints,
+            prompting user to adjust max_number parameter.
 
     Example:
-        >>> import numpy as np
-        >>> data = [1, 2, 3, 10, 11, 12, 20, 21]
-        >>> result = sub_numpy(data, max_number=5)
-        >>> print(result)
-        [3 3 2]
+        >>> data = [1.0, 2.0, 3.0, 10.0, 15.0]
+        >>> sub_numpy(data, max_number=5)
+        array([2, 3, 5])
 
     Note:
-        This function assumes the input data is already sorted. The algorithm
-        attempts to find a segmentation that minimizes the maximum segment size
-        while respecting the `max_number` constraint.
+        The function uses a greedy approach to find the best subdivision by
+        examining all possible cuts up to half the length of the data.
     """
-
     sorted_data = np.array(sorted_data)
+    # from icecream import ic
     # ic(sorted_data)
     delta: npt.NDArray[np.float64] = np.diff(sorted_data)
     idx0_sorted_delta: npt.NDArray[np.float64] = delta.argsort()[::-1]
     # ic(delta)
     # ic(idx0_sorted_delta)
-    # ic(delta[list(idx0_sorted_delta)])
-    # ic(len(delta))
     for length in range(1, len(delta)//2):
         idx0_cut: npt.NDArray[np.float64] = idx0_sorted_delta[:length]
+        # ic(idx0_cut)
         # ic(idx0_sorted_delta[:length])
         idx0_cut = np.insert(idx0_cut, 0, -1)
         idx0_cut = np.insert(idx0_cut, 0, len(delta))
         idx0_cut.sort()
         cut_diff: npt.NDArray[np.float64] = np.diff(idx0_cut)
-        # ic(int(np.max(cut_diff)), idx0_cut, cut_diff)
+        # ic(idx0_cut, cut_diff)
         if int(np.max(cut_diff)) <= max_number:
             result: npt.NDArray[np.int64] = np.array([])
             Max: int = int(np.max(cut_diff))
             argmax = np.argmax(cut_diff)
-            a = int(np.sum(cut_diff[:argmax])) % (Max-1)
-            b = int(np.sum(cut_diff[:argmax])) // (Max-1)
-            if b == 0:
-                result = np.append(result, a)
-            else:
-                for x in range(b):
-                    result = np.append(result, Max-1)
-                result = np.append(result, a)
 
-            result = np.append(result, Max)
-            c = int(np.sum(cut_diff[argmax+1:])) % (Max-1)
-            d = int(np.sum(cut_diff[argmax+1:])) // (Max-1)
-            if d == 0:
-                result = np.append(result, c)
+            quotient, remainder = divmod(
+                int(np.sum(cut_diff[:argmax])), (Max-1))
+            # ic(quotient, remainder)
+
+            if quotient == 0 and remainder == 0:
+                pass
+            elif quotient == 0 and remainder != 0:
+                result = np.append(result, remainder)
             else:
-                for x in range(int(d)):
+                for x in range(quotient):
                     result = np.append(result, Max-1)
-                result = np.append(result, c)
+                if remainder != 0:
+                    result = np.append(result, remainder)
+            result = np.append(result, Max)
+            # ic(result)
+            del quotient
+            del remainder
+
+            quotient, remainder = divmod(
+                int(np.sum(cut_diff[argmax+1:])), Max-1)
+            # ic(quotient, remainder)
+            # ic(cut_diff, cut_diff[argmax+1:])
+            if quotient == 0 and remainder == 0:
+                pass
+            elif quotient == 0 and remainder != 0:
+                result = np.append(result, remainder)
+            else:
+                for x in range(quotient):
+                    result = np.append(result, Max-1)
+                if remainder != 0:
+                    result = np.append(result, remainder)
+            # ic(quotient, remainder)
             # ic(result)
             return result.astype(np.int64)
             # return cut_diff
