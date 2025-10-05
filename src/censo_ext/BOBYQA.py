@@ -127,8 +127,8 @@ class global_variable():
             self.DirFileRef_dat: Path = self.Dir / self.ref_dat
             self.AD_bobyqa = AD_BOBYQA(g_var.Dir)
             self.AD_normal = AD_Normal(g_var.Dir)
-            self.AD_bobyqa.method_load_files()  # all three files are or not exists
-            self.AD_normal.method_load_files()  # all three files are or not exists
+            self.AD_bobyqa.method_load_files()  # all three files does exist or does not exist
+            self.AD_normal.method_load_files()  # all three files does exist or does not exist
         except NameError:
             print("  self.Dir is not defined.")
             print("  Exit and Close the program !!!")

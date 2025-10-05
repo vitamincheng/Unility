@@ -52,10 +52,10 @@ def test_orca_opt():
     orca.main(args)
 
     if _system == "Linux":  # Need 2 min
-        compare: Path = Path("tests/compare/orca_isomers_opt.xyz")
+        compare: Path = Path("tests/compare/orca_opt_ubuntu.xyz")
 
     elif _system == "Darwin":  # Need 5 min
-        compare: Path = Path("tests/compare/orca_isomers_opt_Darwin.xyz")
+        compare: Path = Path("tests/compare/orca_opt_Darwin.xyz")
 
     assert filecmp.cmp(args.out, compare)  # type: ignore
     os.remove(args.out)
