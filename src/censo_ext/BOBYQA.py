@@ -338,7 +338,7 @@ def Scan_group_Peaks(args) -> None:
             ic(g_var.idx_keys)
         bounds = x0 - g_var.limit, x0 + g_var.limit
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=bounds,
-                              scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
+                              scaling_within_bounds=True, rhobeg=0.01, rhoend=0.001)
         print(f"{soln.f=} {soln.x=}")
         solution_f.append(soln.f)
         solution_x0.append(soln.x)
@@ -354,7 +354,7 @@ def Scan_group_Peaks(args) -> None:
     limit_tiny: float = 0.0001
     bounds_tiny = x0 - limit_tiny, x0 + limit_tiny
     soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=bounds_tiny,
-                          scaling_within_bounds=True, rhobeg=0.01, rhoend=0.00001)
+                          scaling_within_bounds=True, rhobeg=0.01, rhoend=0.001)
 
     print("  ========== Finished group_peaks ==========")
 
