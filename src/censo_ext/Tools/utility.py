@@ -402,7 +402,7 @@ def cosine_similarity(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np
     if len(vec1) != len(vec2):
         print(f"{vec1=}")
         print(f"{vec2=}")
-        print("  Two vector of your input file is not the same length")
+        print("  The numbers of two vector of your input file are not the same")
         print("  Exit and Close the program !!!")
         exit(0)
 
@@ -453,7 +453,7 @@ def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12)
     sorted_data = np.array(sorted_data)
 
     if len(sorted_data) < 3:
-        print("  sorted_data is not more than 3 !!!")
+        print("  The numbers of sorted_data need more than three !!!")
         print("  Exit and Close the program !!!")
         exit(0)
 

@@ -466,7 +466,6 @@ def _process_qm_hydrogen_spin_system(inParameter: list[npt.NDArray[np.float64] |
 
     from censo_ext.Tools.qm import qm_base, qm_full, qm_multiplet
     accPeaks: list[list[tuple[float, float]]] = []
-    inHydrogen: list[int]
     inSParams: npt.NDArray[np.float64]
     inJCoups: npt.NDArray[np.float64]
     inHydrogen: list[int]
@@ -557,7 +556,7 @@ def _process_qm_hydrogen_spin_system(inParameter: list[npt.NDArray[np.float64] |
     with open(inAnmr.get_Dir()/Path("peaks.json"), "w") as jsonFile:
         json.dump(accPeaks, jsonFile)
 
-    idx0_peaks_range = [*range(len(accPeaks))]
+    idx0_peaks_range: list[int] = [*range(len(accPeaks))]
     return idx0_peaks_range, accPeaks
 
 

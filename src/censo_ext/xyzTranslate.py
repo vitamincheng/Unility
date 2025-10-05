@@ -2,8 +2,8 @@
 import argparse
 import numpy as np
 from pathlib import Path
+from censo_ext.Tools.utility import print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
-from sys import argv as sysargv
 
 descr = """
 ________________________________________________________________________________
@@ -98,8 +98,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args == argparse.Namespace():
         args = cml()
-    print(descr)  # Program description
-    print(f"    provided arguments: {" ".join(sysargv)}")
+    print_arguments()
 
     inFile = Path(args.file)
 
