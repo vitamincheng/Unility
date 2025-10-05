@@ -10,15 +10,15 @@ def test_qm_miss_args() -> None:
     x = {"out": "output.dat", "start": -
          0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False, "verbose": False}
     v: list[float] = [964, 2775.76, 2768.20, 928, 120000]
-
+    args = argparse.Namespace(**x)
     J: npt.NDArray[np.float64] = np.array([[0.0,   0.0,   0.0,   0.0],
                                            [0.0,   0.0, 16.97,   0.0],
                                            [0.0, 16.97,   0.0,   7.0],
                                            [0.0,   0.0,   7.0,   0.0]])
 
     with pytest.raises(ValueError) as e:
-        qm_partial(v=v, J=J, nIntergals=1, idx0_nspins=1,
-                   args=argparse.Namespace(**x))
+        qm_partial(v=v, J=J, idx0_nspins=1,
+                   args=args)
     assert str(e.value) == "Your JCoup is Error"
 
 
@@ -27,14 +27,14 @@ def test_qm_partial_full() -> None:
     x = {"out": "output.dat", "start": -
          0.5, "end": 10.5, "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False, "verbose": False}
     v: list[float] = [964, 2775.76, 2768.20, 928]
-
+    args = argparse.Namespace(**x)
     J: npt.NDArray[np.float64] = np.array([[0.0,   0.0,   0.0,   0.0],
                                            [0.0,   0.0, 16.97,   0.0],
                                            [0.0, 16.97,   0.0,   7.0],
                                            [0.0,   0.0,   7.0,   0.0]])
 
-    R_peak: list[tuple[float, float]] = qm_partial(v=v, J=J, nIntergals=1, idx0_nspins=1,
-                                                   args=argparse.Namespace(**x))
+    R_peak: list[tuple[float, float]] = qm_partial(
+        v=v, J=J, idx0_nspins=1, args=args)
 
     assert len(R_peak) == 16
     assert R_peak[0][0] == pytest.approx(2751.6221950398317)
@@ -44,7 +44,7 @@ def test_qm_partial_full() -> None:
 
     x = {"out": "output.dat", "start": -0.5, "end": 10.5,
          "lw": 1, "mf": 500.0, "cutoff": 0.001, "debug": False, "bobyqa": True, "verbose": False}
-    R_peak = qm_full(v=v, J=J, nIntergals=1, args=argparse.Namespace(**x))
+    R_peak = qm_full(v=v, J=J, args=argparse.Namespace(**x))
 
     assert len(R_peak) == 36
     assert R_peak[0][0] == pytest.approx(924.4933121601566)

@@ -213,23 +213,7 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def _normalize(intensities, n=1):
-    """
-    Scale a list of intensities so that they sum to the total number of
-    nuclei.
-
-    Parameters
-    ---------
-    intensities : [float...]
-        A list of intensities.
-    n : int (optional)
-        Number of nuclei (default = 1).
-    """
-    factor = n / sum(intensities)
-    intensities[:] = [factor * i for i in intensities]
-
-
-def normalize_peaklist(peaklist, n=1):
+def normalize_peaklist(peaklist, n=1) -> list[tuple[float, float]]:
     """
     Normalize the intensities in a peaklist so that total intensity equals
     value n (nominally the number of nuclei giving rise to the signal).
@@ -241,8 +225,9 @@ def normalize_peaklist(peaklist, n=1):
     n : int or float (optional)
         total intensity to normalize to (default = 1).
     """
-    freq, intensit = [x for x, y in peaklist], [y for x, y in peaklist]
-    _normalize(intensit, n)
+    peaks = np.array(peaklist)
+    freq, intensit = peaks.T[0], peaks.T[1]
+    intensit = intensit / np.sum(intensit)
     return list(zip(freq, intensit))
 
 
@@ -465,7 +450,7 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
     return inHydrogen, Active_range, dpi
 
 
-def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter_multi, inAnmr, args) -> tuple[list[int], list[list[tuple[float, float]]]]:
+def _process_qm_hydrogen_spin_system(inParameter: list[npt.NDArray[np.float64] | list[int]], idx0_ab_group_sets: list[set[int]], mat_filter_multi: npt.NDArray[np.uint8], inAnmr: Anmr, args: argparse.Namespace) -> tuple[list[int], list[list[tuple[float, float]]]]:
     """Process QM hydrogen spin system data.
 
     Args:
@@ -482,7 +467,10 @@ def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter
     from censo_ext.Tools.qm import qm_base, qm_full, qm_multiplet
     accPeaks: list[list[tuple[float, float]]] = []
     inHydrogen: list[int]
-    inSParams, inJCoups, inHydrogen = inParameter
+    inSParams: npt.NDArray[np.float64]
+    inJCoups: npt.NDArray[np.float64]
+    inHydrogen: list[int]
+    inSParams, inJCoups, inHydrogen = inParameter  # type: ignore # nopep8
     print("")
     print(" ===== Processing =====")
     print(" the group of calculate spectra :", len(idx0_ab_group_sets))
@@ -503,8 +491,8 @@ def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter
             print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
                 a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
 
-        QM_Bases: list[tuple[float, float]] = qm_full(v=list(
-            v), J=J, nIntergals=len(inHydrogen), args=args)
+        QM_Bases: list[tuple[float, float]] = qm_full(
+            v=list(v), J=J, args=args)
         accPeaks.append(QM_Bases)
 
     else:
@@ -523,10 +511,11 @@ def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter
             J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
 
             QM_Bases: list[tuple[float, float]] = qm_base(v=list(
-                v), J=J, nIntergals=inHydrogen[idx0_ab_group.index(idx0)], idx0_nspins=idx0_ab_group.index(idx0), args=args)
+                v), J=J, idx0_nspins=idx0_ab_group.index(idx0), args=args)
 
             QM_Multiplet: list[tuple[float, float]] = []
-            for QM_base in QM_Bases:
+            # for QM_base in QM_Bases:
+            for freq, Intensit in QM_Bases:
                 idx0_multiplicity: list[int] = list(
                     set(mat_multi_x_idx0).difference(idx0_ab_group_set))
                 # Chemical Shift, the numbers of Hydrogen in inJ
@@ -543,9 +532,12 @@ def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter
                         exit(0)
 
                 if len(inJCoups_multi) >= 1:
+                    # tmp: npt.NDArray[np.float64] = np.array(
+                    #    qm_multiplet(QM_base[0], nIntergals=1, J=inJCoups_multi, delta=delta_SParams))
+                    # tmp.T[1] *= QM_base[1]
                     tmp: npt.NDArray[np.float64] = np.array(
-                        qm_multiplet(QM_base[0], nIntergals=1, J=inJCoups_multi, delta=delta_SParams))
-                    tmp.T[1] *= QM_base[1]
+                        qm_multiplet(freq, nIntergals=1, J=inJCoups_multi, delta=delta_SParams))
+                    tmp.T[1] *= Intensit
                     QM_Multiplet += tmp.tolist()
                 elif len(inJCoups_multi) == 0:
                     QM_Multiplet = QM_Bases
@@ -569,7 +561,7 @@ def _process_qm_hydrogen_spin_system(inParameter, idx0_ab_group_sets, mat_filter
     return idx0_peaks_range, accPeaks
 
 
-def _process_qm_carbon_spin_system(inParameter, inAnmr) -> list[list[tuple[float, float]]]:
+def _process_qm_carbon_spin_system(inParameter: list[npt.NDArray[np.float64] | list[int]], inAnmr: Anmr) -> list[list[tuple[float, float]]]:
     """Process QM carbon spin system data.
 
     Args:
@@ -593,7 +585,7 @@ def _process_qm_carbon_spin_system(inParameter, inAnmr) -> list[list[tuple[float
     return accPeaks
 
 
-def _process_qm_json_spin_system(inAnmr, args) -> tuple[list[int], list[list[tuple[float, float]]]]:
+def _process_qm_json_spin_system(inAnmr: Anmr, args: argparse.Namespace) -> tuple[list[int], list[list[tuple[float, float]]]]:
     """Process QM JSON spin system data from ANMR.
 
     This function reads peak data from a JSON file and returns the appropriate
@@ -660,7 +652,7 @@ def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], i
     if not args.json and inAnmr.get_Anmr_Active()[0] == 'H':
         inJCoups_origin: npt.NDArray[np.float64] = copy.deepcopy(inJCoups)
 
-        while (1):
+        while (True):
 
             # the numbers of args.mss is low, all nucleus will be computated as AB quartet
             if len(inSParams*inHydrogen) <= args.mss:
@@ -697,8 +689,7 @@ def process_AB_quartet(inParameter: list[npt.NDArray[np.float64] | list[int]], i
                 mat_filter_low_factor: npt.NDArray[np.uint8] = np.zeros(
                     (inSParams.size, inSParams.size), dtype=np.uint8)
                 inJCoups = copy.deepcopy(inJCoups_origin)
-                mat_filter_low_factor = (
-                    np.abs(inJCoups) > args.thr).astype(np.uint8)
+                mat_filter_low_factor = (np.abs(inJCoups) > args.thr).astype(np.uint8)  # nopep8
                 inJCoups[np.logical_not(mat_filter_low_factor)] = 0
 
                 # Step 2: Identify potential AB quartet systems
@@ -917,15 +908,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
     idx0_peaks_range: list[int] = []
     accPeaks: list[list[tuple[float, float]]]
-    if not args.json and inAnmr.get_Anmr_Active()[0] == 'H':
-        idx0_peaks_range, accPeaks = _process_qm_hydrogen_spin_system(
-            inParameter, idx0_ab_group_sets, mat_filter_multi, inAnmr, args)
-    elif not args.json and inAnmr.get_Anmr_Active()[0] == 'C':
-        accPeaks = _process_qm_carbon_spin_system(inParameter, inAnmr)
-    elif args.json:
+    if args.json:
         idx0_peaks_range, accPeaks = _process_qm_json_spin_system(inAnmr, args)
     else:
-        raise ValueError("  Something Wrong in your get_anmr_Active()")
+        if inAnmr.get_Anmr_Active()[0] == 'H':
+            idx0_peaks_range, accPeaks = _process_qm_hydrogen_spin_system(
+                inParameter, idx0_ab_group_sets, mat_filter_multi, inAnmr, args)
+        elif inAnmr.get_Anmr_Active()[0] == 'C':
+            accPeaks = _process_qm_carbon_spin_system(inParameter, inAnmr)
+        else:
+            raise ValueError("  Something Wrong in your get_anmr_Active()")
 
     finalPeaks: list[tuple[float, float]] = []
     if inAnmr.get_Anmr_Active()[0] == 'H':

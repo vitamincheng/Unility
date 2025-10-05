@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import numpy.typing as npt
-# from numba import jit
+from numba import jit
 import argparse
 from icecream import ic
 from cachier import cachier
@@ -141,7 +141,7 @@ def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArra
     return H, T
 
 
-def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_full(v: list[float], J: npt.NDArray[np.float64], args: argparse.Namespace) -> list[tuple[float, float]]:
     """
     Calculate full spin system spectrum using quantum mechanical approach.
 
@@ -198,7 +198,7 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], nIntergals: int, args: a
     return list(zip(freq, intensit))
 
 
-def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, nIntergals, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
     """
     Calculate partial spin system spectrum for a specific spin.
 
@@ -336,20 +336,22 @@ def mpl_plot(plist: list[tuple[float, float]], limits: tuple[float, float], lw=1
 
 
 def add_lorentzians(linspace: npt.NDArray[np.float64], plist: list[tuple[float, float]], lw: float) -> npt.NDArray[np.float64]:
-    result: npt.NDArray[np.float64] = lorentz(
-        linspace, plist[0][0], plist[0][1], lw)
-    for freq, intensit in plist[1:]:
-        result += lorentz(linspace, freq, intensit, lw)
-    return result
+
+    for freq, intensit in plist:
+        try:
+            result += lorentz(linspace, freq, intensit, lw)  # type: ignore # nopep8
+        except NameError:
+            result = lorentz(linspace, plist[0][0], plist[0][1], lw)
+    return result  # type: ignore #nopep8
 
 
-# @jit
+@jit
 def lorentz(linspace: npt.NDArray[np.float64], freq: float, Intensity: float, lw: float) -> npt.NDArray[np.float64]:
     scaling_factor: float = 0.5 / lw
     return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (linspace - freq) ** 2))
 
 
-def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_base(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
     """
     Base quantum mechanical calculation function for spin systems.
 
@@ -371,10 +373,9 @@ def qm_base(v: list[float], J: npt.NDArray[np.float64], nIntergals, idx0_nspins,
     if args.verbose:
         ic(v, J)
     if len(v) > 1:
-        plist = qm_partial(v=v, J=J, idx0_nspins=idx0_nspins,
-                           nIntergals=nIntergals, args=args)
+        plist = qm_partial(v=v, J=J, idx0_nspins=idx0_nspins, args=args)
     elif len(v) == 1:
-        plist = [(np.fabs(v[0]), float(1.00000))]
+        plist = [(np.fabs(v[0]), float(1.0))]
     else:
         print("something wrong in your qm_Base cal.")
     return plist
@@ -458,8 +459,9 @@ def _doublet(plist: list[tuple[float, int]], JCoups, delta) -> list[tuple[float,
     # if c is positive, peaks must be the left of doublet is more low and the right is more high
     # if c is negative, peaks must be the left of doublet is more high and the right is more low
     #
-    k_small: float = 1 - JCoups / (JCoups + delta)
-    k_large: float = 1 + JCoups / (JCoups + delta)
+    _k = JCoups / (JCoups+delta)
+    k_small: float = 1 - _k
+    k_large: float = 1 + _k
     res: list = []
     for v, intensit in plist:
         # the left of doublet if J is positive
@@ -473,6 +475,8 @@ if __name__ == "__main__":
 
     x: dict = {"out": "output.dat", "start": -
                0.5, "end": 10.5, "lw": 0.1, "mf": 500.0, "cutoff": 0.001, "debug": False, "bobyqa": False}
+    args = argparse.Namespace(**x)
+
     # v: positive or negative of the frequency is the same of spectra
     # J: only one AB quartet, positive or negative of the J Coupling constant the spectra is the same
 
@@ -483,32 +487,21 @@ if __name__ == "__main__":
     #                          [4.0,   4.0,   0.0,   0.0]])
 
     v: list[float] = [480, 645, 645, 645, 645, 480]
-    J: npt.NDArray[np.float64] = np.array([[0.00000,      7.12744,      7.12267,     -0.22011,   -0.21844,     -0.02230],
-                                           [7.12744,      0.00000,    -13.32467,
-                                          6.11500,    6.85267,     -0.21511],
-                                           [7.12267,    -13.32467,      0.00000,
-                                          6.81333,    6.12033,     -0.21878],
-                                           [-0.22011,      6.11500,      6.81333,
-                                            0.00000, -13.32433,      7.12589],
-                                           [-0.21844,      6.85267,      6.12033,    -
-                                            13.32433,   0.00000,      7.12811],
-                                           [-0.02230,     -0.21511,     -0.21878,      7.12589,   7.12811,      0.00000]])
+    J: npt.NDArray[np.float64] = \
+        np.array([[0.00000,      7.12744,      7.12267,     -0.22011,   -0.21844,     -0.02230],
+                  [7.12744,      0.00000,    -13.32467,      6.11500,    6.85267,     -0.21511],  # nopep8
+                  [7.12267,    -13.32467,      0.00000,      6.81333,    6.12033,     -0.21878],  # nopep8
+                  [-0.22011,      6.11500,      6.81333,     0.00000,  -13.32433,      7.12589],  # nopep8
+                  [-0.21844,      6.85267,      6.12033,   -13.32433,    0.00000,      7.12811],  # nopep8
+                  [-0.02230,     -0.21511,     -0.21878,     7.12589,    7.12811,      0.00000]])
 
-    ic(v)
-    ic(J)
-    R_peak: list = qm_full(v=v, J=J, nIntergals=1,
-                           args=argparse.Namespace(**x))
-    ic(len(R_peak))
-    print_plot(in_plist=R_peak, dpi=10000,
-               Active_range=20, args=argparse.Namespace(**x))
+    R_peak: list = qm_full(v=v, J=J, args=args)
+    ic(len(R_peak), R_peak)
+    print_plot(in_plist=R_peak, dpi=10000, Active_range=20, args=args)
 
-    R_peaks: list = []
+    R_peaks = []
     for idx in range(len(v)):
+        R_peaks += qm_partial(v=v, J=J, idx0_nspins=idx, args=args)
 
-        R_peaks += qm_partial(v=v, J=J, idx0_nspins=idx, nIntergals=1,
-                              args=argparse.Namespace(**x))
-
-    ic(R_peaks)
-    ic(len(R_peaks))
-    print_plot(in_plist=R_peaks, dpi=10000,
-               Active_range=20, args=argparse.Namespace(**x))
+    ic(len(R_peaks), R_peaks)
+    print_plot(in_plist=R_peaks, dpi=10000, Active_range=20, args=args)
