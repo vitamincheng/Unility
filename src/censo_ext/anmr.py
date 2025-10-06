@@ -213,7 +213,7 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def normalize_peaklist(peaklist, n=1) -> list[tuple[float, float]]:
+def normalize_peaklist(peaklist, nIntegrals: int) -> list[tuple[float, float]]:
     """
     Normalize the intensities in a peaklist so that total intensity equals
     value n (nominally the number of nuclei giving rise to the signal).
@@ -227,7 +227,7 @@ def normalize_peaklist(peaklist, n=1) -> list[tuple[float, float]]:
     """
     peaks = np.array(peaklist)
     freq, intensit = peaks.T[0], peaks.T[1]
-    intensit = intensit / np.sum(intensit)
+    intensit = intensit*nIntegrals / np.sum(intensit)
     return list(zip(freq, intensit))
 
 
@@ -529,8 +529,10 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
                     # tmp: npt.NDArray[np.float64] = np.array(
                     #    qm_multiplet(QM_base[0], nIntergals=1, J=inJCoups_multi, delta=delta_SParams))
                     # tmp.T[1] *= QM_base[1]
+                    # tmp: npt.NDArray[np.float64] = np.array(
+                    #    qm_multiplet(freq, nIntergals=1, J=inJCoups_multi, delta=delta_SParams))
                     tmp: npt.NDArray[np.float64] = np.array(
-                        qm_multiplet(freq, nIntergals=1, J=inJCoups_multi, delta=delta_SParams))
+                        qm_multiplet(freq, inHydrogen[idx0], J=inJCoups_multi, delta=delta_SParams))
                     tmp.T[1] *= Intensit
                     QM_Multiplet += tmp.tolist()
                 elif len(inJCoups_multi) == 0:
