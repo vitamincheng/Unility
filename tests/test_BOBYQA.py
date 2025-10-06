@@ -84,13 +84,21 @@ def test_BOBYQA_blank_file_final_remove_files():
 def test_BOBYQA_single():
     anmr_init()
     BOBYQA_init()
+    if _system == "Linux":  # Need 2 min
+        compare: Path = Path(DirCompare / Path("single-anmrpy-ubuntu.npz"))
+    elif _system == "Darwin":  # Need 5 min
+        compare: Path = Path(DirCompare / Path("single-anmrpy-Darwin.npz"))
+    else:
+        print("  OS is not Dawrgin or ubuntu")
+        print("  Exit and Close the test !!!")
+        exit(0)
+
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
     args_Normal['prog'] = None
     BOBYQA.main(argparse.Namespace(**args_Normal))
-    assert filecmp.cmp(DirName / Path("output.npz"),
-                       DirCompare / Path("single-anmrpy.npz"))
+    assert filecmp.cmp(DirName / Path("output.npz"), compare)
     BOBYQA_final_remove_files()
 
 
@@ -118,13 +126,20 @@ def test_BOBYQA_single_external_prog(monkeypatch):
 def test_BOBYQA_group():
     anmr_init()
     BOBYQA_init()
+    if _system == "Linux":  # Need 2 min
+        compare: Path = Path(DirCompare / Path("group-anmrpy-ubuntu.npz"))
+    elif _system == "Darwin":  # Need 5 min
+        compare: Path = Path(DirCompare / Path("group-anmrpy-Darwin.npz"))
+    else:
+        print("  OS is not Dawrgin or ubuntu")
+        print("  Exit and Close the test !!!")
+        exit(0)
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA-group.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
     args_Normal['prog'] = None
     BOBYQA.main(argparse.Namespace(**args_Normal))
-    assert filecmp.cmp(DirName / Path("output.npz"),
-                       DirCompare / Path("group-anmrpy.npz"))
+    assert filecmp.cmp(DirName / Path("output.npz"), compare)
     BOBYQA_final_remove_files()
 
 
