@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-#  Need ml4nmr.py
-#  ASE library / graph-theory library
-
 import argparse
 import numpy as np
 import numpy.typing as npt

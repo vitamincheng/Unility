@@ -41,12 +41,12 @@ class Peaks_npz():
         self.__fileName: Path = Path(file)
         self.__peaks: npt.NDArray = np.array(
             [], dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
-        self.__uc = uc
+        self.__uc: unit_conversion = uc
 
     def __len__(self):
         return len(self.__peaks)
 
-    def method_delete_cID(self, cIDs: list[int]):
+    def method_delete_cID(self, cIDs: list[int]) -> None:
         for cID in cIDs:
             if cID in self.__peaks['cID']:
                 self.__peaks = self.__peaks[self.__peaks['cID'] != cID]
@@ -55,7 +55,7 @@ class Peaks_npz():
                 print("  Exit and Close the program !!!")
                 exit(0)
 
-    def method_merge_cID(self, cIDs: list[int]):
+    def method_merge_cID(self, cIDs: list[int]) -> None:
 
         min_cID: int = np.array(cIDs).min()
         start, end = -99999, 99999
@@ -89,10 +89,11 @@ class Peaks_npz():
         self.__peaks = np.insert(
             self.__peaks, args_x[0], (min_cID, start, end, Total_intensit))
 
-    def method_cut_cID(self, cID, intensit):
+    def method_cut_cID(self, cID, intensit) -> None:
         # use ng.peakpick.pick from y_heighest 0.90 to down to two different peaks
         if cID in self.__peaks['cID']:
-            args_x = np.argwhere(self.__peaks['cID'] == cID)
+            args_x: npt.NDArray[np.intp] = np.argwhere(
+                self.__peaks['cID'] == cID)
             l_peaks: float = self.__peaks[args_x][0]['Start'][0].astype(
                 float)
             r_peaks: float = self.__peaks[args_x][0]['End'][0].astype(
@@ -151,7 +152,7 @@ class Peaks_npz():
     def method_read_file(self):
         file = Path(self.__fileName)
         from censo_ext.Tools.utility import IsExists_DirFileName
-        path, Name = IsExists_DirFileName(file)
+        _, Name = IsExists_DirFileName(file)
         self.__fileName = Path(Name)
         file_split: list[str] = Name.split(".")
         file_ext: str = file_split[1]
@@ -164,16 +165,16 @@ class Peaks_npz():
             print("  Exit and Close the program !!!")
             exit(0)
 
-    def get_cIDs_center_peaks(self):
+    def get_cIDs_center_peaks(self) -> npt.NDArray[np.float64]:
         first = self.__peaks['cID']
         second = (self.__peaks['Start']+self.__peaks['End'])/2
         return np.stack((first, second))
 
-    def method_print(self):
+    def method_print(self) -> None:
         print(self.__fileName)
         print(self.__peaks)
 
-    def method_save(self):
+    def method_save(self) -> None:
         from censo_ext.Tools.utility import save_simulation_spectra_file
         save_simulation_spectra_file(self.__fileName, self.__peaks)
 
