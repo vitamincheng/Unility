@@ -39,13 +39,16 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
     args_x: dict = {"remove_idx": None, "add_idx": None,
                     "bond_broken": None, "ignore_Hydrogen": True, "debug": False, }
     coord: list[list[float]] = []
-    idxElement: list[int] = []
+
+    # For idxElement for the data of first xyzFile
+    tmp, _ = cal_RMSD_xyz(xyzFile, 1, 1, args=argparse.Namespace(**args_x))
+    idxElement: list[int] = list(tmp.keys())
+
+    # Get variance of coord square of all xyzFile
     for idx0 in range(len(xyzFile)):
         coord_square, _ = cal_RMSD_xyz(
             xyzFile, 1, idx0+1, args=argparse.Namespace(**args_x))
         var: list[float] = list(coord_square.values())
-        if idx0 == 0:
-            idxElement = list(coord_square.keys())
         coord.append(var)
 
     idx_dev: dict[int, float] = dict(
