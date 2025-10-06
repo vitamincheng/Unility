@@ -517,3 +517,13 @@ def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12)
     print("  Adjust the max_number to fit !!!")
     print("  Exit and Close the program !!!")
     exit(0)
+
+
+def R_square(x: npt.NDArray, y: npt.NDArray):
+
+    # Calculate the correlation matrix
+    correlation_matrix = np.corrcoef(x, y)
+    r = correlation_matrix[0, 1]
+    r_squared = r**2
+
+    return (r_squared)
