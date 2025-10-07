@@ -170,6 +170,7 @@ class diagram():
             plt.close(event.canvas.figure)
 
         elif event.key == 'enter':
+            xmin, xmax, ymin, ymax = self._plt.axis()
             self._click_button = list(map(int, set(self._click_button)))
             self._click_button.sort()
             print(self._click_button)
@@ -178,14 +179,21 @@ class diagram():
             elif self._key == "m":
                 self._peaks_npz.method_merge_cID(self._click_button)
             elif self._key == "c":
-                self._peaks_npz.method_cut_cID(
-                    self._click_button[-1], self._intensit)
+                if len(self._click_button) == 1:
+                    self._peaks_npz.method_cut_cID(
+                        self._click_button[0], self._intensit)
+                else:
+                    print("  length of click button under cut mode more than 1 ")
+                    print("  Exit and Close the program !!!")
+                    exit(0)
 
             self._ax.clear()
-            self.draw_x_axis()
+            self._plt.xlim(xmin, xmax)
+            self._plt.ylim(ymin, ymax)
             self.draw_threshold()
             self.draw_curve()
             self.draw_integral()
+            self._click_button = []
             self._fig.canvas.draw_idle()
 
         elif event.key == 'escape':
@@ -196,7 +204,7 @@ class diagram():
         elif event.key == 'h':
             print("Help mode")
             self._ax.set_title(
-                "Press 'q' to quit, 'Esc' to Edit mode\n'm' to merge / 'd' to delete / 'c' to cut mode\n's' to save file", loc="left")
+                "Press 'q' to quit, 's' to save file.\nPress 'm' to merge / 'd' to delete / 'c' to cut mode\nPress 'Esc' to Edit mode, 'Enter' to Executive mode", loc="left")
             self._fig.canvas.draw_idle()
         elif event.key == 's':
             self._ax.set_title("Save to peaks.npz file", loc="left")
@@ -220,6 +228,13 @@ class diagram():
             self._ax.set_title("Cut mode", loc="left")
             self._key = 'c'
             self._fig.canvas.draw_idle()
+        elif event.key == 'f':
+            self._ax.clear()
+            self.draw_x_axis()
+            self.draw_threshold()
+            self.draw_curve()
+            self.draw_integral()
+            self._fig.canvas.draw_idle()
 
     def on_button_release(self, event):
         if event.inaxes == self._ax and self._button_x is not None and self._button_y is not None:
@@ -240,7 +255,13 @@ class diagram():
             self._button_x = None
             self._button_y = None
 
-            self._click_button.append(cID)
+            if self._key == 'c' and len(self._click_button) == 0:
+                self._click_button.append(cID)
+            elif self._key == 'c' and len(self._click_button) == 1:
+                pass
+            else:
+                self._click_button.append(cID)
+
             self._ax.set_title(f"{self._click_button}",
                                loc="right", fontsize=10)
 
@@ -334,6 +355,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print_arguments()
 
     plt.rcParams['keymap.save'].remove('s')
+    plt.rcParams['keymap.fullscreen'].remove('f')
+    plt.rcParams['keymap.back'].remove('c')
     plt.ion()
 
     if args.auto and args.manual:
@@ -417,8 +440,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     l_LW_thr: float = 120/l_LW
                     r_LW_thr: float = 120/r_LW
 
-                    l_peak: float = uc.ppm(l_Axis)+(l_LW/30000)*l_LW_thr
-                    r_peak: float = uc.ppm(r_Axis)-(r_LW/30000)*r_LW_thr
+                    l_peak: float = uc.ppm(l_Axis)+(l_LW/10000)*l_LW_thr
+                    r_peak: float = uc.ppm(r_Axis)-(r_LW/10000)*r_LW_thr
 
                     min: int = uc.index(l_peak)
                     max: int = uc.index(r_peak)

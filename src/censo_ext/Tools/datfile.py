@@ -122,9 +122,10 @@ class Peaks_npz():
             sorted_cut_peaks = np.sort(cut_peaks, order='VOL')
             start = int(sorted_cut_peaks['X_AXIS'][-1] + min)
             end = int(sorted_cut_peaks['X_AXIS'][-2] + min)
+            if end < start:
+                start, end = end, start
             cut_argmin: np.intp = np.argmin(intensit[start:end + 1])
             cut_center: float = self.__uc.ppm(start + cut_argmin)
-
             # remove the old entry and add two additional entry
             self.__peaks = self.__peaks[self.__peaks['cID'] != cID]
 
