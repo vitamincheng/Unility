@@ -46,6 +46,12 @@ class Peaks_npz():
     def __len__(self):
         return len(self.__peaks)
 
+    def method_ppm2cID(self, in_x_ppm: float):
+        for peak in self.__peaks:
+            if peak['Start'] > in_x_ppm > peak['End']:
+                return peak['cID']
+        return None
+
     def method_delete_cID(self, cIDs: list[int]) -> None:
         for cID in cIDs:
             if cID in self.__peaks['cID']:
@@ -169,6 +175,9 @@ class Peaks_npz():
         first = self.__peaks['cID']
         second = (self.__peaks['Start']+self.__peaks['End'])/2
         return np.stack((first, second))
+
+    # def get_peaks(self):
+    #    return self.__peaks
 
     def method_print(self) -> None:
         print(self.__fileName)

@@ -10,15 +10,13 @@ from censo_ext.Tools.utility import IsExist_bool, print_arguments
 
 descr = """
 _______________________________________________________________________________
-| For generate the peak.npz for orcaS-BOBYQA.out or Integral of spectra  
+| For generate the peak.npz for orcaS-BOBYQA.out or Integral of spectra
 | Usages    : BOBYQA_GUI.py <geometry> [options]
 | [options]
 | File      : -i input dat/npz file [default 1r.npz]
 | Auto      : --atuo Automated mode and read dat/npz file [default False]
 | Basic     : --basic Only one time for threshold under automated mode [default False]
 | Manual    : -m --manual Manual mode and read the peaks.npz [default False]
-| Save      : --save To save peaks.npz [default False]
-| Show      : -show --show Show spectra on screen [default false]
 | threshold : -t -thr threshold of peaks [default 1.0]
 | phase     : -p --phase phase of spectra (1 to -1) [default 1.0]
 | Delete    : --delete Delete specific cID peaks
@@ -140,25 +138,56 @@ def cml() -> argparse.Namespace:
 peaks_fileName = "peaks.npz"
 
 
-class digram():
+class diagram():
 
-    def __init__(self, ax, fig) -> None:
-        self._key: str = 'e'
-        self._button: float
-        self._ax = ax
-        self._fig = fig
+    # Fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
+    # Ax = fig.subplots()
+    # Fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
+    #                    top=0.90, wspace=0.05, hspace=0.05)
+    def __init__(self, plt, fileName, peaks_npz, intensit, uc, thres, ng_1r_peaks) -> None:
+        # self._key: str = 'e'
+        self._plt = plt
+        self._start, self._end = uc.ppm_limits()
+        self._fileName = fileName
+        self._peaks_npz = peaks_npz
+        self._intensit = intensit
+        self._button_x = None
+        self._button_y = None
+        self._uc: unit_conversion = uc
+        self._thres = thres
+        self._ng_1r_peaks = ng_1r_peaks
+        self._fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
+        self._ax = self._fig.subplots()
+        self._fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
+                                  top=0.90, wspace=0.05, hspace=0.05)
         self._ax.set_title("Edit mode.\nPress 'h' to help. ", loc="left")
-        self._fig.canvas.draw_idle()
+        self._click_button: list[int] = []
 
     def on_key_press(self, event):
         """Callback function for key press events."""
-        self._key = event.key
         if event.key == 'q':
             print("Quitting the application.")
             plt.close(event.canvas.figure)
 
         elif event.key == 'enter':
-            print("Exective mode")
+            self._click_button = list(map(int, set(self._click_button)))
+            self._click_button.sort()
+            print(self._click_button)
+            if self._key == "d":
+                self._peaks_npz.method_delete_cID(self._click_button)
+            elif self._key == "m":
+                self._peaks_npz.method_merge_cID(self._click_button)
+            elif self._key == "c":
+                self._peaks_npz.method_cut_cID(
+                    self._click_button[-1], self._intensit)
+
+            self._ax.clear()
+            self.draw_x_axis()
+            self.draw_threshold()
+            self.draw_curve()
+            self.draw_integral()
+            self._fig.canvas.draw_idle()
+
         elif event.key == 'escape':
             print("Edit mode")
             self._ax.set_title("Edit mode.\nPress 'h' to help. ", loc="left")
@@ -169,29 +198,133 @@ class digram():
             self._ax.set_title(
                 "Press 'q' to quit, 'Esc' to Edit mode\n'm' to merge / 'd' to delete / 'c' to cut mode\n's' to save file", loc="left")
             self._fig.canvas.draw_idle()
+        elif event.key == 's':
+            self._ax.set_title("Save to peaks.npz file", loc="left")
+            self._peaks_npz.method_save()
+            self._fig.canvas.draw_idle()
         elif event.key == 'm':
-            print("Merge mode")
+            print("Merge mode : ", end="")
+            self._click_button = []
             self._ax.set_title("Merge mode", loc="left")
             self._key = 'm'
             self._fig.canvas.draw_idle()
         elif event.key == 'd':
-            print("delete mode")
+            print("delete mode: ", end="")
+            self._click_button = []
             self._ax.set_title("Delete mode", loc="left")
             self._key = 'd'
             self._fig.canvas.draw_idle()
         elif event.key == 'c':
-            print("cut mode")
+            print("cut mode : ", end="")
+            self._click_button = []
             self._ax.set_title("Cut mode", loc="left")
             self._key = 'c'
             self._fig.canvas.draw_idle()
 
+    def on_button_release(self, event):
+        if event.inaxes == self._ax and self._button_x is not None and self._button_y is not None:
+            release_x = event.xdata
+            release_y = event.ydata
+            distance = np.sqrt((release_x-self._button_x) **
+                               2 + (release_y-self._button_y)**2)
+            tolerance = 0.01
+            cID: int
+            if distance < tolerance:
+                Result = self._peaks_npz.method_ppm2cID(release_x)
+                if Result is None:
+                    return None
+                else:
+                    cID = int(Result)
+            else:
+                return None
+            self._button_x = None
+            self._button_y = None
+
+            self._click_button.append(cID)
+            self._ax.set_title(f"{self._click_button}",
+                               loc="right", fontsize=10)
+
     def on_button_press(self, event):
         if event.inaxes == self._ax:
             if event.button == 1:
-                print("left click")
-                print(f"{event.xdata}  {event.ydata}")
-            elif event.button == 3:
-                print("right click")
+                self._button_x = event.xdata
+                self._button_y = event.ydata
+
+    def connect(self):
+        self._cid_key = self._fig.canvas.mpl_connect(
+            'key_press_event', self.on_key_press)
+        self._cid_button = self._fig.canvas.mpl_connect(
+            'button_press_event', self.on_button_press)
+        self._cid_button_release = self._fig.canvas.mpl_connect(
+            'button_release_event', self.on_button_release)
+
+    def disconnect(self):
+        self._fig.canvas.mpl_disconnect(self._cid_key)
+        self._fig.canvas.mpl_disconnect(self._cid_button)
+        self._fig.canvas.mpl_disconnect(self._cid_button_release)
+
+    def draw_integral(self):
+        Data = self._peaks_npz.method_integrate(self._intensit)
+        for cID, peak_int, peak_scale in Data:
+            self._ax.plot(peak_scale, peak_int.cumsum() /
+                          100./5 + peak_int.max()*0.8, 'g-')
+            self._ax.text(peak_scale[0], 0.5 * peak_int.sum() / 100./4 + peak_int.max()*0.8, cID,
+                          fontsize=8)
+        a = self._peaks_npz.get_cIDs_center_peaks()
+        for ppm in a[1]:
+            index = self._uc.index(ppm)
+            height = self._intensit[index]
+            self._ax.scatter(ppm, height, marker="o", color="r", s=30, alpha=0.5)  # type: ignore # nopep8
+
+    def draw_preivew(self):
+
+        idx_cID: float = 0
+        for idx_peaks, cID, _, _ in self._ng_1r_peaks:
+            if idx_cID < cID:
+                idx_cID = cID
+            else:
+                break
+            height: float = self._intensit[int(idx_peaks)]
+            ppm_peak: float = self._uc.ppm(idx_peaks)
+
+            args_start, args_end = self._uc.ppm_limits()
+            min: int = self._uc.index(args_start)
+            max: int = self._uc.index(args_end)
+            if ppm_peak < max and ppm_peak > min:
+
+                self._ax.scatter(ppm_peak, height, marker="o", color="r", s=100, alpha=0.5)  # type: ignore # nopep8
+                self._ax.text(ppm_peak, height*1.05, str(cID),
+                              ha="center", va="center")
+
+    def draw_threshold(self):
+        self._plt.hlines(self._thres, self._end, self._start, linestyles="--")  # type: ignore # nopep8
+        self._ax.text(self._start, self._thres*1.02, f"thr = {self._thres:>10.3f}",
+                      ha="center", va="center")
+
+    def draw_curve(self):
+        plt.plot(self._uc.ppm_scale(), self._intensit, 'b', linewidth=1)
+
+    def draw_x_axis(self):
+
+        y_heighest: float = float(np.max(self._intensit))
+        y_lowest: float = float(np.min(self._intensit))
+        plt.xlim(self._end, self._start)
+        self._ax.spines["right"].set_visible(False)
+        self._ax.spines["top"].set_visible(False)
+        self._ax.spines["left"].set_visible(False)
+        self._ax.tick_params(axis="x", which="both", bottom=True,
+                             top=False, labelbottom=True, labelsize=12)
+        self._ax.tick_params(axis="y", which="both", left=False,
+                             right=False, labelleft=False)
+        self._ax.get_yaxis().set_visible(False)
+
+        # If phase is -1, it will adjust the y axis
+        if y_lowest*(-1) < y_heighest*0.2:
+            plt.ylim(-0.05*y_heighest, 1.10*y_heighest)
+        else:
+            plt.ylim(1.10*y_lowest, 1.10*y_heighest)
+        self._fig.suptitle(self._fileName, fontsize=12, y=0.98)
+        self._fig.text(0.5, 0.04, "$\\delta$ / ppm", ha="center", fontsize=12)
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
@@ -199,7 +332,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml()
     print_arguments()
+
+    plt.rcParams['keymap.save'].remove('s')
     plt.ion()
+
     if args.auto and args.manual:
         print("  For both args.auto and args.manual only for one mode")
         print("  Exit and Close the program !!!")
@@ -213,26 +349,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         intensit: npt.NDArray[np.float64] = in_Data[1]
 
         y_heighest: float = float(np.max(intensit))
-        y_lowest: float = float(np.min(intensit))
-
         from censo_ext.Tools.spectra import numpy_thr_mean_3
         thres: float = numpy_thr_mean_3(intensit)*args.thr
         thres += y_heighest * 0.01
         thres_baseline: float = thres
         uc: unit_conversion = unit_conversion(ppm)
 
-        args_start, args_end = uc.ppm_limits()
-
-        # plot and indicate all peaks
-        fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
-        ax = fig.subplots()
-        fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
-                            top=0.90, wspace=0.05, hspace=0.05)
-
-        peaks: Peaks_npz = Peaks_npz(uc)
-
+        peaks_npz: Peaks_npz = Peaks_npz(uc)
         ng_1r_peaks = ng.peakpick.pick(
             data=intensit, pthres=thres, algorithm="downward")
+        diagrams: diagram = diagram(plt, args.file,
+                                    peaks_npz, intensit, uc, thres, ng_1r_peaks)
 
         # Automatically Integate the peaks
         if args.auto:
@@ -290,8 +417,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     l_LW_thr: float = 120/l_LW
                     r_LW_thr: float = 120/r_LW
 
-                    l_peak: float = uc.ppm(l_Axis)+(l_LW/10000)*l_LW_thr
-                    r_peak: float = uc.ppm(r_Axis)-(r_LW/10000)*r_LW_thr
+                    l_peak: float = uc.ppm(l_Axis)+(l_LW/30000)*l_LW_thr
+                    r_peak: float = uc.ppm(r_Axis)-(r_LW/30000)*r_LW_thr
 
                     min: int = uc.index(l_peak)
                     max: int = uc.index(r_peak)
@@ -309,11 +436,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print("threshold : ", thres)
                 print("Excepted  : ", nGroups)
                 print("Real Num  : ", len(peak_list))
-
+                print("     cID        Start          End             Area")
                 for x in peak_list:
-                    print(x)
+                    print(f"{x[0]:8d} {x[1]:12.4f} {x[2]:12.4f} {x[3]:16.4e}")
                 print("")
-                peaks.method_load_Data(peak_list)
+                peaks_npz.method_load_Data(peak_list)
 
                 if args.basic is True:
                     break
@@ -332,102 +459,34 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                             data=intensit, pthres=thres, algorithm="downward")
 
             print("  ========== Automated Data ==========")
-            print("Numbers of peaks : ", len(peaks))
-            peaks.method_print()
+            print("Numbers of peaks : ", len(peaks_npz))
+            peaks_npz.method_print()
 
         # Integrate the peaks if manually fixed the peaks.npz file
-        # if args.manual:
-        #    peaks.method_read_file()
-        #    print("  ========== Before ==========")
-        #    peaks.method_print()
-
-        #    # Delete peaks if manually read the file
-        #    if args.delete:
-        #        peaks.method_delete_cID(args.delete)
-
-        #    # Merge peaks if manually read the file
-        #    if args.merge:
-        #        peaks.method_merge_cID(args.merge)
-
-        #    # Cut peak if manually read the file
-        #    if args.cut:
-        #        peaks.method_cut_cID(args.cut, intensit)
-
-        #    if args.delete or args.cut or args.merge:
-        #        print("  ========== After ==========")
-        #        peaks.method_print()
+        if args.manual:
+            peaks_npz.method_read_file()
+            print("  ========== Before ==========")
+            peaks_npz.method_print()
 
         # Draw the intergral lines and cID of peaks
         # Plot the integration lines, limits and cID of peaks
         if args.auto or args.manual:
-            Data = peaks.method_integrate(intensit)
-            for cID, peak_int, peak_scale in Data:
-                ax.plot(peak_scale, peak_int.cumsum() /
-                        100./5 + peak_int.max()*0.8, 'g-')
-                # ax.plot(peak_scale, [0] * len(peak_scale), 'r-')
-                ax.text(peak_scale[0], 0.5 * peak_int.sum() / 100./4 + peak_int.max()*0.8, cID,
-                        fontsize=8)
+            diagrams.draw_integral()
 
         # add markers for peak positions. It is only for preview.
         if not args.auto and not args.manual:
-            idx_cID: float = 0
-            peak_list: list = []
-            for idx_peaks, cID, LW, VOL in ng_1r_peaks:
-                if idx_cID < cID:
-                    idx_cID = cID
-                else:
-                    break
-                height: float = intensit[int(idx_peaks)]
-                ppm_peak: float = uc.ppm(idx_peaks)
-
-                min: int = uc.index(args_start)
-                max: int = uc.index(args_end)
-                if ppm_peak < max and ppm_peak > min:
-                    ax.scatter(ppm_peak, height, marker="o", color="r", s=100, alpha=0.5)  # type: ignore # nopep8
-                    ax.text(ppm_peak, height*1.05, str(cID),
-                            ha="center", va="center")
+            diagrams.draw_preivew()
 
         # draw the threshold line and text and for adjust threshold for next time
         if args.auto:
-            plt.hlines(thres, args_end, args_start, linestyles="--")  # type: ignore # nopep8
-            ax.text(args_start, thres*1.02, f"thr = {thres:>10.3f}",
-                    ha="center", va="center")
+            diagrams.draw_threshold()
 
-        # if args.show:
-            # draw the spectra
-        plt.plot(uc.ppm_scale(), intensit, 'b', linewidth=1)
+        diagrams.draw_curve()
+        diagrams.draw_x_axis()
+        diagrams.connect()
 
-        # draw the x axis
-        plt.xlim(args_end, args_start)
-        ax.spines["right"].set_visible(False)
-        ax.spines["top"].set_visible(False)
-        ax.spines["left"].set_visible(False)
-        ax.tick_params(axis="x", which="both", bottom=True,
-                       top=False, labelbottom=True, labelsize=12)
-        ax.tick_params(axis="y", which="both", left=False,
-                       right=False, labelleft=False)
-        ax.get_yaxis().set_visible(False)
-
-        # If phase is -1, it will adjust the y axis
-        if y_lowest*(-1) < y_heighest*0.2:
-            plt.ylim(-0.05*y_heighest, 1.10*y_heighest)
-        else:
-            plt.ylim(1.10*y_lowest, 1.10*y_heighest)
-        fig.suptitle(args.file, fontsize=12, y=0.98)
-        fig.text(0.5, 0.04, "$\\delta$ / ppm", ha="center", fontsize=12)
-        digrams = digram(ax, fig)
-
-        # ax.set_title(
-        #    "Press 'q' to quit, \n'm' to merge / 'd' to delete / 'c' to cut mode", loc="left")
-        cid_key = fig.canvas.mpl_connect(
-            'key_press_event', digrams.on_key_press)
-        cid_button = fig.canvas.mpl_connect(
-            'button_press_event', digrams.on_button_press)
         plt.ioff()
         plt.show()
-
-        if args.save:
-            peaks.method_save()
 
 
 if __name__ == "__main__":
