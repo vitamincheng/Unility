@@ -162,6 +162,7 @@ class diagram():
                                   top=0.90, wspace=0.05, hspace=0.05)
         self._ax.set_title("Edit mode.\nPress 'h' to help. ", loc="left")
         self._click_button: list[int] = []
+        self._title: str = ""
 
     def on_key_press(self, event):
         """Callback function for key press events."""
@@ -182,10 +183,10 @@ class diagram():
                 if len(self._click_button) == 1:
                     self._peaks_npz.method_cut_cID(
                         self._click_button[0], self._intensit)
-                else:
-                    print("  length of click button under cut mode more than 1 ")
-                    print("  Exit and Close the program !!!")
-                    exit(0)
+                # else:
+                #    print("  length of click button under cut mode more than 1 ")
+                #    print("  Exit and Close the program !!!")
+                #    exit(0)
 
             self._ax.clear()
             self._plt.xlim(xmin, xmax)
@@ -193,14 +194,16 @@ class diagram():
             self.draw_threshold()
             self.draw_curve()
             self.draw_integral()
+            self.draw_title()
             self._click_button = []
             self._fig.canvas.draw_idle()
 
         elif event.key == 'escape':
             print("Edit mode")
-            self._ax.set_title("Edit mode.\nPress 'h' to help. ", loc="left")
+            self._title = "Edit mode.\nPress 'h' to help. "
             self._key = 'e'
-            self._fig.canvas.draw_idle()
+            self.draw_title()
+
         elif event.key == 'h':
             print("Help mode")
             self._ax.set_title(
@@ -208,32 +211,35 @@ class diagram():
             self._fig.canvas.draw_idle()
         elif event.key == 's':
             self._ax.set_title("Save to peaks.npz file", loc="left")
+            self._title = ""
+            self.draw_title()
             self._peaks_npz.method_save()
             self._fig.canvas.draw_idle()
         elif event.key == 'm':
             print("Merge mode : ", end="")
             self._click_button = []
-            self._ax.set_title("Merge mode", loc="left")
             self._key = 'm'
-            self._fig.canvas.draw_idle()
+            self._title = "Merge mode"
+            self.draw_title()
         elif event.key == 'd':
             print("delete mode: ", end="")
             self._click_button = []
-            self._ax.set_title("Delete mode", loc="left")
             self._key = 'd'
-            self._fig.canvas.draw_idle()
+            self._title = "Delete mode"
+            self.draw_title()
         elif event.key == 'c':
             print("cut mode : ", end="")
             self._click_button = []
-            self._ax.set_title("Cut mode", loc="left")
             self._key = 'c'
-            self._fig.canvas.draw_idle()
+            self._title = "Cut mode"
+            self.draw_title()
         elif event.key == 'f':
             self._ax.clear()
             self.draw_x_axis()
             self.draw_threshold()
             self.draw_curve()
             self.draw_integral()
+            self.draw_title()
             self._fig.canvas.draw_idle()
 
     def on_button_release(self, event):
@@ -283,6 +289,10 @@ class diagram():
         self._fig.canvas.mpl_disconnect(self._cid_key)
         self._fig.canvas.mpl_disconnect(self._cid_button)
         self._fig.canvas.mpl_disconnect(self._cid_button_release)
+
+    def draw_title(self):
+        self._ax.set_title(self._title, loc="left")
+        self._fig.canvas.draw_idle()
 
     def draw_integral(self):
         Data = self._peaks_npz.method_integrate(self._intensit)
@@ -357,6 +367,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     plt.rcParams['keymap.save'].remove('s')
     plt.rcParams['keymap.fullscreen'].remove('f')
     plt.rcParams['keymap.back'].remove('c')
+    # plt.rcParams['keymap.quit'].remove(' ')
     plt.ion()
 
     if args.auto and args.manual:
@@ -459,6 +470,23 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print("threshold : ", thres)
                 print("Excepted  : ", nGroups)
                 print("Real Num  : ", len(peak_list))
+                ppm_end = np.array(peak_list).T[2].tolist()
+                ppm_start = np.array(peak_list).T[1].tolist()
+                ppm_end.pop(0)
+                ppm_end.append(999)
+                ppm_args = np.argwhere(
+                    np.array(ppm_end)-np.array(ppm_start) < 0)
+                for x in (ppm_args+1):
+                    index = x[0]
+                    ppm_center = (peak_list[index-1]
+                                  [1] + peak_list[index][2])/2
+                    new_cID, start, end, Area = peak_list[index-1]
+                    peak_list[index-1] = (new_cID, ppm_center, end, Area)
+                    # peak_list[index-1][1] = ppm_center
+                    new_cID, start, end, Area = peak_list[index]
+                    peak_list[index] = (new_cID, start, ppm_center, Area)
+                    #    peak_list[index][2] = ppm_center
+
                 print("     cID        Start          End             Area")
                 for x in peak_list:
                     print(f"{x[0]:8d} {x[1]:12.4f} {x[2]:12.4f} {x[3]:16.4e}")
