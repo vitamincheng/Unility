@@ -11,6 +11,9 @@ inFile: Path = Path("tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz")
 outFile: Path = Path("tests/compare/isomers.xyz")
 _system = platform.system()
 
+x: dict = {"file": inFile, "chrg": 0, "uhf": 1,
+           "method": "GFN2-xTB", "out": outFile}
+
 
 def test_tblite_xtb_miss_args():
     x: dict = {}
@@ -19,10 +22,6 @@ def test_tblite_xtb_miss_args():
         tblite_xtb.main(args)
     assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
-
-
-x: dict = {"file": inFile, "chrg": 0, "uhf": 1,
-           "method": "GFN2-xTB", "out": outFile}
 
 
 @pytest.mark.skipif(_system == "Darwin" or _system == "Linux", reason="tblite xtb have some bugs under Darwin and Linux")

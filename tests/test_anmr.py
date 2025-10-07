@@ -18,19 +18,17 @@ compare_Ergo_H: Path = Path("tests/compare/anmr_peaks_H.json")
 compare_Ergo_C: Path = Path("tests/compare/anmr_peaks_C.json")
 _system: str = platform.system()
 
+x: dict = {"auto": True, "bobyqa": False, "mf": 500, "verbose": False,
+           "lw": None, "thr": None, "thrab": 0.025, "tb": 4, "mss": 9,
+           "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
+
 
 def test_anmr_miss_args() -> None:
     x: dict = {}
-
     with pytest.raises(SystemExit) as e:
         anmr.main(argparse.Namespace(**x))
     assert e.type is SystemExit
     assert e.value.code == 2  # for argparse error
-
-
-x: dict = {"auto": True, "bobyqa": False, "mf": 500, "verbose": False,
-           "lw": None, "thr": None, "thrab": 0.025, "tb": 4, "mss": 9,
-           "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
 
 
 def test_anmr_H_from_raw_data() -> None:
