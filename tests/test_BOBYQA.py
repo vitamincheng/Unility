@@ -6,6 +6,7 @@ import censo_ext.BOBYQA as BOBYQA
 import censo_ext.anmr as anmr
 import filecmp
 import platform
+from censo_ext.Tools.utility import delete_all_files
 
 _system: str = platform.system()
 DirName: Path = Path("tests/data/31.Cyclohexanone/03.Censo_for_Hydrogen_(revTPSS)")  # nopep8
@@ -13,6 +14,14 @@ DirCompare: Path = Path("tests/compare/BOBYQA")
 RefDat: Path = Path("1r_h.npz")
 args_Normal: dict = {"dir": DirName, "ref": RefDat, "mf": 500,
                      "lw": 1, "limit": 0.20, "verbose": False}
+
+
+@pytest.fixture(scope="function")
+def setup_and_teardown():
+    anmr_init()
+    BOBYQA_init()
+    yield
+    BOBYQA_final_remove_files()
 
 
 def anmr_init():
@@ -35,7 +44,6 @@ def BOBYQA_init():
 
 
 def BOBYQA_final_remove_files():
-    from censo_ext.Tools.utility import delete_all_files
     delete_all_files(DirName / "output.dat",
                      DirName / "output.npz",
                      DirName / "peaks.json",
@@ -60,7 +68,6 @@ def test_BOBYQA_miss_all_args():
 
 
 def test_BOBYQA_miss_orcaS_file():
-    #
     # not run anmr_BOBYQA_init() and directly run BOBYQA.py
     BOBYQA_final_remove_files()
     with pytest.raises(FileNotFoundError) as e:
@@ -70,20 +77,12 @@ def test_BOBYQA_miss_orcaS_file():
         DirName/Path("Average/NMR/orcaS.out")) + " is not exist !!!"
 
 
-def test_BOBYQA_blank_file():
-    # run blank orcaS_BOBYQA file
-    anmr_init()
-    BOBYQA_init()
-
-
-def test_BOBYQA_blank_file_final_remove_files():
-    BOBYQA_final_remove_files()
+def test_BOBYQA_blank_file(setup_and_teardown: None):
+    pass
 
 
 @pytest.mark.slow
-def test_BOBYQA_single():
-    anmr_init()
-    BOBYQA_init()
+def test_BOBYQA_single(setup_and_teardown: None):
     if _system == "Linux":  # Need 2 min
         compare: Path = Path(DirCompare / Path("single-anmrpy-ubuntu.npz"))
     elif _system == "Darwin":  # Need 5 min
@@ -99,14 +98,11 @@ def test_BOBYQA_single():
     args_Normal['prog'] = None
     BOBYQA.main(argparse.Namespace(**args_Normal))
     assert filecmp.cmp(DirName / Path("output.npz"), compare)
-    BOBYQA_final_remove_files()
 
 
 @pytest.mark.slow
 @pytest.mark.skipif(_system == "Darwin", reason="anmr only work under linux CLI")
-def test_BOBYQA_single_external_prog(monkeypatch):
-    anmr_init()
-    BOBYQA_init()
+def test_BOBYQA_single_external_prog(setup_and_teardown: None, monkeypatch: pytest.MonkeyPatch):
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
@@ -116,16 +112,12 @@ def test_BOBYQA_single_external_prog(monkeypatch):
     BOBYQA.main(argparse.Namespace(**args_Normal))
     assert filecmp.cmp(DirName / Path("anmr.dat"),
                        DirCompare / Path("single-anmr.dat"))
-    BOBYQA_final_remove_files()
-    from censo_ext.Tools.utility import delete_all_files
     delete_all_files(DirName / "anmr.dat",
                      DirName / "anmr.out")
 
 
 @pytest.mark.slow
-def test_BOBYQA_group():
-    anmr_init()
-    BOBYQA_init()
+def test_BOBYQA_group(setup_and_teardown: None):
     if _system == "Linux":  # Need 2 min
         compare: Path = Path(DirCompare / Path("group-anmrpy-ubuntu.npz"))
     elif _system == "Darwin":  # Need 5 min
@@ -140,14 +132,11 @@ def test_BOBYQA_group():
     args_Normal['prog'] = None
     BOBYQA.main(argparse.Namespace(**args_Normal))
     assert filecmp.cmp(DirName / Path("output.npz"), compare)
-    BOBYQA_final_remove_files()
 
 
 @pytest.mark.slow
 @pytest.mark.skipif(_system == "Darwin", reason="anmr only work under linux CLI")
-def test_BOBYQA_group_external_prog(monkeypatch):
-    anmr_init()
-    BOBYQA_init()
+def test_BOBYQA_group_external_prog(setup_and_teardown: None, monkeypatch: pytest.MonkeyPatch):
     import shutil
     shutil.copyfile(DirName / Path("orcaS-BOBYQA-group.out"),
                     DirName / Path("Average/NMR/orcaS-BOBYQA.out"))
@@ -157,8 +146,6 @@ def test_BOBYQA_group_external_prog(monkeypatch):
     BOBYQA.main(argparse.Namespace(**args_Normal))
     assert filecmp.cmp(DirName / Path("anmr.dat"),
                        DirCompare / Path("group-anmr.dat"))
-    from censo_ext.Tools.utility import delete_all_files
-    BOBYQA_final_remove_files()
     delete_all_files(DirName / "anmr.dat",
                      DirName / "anmr.out")
 
