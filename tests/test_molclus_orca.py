@@ -15,7 +15,14 @@ outFile: Path = Path("isomers.xyz")
 _system = platform.system()
 
 
-def test_orca_miss_args():
+@pytest.fixture(scope="function")
+def setup_and_teardown():
+    yield
+    import subprocess
+    subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
+
+
+def test_orca_miss_args(setup_and_teardown):
     x: dict = {}
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:
@@ -24,7 +31,7 @@ def test_orca_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
-def test_orca_sp():
+def test_orca_sp(setup_and_teardown):
     x: dict = {"file": inFile, "template": inTemplate_sp_File,
                "reserve": False, "out": outFile}
 
@@ -33,18 +40,15 @@ def test_orca_sp():
 
     if _system == "Linux":  # Need 2 min
         compare: Path = Path("tests/compare/orca_sp_ubuntu.xyz")
-
     elif _system == "Darwin":  # Need 5 min
         compare: Path = Path("tests/compare/orca_sp_Darwin.xyz")
 
     assert filecmp.cmp(args.out, compare)  # type: ignore
     os.remove(args.out)
-    import subprocess
-    subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
 
 
 @pytest.mark.slow
-def test_orca_opt():
+def test_orca_opt(setup_and_teardown):
     x: dict = {"file": inFile, "template": inTemplate_opt_File,
                "reserve": False, "out": outFile}
 
@@ -53,18 +57,15 @@ def test_orca_opt():
 
     if _system == "Linux":  # Need 2 min
         compare: Path = Path("tests/compare/orca_opt_ubuntu.xyz")
-
     elif _system == "Darwin":  # Need 5 min
         compare: Path = Path("tests/compare/orca_opt_Darwin.xyz")
 
     assert filecmp.cmp(args.out, compare)  # type: ignore
     os.remove(args.out)
-    import subprocess
-    subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
 
 
 @pytest.mark.slow
-def test_orca_opt_default():
+def test_orca_opt_default(setup_and_teardown):
     x: dict = {"file": inFile, "template": "template.inp",
                "reserve": False, "out": outFile}
 
@@ -73,14 +74,11 @@ def test_orca_opt_default():
 
     if _system == "Linux":  # Need 2 min
         compare: Path = Path("tests/compare/orca_opt_ubuntu.xyz")
-
     elif _system == "Darwin":  # Need 5 min
         compare: Path = Path("tests/compare/orca_opt_Darwin.xyz")
 
     assert filecmp.cmp(args.out, compare)  # type: ignore
     os.remove(args.out)
-    import subprocess
-    subprocess.call("rm -f 000*.xyz 000*.out 000*.gbw", shell=True)
 
 # For all marker_fuction or not marker_function
 # -v verbose;  -s --capture=no; -m MARKEXPR
