@@ -177,8 +177,11 @@ class Peaks_npz():
         second = (self.__peaks['Start']+self.__peaks['End'])/2
         return np.stack((first, second))
 
-    # def get_peaks(self):
-    #    return self.__peaks
+    def get_peaks_integral_number(self):
+        ppm = (self.__peaks['Start']+self.__peaks['End'])/2
+        min_basic = np.min(self.__peaks['Area'])
+        integral_number = self.__peaks['Area']/min_basic
+        return zip(ppm, integral_number)
 
     def method_print(self) -> None:
         print(self.__fileName)

@@ -148,8 +148,6 @@ class diagram():
     # Fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
     #                    top=0.90, wspace=0.05, hspace=0.05)
     def __init__(self, fileName: str | Path, peaks_npz: Peaks_npz, intensit: npt.NDArray[np.float64], uc: unit_conversion, thres: float, ng_1r_peaks: npt.NDArray) -> None:
-        # self._key: str = 'e'
-        # self._plt = plt
         self._start, self._end = uc.ppm_limits()
         self._fileName: Path = Path(fileName)
         self._peaks_npz: Peaks_npz = peaks_npz
@@ -165,6 +163,7 @@ class diagram():
                                   top=0.90, wspace=0.05, hspace=0.05)
         self._ax.set_title("Edit mode.\nPress 'h' to help. ", loc="left")
         self._status: list[int] = []
+        self._status_str: str
         self._title: str = "Edit mode.\nPress 'h' to help. "
         self.draw_title()
         self._key: str = ""
@@ -196,11 +195,9 @@ class diagram():
             plt.ylim(ymin, ymax)
             self.draw_curve()
             self.draw_integral()
-            # self._title = "Finished the task"
             self.draw_title()
             self._status = []
-            # self._key = "esc"
-            # self.draw_status()
+
             self._fig.canvas.draw_idle()
 
         elif event.key == 'escape':
@@ -235,25 +232,46 @@ class diagram():
             self.draw_title()
         elif event.key == 'd':
             self._key = 'd'
-            print("delete mode: ", end="")
+            print("Delete mode: ", end="")
             self._status = []
             self._title = "Delete mode"
             self.draw_title()
         elif event.key == 'c':
             self._key = 'c'
-            print("cut mode : ", end="")
+            print("Cut mode : ", end="")
             self._status = []
             self._title = "Cut mode"
             self.draw_title()
         elif event.key == 'e':
-            self._key = 'e'
-            print("Measure mode : ", end="")
-            self._status = []
-            self._title = "Measure mode"
-            self.draw_title()
+            toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
+            if toolbar_mode == "zoom rect":
+                self._ax.set_navigate_mode(None)
+            else:
+                self._key = 'e'
+                print("Measure mode : ", end="")
+                self._status = []
+                self._title = "Measure mode"
+                self.draw_title()
         elif event.key == 'f':
             self._ax.clear()
             self.draw_x_axis()
+            self.draw_curve()
+            self.draw_integral()
+            self.draw_title()
+            self._fig.canvas.draw_idle()
+
+        elif event.key == 'i':
+
+            xmin, xmax, ymin, ymax = plt.axis()
+            self._ax.clear()
+            plt.xlim(xmin, xmax)
+            plt.ylim(ymin, ymax)
+
+            if self._key == "i":
+                self._key = ''
+            else:
+                self._key = 'i'
+                self.draw_integra_numbers()
             self.draw_curve()
             self.draw_integral()
             self.draw_title()
@@ -269,8 +287,9 @@ class diagram():
             x_distance = np.abs(release_x-self._button_x)
 
             if self._key == 'e':
-                self._title = f"Chemical shift : {x_distance:12.6f} ppm\n in 500MHz {x_distance*500:12.3f} Hz"
-                self._fig.canvas.draw_idle()
+                self._status_str = f"Chemical shift : {x_distance:12.6f} ppm\n in 500MHz {x_distance*500:12.3f} Hz"
+                self.draw_status_str()
+                # self._fig.canvas.draw_idle()
                 return None
             cID: int
             if distance < tolerance:
@@ -332,6 +351,10 @@ class diagram():
         self._fig.canvas.mpl_disconnect(self._cID_button_release)
         self._fig.canvas.mpl_disconnect(self._cID_button_motion)
 
+    def draw_status_str(self) -> None:
+        self._ax.set_title(f"{self._status_str}", loc="right", fontsize=10)
+        self._fig.canvas.draw_idle()
+
     def draw_status(self) -> None:
         self._ax.set_title(f"{self._status}", loc="right", fontsize=10)
         self._fig.canvas.draw_idle()
@@ -339,6 +362,14 @@ class diagram():
     def draw_title(self) -> None:
         self._ax.set_title(self._title, loc="left")
         self._fig.canvas.draw_idle()
+
+    def draw_integra_numbers(self):
+        Data = self._peaks_npz.get_peaks_integral_number()
+        # y_heighest: float = float(np.max(self._intensit))
+        y_lowest, y_heighest = self._ax.get_ylim()
+        for ppm, integral_number in Data:
+            self._ax.text(ppm, y_heighest*(-0.035), f"{integral_number:5.1f}",
+                          fontsize=8, horizontalalignment='center')
 
     def draw_integral(self) -> None:
         Data = self._peaks_npz.method_integrate(self._intensit)
@@ -374,7 +405,7 @@ class diagram():
                               ha="center", va="center")
 
     def draw_threshold(self):
-        self._plt.hlines(self._thres, self._end, self._start, linestyles="--")  # type: ignore # nopep8
+        plt.hlines(self._thres, self._end, self._start, linestyles="--")  # type: ignore # nopep8
         self._ax.text(self._start, self._thres*1.02, f"thr = {self._thres:>10.3f}",
                       ha="center", va="center")
 
@@ -413,6 +444,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     plt.rcParams['keymap.save'].remove('s')
     plt.rcParams['keymap.fullscreen'].remove('f')
     plt.rcParams['keymap.back'].remove('c')
+    plt.rcParams['toolbar'] = 'toolbar2'
     plt.ion()
 
     if args.auto and args.manual:
@@ -437,7 +469,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         peaks_npz: Peaks_npz = Peaks_npz(uc)
         ng_1r_peaks: npt.NDArray = ng.peakpick.pick(
             data=intensit, pthres=thres, algorithm="downward")
-        print(type(ng_1r_peaks))
         diagrams: diagram = diagram(args.file,
                                     peaks_npz, intensit, uc, thres, ng_1r_peaks)
 
@@ -473,12 +504,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
             peak_list: list = []
             last_peaks: int = 0
-            from icecream import ic
             while (1):
                 peak_list = []
-                ic(ng_1r_peaks)
-                np.savetxt("out", ng_1r_peaks, fmt='%8d %8d %8d %12.5e')
-                # exit(0)
                 sorted_cID_peaks: npt.NDArray = np.sort(
                     ng_1r_peaks, order='cID')
 
