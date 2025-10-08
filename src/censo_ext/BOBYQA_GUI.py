@@ -4,6 +4,9 @@ import numpy as np
 import numpy.typing as npt
 import matplotlib.pyplot as plt
 import nmrglue as ng
+from pathlib import Path
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 from censo_ext.Tools.anmrfile import AD_Normal
 from censo_ext.Tools.datfile import CensoDat, Peaks_npz, unit_conversion
 from censo_ext.Tools.utility import IsExist_bool, print_arguments
@@ -144,25 +147,27 @@ class diagram():
     # Ax = fig.subplots()
     # Fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
     #                    top=0.90, wspace=0.05, hspace=0.05)
-    def __init__(self, plt, fileName, peaks_npz, intensit, uc, thres, ng_1r_peaks) -> None:
+    def __init__(self, fileName: str | Path, peaks_npz: Peaks_npz, intensit: npt.NDArray[np.float64], uc: unit_conversion, thres: float, ng_1r_peaks: npt.NDArray) -> None:
         # self._key: str = 'e'
-        self._plt = plt
+        # self._plt = plt
         self._start, self._end = uc.ppm_limits()
-        self._fileName = fileName
-        self._peaks_npz = peaks_npz
-        self._intensit = intensit
+        self._fileName: Path = Path(fileName)
+        self._peaks_npz: Peaks_npz = peaks_npz
+        self._intensit: npt.NDArray[np.float64] = intensit
         self._button_x = None
         self._button_y = None
         self._uc: unit_conversion = uc
-        self._thres = thres
-        self._ng_1r_peaks = ng_1r_peaks
-        self._fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
-        self._ax = self._fig.subplots()
+        self._thres: float = thres
+        self._ng_1r_peaks: npt.NDArray = ng_1r_peaks
+        self._fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
+        self._ax: Axes = self._fig.subplots()
         self._fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
                                   top=0.90, wspace=0.05, hspace=0.05)
         self._ax.set_title("Edit mode.\nPress 'h' to help. ", loc="left")
-        self._click_button: list[int] = []
-        self._title: str = ""
+        self._status: list[int] = []
+        self._title: str = "Edit mode.\nPress 'h' to help. "
+        self.draw_title()
+        self._key: str = ""
 
     def on_key_press(self, event):
         """Callback function for key press events."""
@@ -171,72 +176,84 @@ class diagram():
             plt.close(event.canvas.figure)
 
         elif event.key == 'enter':
-            xmin, xmax, ymin, ymax = self._plt.axis()
-            self._click_button = list(map(int, set(self._click_button)))
-            self._click_button.sort()
-            print(self._click_button)
+
+            xmin, xmax, ymin, ymax = plt.axis()
+            self._status = list(map(int, set(self._status)))
+            self._status.sort()
+            print(self._status)
+
             if self._key == "d":
-                self._peaks_npz.method_delete_cID(self._click_button)
+                self._peaks_npz.method_delete_cID(self._status)
             elif self._key == "m":
-                self._peaks_npz.method_merge_cID(self._click_button)
+                self._peaks_npz.method_merge_cID(self._status)
             elif self._key == "c":
-                if len(self._click_button) == 1:
+                if len(self._status) == 1:
                     self._peaks_npz.method_cut_cID(
-                        self._click_button[0], self._intensit)
-                # else:
-                #    print("  length of click button under cut mode more than 1 ")
-                #    print("  Exit and Close the program !!!")
-                #    exit(0)
+                        self._status[0], self._intensit)
 
             self._ax.clear()
-            self._plt.xlim(xmin, xmax)
-            self._plt.ylim(ymin, ymax)
-            self.draw_threshold()
+            plt.xlim(xmin, xmax)
+            plt.ylim(ymin, ymax)
             self.draw_curve()
             self.draw_integral()
+            # self._title = "Finished the task"
             self.draw_title()
-            self._click_button = []
+            self._status = []
+            # self._key = "esc"
+            # self.draw_status()
             self._fig.canvas.draw_idle()
 
         elif event.key == 'escape':
             print("Edit mode")
+            self._key = 'escape'
+            xmin, xmax, ymin, ymax = plt.axis()
+            self._ax.clear()
+            plt.xlim(xmin, xmax)
+            plt.ylim(ymin, ymax)
+            self.draw_curve()
+            self.draw_integral()
+            self._status = []
             self._title = "Edit mode.\nPress 'h' to help. "
-            self._key = 'e'
             self.draw_title()
 
         elif event.key == 'h':
             print("Help mode")
-            self._ax.set_title(
-                "Press 'q' to quit, 's' to save file.\nPress 'm' to merge / 'd' to delete / 'c' to cut mode\nPress 'Esc' to Edit mode, 'Enter' to Executive mode", loc="left")
-            self._fig.canvas.draw_idle()
-        elif event.key == 's':
-            self._ax.set_title("Save to peaks.npz file", loc="left")
-            self._title = ""
+            self._status = []
+            self._title = "Press 'q' to Quit, 's' to Save file.\nPress 'm' to Merge / 'd' to Delete / 'c' to Cut mode\n'e' to mEasure mode\nPress 'Esc' to Edit mode, 'Enter' to Executive mode"
             self.draw_title()
+        elif event.key == 's':
+            self._key = 's'
             self._peaks_npz.method_save()
-            self._fig.canvas.draw_idle()
+            self._status = []
+            self._title = "Save to peaks.npz file"
+            self.draw_title()
         elif event.key == 'm':
-            print("Merge mode : ", end="")
-            self._click_button = []
             self._key = 'm'
+            print("Merge mode : ", end="")
+            self._status = []
             self._title = "Merge mode"
             self.draw_title()
         elif event.key == 'd':
-            print("delete mode: ", end="")
-            self._click_button = []
             self._key = 'd'
+            print("delete mode: ", end="")
+            self._status = []
             self._title = "Delete mode"
             self.draw_title()
         elif event.key == 'c':
-            print("cut mode : ", end="")
-            self._click_button = []
             self._key = 'c'
+            print("cut mode : ", end="")
+            self._status = []
             self._title = "Cut mode"
+            self.draw_title()
+        elif event.key == 'e':
+            self._key = 'e'
+            print("Measure mode : ", end="")
+            self._status = []
+            self._title = "Measure mode"
             self.draw_title()
         elif event.key == 'f':
             self._ax.clear()
             self.draw_x_axis()
-            self.draw_threshold()
             self.draw_curve()
             self.draw_integral()
             self.draw_title()
@@ -249,6 +266,12 @@ class diagram():
             distance = np.sqrt((release_x-self._button_x) **
                                2 + (release_y-self._button_y)**2)
             tolerance = 0.01
+            x_distance = np.abs(release_x-self._button_x)
+
+            if self._key == 'e':
+                self._title = f"Chemical shift : {x_distance:12.6f} ppm\n in 500MHz {x_distance*500:12.3f} Hz"
+                self._fig.canvas.draw_idle()
+                return None
             cID: int
             if distance < tolerance:
                 Result = self._peaks_npz.method_ppm2cID(release_x)
@@ -258,43 +281,66 @@ class diagram():
                     cID = int(Result)
             else:
                 return None
+
             self._button_x = None
             self._button_y = None
 
-            if self._key == 'c' and len(self._click_button) == 0:
-                self._click_button.append(cID)
-            elif self._key == 'c' and len(self._click_button) == 1:
+            if self._key == 'c' and len(self._status) == 0:
+                self._status.append(cID)
+            elif self._key == 'c' and len(self._status) == 1:
                 pass
             else:
-                self._click_button.append(cID)
+                self._status.append(cID)
 
-            self._ax.set_title(f"{self._click_button}",
-                               loc="right", fontsize=10)
+            self.draw_status()
 
     def on_button_press(self, event):
-        if event.inaxes == self._ax:
-            if event.button == 1:
-                self._button_x = event.xdata
-                self._button_y = event.ydata
+        from matplotlib.backend_bases import MouseButton
+        if event.inaxes == self._ax and event.button == MouseButton.LEFT:
+            self._button_x = event.xdata
+            self._button_y = event.ydata
 
-    def connect(self):
-        self._cid_key = self._fig.canvas.mpl_connect(
+    def on_mouse_motion(self, event):
+        from matplotlib.backend_bases import MouseButton
+        if event.button is MouseButton.LEFT and event.inaxes == self._ax:
+            if self._key == "e":
+                xmin, xmax, ymin, ymax = plt.axis()
+                self._ax.clear()
+                plt.xlim(xmin, xmax)
+                plt.ylim(ymin, ymax)
+                self.draw_curve()
+                self.draw_integral()
+                self.draw_title()
+                plt.vlines(self._button_x, self._button_y*0.95, self._button_y*1.05, colors='k', linestyles="solid", linewidth=2)  # type: ignore # nopep8
+                plt.vlines(event.xdata, self._button_y*0.95, self._button_y*1.05, colors='k', linestyles="solid", linewidth=2)  # type: ignore # nopep8
+                plt.hlines(self._button_y, self._button_x, event.xdata, colors='k', linestyles="solid", linewidth=1)  # type: ignore # nopep8
+                self._fig.canvas.draw_idle()
+
+    def connect(self) -> None:
+        self._cID_key = self._fig.canvas.mpl_connect(
             'key_press_event', self.on_key_press)
-        self._cid_button = self._fig.canvas.mpl_connect(
+        self._cID_button_press = self._fig.canvas.mpl_connect(
             'button_press_event', self.on_button_press)
-        self._cid_button_release = self._fig.canvas.mpl_connect(
+        self._cID_button_motion = self._fig.canvas.mpl_connect(
+            'motion_notify_event', self.on_mouse_motion)
+        self._cID_button_release = self._fig.canvas.mpl_connect(
             'button_release_event', self.on_button_release)
 
-    def disconnect(self):
-        self._fig.canvas.mpl_disconnect(self._cid_key)
-        self._fig.canvas.mpl_disconnect(self._cid_button)
-        self._fig.canvas.mpl_disconnect(self._cid_button_release)
+    def disconnect(self) -> None:
+        self._fig.canvas.mpl_disconnect(self._cID_key)
+        self._fig.canvas.mpl_disconnect(self._cID_button_press)
+        self._fig.canvas.mpl_disconnect(self._cID_button_release)
+        self._fig.canvas.mpl_disconnect(self._cID_button_motion)
 
-    def draw_title(self):
+    def draw_status(self) -> None:
+        self._ax.set_title(f"{self._status}", loc="right", fontsize=10)
+        self._fig.canvas.draw_idle()
+
+    def draw_title(self) -> None:
         self._ax.set_title(self._title, loc="left")
         self._fig.canvas.draw_idle()
 
-    def draw_integral(self):
+    def draw_integral(self) -> None:
         Data = self._peaks_npz.method_integrate(self._intensit)
         for cID, peak_int, peak_scale in Data:
             self._ax.plot(peak_scale, peak_int.cumsum() /
@@ -354,7 +400,7 @@ class diagram():
             plt.ylim(-0.05*y_heighest, 1.10*y_heighest)
         else:
             plt.ylim(1.10*y_lowest, 1.10*y_heighest)
-        self._fig.suptitle(self._fileName, fontsize=12, y=0.98)
+        self._fig.suptitle(str(self._fileName), fontsize=12, y=0.98)
         self._fig.text(0.5, 0.04, "$\\delta$ / ppm", ha="center", fontsize=12)
 
 
@@ -367,7 +413,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     plt.rcParams['keymap.save'].remove('s')
     plt.rcParams['keymap.fullscreen'].remove('f')
     plt.rcParams['keymap.back'].remove('c')
-    # plt.rcParams['keymap.quit'].remove(' ')
     plt.ion()
 
     if args.auto and args.manual:
@@ -390,9 +435,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         uc: unit_conversion = unit_conversion(ppm)
 
         peaks_npz: Peaks_npz = Peaks_npz(uc)
-        ng_1r_peaks = ng.peakpick.pick(
+        ng_1r_peaks: npt.NDArray = ng.peakpick.pick(
             data=intensit, pthres=thres, algorithm="downward")
-        diagrams: diagram = diagram(plt, args.file,
+        print(type(ng_1r_peaks))
+        diagrams: diagram = diagram(args.file,
                                     peaks_npz, intensit, uc, thres, ng_1r_peaks)
 
         # Automatically Integate the peaks
@@ -427,10 +473,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
             peak_list: list = []
             last_peaks: int = 0
+            from icecream import ic
             while (1):
                 peak_list = []
+                ic(ng_1r_peaks)
+                np.savetxt("out", ng_1r_peaks, fmt='%8d %8d %8d %12.5e')
+                # exit(0)
                 sorted_cID_peaks: npt.NDArray = np.sort(
                     ng_1r_peaks, order='cID')
+
                 new_cID: list[int] = []
                 for cID in sorted_cID_peaks['cID']:
                     args_cID: npt.NDArray[np.intp] = (
@@ -451,8 +502,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     l_LW_thr: float = 120/l_LW
                     r_LW_thr: float = 120/r_LW
 
-                    l_peak: float = uc.ppm(l_Axis)+(l_LW/10000)*l_LW_thr
-                    r_peak: float = uc.ppm(r_Axis)-(r_LW/10000)*r_LW_thr
+                    l_peak: float = uc.ppm(l_Axis)+(l_LW/3000)*l_LW_thr
+                    r_peak: float = uc.ppm(r_Axis)-(r_LW/3000)*r_LW_thr
 
                     min: int = uc.index(l_peak)
                     max: int = uc.index(r_peak)
@@ -470,6 +521,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print("threshold : ", thres)
                 print("Excepted  : ", nGroups)
                 print("Real Num  : ", len(peak_list))
+
                 ppm_end = np.array(peak_list).T[2].tolist()
                 ppm_start = np.array(peak_list).T[1].tolist()
                 ppm_end.pop(0)

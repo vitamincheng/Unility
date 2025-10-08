@@ -264,6 +264,23 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print("Excepted  : ", nGroups)
                 print("Real Num  : ", len(peak_list))
 
+                ppm_end = np.array(peak_list).T[2].tolist()
+                ppm_start = np.array(peak_list).T[1].tolist()
+                ppm_end.pop(0)
+                ppm_end.append(999)
+                ppm_args = np.argwhere(
+                    np.array(ppm_end)-np.array(ppm_start) < 0)
+                for x in (ppm_args+1):
+                    index = x[0]
+                    ppm_center = (peak_list[index-1]
+                                  [1] + peak_list[index][2])/2
+                    new_cID, start, end, Area = peak_list[index-1]
+                    peak_list[index-1] = (new_cID, ppm_center, end, Area)
+                    # peak_list[index-1][1] = ppm_center
+                    new_cID, start, end, Area = peak_list[index]
+                    peak_list[index] = (new_cID, start, ppm_center, Area)
+                    #    peak_list[index][2] = ppm_center
+
                 for x in peak_list:
                     print(x)
                 print("")
