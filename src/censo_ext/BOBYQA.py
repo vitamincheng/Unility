@@ -275,7 +275,8 @@ def Scan_single_Peak(args) -> None:
 
         g_var.idx_keys = list(intp)
         x0: npt.NDArray[np.float64] = np.array(SParams)
-        bounds = x0 - g_var.limit, x0 + g_var.limit
+        bounds: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]
+                      ] = x0 - g_var.limit, x0 + g_var.limit
 
         print(f"{x0=}")
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=bounds,
@@ -336,7 +337,8 @@ def Scan_group_Peaks(args) -> None:
         g_var.idx_keys = [x[2] for x in Data]
         if args.verbose:
             ic(g_var.idx_keys)
-        bounds = x0 - g_var.limit, x0 + g_var.limit
+        bounds: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]
+                      ] = x0 - g_var.limit, x0 + g_var.limit
         soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=bounds,
                               scaling_within_bounds=True, rhobeg=0.01, rhoend=0.001)
         print(f"{soln.f=} {soln.x=}")
@@ -352,7 +354,8 @@ def Scan_group_Peaks(args) -> None:
     print(f"{list_x0=}")
     x0 = np.array(list_x0)
     limit_tiny: float = 0.0001
-    bounds_tiny = x0 - limit_tiny, x0 + limit_tiny
+    bounds_tiny: tuple[npt.NDArray[np.float64],
+                       npt.NDArray[np.float64]] = x0 - limit_tiny, x0 + limit_tiny
     soln = pybobyqa.solve(rosenbrock, x0, print_progress=True, bounds=bounds_tiny,
                           scaling_within_bounds=True, rhobeg=0.01, rhoend=0.001)
 

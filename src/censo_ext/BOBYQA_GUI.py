@@ -143,11 +143,12 @@ peaks_fileName = "peaks.npz"
 
 class diagram():
 
-    # Fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
-    # Ax = fig.subplots()
-    # Fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
-    #                    top=0.90, wspace=0.05, hspace=0.05)
     def __init__(self, fileName: str | Path, peaks_npz: Peaks_npz, intensit: npt.NDArray[np.float64], uc: unit_conversion, thres: float, ng_1r_peaks: npt.NDArray) -> None:
+
+        self._fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
+        self._ax: Axes = self._fig.subplots()
+        self._fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
+                                  top=0.90, wspace=0.05, hspace=0.05)
         self._start, self._end = uc.ppm_limits()
         self._fileName: Path = Path(fileName)
         self._peaks_npz: Peaks_npz = peaks_npz
@@ -157,10 +158,6 @@ class diagram():
         self._uc: unit_conversion = uc
         self._thres: float = thres
         self._ng_1r_peaks: npt.NDArray = ng_1r_peaks
-        self._fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
-        self._ax: Axes = self._fig.subplots()
-        self._fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
-                                  top=0.90, wspace=0.05, hspace=0.05)
         self._ax.set_title("Edit mode.\nPress 'h' to help. ", loc="left")
         self._status: list[int] = []
         self._status_str: str
@@ -277,7 +274,7 @@ class diagram():
             self.draw_title()
             self._fig.canvas.draw_idle()
 
-    def on_button_release(self, event):
+    def on_button_release(self, event) -> None:
         if event.inaxes == self._ax and self._button_x is not None and self._button_y is not None:
             release_x = event.xdata
             release_y = event.ydata
@@ -313,13 +310,13 @@ class diagram():
 
             self.draw_status()
 
-    def on_button_press(self, event):
+    def on_button_press(self, event) -> None:
         from matplotlib.backend_bases import MouseButton
         if event.inaxes == self._ax and event.button == MouseButton.LEFT:
             self._button_x = event.xdata
             self._button_y = event.ydata
 
-    def on_mouse_motion(self, event):
+    def on_mouse_motion(self, event) -> None:
         from matplotlib.backend_bases import MouseButton
         if event.button is MouseButton.LEFT and event.inaxes == self._ax:
             if self._key == "e":
@@ -363,25 +360,25 @@ class diagram():
         self._ax.set_title(self._title, loc="left")
         self._fig.canvas.draw_idle()
 
-    def draw_integra_numbers(self):
+    def draw_integra_numbers(self) -> None:
         Data = self._peaks_npz.get_peaks_integral_number()
-        # y_heighest: float = float(np.max(self._intensit))
         y_lowest, y_heighest = self._ax.get_ylim()
         for ppm, integral_number in Data:
             self._ax.text(ppm, y_heighest*(-0.035), f"{integral_number:5.1f}",
                           fontsize=8, horizontalalignment='center')
 
     def draw_integral(self) -> None:
-        Data = self._peaks_npz.method_integrate(self._intensit)
+        Data: list[tuple[int, npt.NDArray, npt.NDArray]
+                   ] = self._peaks_npz.method_integrate(self._intensit)
         for cID, peak_int, peak_scale in Data:
             self._ax.plot(peak_scale, peak_int.cumsum() /
                           100./5 + peak_int.max()*0.8, 'g-')
-            self._ax.text(peak_scale[0], 0.5 * peak_int.sum() / 100./4 + peak_int.max()*0.8, cID,
+            self._ax.text(peak_scale[0], 0.5 * peak_int.sum() / 100./4 + peak_int.max()*0.8, str(cID),
                           fontsize=8)
-        a = self._peaks_npz.get_cIDs_center_peaks()
+        a: npt.NDArray[np.float64] = self._peaks_npz.get_cIDs_center_peaks()
         for ppm in a[1]:
-            index = self._uc.index(ppm)
-            height = self._intensit[index]
+            index: int = self._uc.index(ppm)
+            height: float = float(self._intensit[index])
             self._ax.scatter(ppm, height, marker="o", color="r", s=30, alpha=0.5)  # type: ignore # nopep8
 
     def draw_preivew(self):
@@ -404,15 +401,15 @@ class diagram():
                 self._ax.text(ppm_peak, height*1.05, str(cID),
                               ha="center", va="center")
 
-    def draw_threshold(self):
+    def draw_threshold(self) -> None:
         plt.hlines(self._thres, self._end, self._start, linestyles="--")  # type: ignore # nopep8
         self._ax.text(self._start, self._thres*1.02, f"thr = {self._thres:>10.3f}",
                       ha="center", va="center")
 
-    def draw_curve(self):
+    def draw_curve(self) -> None:
         plt.plot(self._uc.ppm_scale(), self._intensit, 'b', linewidth=1)
 
-    def draw_x_axis(self):
+    def draw_x_axis(self) -> None:
 
         y_heighest: float = float(np.max(self._intensit))
         y_lowest: float = float(np.min(self._intensit))
@@ -549,22 +546,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print("Excepted  : ", nGroups)
                 print("Real Num  : ", len(peak_list))
 
-                ppm_end = np.array(peak_list).T[2].tolist()
-                ppm_start = np.array(peak_list).T[1].tolist()
+                ppm_end: list[np.float64] = np.array(peak_list).T[2].tolist()
+                ppm_start: list[np.float64] = np.array(peak_list).T[1].tolist()
                 ppm_end.pop(0)
-                ppm_end.append(999)
-                ppm_args = np.argwhere(
+                ppm_end.append(999)  # type: ignore
+                ppm_args: npt.NDArray[np.intp] = np.argwhere(
                     np.array(ppm_end)-np.array(ppm_start) < 0)
-                for x in (ppm_args+1):
+                for x in (ppm_args + 1):
                     index = x[0]
                     ppm_center = (peak_list[index-1]
                                   [1] + peak_list[index][2])/2
                     new_cID, start, end, Area = peak_list[index-1]
                     peak_list[index-1] = (new_cID, ppm_center, end, Area)
-                    # peak_list[index-1][1] = ppm_center
                     new_cID, start, end, Area = peak_list[index]
                     peak_list[index] = (new_cID, start, ppm_center, Area)
-                    #    peak_list[index][2] = ppm_center
 
                 print("     cID        Start          End             Area")
                 for x in peak_list:

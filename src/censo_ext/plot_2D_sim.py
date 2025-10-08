@@ -1,6 +1,9 @@
 #! /usr/bin/env python3
 import argparse
 from icecream import ic
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from matplotlib.gridspec import GridSpec
 from censo_ext.Tools.utility import print_arguments
 import matplotlib.pyplot as plt
 import numpy as np
@@ -32,14 +35,14 @@ def Load_Directory(directory_H, directory_C) -> tuple[npt.NDArray[np.float64], n
 
 
 def plot_2D_basic(data_x, data_y):
-    fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
-    gs = fig.add_gridspec(2, 2,  width_ratios=(1, 19), height_ratios=(1, 9),
-                          left=0.03, right=0.97, bottom=0.03, top=0.97,
-                          wspace=0.1, hspace=0.1)
+    fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
+    gs: GridSpec = fig.add_gridspec(2, 2,  width_ratios=(1, 19), height_ratios=(1, 9),
+                                    left=0.03, right=0.97, bottom=0.03, top=0.97,
+                                    wspace=0.1, hspace=0.1)
 
-    ax = fig.add_subplot(gs[1, 1])
-    ax_histx = fig.add_subplot(gs[0, 1], sharex=ax)
-    ax_histy = fig.add_subplot(gs[1, 0], sharey=ax)
+    ax: Axes = fig.add_subplot(gs[1, 1])
+    ax_histx: Axes = fig.add_subplot(gs[0, 1], sharex=ax)
+    ax_histy: Axes = fig.add_subplot(gs[1, 0], sharey=ax)
     ax_histx.get_xaxis().set_visible(False)
     ax_histx.get_yaxis().set_visible(False)
     ax_histx.axis('off')

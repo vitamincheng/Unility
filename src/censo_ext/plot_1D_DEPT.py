@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 from pathlib import Path
 from icecream import ic
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 import nmrglue as ng
 import matplotlib.pyplot as plt
 import numpy as np
@@ -270,8 +272,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     peaks, _ = find_peaks(data, height=threshold, width=1)
 
     # plot and indicate all peaks
-    fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
-    ax = fig.subplots()
+    fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
+    ax: Axes = fig.subplots()
     fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
                         top=0.90, wspace=0.05, hspace=0.05)
 

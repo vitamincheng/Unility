@@ -1,5 +1,8 @@
 #! /usr/bin/env python3
 # from icecream import ic
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 from nmrglue.fileio.fileiobase import unit_conversion
 from censo_ext.Tools.spectra import numpy_thr
@@ -121,15 +124,15 @@ def plot_2D_Basic(udic, data, uc_1h, uc_13c):
     # create the figure
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
     ppm_13c_0, ppm_13c_1 = uc_13c.ppm_limits()
-    fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
+    fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
 
-    gs = fig.add_gridspec(2, 2,  width_ratios=(1, 19), height_ratios=(1, 9),
-                          left=0.03, right=0.97, bottom=0.03, top=0.97,
-                          wspace=0.1, hspace=0.1)
+    gs: GridSpec = fig.add_gridspec(2, 2,  width_ratios=(1, 19), height_ratios=(1, 9),
+                                    left=0.03, right=0.97, bottom=0.03, top=0.97,
+                                    wspace=0.1, hspace=0.1)
 
-    ax = fig.add_subplot(gs[1, 1])
-    ax_histx = fig.add_subplot(gs[0, 1], sharex=ax)
-    ax_histy = fig.add_subplot(gs[1, 0], sharey=ax)
+    ax: Axes = fig.add_subplot(gs[1, 1])
+    ax_histx: Axes = fig.add_subplot(gs[0, 1], sharex=ax)
+    ax_histy: Axes = fig.add_subplot(gs[1, 0], sharey=ax)
     ax_histx.get_xaxis().set_visible(False)
     ax_histx.get_yaxis().set_visible(False)
     ax_histx.axis('off')
@@ -190,7 +193,7 @@ def cal_contour_peak(data, contour_thr_factor: float = 2):
     return max_peaks
 
 
-def main(args=argparse.Namespace()) -> None:
+def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml()
     print(descr)  # Program description

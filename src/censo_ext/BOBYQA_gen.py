@@ -101,7 +101,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # Normal Sim_SParams/sorted_SParams is more than real known peaks
         Sim_SParams: list[float] = []
         for x in unique_ChemEqvs_first_idx:
-            index = np.where(OrcaS.T[0] == x)
+            index: tuple[npt.NDArray[np.intp], ...] = np.where(OrcaS.T[0] == x)
             Sim_SParams.append(-float(OrcaS.T[1][index][0]))
 
         sorted_SParams: npt.NDArray[np.float64] = np.array(sorted(Sim_SParams))
@@ -135,13 +135,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 # ic(start, end)
                 Wait_Check_SParams: npt.NDArray[np.float64] = sorted_SParams[start:end+1]
                 if sorted_SParams[start] > c_start_ppm:
-                    S_start = sorted_SParams[start]
+                    S_start: float = float(sorted_SParams[start])
                 else:
-                    S_start = sorted_SParams[start]-args.limits
+                    S_start: float = float(sorted_SParams[start]-args.limits)
                 if sorted_SParams[start] < c_end_ppm:
-                    S_end = sorted_SParams[end]
+                    S_end: float = float(sorted_SParams[end])
                 else:
-                    S_end = sorted_SParams[end]+args.limits
+                    S_end: float = float(sorted_SParams[end]+args.limits)
                 a: npt.NDArray[np.intp] = np.argwhere(real_Peaks[1] > S_start)
                 b: npt.NDArray[np.intp] = np.argwhere(real_Peaks[1] < S_end)
                 total_set: npt.NDArray[np.int64] = np.array(
@@ -180,7 +180,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print(f"The best of the array : {ordered_orcaS}")
 
                 for idx, x in enumerate(ordered_orcaS):
-                    intp = np.where(OrcaS.T[1] == -x)
+                    intp: tuple[npt.NDArray[np.intp], ...] = np.where(
+                        OrcaS.T[1] == -x)
                     OrcaS_BOBYQA.T[1][intp] = - Wait_Check_Reals[idx]
                     OrcaS_BOBYQA.T[2][intp] = counter
                     counter += 1

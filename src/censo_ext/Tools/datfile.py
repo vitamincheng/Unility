@@ -138,7 +138,7 @@ class Peaks_npz():
             print("  Exit and Close the program !!!")
             exit(1)
 
-    def method_integrate(self, intensit):
+    def method_integrate(self, intensit) -> list[tuple[int, npt.NDArray, npt.NDArray]]:
         out_Data: list = []
         for cID, start, end, _ in self.__peaks:  # type: ignore
             min: int = self.__uc.index(start)
@@ -147,8 +147,8 @@ class Peaks_npz():
                 min, max = max, min
 
             # extract the peak
-            peak_int = intensit[min:max + 1]
-            peak_scale = self.__uc.ppm_scale()[min:max + 1]
+            peak_int: npt.NDArray = intensit[min:max + 1]
+            peak_scale: npt.NDArray = self.__uc.ppm_scale()[min:max + 1]
             out_Data.append((cID, peak_int, peak_scale))
         return out_Data
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import argparse
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 import numpy as np
 import numpy.typing as npt
 import matplotlib.pyplot as plt
@@ -178,8 +180,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args_start, args_end = uc.ppm_limits()
 
         # plot and indicate all peaks
-        fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
-        ax = fig.subplots()
+        fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
+        ax: Axes = fig.subplots()
         fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
                             top=0.90, wspace=0.05, hspace=0.05)
 
@@ -244,8 +246,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     l_LW_thr: float = 120/l_LW
                     r_LW_thr: float = 120/r_LW
 
-                    l_peak: float = uc.ppm(l_Axis)+(l_LW/10000)*l_LW_thr
-                    r_peak: float = uc.ppm(r_Axis)-(r_LW/10000)*r_LW_thr
+                    l_peak: float = uc.ppm(l_Axis)+(l_LW/3000)*l_LW_thr
+                    r_peak: float = uc.ppm(r_Axis)-(r_LW/3000)*r_LW_thr
 
                     min: int = uc.index(l_peak)
                     max: int = uc.index(r_peak)
@@ -264,22 +266,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print("Excepted  : ", nGroups)
                 print("Real Num  : ", len(peak_list))
 
-                ppm_end = np.array(peak_list).T[2].tolist()
-                ppm_start = np.array(peak_list).T[1].tolist()
+                ppm_end: list[np.float64] = np.array(peak_list).T[2].tolist()
+                ppm_start: list[np.float64] = np.array(peak_list).T[1].tolist()
                 ppm_end.pop(0)
-                ppm_end.append(999)
-                ppm_args = np.argwhere(
+                ppm_end.append(999)  # type: ignore
+                ppm_args: npt.NDArray[np.intp] = np.argwhere(
                     np.array(ppm_end)-np.array(ppm_start) < 0)
                 for x in (ppm_args+1):
-                    index = x[0]
-                    ppm_center = (peak_list[index-1]
-                                  [1] + peak_list[index][2])/2
+                    index: int = x[0]
+                    ppm_center: float = (peak_list[index-1]
+                                         [1] + peak_list[index][2])/2
                     new_cID, start, end, Area = peak_list[index-1]
                     peak_list[index-1] = (new_cID, ppm_center, end, Area)
-                    # peak_list[index-1][1] = ppm_center
                     new_cID, start, end, Area = peak_list[index]
                     peak_list[index] = (new_cID, start, ppm_center, Area)
-                    #    peak_list[index][2] = ppm_center
 
                 for x in peak_list:
                     print(x)
@@ -335,8 +335,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             for cID, peak_int, peak_scale in Data:
                 ax.plot(peak_scale, peak_int.cumsum() /
                         100./4 + peak_int.max()*0.8, 'g-')
-                # ax.plot(peak_scale, [0] * len(peak_scale), 'r-')
-                ax.text(peak_scale[0], 0.5 * peak_int.sum() / 100./4 + peak_int.max()*0.8, cID,
+                ax.text(peak_scale[0], 0.5 * peak_int.sum() / 100./4 + peak_int.max()*0.8, str(cID),
                         fontsize=8)
 
         # add markers for peak positions. It is only for preview.

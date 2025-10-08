@@ -3,6 +3,8 @@ from censo_ext.Tools.utility import print_arguments
 from icecream import ic
 import nmrglue as ng
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 import numpy as np
 import numpy.typing as npt
 import argparse
@@ -232,8 +234,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # detect all peaks with a threshold
     # from scipy.signal import find_peaks
-    y_heighest: np.float64 = np.max(data)
-    y_lowest: np.float64 = np.min(data)
+    y_heighest: float = float(np.max(data))
+    y_lowest: float = float(np.min(data))
     # ic(len(data))
     # for H 65536 for C 131072
     # DEPT 90 32768 DEPT 32768
@@ -243,8 +245,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     ic(new_peaks)
 
     # plot and indicate all peaks
-    fig = plt.figure(figsize=(11.7, 8.3), dpi=100)
-    ax = fig.subplots()
+    fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
+    ax: Axes = fig.subplots()
     fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
                         top=0.90, wspace=0.05, hspace=0.05)
 

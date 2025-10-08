@@ -16,7 +16,7 @@ ________________________________________________________________________________
 """
 
 
-def cml():
+def cml() -> argparse.Namespace:
     """ Get args object from commandline interface.
         Needs argparse module."""
     parser = argparse.ArgumentParser(

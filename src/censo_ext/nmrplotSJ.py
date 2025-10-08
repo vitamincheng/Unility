@@ -24,6 +24,7 @@ last updated on 02-June-2020
 @author: bohle
 """
 
+from matplotlib.figure import Figure
 import numpy as np
 import numpy.typing as npt
 descr = """
@@ -551,7 +552,7 @@ if __name__ == "__main__":
     else:
         for i in range(len(args.file)):
             ppm[i] = [item + args.shift[i] for item in ppm[i]]
-    figure = plt.figure(figsize=(11.69, 8.27))  # A4 in inches
+    figure: Figure = plt.figure(figsize=(11.69, 8.27))  # A4 in inches
     figure.suptitle(args.title, fontsize=args.fontsize, y=0.98)
     # removed
     if args.startremove and args.endremove is not None:
