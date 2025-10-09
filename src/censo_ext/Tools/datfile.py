@@ -152,7 +152,7 @@ class Peaks_npz():
             out_Data.append((cID, peak_int, peak_scale))
         return out_Data
 
-    def method_load_Data(self, in_Data: list | npt.NDArray[np.float64]):
+    def method_load_Data(self, in_Data: list | npt.NDArray[np.float64]) -> None:
         self.__peaks = np.array(
             in_Data, dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
 
@@ -173,14 +173,16 @@ class Peaks_npz():
             exit(0)
 
     def get_cIDs_center_peaks(self) -> npt.NDArray[np.float64]:
-        first = self.__peaks['cID']
-        second = (self.__peaks['Start']+self.__peaks['End'])/2
+        first: npt.NDArray[np.float64] = self.__peaks['cID']
+        second: npt.NDArray[np.float64] = (
+            self.__peaks['Start']+self.__peaks['End'])/2
         return np.stack((first, second))
 
-    def get_peaks_integral_number(self):
-        ppm = (self.__peaks['Start']+self.__peaks['End'])/2
-        min_basic = np.min(self.__peaks['Area'])
-        integral_number = self.__peaks['Area']/min_basic
+    def get_peaks_integral_number(self) -> zip[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]]:
+        ppm: npt.NDArray[np.float64] = (
+            self.__peaks['Start']+self.__peaks['End'])/2
+        min_basic: np.float64 = np.min(self.__peaks['Area'])
+        integral_number: npt.NDArray[np.float64] = self.__peaks['Area']/min_basic
         return zip(ppm, integral_number)
 
     def method_print(self) -> None:

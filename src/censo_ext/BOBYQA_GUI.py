@@ -361,10 +361,11 @@ class diagram():
         self._fig.canvas.draw_idle()
 
     def draw_integra_numbers(self) -> None:
-        Data = self._peaks_npz.get_peaks_integral_number()
+        Data: zip[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]
+                  ] = self._peaks_npz.get_peaks_integral_number()
         y_lowest, y_heighest = self._ax.get_ylim()
         for ppm, integral_number in Data:
-            self._ax.text(ppm, y_heighest*(-0.035), f"{integral_number:5.1f}",
+            self._ax.text(float(ppm), y_heighest*(-0.035), f"{integral_number:5.1f}",
                           fontsize=8, horizontalalignment='center')
 
     def draw_integral(self) -> None:
