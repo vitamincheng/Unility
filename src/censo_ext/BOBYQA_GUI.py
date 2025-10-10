@@ -103,6 +103,16 @@ def cml() -> argparse.Namespace:
         action="store_true",
         help="Manually integrate and use plot_1D_peaks.out file [default False]",
     )
+    parser.add_argument(
+        "-mf",
+        "--magnfreq",
+        dest="mf",
+        action="store",
+        type=float,
+        required=False,
+        default=500.0,
+        help="magnetic frequency of scan nmr [default 500.0]",
+    )
 
     parser.add_argument(
         "--delete",
@@ -141,16 +151,27 @@ def cml() -> argparse.Namespace:
 peaks_fileName = "peaks.npz"
 
 
-class diagram():
+class diagram:
+    """A class for creating and managing a spectrum diagram with interactive editing capabilities."""
 
-    def __init__(self, fileName: str | Path, peaks_npz: Peaks_npz, intensit: npt.NDArray[np.float64], uc: unit_conversion, thres: float, ng_1r_peaks: npt.NDArray) -> None:
+    def __init__(self, fileName: str | Path, peaks_npz: Peaks_npz, intensit: npt.NDArray[np.float64], uc: unit_conversion, thres: float, ng_1r_peaks: npt.NDArray, mf: float) -> None:
+        """Initialize the diagram with spectrum data and plotting setup.
 
+        Args:
+            fileName: Path to the spectrum file
+            peaks_npz: Peaks data container
+            intensit: Intensity array of the spectrum
+            uc: Unit conversion object for ppm scale
+            thres: Threshold value for spectrum
+            ng_1r_peaks: Array of peaks information
+        """
         self._fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
         self._ax: Axes = self._fig.subplots()
         self._fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
                                   top=0.90, wspace=0.05, hspace=0.05)
         self._start, self._end = uc.ppm_limits()
         self._fileName: Path = Path(fileName)
+        self._mf: float = mf
         self._peaks_npz: Peaks_npz = peaks_npz
         self._intensit: npt.NDArray[np.float64] = intensit
         self._button_x = None
@@ -172,109 +193,134 @@ class diagram():
             plt.close(event.canvas.figure)
 
         elif event.key == 'enter':
-
-            xmin, xmax, ymin, ymax = plt.axis()
-            self._status = list(map(int, set(self._status)))
-            self._status.sort()
-            print(self._status)
-
-            if self._key == "d":
-                self._peaks_npz.method_delete_cID(self._status)
-            elif self._key == "m":
-                self._peaks_npz.method_merge_cID(self._status)
-            elif self._key == "c":
-                if len(self._status) == 1:
-                    self._peaks_npz.method_cut_cID(
-                        self._status[0], self._intensit)
-
-            self._ax.clear()
-            plt.xlim(xmin, xmax)
-            plt.ylim(ymin, ymax)
-            self.draw_curve()
-            self.draw_integral()
-            self.draw_title()
-            self._status = []
-
-            self._fig.canvas.draw_idle()
+            self._execute_action()
 
         elif event.key == 'escape':
-            print("Edit mode")
-            self._key = 'escape'
-            xmin, xmax, ymin, ymax = plt.axis()
-            self._ax.clear()
-            plt.xlim(xmin, xmax)
-            plt.ylim(ymin, ymax)
-            self.draw_curve()
-            self.draw_integral()
-            self._status = []
-            self._title = "Edit mode.\nPress 'h' to help. "
-            self.draw_title()
+            self._reset_to_edit_mode()
 
         elif event.key == 'h':
-            print("Help mode")
-            self._status = []
-            self._title = "Press 'q' to Quit, 's' to Save file.\nPress 'm' to Merge / 'd' to Delete / 'c' to Cut mode\n'e' to mEasure mode\nPress 'Esc' to Edit mode, 'Enter' to Executive mode"
-            self.draw_title()
+            self._show_help()
+
         elif event.key == 's':
-            self._key = 's'
-            self._peaks_npz.method_save()
-            self._status = []
-            self._title = "Save to peaks.npz file"
-            self.draw_title()
-        elif event.key == 'm':
-            self._key = 'm'
-            print("Merge mode : ", end="")
-            self._status = []
-            self._title = "Merge mode"
-            self.draw_title()
-        elif event.key == 'd':
-            self._key = 'd'
-            print("Delete mode: ", end="")
-            self._status = []
-            self._title = "Delete mode"
-            self.draw_title()
-        elif event.key == 'c':
-            self._key = 'c'
-            print("Cut mode : ", end="")
-            self._status = []
-            self._title = "Cut mode"
-            self.draw_title()
+            self._save_file()
+
+        elif event.key in ('m', 'd', 'c'):
+            self._set_edit_mode(event.key)
+
         elif event.key == 'e':
-            toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
-            if toolbar_mode == "zoom rect":
-                self._ax.set_navigate_mode(None)
-            else:
-                self._key = 'e'
-                print("Measure mode : ", end="")
-                self._status = []
-                self._title = "Measure mode"
-                self.draw_title()
+            self._set_measure_mode()
+
         elif event.key == 'f':
-            self._ax.clear()
-            self.draw_x_axis()
-            self.draw_curve()
-            self.draw_integral()
-            self.draw_title()
-            self._fig.canvas.draw_idle()
+            self._redraw_full()
 
         elif event.key == 'i':
+            self._toggle_integral_display()
 
-            xmin, xmax, ymin, ymax = plt.axis()
-            self._ax.clear()
-            plt.xlim(xmin, xmax)
-            plt.ylim(ymin, ymax)
+    def _execute_action(self):
+        """Execute the current action based on key mode."""
+        xmin, xmax, ymin, ymax = plt.axis()
+        self._status = list(map(int, set(self._status)))
+        self._status.sort()
+        print(self._status)
 
-            if self._key == "i":
-                self._key = ''
-            else:
-                self._key = 'i'
-                self.draw_integra_numbers()
-            self.draw_curve()
-            self.draw_integral()
+        if self._key == "d":
+            self._peaks_npz.method_delete_cID(self._status)
+        elif self._key == "m":
+            self._peaks_npz.method_merge_cID(self._status)
+        elif self._key == "c":
+            if len(self._status) == 1:
+                self._peaks_npz.method_cut_cID(
+                    self._status[0], self._intensit)
+
+        self._ax.clear()
+        plt.xlim(xmin, xmax)
+        plt.ylim(ymin, ymax)
+        self.draw_curve()
+        self.draw_integral()
+        self.draw_title()
+        self._status = []
+        self._fig.canvas.draw_idle()
+
+    def _reset_to_edit_mode(self) -> None:
+        """Reset to edit mode."""
+        print("Edit mode")
+        self._key = 'escape'
+        xmin, xmax, ymin, ymax = plt.axis()
+        self._ax.clear()
+        plt.xlim(xmin, xmax)
+        plt.ylim(ymin, ymax)
+        self.draw_curve()
+        self.draw_integral()
+        self._status = []
+        self._title = "Edit mode.\nPress 'h' to help. "
+        self.draw_title()
+
+    def _show_help(self) -> None:
+        """Display help information."""
+        print("Help mode")
+        self._status = []
+        self._title = ("Press 'q' to Quit, 's' to Save file.\n"
+                       "Press 'm' to Merge / 'd' to Delete / 'c' to Cut mode\n"
+                       "'e' to mEasure mode\nPress 'Esc' to Edit mode, 'Enter' to Executive mode")
+        self.draw_title()
+
+    def _save_file(self) -> None:
+        """Save the current peaks data."""
+        self._key = 's'
+        self._peaks_npz.method_save()
+        self._status = []
+        self._title = "Save to peaks.npz file"
+        self.draw_title()
+
+    def _set_edit_mode(self, mode_key) -> None:
+        """Set edit mode based on key pressed."""
+        self._key = mode_key
+        key_map: dict[str, str] = {"m": "Merge", "d": "Delete", "c": "Cut"}
+        print(f"{key_map[mode_key]} mode : ", end="")
+        self._status = []
+        self._title = f"{key_map[mode_key]} mode"
+        self.draw_title()
+
+    def _set_measure_mode(self) -> None:
+        """Set measure mode."""
+        toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
+        if toolbar_mode == "zoom rect":
+            self._ax.set_navigate_mode(None)
+        else:
+            self._key = 'e'
+            print("Measure mode : ", end="")
+            self._status = []
+            self._title = "Measure mode"
             self.draw_title()
-            self._fig.canvas.draw_idle()
+
+    def _redraw_full(self):
+        """Redraw the full spectrum."""
+        self._ax.clear()
+        self.draw_x_axis()
+        self.draw_curve()
+        self.draw_integral()
+        self.draw_title()
+        self._fig.canvas.draw_idle()
+
+    def _toggle_integral_display(self):
+        """Toggle integral numbers display."""
+        xmin, xmax, ymin, ymax = plt.axis()
+        self._ax.clear()
+        plt.xlim(xmin, xmax)
+        plt.ylim(ymin, ymax)
+
+        if self._key == "i":
+            self._key = ''
+        else:
+            self._key = 'i'
+            self.draw_integra_numbers()
+        self.draw_curve()
+        self.draw_integral()
+        self.draw_title()
+        self._fig.canvas.draw_idle()
 
     def on_button_release(self, event) -> None:
+        """Handle button release events."""
         if event.inaxes == self._ax and self._button_x is not None and self._button_y is not None:
             release_x = event.xdata
             release_y = event.ydata
@@ -284,9 +330,8 @@ class diagram():
             x_distance = np.abs(release_x-self._button_x)
 
             if self._key == 'e':
-                self._status_str = f"Chemical shift : {x_distance:12.6f} ppm\n in 500MHz {x_distance*500:12.3f} Hz"
+                self._status_str = f"Chemical shift : {x_distance:12.6f} ppm\n in {self._mf}MHz {x_distance*self._mf:12.3f} Hz"
                 self.draw_status_str()
-                # self._fig.canvas.draw_idle()
                 return None
             cID: int
             if distance < tolerance:
@@ -311,12 +356,14 @@ class diagram():
             self.draw_status()
 
     def on_button_press(self, event) -> None:
+        """Handle button press events."""
         from matplotlib.backend_bases import MouseButton
         if event.inaxes == self._ax and event.button == MouseButton.LEFT:
             self._button_x = event.xdata
             self._button_y = event.ydata
 
     def on_mouse_motion(self, event) -> None:
+        """Handle mouse motion events."""
         from matplotlib.backend_bases import MouseButton
         if event.button is MouseButton.LEFT and event.inaxes == self._ax:
             if self._key == "e":
@@ -333,6 +380,7 @@ class diagram():
                 self._fig.canvas.draw_idle()
 
     def connect(self) -> None:
+        """Connect all event handlers."""
         self._cID_key = self._fig.canvas.mpl_connect(
             'key_press_event', self.on_key_press)
         self._cID_button_press = self._fig.canvas.mpl_connect(
@@ -343,77 +391,84 @@ class diagram():
             'button_release_event', self.on_button_release)
 
     def disconnect(self) -> None:
+        """Disconnect all event handlers."""
         self._fig.canvas.mpl_disconnect(self._cID_key)
         self._fig.canvas.mpl_disconnect(self._cID_button_press)
         self._fig.canvas.mpl_disconnect(self._cID_button_release)
         self._fig.canvas.mpl_disconnect(self._cID_button_motion)
 
     def draw_status_str(self) -> None:
+        """Draw status string on the plot."""
         self._ax.set_title(f"{self._status_str}", loc="right", fontsize=10)
         self._fig.canvas.draw_idle()
 
     def draw_status(self) -> None:
+        """Draw status on the plot."""
         self._ax.set_title(f"{self._status}", loc="right", fontsize=10)
         self._fig.canvas.draw_idle()
 
     def draw_title(self) -> None:
+        """Draw title on the plot."""
         self._ax.set_title(self._title, loc="left")
         self._fig.canvas.draw_idle()
 
     def draw_integra_numbers(self) -> None:
-        Data: zip[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]
-                  ] = self._peaks_npz.get_peaks_integral_number()
+        """Draw integral numbers on the plot."""
+        Data = self._peaks_npz.get_peaks_integral_number()
         y_lowest, y_heighest = self._ax.get_ylim()
         for ppm, integral_number in Data:
             self._ax.text(float(ppm), y_heighest*(-0.035), f"{integral_number:5.1f}",
                           fontsize=8, horizontalalignment='center')
 
     def draw_integral(self) -> None:
-        Data: list[tuple[int, npt.NDArray, npt.NDArray]
-                   ] = self._peaks_npz.method_integrate(self._intensit)
+        """Draw integral curves on the plot."""
+        Data = self._peaks_npz.method_integrate(self._intensit)
         for cID, peak_int, peak_scale in Data:
             self._ax.plot(peak_scale, peak_int.cumsum() /
                           100./5 + peak_int.max()*0.8, 'g-')
             self._ax.text(peak_scale[0], 0.5 * peak_int.sum() / 100./4 + peak_int.max()*0.8, str(cID),
                           fontsize=8)
-        a: npt.NDArray[np.float64] = self._peaks_npz.get_cIDs_center_peaks()
+        a = self._peaks_npz.get_cIDs_center_peaks()
         for ppm in a[1]:
-            index: int = self._uc.index(ppm)
-            height: float = float(self._intensit[index])
-            self._ax.scatter(ppm, height, marker="o", color="r", s=30, alpha=0.5)  # type: ignore # nopep8
+            index = self._uc.index(ppm)
+            height = float(self._intensit[index])
+            self._ax.scatter(ppm, height, marker="o",
+                             color="r", s=30, alpha=0.5)
 
     def draw_preivew(self):
-
-        idx_cID: float = 0
+        """Draw preview peaks on the plot."""
+        idx_cID = 0
         for idx_peaks, cID, _, _ in self._ng_1r_peaks:
             if idx_cID < cID:
                 idx_cID = cID
             else:
                 break
-            height: float = self._intensit[int(idx_peaks)]
-            ppm_peak: float = self._uc.ppm(idx_peaks)
+            height = self._intensit[int(idx_peaks)]
+            ppm_peak = self._uc.ppm(idx_peaks)
 
             args_start, args_end = self._uc.ppm_limits()
-            min: int = self._uc.index(args_start)
-            max: int = self._uc.index(args_end)
-            if ppm_peak < max and ppm_peak > min:
-
-                self._ax.scatter(ppm_peak, height, marker="o", color="r", s=100, alpha=0.5)  # type: ignore # nopep8
+            min_idx = self._uc.index(args_start)
+            max_idx = self._uc.index(args_end)
+            if ppm_peak < max_idx and ppm_peak > min_idx:
+                self._ax.scatter(ppm_peak, height, marker="o",
+                                 color="r", s=100, alpha=0.5)
                 self._ax.text(ppm_peak, height*1.05, str(cID),
                               ha="center", va="center")
 
     def draw_threshold(self) -> None:
-        plt.hlines(self._thres, self._end, self._start, linestyles="--")  # type: ignore # nopep8
+        """Draw threshold line on the plot."""
+        plt.hlines(self._thres, self._end, self._start, linestyles="--")
         self._ax.text(self._start, self._thres*1.02, f"thr = {self._thres:>10.3f}",
                       ha="center", va="center")
 
     def draw_curve(self) -> None:
+        """Draw the main spectrum curve."""
         plt.plot(self._uc.ppm_scale(), self._intensit, 'b', linewidth=1)
 
     def draw_x_axis(self) -> None:
-
-        y_heighest: float = float(np.max(self._intensit))
-        y_lowest: float = float(np.min(self._intensit))
+        """Draw x-axis configuration."""
+        y_heighest = float(np.max(self._intensit))
+        y_lowest = float(np.min(self._intensit))
         plt.xlim(self._end, self._start)
         self._ax.spines["right"].set_visible(False)
         self._ax.spines["top"].set_visible(False)
@@ -468,7 +523,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         ng_1r_peaks: npt.NDArray = ng.peakpick.pick(
             data=intensit, pthres=thres, algorithm="downward")
         diagrams: diagram = diagram(args.file,
-                                    peaks_npz, intensit, uc, thres, ng_1r_peaks)
+                                    peaks_npz, intensit, uc, thres, ng_1r_peaks, args.mf)
 
         # Automatically Integate the peaks
         if args.auto:
