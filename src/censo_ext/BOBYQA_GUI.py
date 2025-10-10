@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import argparse
 import numpy as np
-from numpy._typing._array_like import NDArray
 import numpy.typing as npt
 import matplotlib.pyplot as plt
 import nmrglue as ng
