@@ -41,7 +41,7 @@ def IsExists_DirFileName(DirFile: Path | str) -> tuple[Path, str]:
     and basename.
 
     Args:
-        DirFileName (pathlib.Path): The full path to check.
+        DirFileName(pathlib.Path): The full path to check.
 
     Returns:
         tuple[Path, str]: A tuple containing:
@@ -80,7 +80,7 @@ def function_is_float(string: str) -> bool:
     """Check if a string can be converted to a float.
 
     Args:
-        string (str): The input string to check.
+        string(str): The input string to check.
 
     Returns:
         bool: True if the string can be converted to a float, False otherwise.
@@ -96,7 +96,7 @@ def function_is_int(string: str) -> bool:
     """Check if a string can be converted to an integer.
 
     Args:
-        string (str): The input string to check.
+        string(str): The input string to check.
 
     Returns:
         bool: True if the string can be converted to an integer, False otherwise.
@@ -132,8 +132,8 @@ def copy_file(source: Path | str, destination: Path | str) -> None:
     This function first checks if the source file exists before attempting to copy it.
 
     Args:
-        source (Path): The path of the file to copy.
-        destination (Path): The path to the destination.
+        source(Path): The path of the file to copy.
+        destination(Path): The path to the destination.
 
     Raises:
         FileNotFoundError: If the source file does not exist.
@@ -195,7 +195,7 @@ def IsExist(inFile: Path | str) -> None:
     with a descriptive message.
 
     Args:
-        fileName (Path): The path to the file to check for existence.
+        fileName(Path): The path to the file to check for existence.
 
     Raises:
         FileNotFoundError: If the specified file does not exist in the filesystem.
@@ -228,7 +228,7 @@ def IsExist_bool(inFile: Path | str) -> bool:
     an error message and returns False.
 
     Args:
-        inFile (Path): The path to the file to check for existence.
+        inFile(Path): The path to the file to check for existence.
 
     Returns:
         bool: True if the file exists, False otherwise.
@@ -261,7 +261,7 @@ def prog_IsExist(Prog: str) -> bool:
     otherwise, it prints an error message and raises a ValueError.
 
     Args:
-        ProgramName (str): The name of the program to check for existence.
+        ProgramName(str): The name of the program to check for existence.
             This should be the exact command name as it would appear in the
             terminal/command prompt.
 
@@ -293,6 +293,28 @@ def prog_IsExist(Prog: str) -> bool:
 
 
 def save_simulation_spectra_file(fileName: Path | str, spectra) -> None:
+    """Save simulation spectra to file in either compressed numpy (.npz) or text (.dat) format.
+
+    This function saves the provided spectra data to a file with the specified filename.
+    The output format is determined by the file extension:
+    - If the extension is '.npz', the data is saved as a compressed numpy file
+    - If the extension is '.dat', the data is saved as a text file with formatted floating-point numbers
+
+    Args:
+        fileName (Path | str): The path to the output file. Must have either '.npz' or '.dat' extension.
+        spectra: The spectra data to be saved. Should be compatible with numpy's savez_compressed
+                 and savetxt functions.
+
+    Returns:
+        None: This function does not return any value.
+
+    Example:
+        >>> save_simulation_spectra_file("output.npz", my_spectra)
+        >>> save_simulation_spectra_file("output.dat", my_spectra)
+
+    Note:
+        The function prints a confirmation message indicating the file path where the spectra was saved.
+    """
 
     output: str = Path(fileName).name
     if output.split(".")[-1] == "npz":
@@ -303,7 +325,26 @@ def save_simulation_spectra_file(fileName: Path | str, spectra) -> None:
         print(f" the spectra is saved to : {fileName}")
 
 
-def print_arguments():
+def print_arguments() -> None:
+    """Print all command-line arguments passed to the script.
+
+    This function retrieves and displays all command-line arguments from sys.argv,
+    formatting them as a single string separated by spaces. It's useful for
+    debugging or logging purposes to see what arguments were provided when the
+    script was executed.
+
+    Returns:
+        None: This function does not return any value.
+
+    Example:
+        >>> print_arguments()
+        provided arguments: script.py --input file.txt --output result.dat
+
+    Note:
+        The function prints the arguments to standard output and includes an empty
+        line after the argument list for better readability.
+    """
+
     import sys
     print("    provided arguments: {}".format(" ".join(sys.argv)))
     print("")
@@ -312,9 +353,28 @@ def print_arguments():
 def save_figure(fileName: str = "nmrplot") -> None:
     """Save the current matplotlib figure to PDF and SVG formats.
 
+    This function saves the currently active matplotlib figure in both PDF (300 dpi) 
+    and SVG formats with the specified base filename. The function creates two output 
+    files: one with .pdf extension and another with .svg extension.
+
     Args:
-        fileName (str, optional): The base name for the output files.
-            Defaults to "nmrplot". The extensions ".pdf" and ".svg" will be appended.
+        fileName(str, optional): The base name for the output files. Defaults to "nmrplot".
+            The extensions ".pdf" and ".svg" will be automatically appended to create
+            the final filenames.
+
+    Returns:
+        None: This function does not return any value.
+
+    Example:
+        >>> save_figure("my_plot")
+        # Saves files as "my_plot.pdf" and "my_plot.svg"
+
+        >>> save_figure()  # Uses default name "nmrplot"
+        # Saves files as "nmrplot.pdf" and "nmrplot.svg"
+
+    Note:
+        This function requires matplotlib to be imported and a figure to be 
+        currently active. The PDF file is saved with high resolution (300 dpi).
     """
     import matplotlib.pyplot as plt
     plt.savefig(f"{fileName}.pdf", dpi=300)
@@ -519,11 +579,39 @@ def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12)
     exit(0)
 
 
-def R_square(x: npt.NDArray, y: npt.NDArray):
+def R_square(x: npt.NDArray, y: npt.NDArray) -> float:
+    """Calculate the coefficient of determination (R-squared) for two arrays.
 
+    This function computes the R-squared value, which represents the proportion 
+    of the variance in the dependent variable (y) that is predictable from 
+    the independent variable (x). It is calculated as the square of the Pearson 
+    correlation coefficient between the two arrays.
+
+    Args:
+        x (npt.NDArray): Independent variable array. Should be 1D array-like.
+        y (npt.NDArray): Dependent variable array. Should be 1D array-like and 
+            have the same length as x.
+
+    Returns:
+        float: The coefficient of determination (R-squared) value, ranging from 
+               0 to 1. A value of 1 indicates perfect correlation, while 0 indicates 
+               no linear relationship.
+
+    Example:
+        >>> import numpy as np
+        >>> x = np.array([1, 2, 3, 4, 5])
+        >>> y = np.array([2, 4, 6, 8, 10])
+        >>> R_square(x, y)
+        1.0
+
+    Note:
+        Both input arrays must have the same length and contain numeric data. 
+        The function uses numpy's corrcoef function to calculate the correlation 
+        coefficient before squaring it to get R-squared.
+    """
     # Calculate the correlation matrix
     correlation_matrix = np.corrcoef(x, y)
-    r = correlation_matrix[0, 1]
-    r_squared = r**2
+    r: float = correlation_matrix[0, 1]
+    r_squared: float = r**2
 
     return (r_squared)

@@ -9,8 +9,44 @@ from censo_ext.Tools.utility import IsExist
 
 
 class unit_conversion():
+    """A class for converting between ppm values and array indices.
+
+    This class provides methods to convert between chemical shift values (ppm)
+    and array indices, facilitating efficient lookup operations in spectral data.
+    It maintains internal dictionaries for fast conversion between these two
+    representations.
+
+    Attributes:
+        in_ppm(npt.NDArray[np.float64]): Array of ppm values used for indexing.
+        args_ppm(dict): Dictionary mapping index positions to ppm values.
+        ppm_args(dict): Dictionary mapping ppm values to index positions.
+
+    Methods:
+        index: Convert ppm value to nearest array index.
+        ppm: Convert array index to ppm value.
+        ppm_scale: Return the ppm scale array.
+        ppm_limits: Return the minimum and maximum ppm values.
+    """
 
     def __init__(self, in_ppm: npt.NDArray[np.float64]) -> None:
+        """Initialize the class with ppm data and create lookup dictionaries.
+
+        This method sets up the internal structure for ppm-based indexing by storing
+        the input ppm array and creating two dictionaries for fast lookup: one from
+        index to ppm value, and another from ppm value to index.
+
+        Args:
+            in_ppm(npt.NDArray[np.float64]): An array of ppm values to be stored
+                and used for indexing operations.
+
+        Returns:
+            None: This method initializes the internal attributes of the class.
+
+        Note:
+            Two dictionaries are created:
+            - args_ppm: Maps index positions to ppm values
+            - ppm_args: Maps ppm values to index positions
+        """
         self.in_ppm: npt.NDArray[np.float64] = in_ppm
         self.args_ppm: dict = {idx: ppm for idx,
                                ppm in enumerate(in_ppm)}
@@ -18,17 +54,74 @@ class unit_conversion():
                                ppm in enumerate(in_ppm)}
 
     def index(self, ppm) -> int:
+        """Convert a ppm value to the nearest array index.
+
+        This method finds the nearest ppm value in the internal ppm array and
+        returns its corresponding index position. It uses the find_nearest function
+        from the spectra module to determine the closest match.
+
+        Args:
+            ppm (float): The ppm value to convert to an array index.
+
+        Returns:
+            int: The index of the nearest ppm value in the internal ppm array.
+
+        Note:
+            This method relies on the find_nearest function from censo_ext.Tools.spectra
+            to determine the closest match in the ppm array.
+        """
         from censo_ext.Tools.spectra import find_nearest
-        value, index = find_nearest(self.in_ppm, ppm)
+        _, index = find_nearest(self.in_ppm, ppm)
         return index
 
-    def ppm(self, index) -> float:
+    def ppm(self, index: int) -> float:
+        """Convert an array index to its corresponding ppm value.
+
+        This method returns the ppm value that corresponds to the given array index
+        using the internal args_ppm dictionary mapping.
+
+        Args:
+            index(int): The array index to convert to a ppm value.
+
+        Returns:
+            float: The ppm value corresponding to the given index.
+
+        Note:
+            This method uses the pre-computed args_ppm dictionary for O(1) lookup
+            time when converting indices to ppm values.
+        """
         return float(self.args_ppm[index])
 
     def ppm_scale(self) -> npt.NDArray[np.float64]:
+        """Get the ppm scale array.
+
+        This method returns the internal ppm array that represents the chemical
+        shift scale for the spectral data.
+
+        Returns:
+            npt.NDArray[np.float64]: The array of ppm values representing the
+            chemical shift scale.
+
+        Note:
+            This is a simple getter method that returns the stored in_ppm attribute
+            without any processing or transformation.
+        """
         return self.in_ppm
 
     def ppm_limits(self) -> tuple[float, float]:
+        """Get the minimum and maximum ppm values from the scale.
+
+        This method returns a tuple containing the minimum and maximum values
+        from the internal ppm array, representing the range of the chemical shift scale.
+
+        Returns:
+            tuple[float, float]: A tuple containing (minimum_ppm, maximum_ppm)
+            from the internal ppm array.
+
+        Note:
+            The method uses numpy's min() and max() functions to determine the
+            range of ppm values in the scale.
+        """
         return float(self.in_ppm.min()), float(self.in_ppm.max())
 
 
@@ -43,16 +136,44 @@ class Peaks_npz():
             [], dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
         self.__uc: unit_conversion = uc
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.__peaks)
 
-    def method_ppm2cID(self, in_x_ppm: float):
+    def method_ppm2cID(self, in_x_ppm: float) -> int | None:
+        """Convert a ppm value to a cID value.
+
+        This method searches through the peaks stored in self.__peaks to find
+        the appropriate cID for the given ppm value. It checks if the ppm value
+        falls within the range of each peak's Start and End values.
+
+        Args:
+            in_x_ppm(float): The ppm value to convert to cID.
+
+        Returns:
+            int | None: The corresponding cID if found, None otherwise.
+        """
         for peak in self.__peaks:
             if peak['Start'] > in_x_ppm > peak['End']:
-                return peak['cID']
+                return int(peak['cID'])
         return None
 
     def method_delete_cID(self, cIDs: list[int]) -> None:
+        """Delete peaks with specified cIDs from the internal peaks data.
+
+        This method removes peaks from self.__peaks that match the given cIDs.
+        If any cID in the input list is not found in the peaks data, an error
+        message is printed and the program exits.
+
+        Args:
+            cIDs(list[int]): A list of cID values to delete from the peaks data.
+
+        Returns:
+            None: This method modifies the internal self.__peaks data in place.
+
+        Raises:
+            SystemExit: If any cID in the input list is not found in the peaks data,
+                       the program exits with code 0.
+        """
         for cID in cIDs:
             if cID in self.__peaks['cID']:
                 self.__peaks = self.__peaks[self.__peaks['cID'] != cID]
@@ -62,7 +183,28 @@ class Peaks_npz():
                 exit(0)
 
     def method_merge_cID(self, cIDs: list[int]) -> None:
+        """Merge multiple peaks with specified cIDs into a single peak.
 
+        This method combines multiple peaks identified by their cIDs into one peak
+        with the minimum cID value. The merged peak's Start and End values are
+        determined by the maximum of starts and minimum of ends among the merged
+        peaks, respectively. The total intensity (Area) is summed across all merged
+        peaks.
+
+        Args:
+            cIDs(list[int]): A list of cID values to merge into a single peak.
+
+        Returns:
+            None: This method modifies the internal self.__peaks data in place.
+
+        Raises:
+            SystemExit: If any cID in the input list is not found in the peaks data,
+                       the program exits with code 0.
+
+        Note:
+            The method will remove the original peaks and insert a new merged peak
+            at the position of the peak with the minimum cID.
+        """
         min_cID: int = np.array(cIDs).min()
         start, end = -99999, 99999
         for cID in sorted(cIDs):
@@ -96,6 +238,28 @@ class Peaks_npz():
             self.__peaks, args_x[0], (min_cID, start, end, Total_intensit))
 
     def method_cut_cID(self, cID, intensit) -> None:
+        """Cut a peak with specified cID into two separate peaks based on intensity analysis.
+
+        This method takes a peak identified by its cID and splits it into two peaks
+        by analyzing the intensity data. It uses nmrglue's peak picking algorithm to
+        identify peak boundaries and creates two new peaks from the original one.
+
+        Args:
+            cID(int): The cID of the peak to be cut.
+            intensit (array-like): The intensity data array used for peak analysis.
+
+        Returns:
+            None: This method modifies the internal self.__peaks data in place.
+
+        Raises:
+            SystemExit: If the specified cID is not found in the peaks data,
+                       the program exits with code 1.
+
+        Note:
+            The method will remove the original peak and insert two new peaks
+            with updated cIDs and boundary positions based on intensity analysis.
+        """
+
         # use ng.peakpick.pick from y_heighest 0.90 to down to two different peaks
         if cID in self.__peaks['cID']:
             args_x: npt.NDArray[np.intp] = np.argwhere(
@@ -119,13 +283,13 @@ class Peaks_npz():
                     break
                 else:
                     ratio -= 0.10
-            sorted_cut_peaks = np.sort(cut_peaks, order='VOL')
+            sorted_cut_peaks: npt.NDArray = np.sort(cut_peaks, order='VOL')
             start = int(sorted_cut_peaks['X_AXIS'][-1] + min)
             end = int(sorted_cut_peaks['X_AXIS'][-2] + min)
             if end < start:
                 start, end = end, start
             cut_argmin: np.intp = np.argmin(intensit[start:end + 1])
-            cut_center: float = self.__uc.ppm(start + cut_argmin)
+            cut_center: float = self.__uc.ppm(start + int(cut_argmin))
             # remove the old entry and add two additional entry
             self.__peaks = self.__peaks[self.__peaks['cID'] != cID]
 
@@ -139,6 +303,23 @@ class Peaks_npz():
             exit(1)
 
     def method_integrate(self, intensit) -> list[tuple[int, npt.NDArray, npt.NDArray]]:
+        """Integrate peak data within the specified ppm ranges.
+
+        This method extracts intensity and chemical shift (ppm) data for each peak
+        defined in self.__peaks. For each peak, it converts the start and end ppm
+        values to index positions and extracts the corresponding data segments.
+
+        Args:
+            intensit(array-like): The intensity data array from which peak data is extracted.
+
+        Returns:
+            list[tuple[int,npt.NDArray,npt.NDArray]]: A list of tuples where each tuple
+            contains (cID, peak_intensity_data, peak_chemical_shift_data) for each peak.
+
+        Note:
+            The method processes all peaks in self.__peaks and returns integrated data
+            for each peak within its defined start and end boundaries.
+        """
         out_Data: list = []
         for cID, start, end, _ in self.__peaks:  # type: ignore
             min: int = self.__uc.index(start)
@@ -153,10 +334,49 @@ class Peaks_npz():
         return out_Data
 
     def method_load_Data(self, in_Data: list | npt.NDArray[np.float64]) -> None:
+        """Load and initialize peak data from input data.
+
+        This method converts the input data into a structured numpy array with
+        specific dtype fields for cID, Start, End, and Area. The input data is
+        expected to contain peak information in a format compatible with the
+        expected structure.
+
+        Args:
+            in_Data (list | npt.NDArray[np.float64]): The input peak data to be loaded.
+                Expected to contain cID, Start, End, and Area values for each peak.
+
+        Returns:
+            None: This method sets the internal self.__peaks attribute with the
+            processed data.
+
+        Note:
+            The method expects in_Data to be structured such that it can be converted
+            into a numpy array with dtype [('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')].
+        """
+
         self.__peaks = np.array(
             in_Data, dtype=[('cID', 'i8'), ('Start', 'f8'), ('End', 'f8'), ('Area', 'f8')])
 
-    def method_read_file(self):
+    def method_read_file(self) -> None:
+        """Read peak data from a file based on its extension.
+
+        This method reads peak data from a file, supporting only .npz format files.
+        It loads the data using numpy's load function and assigns it to the internal
+        self.__peaks attribute. The method validates that the file has the correct
+        .npz extension.
+
+        Returns:
+            None: This method sets the internal self.__peaks attribute with the
+            loaded data from the file.
+
+        Raises:
+            SystemExit: If the file extension is not .npz, the program exits with
+                       code 0 after printing an error message.
+
+        Note:
+            Currently only supports .npz file format. The method extracts data
+            from the 'arr_0' key in the npz file.
+        """
         file = Path(self.__fileName)
         from censo_ext.Tools.utility import IsExists_DirFileName
         _, Name = IsExists_DirFileName(file)
@@ -173,12 +393,41 @@ class Peaks_npz():
             exit(0)
 
     def get_cIDs_center_peaks(self) -> npt.NDArray[np.float64]:
+        """Get cIDs and center positions of all peaks.
+
+        This method calculates the center position of each peak by averaging its
+        Start and End values. It returns a stacked array containing the cID and
+        corresponding center position for each peak.
+
+        Returns:
+            npt.NDArray[np.float64]: A 2D numpy array where each row contains
+            [cID, center_position] for each peak in self.__peaks.
+
+        Note:
+            The center position is calculated as (Start + End) / 2 for each peak.
+        """
         first: npt.NDArray[np.float64] = self.__peaks['cID']
         second: npt.NDArray[np.float64] = (
             self.__peaks['Start']+self.__peaks['End'])/2
         return np.stack((first, second))
 
     def get_peaks_integral_number(self) -> zip[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]]:
+        """Get peak centers and normalized integral numbers.
+
+        This method calculates the center position of each peak by averaging its
+        Start and End values, then normalizes the Area (integral) values by dividing
+        them by the minimum Area value among all peaks. It returns a zip object
+        containing paired center positions and normalized integral numbers.
+
+        Returns:
+            zip[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]]: A zip object
+            containing tuples of (center_position, normalized_integral_number) for
+            each peak in self.__peaks.
+
+        Note:
+            The center position is calculated as (Start + End) / 2 for each peak.
+            The integral numbers are normalized by the minimum Area value in the dataset.
+        """
         ppm: npt.NDArray[np.float64] = (
             self.__peaks['Start']+self.__peaks['End'])/2
         min_basic: np.float64 = np.min(self.__peaks['Area'])

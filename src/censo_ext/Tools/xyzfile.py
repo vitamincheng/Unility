@@ -10,6 +10,30 @@ import copy
 
 
 class Geometry():
+    """
+    A class representing a molecular geometry with atoms, coordinates, and metadata.
+
+    This class stores molecular information including atom names, coordinates,
+    extra data, and various computational properties. It provides methods for
+    manipulating molecular geometries such as translation, molecular separation,
+    and computing physical properties like center of mass and inertia tensor.
+
+    Attributes:
+        names(dict[int, str]): Dictionary mapping atom indices to element names.
+        coord(list[npt.NDArray[np.float64]]): List of atomic coordinates.
+        extras(list[list[str]]): Extra data for each atom (e.g., charges).
+        comment(str): Comment string containing energy and cluster information.
+        comment_energy(float): Energy value in Hartrees (Eh).
+        comment_nClusters(int): Cluster index number.
+        mass(npt.NDArray[np.float64]): Atomic masses.
+        com(npt.NDArray[np.float64]): Center of mass coordinates.
+        inertia(npt.NDArray[np.float64]): Moment of inertia tensor.
+
+    Example:
+        >>> geometry = Geometry(names={1: 'C', 2: 'H'}, 
+        ...                     coord=[np.array([0, 0, 0]), np.array([1, 1, 1])],
+        ...                     extras=[['charge1'], ['charge2']])
+    """
 
     def __init__(self, names: dict[int, str], coord: list[npt.NDArray[np.float64]], extras: list[list[str]], comment: str = "", energy: float = 0, nClusters: int = 0) -> None:
         """ 
@@ -26,7 +50,7 @@ class Geometry():
 
         self.names: dict[int, str] = names                  # atom's name   H Li Na K B C O S F Cl # nopep8
         self.coord: list[npt.NDArray[np.float64]] = coord
-        # coordinates of every atom #type:ignore #nopep8
+        # coordinates of every atom
         self.nAtoms: int = len(names)                       # numbers of atom
         self.comment: str = comment                         # Energy =   Eh   #Cluster  :i         # nopep8
         self.comment_energy: float = energy                 # Energy (Eh)
@@ -334,12 +358,23 @@ class GeometryXYZs():
         """
         Generate interpolated GeometryXYZs by translating along a vector.
 
+        This method creates interpolated structures by translating Geometry instances
+        along the specified translation vector. The interpolation is performed by
+        dividing the translation vector into 'cut' number of evenly spaced points.
+
         Args:
-            delta (npt.NDArray[np.float64]): Translation vector.
-            cut (int): Number of interpolation points.
+            delta (npt.NDArray[np.float64]): Translation vector containing x, y, z
+                coordinates for the translation.
+            cut (int): Number of interpolation points to generate between the
+                original and translated positions.
 
         Returns:
-            GeometryXYZs: Interpolated structures.
+            GeometryXYZs: A new GeometryXYZs instance containing the interpolated
+                structures.
+
+        Example:
+            >>> delta = np.array([1.0, 2.0, 3.0])
+            >>> interpolated_xyzs = xyzs.method_translate_cut_xyzs(delta, cut=5)
         """
 
         xyzFile: GeometryXYZs = GeometryXYZs()
@@ -361,11 +396,20 @@ class GeometryXYZs():
         """
         Translate all Geometry instances in the collection.
 
+        This method applies a translation transformation to all Geometry instances
+        in the current collection using the provided translation vector.
+
         Args:
-            delta (npt.NDArray[np.float64]): Translation vector.
+            delta(npt.NDArray[np.float64]): Translation vector containing x, y, z
+                coordinates for the translation.
 
         Returns:
-            GeometryXYZs: Translated structures.
+            GeometryXYZs: A new GeometryXYZs instance containing the translated
+                structures.
+
+        Example:
+            >>> delta = np.array([1.0, 2.0, 3.0])
+            >>> translated_xyzs = xyzs.method_translate_xyzs(delta)
         """
 
         xyzFile: GeometryXYZs = GeometryXYZs()
@@ -378,11 +422,18 @@ class GeometryXYZs():
         """
         Concatenate two GeometryXYZs objects.
 
+        This method concatenates two GeometryXYZs instances by appending the structures
+        from the other instance to the current instance.
+
         Args:
-            Var (GeometryXYZs): Other GeometryXYZs instance.
+            Other(GeometryXYZs): Another GeometryXYZs instance to concatenate.
 
         Returns:
-            GeometryXYZs: Concatenated structures.
+            GeometryXYZs: A new GeometryXYZs instance containing concatenated structures.
+
+        Raises:
+            SystemExit: If the other instance contains more than one structure,
+                       the program exits with an error message.
         """
 
         xyzFile: GeometryXYZs
@@ -404,11 +455,18 @@ class GeometryXYZs():
         """
         Split molecules in all Geometry instances using topology data.
 
+        This method takes a Geometry instance and splits it into multiple molecules
+        based on topology data. It creates separate XYZ files for each molecule and
+        updates the internal list of Geometry instances accordingly.
+
         Args:
-            idx1 (int): Starting index for molecule separation.
+            idx1 (int): Starting index for molecule separation. Defaults to 1.
 
         Returns:
-            bool: True if operation succeeded.
+            bool: True if operation succeeded, False otherwise.
+
+        Raises:
+            SystemExit: If molecule separation fails, the program exits with error message.
         """
 
         fileName: Path = Path("~temp.xyz")
@@ -556,7 +614,10 @@ class GeometryXYZs():
         Print selected Geometry instances to stdout.
 
         Args:
-            idx1_St (list[int]): List of indices to print.
+            idx1_St (list[int]): List of indices to print. Indices are 1-based.
+
+        Returns:
+            None
         """
 
         if (idx1_St == []):
@@ -569,8 +630,13 @@ class GeometryXYZs():
     def method_comment_keep(self) -> None:
         """
         Update comment fields for all Geometry instances.
-        """
 
+        This method iterates through all Geometry instances stored in ``self.Sts``
+        and updates their comment fields by calling ``method_update_comment()`` on each.
+
+        Returns:
+            None: This method does not return any value.
+        """
         for St in self.Sts:
             if St.method_update_comment():
                 St.method_update_comment()
@@ -578,6 +644,16 @@ class GeometryXYZs():
     def method_comment_new(self) -> None:
         """
         Assign unique cluster indices to all Geometry instances.
+
+        This method iterates through all Geometry instances in self.Sts and assigns
+        them sequential cluster indices starting from 1. Each instance's comment field
+        is updated with its corresponding cluster index.
+
+        Args:
+            None
+
+        Returns:
+            None
         """
 
         for idx0, St in enumerate(self.Sts):
@@ -588,8 +664,17 @@ class GeometryXYZs():
     def method_rewrite_comment(self) -> None:
         """
         Format and update comment fields for all Geometry instances.
-        """
 
+        This method iterates through all Geometry instances in self.Sts and updates
+        their comment fields. It calls the rewrite_comment method on each instance,
+        and if that method returns True, it calls it again to ensure proper formatting.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         for St in self.Sts:
             if St.method_rewrite_comment():
                 St.method_rewrite_comment()

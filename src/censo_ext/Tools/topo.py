@@ -20,7 +20,7 @@ class Topo():
         Initializes a new instance of the Topo class with the provided file path.
 
         Args:
-            file (Path): The path to the input file containing molecular data.
+            file(Path): The path to the input file containing molecular data.
 
         Attributes:
             __fileName (Path): The path to the input file containing molecular data.
@@ -66,7 +66,7 @@ class Topo():
         Identifies terminal atoms involved in a broken bond, including hydrogen atoms.
 
         Args:
-            args (argparse.Namespace): Command-line arguments containing information about 
+            args(argparse.Namespace): Command-line arguments containing information about 
                 the broken bond and whether to print results.
             args.bond_broken (tuple[int, int]): atom's index of broken-bond[include 1's atom , not include 2's atom]
             args.print (bool): print the final data on screen   

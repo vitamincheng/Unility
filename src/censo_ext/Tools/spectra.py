@@ -48,8 +48,8 @@ def find_nearest(x_in: list[float] | npt.NDArray[np.float64], value) -> tuple[fl
     """Finds the nearest value in a list to a given value.
 
     Args:
-        x_in (list[float]): List of floats.
-        value (float): Value to find the nearest to.
+        x_in(list[float]): List of floats.
+        value(float): Value to find the nearest to.
 
     Returns:
         tuple[float, int]: Tuple containing the nearest value and its index.

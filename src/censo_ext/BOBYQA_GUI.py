@@ -290,11 +290,11 @@ class diagram():
                 return None
             cID: int
             if distance < tolerance:
-                Result = self._peaks_npz.method_ppm2cID(release_x)
+                Result: int | None = self._peaks_npz.method_ppm2cID(release_x)
                 if Result is None:
                     return None
                 else:
-                    cID = int(Result)
+                    cID = Result
             else:
                 return None
 
@@ -506,14 +506,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 peak_list = []
                 sorted_cID_peaks: npt.NDArray = np.sort(
                     ng_1r_peaks, order='cID')
-
                 new_cID: list[int] = []
                 for cID in sorted_cID_peaks['cID']:
                     args_cID: npt.NDArray[np.intp] = (
                         np.argwhere(sorted_cID_peaks['cID'] == cID))
-                    r_Axis: float = float(
+                    r_Axis: int = int(
                         sorted_cID_peaks[args_cID.min()]['X_AXIS'])
-                    l_Axis: float = float(
+                    l_Axis: int = int(
                         sorted_cID_peaks[args_cID.max()]['X_AXIS'])
                     r_LW: float = float(
                         sorted_cID_peaks[args_cID.min()]['X_LW'])
