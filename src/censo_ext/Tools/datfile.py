@@ -115,7 +115,7 @@ class unit_conversion():
         from the internal ppm array, representing the range of the chemical shift scale.
 
         Returns:
-            tuple[float, float]: A tuple containing (minimum_ppm, maximum_ppm)
+            tuple[float,float]: A tuple containing (minimum_ppm, maximum_ppm)
             from the internal ppm array.
 
         Note:
@@ -150,7 +150,7 @@ class Peaks_npz():
             in_x_ppm(float): The ppm value to convert to cID.
 
         Returns:
-            int | None: The corresponding cID if found, None otherwise.
+            int|None: The corresponding cID if found, None otherwise.
         """
         for peak in self.__peaks:
             if peak['Start'] > in_x_ppm > peak['End']:
@@ -420,7 +420,7 @@ class Peaks_npz():
         containing paired center positions and normalized integral numbers.
 
         Returns:
-            zip[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]]: A zip object
+            zip[tuple[npt.NDArray[np.float64],npt.NDArray[np.float64]]]: A zip object
             containing tuples of (center_position, normalized_integral_number) for
             each peak in self.__peaks.
 
