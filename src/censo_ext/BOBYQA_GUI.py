@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import numpy as np
+from numpy._typing._array_like import NDArray
 import numpy.typing as npt
 import matplotlib.pyplot as plt
 import nmrglue as ng
@@ -414,7 +415,8 @@ class diagram:
 
     def draw_integra_numbers(self) -> None:
         """Draw integral numbers on the plot."""
-        Data = self._peaks_npz.get_peaks_integral_number()
+        Data: zip[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]
+                  ] = self._peaks_npz.get_peaks_integral_number()
         y_lowest, y_heighest = self._ax.get_ylim()
         for ppm, integral_number in Data:
             self._ax.text(float(ppm), y_heighest*(-0.035), f"{integral_number:5.1f}",
@@ -428,14 +430,14 @@ class diagram:
                           100./5 + peak_int.max()*0.8, 'g-')
             self._ax.text(peak_scale[0], 0.5 * peak_int.sum() / 100./4 + peak_int.max()*0.8, str(cID),
                           fontsize=8)
-        a = self._peaks_npz.get_cIDs_center_peaks()
+        a: npt.NDArray[np.float64] = self._peaks_npz.get_cIDs_center_peaks()
         for ppm in a[1]:
-            index = self._uc.index(ppm)
+            index: int = self._uc.index(ppm)
             height = float(self._intensit[index])
             self._ax.scatter(ppm, height, marker="o",
                              color="r", s=30, alpha=0.5)
 
-    def draw_preivew(self):
+    def draw_preivew(self) -> None:
         """Draw preview peaks on the plot."""
         idx_cID = 0
         for idx_peaks, cID, _, _ in self._ng_1r_peaks:
@@ -444,11 +446,11 @@ class diagram:
             else:
                 break
             height = self._intensit[int(idx_peaks)]
-            ppm_peak = self._uc.ppm(idx_peaks)
+            ppm_peak: float = self._uc.ppm(idx_peaks)
 
             args_start, args_end = self._uc.ppm_limits()
-            min_idx = self._uc.index(args_start)
-            max_idx = self._uc.index(args_end)
+            min_idx: int = self._uc.index(args_start)
+            max_idx: int = self._uc.index(args_end)
             if ppm_peak < max_idx and ppm_peak > min_idx:
                 self._ax.scatter(ppm_peak, height, marker="o",
                                  color="r", s=100, alpha=0.5)
@@ -505,168 +507,181 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("  Exit and Close the program !!!")
         exit(0)
 
-    if IsExist_bool(args.file):
+    if not IsExist_bool(args.file):
+        return
 
-        censo: CensoDat = CensoDat(args.file)
-        in_Data = censo.get_Dat().T
-        ppm: npt.NDArray[np.float64] = in_Data[0]
-        intensit: npt.NDArray[np.float64] = in_Data[1]
+    # Load the data from dat/npz file
+    censo: CensoDat = CensoDat(args.file)
+    in_Data = censo.get_Dat().T
+    ppm: npt.NDArray[np.float64] = in_Data[0]
+    intensit: npt.NDArray[np.float64] = in_Data[1]
 
-        y_heighest: float = float(np.max(intensit))
-        from censo_ext.Tools.spectra import numpy_thr_mean_3
-        thres: float = numpy_thr_mean_3(intensit)*args.thr
-        thres += y_heighest * 0.01
-        thres_baseline: float = thres
-        uc: unit_conversion = unit_conversion(ppm)
+    # Calculate the threshold
+    y_heighest: float = float(np.max(intensit))
+    from censo_ext.Tools.spectra import numpy_thr_mean_3
+    thres: float = numpy_thr_mean_3(intensit)*args.thr + y_heighest * 0.01
+    thres_baseline: float = thres
+    uc: unit_conversion = unit_conversion(ppm)
 
-        peaks_npz: Peaks_npz = Peaks_npz(uc)
-        ng_1r_peaks: npt.NDArray = ng.peakpick.pick(
-            data=intensit, pthres=thres, algorithm="downward")
-        diagrams: diagram = diagram(args.file,
-                                    peaks_npz, intensit, uc, thres, ng_1r_peaks, args.mf)
+    peaks_npz: Peaks_npz = Peaks_npz(uc)
+    ng_1r_peaks: npt.NDArray = ng.peakpick.pick(
+        data=intensit, pthres=thres, algorithm="downward")
 
-        # Automatically Integate the peaks
-        if args.auto:
+    diagrams: diagram = diagram(args.file,
+                                peaks_npz, intensit, uc, thres, ng_1r_peaks, args.mf)
 
-            AD_normal: AD_Normal = AD_Normal()
-            if (AD_normal.Exist()):
-                AD_normal.method_load_files()
-                if isinstance(AD_normal.SParams, dict):
-                    idx1_orcaS: list[int] = list(
-                        map(int, AD_normal.SParams.keys()))
-                else:
-                    print("  The format of orcaS.out is not dict !!!")
-                    print("  Exit and Close the program !!!")
-                    exit(0)
-                from censo_ext.Tools.anmrfile import Anmr
-                inAnmr: Anmr = Anmr()
-                inAnmr.method_read_nucinfo()
-                ChemEqvs: dict[int, list[int]] = {key: value for key,
-                                                  value in inAnmr.NeighborChemEqvs.items() if key in idx1_orcaS}
-                Groups: list[list[int]] = list(
-                    sorted(value) for value in ChemEqvs.values())
-                unique_group: list = []
-                for item in Groups:
-                    if item not in unique_group:
-                        unique_group.append(item)
-                nGroups: int = len(unique_group)
+    # Automatically Integate the peaks
+    if args.auto:
+        process_auto_mode(args, intensit, y_heighest, thres,
+                          thres_baseline, uc, peaks_npz, ng_1r_peaks)
+
+    # Integrate the peaks if manually fixed the peaks.npz file
+    if args.manual:
+        peaks_npz.method_read_file()
+        print("  ========== Before ==========")
+        peaks_npz.method_print()
+
+    # Draw the intergral lines and cID of peaks
+    # Plot the integration lines, limits and cID of peaks
+    if args.auto or args.manual:
+        diagrams.draw_integral()
+
+    # add markers for peak positions. It is only for preview.
+    if not args.auto and not args.manual:
+        diagrams.draw_preivew()
+
+    # draw the threshold line and text and for adjust threshold for next time
+    if args.auto:
+        diagrams.draw_threshold()
+
+    diagrams.draw_curve()
+    diagrams.draw_x_axis()
+    diagrams.connect()
+
+    plt.ioff()
+    plt.show()
+
+
+def process_auto_mode(args, intensit, y_heighest, thres, thres_baseline, uc, peaks_npz, ng_1r_peaks):
+    AD_normal: AD_Normal = AD_Normal()
+
+    if not AD_normal.Exist():
+        print("Only use --basic for one parameter under Automated mode")
+        args.basic = True
+        nGroups = 0
+    else:
+        AD_normal.method_load_files()
+        if not isinstance(AD_normal.SParams, dict):
+            print("  The format of orcaS.out is not dict !!!")
+            print("  Exit and Close the program !!!")
+            exit(0)
+        else:
+            idx1_orcaS: list[int] = list(
+                map(int, AD_normal.SParams.keys()))
+        from censo_ext.Tools.anmrfile import Anmr
+        inAnmr: Anmr = Anmr()
+        inAnmr.method_read_nucinfo()
+        ChemEqvs: dict[int, list[int]] = {key: value for key,
+                                          value in inAnmr.NeighborChemEqvs.items() if key in idx1_orcaS}
+        Groups: list[list[int]] = list(
+            sorted(value) for value in ChemEqvs.values())
+        unique_group: list = []
+        for item in Groups:
+            if item not in unique_group:
+                unique_group.append(item)
+        nGroups: int = len(unique_group)
+
+    peak_list: list = []
+    last_peaks: int = 0
+    while True:
+        peak_list = extract_peaks(intensit, uc, ng_1r_peaks)
+
+        print("threshold : ", thres)
+        print("Excepted  : ", nGroups)
+        print("Real Num  : ", len(peak_list))
+
+        merge_overlap_peaks(peak_list)
+
+        print("     cID        Start          End             Area")
+        for x in peak_list:
+            print(f"{x[0]:8d} {x[1]:12.4f} {x[2]:12.4f} {x[3]:16.4e}")
+        print("")
+        peaks_npz.method_load_Data(peak_list)
+
+        if args.basic is True or nGroups == len(peak_list) or len(peak_list) < last_peaks:
+            break
+        elif len(peak_list) > last_peaks:
+            last_peaks = len(peak_list)
+        else:  # find the smallest of len(peak_list)
+            if thres > y_heighest*0.7:
+                break
             else:
-                print("Only use --basic for one parameter under Automated mode")
-                args.basic = True
-                nGroups = 0
+                thres += thres_baseline
+                ng_1r_peaks = ng.peakpick.pick(
+                    data=intensit, pthres=thres, algorithm="downward")
 
-            peak_list: list = []
-            last_peaks: int = 0
-            while (1):
-                peak_list = []
-                sorted_cID_peaks: npt.NDArray = np.sort(
-                    ng_1r_peaks, order='cID')
-                new_cID: list[int] = []
-                for cID in sorted_cID_peaks['cID']:
-                    args_cID: npt.NDArray[np.intp] = (
-                        np.argwhere(sorted_cID_peaks['cID'] == cID))
-                    r_Axis: int = int(
-                        sorted_cID_peaks[args_cID.min()]['X_AXIS'])
-                    l_Axis: int = int(
-                        sorted_cID_peaks[args_cID.max()]['X_AXIS'])
-                    r_LW: float = float(
-                        sorted_cID_peaks[args_cID.min()]['X_LW'])
-                    l_LW: float = float(
-                        sorted_cID_peaks[args_cID.max()]['X_LW'])
+    print("  ========== Automated Data ==========")
+    print("Numbers of peaks : ", len(peaks_npz))
+    peaks_npz.method_print()
 
-                    if l_LW <= 1.0:
-                        l_LW = 1
-                    if r_LW <= 1.0:
-                        r_LW = 1
-                    l_LW_thr: float = 120/l_LW
-                    r_LW_thr: float = 120/r_LW
 
-                    l_peak: float = uc.ppm(l_Axis)+(l_LW/3000)*l_LW_thr
-                    r_peak: float = uc.ppm(r_Axis)-(r_LW/3000)*r_LW_thr
+def merge_overlap_peaks(peak_list):
+    ppm_end: list[np.float64] = np.array(peak_list).T[2].tolist()
+    ppm_start: list[np.float64] = np.array(peak_list).T[1].tolist()
+    ppm_end.pop(0)
+    ppm_end.append(999)  # type: ignore
+    ppm_args: npt.NDArray[np.intp] = np.argwhere(
+        np.array(ppm_end)-np.array(ppm_start) < 0)
+    for x in (ppm_args + 1):
+        index = x[0]
+        ppm_center = (peak_list[index-1]
+                      [1] + peak_list[index][2])/2
+        new_cID, start, end, Area = peak_list[index-1]
+        peak_list[index-1] = (new_cID, ppm_center, end, Area)
+        new_cID, start, end, Area = peak_list[index]
+        peak_list[index] = (new_cID, start, ppm_center, Area)
 
-                    min: int = uc.index(l_peak)
-                    max: int = uc.index(r_peak)
-                    if min > max:
-                        min, max = max, min
 
-                    # extract the peak
-                    peak: npt.NDArray[np.float64] = intensit[min:max + 1]
+def extract_peaks(intensit, uc, ng_1r_peaks):
+    peak_list: list = []
+    sorted_cID_peaks: npt.NDArray = np.sort(
+        ng_1r_peaks, order='cID')
+    new_cID: list[int] = []
+    for cID in sorted_cID_peaks['cID']:
+        args_cID: npt.NDArray[np.intp] = (
+            np.argwhere(sorted_cID_peaks['cID'] == cID))
+        r_Axis: int = int(
+            sorted_cID_peaks[args_cID.min()]['X_AXIS'])
+        l_Axis: int = int(
+            sorted_cID_peaks[args_cID.max()]['X_AXIS'])
+        r_LW: float = float(
+            sorted_cID_peaks[args_cID.min()]['X_LW'])
+        l_LW: float = float(
+            sorted_cID_peaks[args_cID.max()]['X_LW'])
 
-                    if cID not in new_cID:
-                        new_cID.append(cID)
-                        peak_list.append(
-                            (int(cID), l_peak, r_peak, float(peak.sum())))
+        if l_LW <= 1.0:
+            l_LW = 1
+        if r_LW <= 1.0:
+            r_LW = 1
+        l_LW_thr: float = 120/l_LW
+        r_LW_thr: float = 120/r_LW
 
-                print("threshold : ", thres)
-                print("Excepted  : ", nGroups)
-                print("Real Num  : ", len(peak_list))
+        l_peak: float = uc.ppm(l_Axis)+(l_LW/3000)*l_LW_thr
+        r_peak: float = uc.ppm(r_Axis)-(r_LW/3000)*r_LW_thr
 
-                ppm_end: list[np.float64] = np.array(peak_list).T[2].tolist()
-                ppm_start: list[np.float64] = np.array(peak_list).T[1].tolist()
-                ppm_end.pop(0)
-                ppm_end.append(999)  # type: ignore
-                ppm_args: npt.NDArray[np.intp] = np.argwhere(
-                    np.array(ppm_end)-np.array(ppm_start) < 0)
-                for x in (ppm_args + 1):
-                    index = x[0]
-                    ppm_center = (peak_list[index-1]
-                                  [1] + peak_list[index][2])/2
-                    new_cID, start, end, Area = peak_list[index-1]
-                    peak_list[index-1] = (new_cID, ppm_center, end, Area)
-                    new_cID, start, end, Area = peak_list[index]
-                    peak_list[index] = (new_cID, start, ppm_center, Area)
+        min: int = uc.index(l_peak)
+        max: int = uc.index(r_peak)
+        if min > max:
+            min, max = max, min
 
-                print("     cID        Start          End             Area")
-                for x in peak_list:
-                    print(f"{x[0]:8d} {x[1]:12.4f} {x[2]:12.4f} {x[3]:16.4e}")
-                print("")
-                peaks_npz.method_load_Data(peak_list)
+            # extract the peak
+        peak: npt.NDArray[np.float64] = intensit[min:max + 1]
 
-                if args.basic is True:
-                    break
-                if nGroups == len(peak_list):
-                    break
-                elif len(peak_list) < last_peaks:
-                    break
-                elif len(peak_list) > last_peaks:
-                    last_peaks = len(peak_list)
-                else:  # find the smallest of len(peak_list)
-                    if thres > y_heighest*0.7:
-                        break
-                    else:
-                        thres += thres_baseline
-                        ng_1r_peaks = ng.peakpick.pick(
-                            data=intensit, pthres=thres, algorithm="downward")
-
-            print("  ========== Automated Data ==========")
-            print("Numbers of peaks : ", len(peaks_npz))
-            peaks_npz.method_print()
-
-        # Integrate the peaks if manually fixed the peaks.npz file
-        if args.manual:
-            peaks_npz.method_read_file()
-            print("  ========== Before ==========")
-            peaks_npz.method_print()
-
-        # Draw the intergral lines and cID of peaks
-        # Plot the integration lines, limits and cID of peaks
-        if args.auto or args.manual:
-            diagrams.draw_integral()
-
-        # add markers for peak positions. It is only for preview.
-        if not args.auto and not args.manual:
-            diagrams.draw_preivew()
-
-        # draw the threshold line and text and for adjust threshold for next time
-        if args.auto:
-            diagrams.draw_threshold()
-
-        diagrams.draw_curve()
-        diagrams.draw_x_axis()
-        diagrams.connect()
-
-        plt.ioff()
-        plt.show()
+        if cID not in new_cID:
+            new_cID.append(cID)
+            peak_list.append(
+                (int(cID), l_peak, r_peak, float(peak.sum())))
+    return peak_list
 
 
 if __name__ == "__main__":
