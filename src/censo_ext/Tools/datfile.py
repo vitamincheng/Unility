@@ -206,8 +206,6 @@ class Peaks_npz():
             at the position of the peak with the minimum cID.
         """
         min_cID: int = np.array(cIDs).min()
-        from icecream import ic
-        ic(cIDs, min_cID)
         start, end = -99999, 99999
         for cID in sorted(cIDs):
             if cID in self.__peaks['cID']:
