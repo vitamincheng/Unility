@@ -28,4 +28,5 @@ dependencies = [
     "tblite",
     "tqdm",
     "cachier",
+    "pyqt5",
 ]
