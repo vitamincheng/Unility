@@ -206,6 +206,8 @@ class Peaks_npz():
             at the position of the peak with the minimum cID.
         """
         min_cID: int = np.array(cIDs).min()
+        from icecream import ic
+        ic(cIDs, min_cID)
         start, end = -99999, 99999
         for cID in sorted(cIDs):
             if cID in self.__peaks['cID']:
@@ -296,7 +298,7 @@ class Peaks_npz():
             self.__peaks = np.insert(
                 self.__peaks, args_x[0], (cID, cut_center, r_peaks, intensit[min:start+cut_argmin].sum()))
             self.__peaks = np.insert(
-                self.__peaks, args_x[0], (self.__peaks['cID'].max() + 1, l_peaks, cut_center, intensit[start+cut_argmin:max].sum()))
+                self.__peaks, args_x[0]+1, (self.__peaks['cID'].max() + 1, l_peaks, cut_center, intensit[start+cut_argmin:max].sum()))
         else:
             print("  Merge element is wrong cID")
             print("  Exit and Close the program !!!")
