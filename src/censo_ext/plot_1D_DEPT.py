@@ -169,6 +169,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # read in the Bruker data
     if args == argparse.Namespace():
         args = cml()
+
     if not args.hidden:
         print(descr)  # Program description
         print(f"    provided arguments: {" ".join(sysargv)}")
@@ -180,7 +181,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     ch3: Path = Path('DEPT_135')
     thr: dict[Path, float] = {ch1: 2.0, ch2: 20.0, ch3: 2.0}
     thr_ch3_180: float = 2.0
-    directory: Path = Path("../../bmse000510/nmr/set01")
+    directory: Path = Path(
+        "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01")
     path[ch1] = directory / ch1 / Path("pdata/1")
     path[ch2] = directory / ch2 / Path("pdata/1")
     path[ch3] = directory / ch3 / Path("pdata/1")

@@ -203,9 +203,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Remember to fix the pipe.py in ng.pipe.make_uc to remark   171 lines: size = size / 2
     ###
     if not args.path:
-        args.path = "../../bmse000510/nmr/set01/1H_13C_HSQC/pdata/1/"
-        # args.path = "../../bmse000510/nmr/set01/1H_13C_HMBC/pdata/1/"
-        # args.path = "../../bmse000405/nmr/set01/HH_TOCSY/pdata/1/"
+        args.path = "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01/1H_13C_HSQC/pdata/1/"
+        # args.path = "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01/1H_13C_HMBC/pdata/1/"
+        # args.path = "/Users/chengwen-cheng/Desktop/Simulation/bmse000405/nmr/set01/HH_TOCSY/pdata/1/"
     udic, data = read_from_bruker(args.path, args.DeltaF1, args.DeltaF2)
     uc_1h, uc_13c = read_udic(udic, data)
 
@@ -237,12 +237,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             # ax.plot(uc_1h.ppm_scale(), -xslice/maximum *
             #        5 + uc_13c.ppm(y_idx), linewidth=0.5)
             ax.plot(uc_1h.ppm_scale(), -xslice/x_grobal_maximum *
-                    5*4 + uc_13c.ppm(y_idx), linewidth=0.5)
+                    5*4 + uc_13c.ppm(y_idx), linewidth=1)
             ax.text(xright, uc_13c.ppm(y_idx), f"{uc_13c.ppm(
                 y_idx):12.3f}", ha="right", va="center", fontsize=6)
             for x in [x1 for x1, y1 in max_peaks if y1 == y_idx]:
                 if data[y_idx][x] >= maximum * 0.5:
-                    ax.scatter(uc_1h.ppm(x), uc_13c.ppm(y_idx), marker="o", color="r", s=300, alpha=0.5)  # type: ignore # nopep8
+                    ax.scatter(uc_1h.ppm(x), uc_13c.ppm(y_idx), marker="o", color="r", s=100, alpha=0.5)  # type: ignore # nopep8
         # if y_idx == 52:
         #    ax.plot(uc_1h.ppm_scale(), -xslice/maximum *
         #            5 + uc_13c.ppm(y_idx), linewidth=0.5)
