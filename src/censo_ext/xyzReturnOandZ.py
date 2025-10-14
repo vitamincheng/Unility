@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import argparse
 # import os
-from sys import argv as sysargv
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 import numpy.typing as npt
@@ -44,6 +43,7 @@ def cml() -> argparse.Namespace:
         dest="file",
         action="store",
         required=False,
+        default="traj.xyz",
         help="Provide one input xyz file [default traj.xyz]",
     )
 
@@ -153,12 +153,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml()
     print_arguments()
 
+    from censo_ext.Tools.utility import IsExist
     inFile = Path(args.file)
     outFile = Path(args.out)
-
-    if not args.print:
-        print(descr)  # Program description
-        print(f"    provided arguments: {" ".join(sysargv)}")
+    IsExist(args.file)
 
     if not args.atom and not args.auto:
         raise ValueError(" No any sepific atom in your provided arguments ")

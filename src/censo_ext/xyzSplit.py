@@ -6,7 +6,6 @@ import numpy as np
 import numpy.typing as npt
 from censo_ext.Tools.utility import print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
-from sys import argv as sysargv
 descr = """
 ________________________________________________________________________________
 | For search the confomrers from various angles of cleavage specifying two atoms                        
@@ -98,10 +97,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     inFile = Path(args.file)
     outFile = Path(args.out)
     IsExist(inFile)
-
-    if not args.print:
-        print(descr)  # Program description
-        print(f"    provided arguments: {" ".join(sysargv)}")
 
     if not args.cuts or not args.atoms:
         print("  Please input your atoms that you want to split ")
