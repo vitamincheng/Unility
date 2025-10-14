@@ -1,7 +1,7 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python
 import argparse
-from icecream import ic
 from matplotlib.axes import Axes
+from matplotlib.text import Text
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from censo_ext.Tools.utility import print_arguments
@@ -10,31 +10,99 @@ import numpy as np
 import numpy.typing as npt
 import os
 import sys
+from pathlib import Path
+descr = """
+________________________________________________________________________________
+| For plot_2D_Sim.py
+| Usages   : plot_2D_sim.py <geometry> [options]
+| [options]
+|______________________________________________________________________________
+"""
 
 
-def Load_dat(fileName_H, FileName_C) -> tuple[npt.NDArray, npt.NDArray]:
+def cml() -> argparse.Namespace:
+    """ Get args object from commandline interface. Needs argparse module."""
+    parser = argparse.ArgumentParser(
+        description="descr",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        usage=argparse.SUPPRESS)
+    parser.add_argument(
+        "-d",
+        "--dir",
+        dest="dir",
+        action="store",
+        type=str,
+        required=True,
+        nargs=2,
+        help="Provide two input directory folder [dir of Hydrogen, dir of Carbon]",
+    )
+    parser.add_argument(
+        "-p",
+        "--proton",
+        dest="h_limits",
+        action="store",
+        required=False,
+        default=None,
+        nargs=2,
+        type=float,
+        help="Start plotting from '<start>' ppm and End plotting from '<end>' ppm in H spectra",
+    )
+    parser.add_argument(
+        "-c",
+        "--carbon",
+        dest="c_limits",
+        action="store",
+        required=False,
+        default=None,
+        nargs=2,
+        type=float,
+        help="Start plotting from '<start>' ppm and End plotting from '<end>' ppm in C spectra",
+    )
+    args: argparse.Namespace = parser.parse_args()
+    return args
 
-    data_x: npt.NDArray[np.float64] = np.genfromtxt(fileName_H)
-    data_y: npt.NDArray[np.float64] = np.genfromtxt(FileName_C)
-    return data_x, data_y
 
-
-def Load_Directory(directory_H, directory_C) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+def Load_Directory(in_dir: tuple[Path, Path], h_limits, c_limits) \
+        -> tuple[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]],
+                 tuple[float, float], tuple[float, float]]:
 
     import censo_ext.anmr as anmr
-    args_x: dict = {"auto": True, "average": True,
-                    "bobyqa": True, "mf": 500, "dir": directory_H, "thr": None, "json": [-1], "thrab": 0.025, "verbose": False,
-                    "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
+    directory_H, directory_C = in_dir
+
+    args_x: dict = {"auto": True, "average": True, "bobyqa": True, "mf": 500,
+                    "dir": directory_H, "thr": None, "json": [-1], "thrab": 0.025,
+                    "verbose": False, "lw": 1, "tb": 4, "mss": 10, "cutoff": 0.001,
+                    "show": False, "start": None, "end": None, "out": "output.npz"}
+    sys.stdout = open(os.devnull, 'w')
     data_x = anmr.main(argparse.Namespace(**args_x)).T
-    args_y: dict = {"auto": True, "average": True,
-                    "bobyqa": True, "mf": 500, "dir": directory_C, "thr": None, "json": [-1], "thrab": 0.025, "verbose": False,
-                    "tb": 4, "mss": 9, "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.dat"}
+    sys.stdout = sys.__stdout__
+
+    args_y: dict = {"auto": True, "average": True, "bobyqa": True, "mf": 500,
+                    "dir": directory_C, "thr": None, "json": [-1], "thrab": 0.025,
+                    "verbose": False, "lw": 1, "tb": 4, "mss": 10, "cutoff": 0.001,
+                    "show": False, "start": None, "end": None, "out": "output.npz"}
+    sys.stdout = open(os.devnull, 'w')
     data_y = anmr.main(argparse.Namespace(**args_y)).T
+    sys.stdout = sys.__stdout__
 
-    return data_x, data_y
+    if h_limits is None:
+        h_limits = float(min(data_x.T[0])), float(max(data_x.T[0]))
+    else:
+        start, end = h_limits
+        if start > end:
+            h_limits = end, start
+    if c_limits is None:
+        c_limits = float(min(data_y.T[0])), float(max(data_y.T[0]))
+    else:
+        start, end = c_limits
+        if start > end:
+            c_limits = end, start
+
+    return (data_x, data_y), h_limits, c_limits
 
 
-def plot_2D_basic(data_x, data_y):
+def draw_2D_basic(data_xy) -> Axes:
+    data_x, data_y = data_xy
     fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
     gs: GridSpec = fig.add_gridspec(2, 2,  width_ratios=(1, 19), height_ratios=(1, 9),
                                     left=0.03, right=0.97, bottom=0.03, top=0.97,
@@ -50,11 +118,10 @@ def plot_2D_basic(data_x, data_y):
     ax_histy.get_yaxis().set_visible(False)
     ax_histy.axis('off')
 
-    x_axis_data = data_x.T[1]
-    y_axis_data = data_y.T[1]
+    x_axis_data: npt.NDArray[np.float64] = data_x.T[1]
+    y_axis_data: npt.NDArray[np.float64] = data_y.T[1]
 
-    # height_x_axis_data =np.max(x_axis_data)
-    # height_y_axis_data =np.max(y_axis_data)
+    fig.suptitle("$^{1}$J (C,H)", fontsize=12, x=0.10, y=0.98)
     ax_histx.plot(data_x.T[0], x_axis_data)
     ax_histy.plot(-y_axis_data, data_y.T[0])
     ax.xaxis.tick_top()
@@ -62,16 +129,18 @@ def plot_2D_basic(data_x, data_y):
     return ax
 
 
-def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, npt.NDArray], dict, dict]:
+def plot_2D_slice(ax: Axes, in_dir: tuple[Path, Path], data_xy: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]], h_limits, c_limits) \
+        -> tuple[dict[int, int], dict[int, npt.NDArray], dict, dict]:
 
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
-    from pathlib import Path
     from ase.atoms import Atoms
+    data_x, data_y = data_xy
+    Directory_H, Directory_C = in_dir
     mol: Atoms | list[Atoms]
     neighbor: dict[int, npt.NDArray[np.int64]]
     bond_order: dict[int, int]
     mol, neighbor, bond_order = read_mol_neighbors_bond_order(
-        Path("Test/34.Ergocalciferol/04.Hydrogen/crest_conformers.xyz"))
+        Directory_H/Path("crest_conformers.xyz"))
     idx_H_atom: list[int] = [idx+1 for idx,
                              i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
     idx_C_atom: list[int] = [idx+1 for idx,
@@ -82,41 +151,61 @@ def plot_2D_slice(ax, data_x, data_y) -> tuple[dict[int, int], dict[int, npt.NDA
     for key, value in neighbor.items():
         neighbor[key] = np.array([x for x in value if x in idx_H_atom])
 
-    tmp = list(np.genfromtxt(
-        "Test/34.Ergocalciferol/07.Carbon/Average/NMR/orcaS-BOBYQA.out", usecols=[0, 1]))
+    tmp_c: list = list(np.genfromtxt(
+        Directory_C / Path("Average/NMR/orcaS-BOBYQA.out"), usecols=[0, 1]))
 
-    idxAtoms_C: dict = {int(x): -y for x, y in tmp}
+    idxAtoms_C: dict = {int(x): -y for x, y in tmp_c}
     # list_idxAtoms_C:list = list(idxAtoms_C.keys())
 
-    tmp = list(np.genfromtxt(
-        "Test/34.Ergocalciferol/04.Hydrogen/Average/NMR/orcaS-BOBYQA.out", usecols=[0, 1]))
-    idxAtoms_H: dict = {int(x): -y for x, y in tmp}
-    # list_idxAtoms_H:list = list(idxAtoms_H.keys())
-    ax.set_xlim(max(data_x.T[0]),  min(data_x.T[0]))
-    ax.set_ylim(max(data_y.T[0]), min(data_y.T[0]))
+    tmp_h: list = list(np.genfromtxt(
+        Directory_H/Path("Average/NMR/orcaS-BOBYQA.out"), usecols=[0, 1]))
+    idxAtoms_H: dict = {int(x): -y for x, y in tmp_h}
+    ax.set_xlim(h_limits[1], h_limits[0])
+    ax.set_ylim(c_limits[1], c_limits[0])
+    x_lowest, x_highest = h_limits
+    x_lowest = abs(x_lowest-x_highest)*0.03 + x_lowest
 
     for idxAtom_C, C_ppm in idxAtoms_C.items():
-        idx0_neighbor: list = []
+
+        idx0_neighbor: dict = {}
         for idx_neighbor_Atoms_H in neighbor[idxAtom_C]:
             for idx, value in enumerate(idxAtoms_H.keys()):
                 if idx_neighbor_Atoms_H == value:
-                    idx0_neighbor.append(idx)
+                    if value in idx0_neighbor:
+                        idx0_neighbor[idx] = (idx0_neighbor[idx], value)
+                    else:
+                        idx0_neighbor[idx] = value
 
         if len(idx0_neighbor) != 0:
-            for idx0 in idx0_neighbor:
+            for idx0, value in idx0_neighbor.items():
 
                 import censo_ext.anmr as anmr
-                x = {'out': 'output.dat', 'mf': 500.0, "dir": "Test/34.Ergocalciferol/04.Hydrogen", 'lw': None, 'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025, "verbose": False,
-                     'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 9, 'auto': True, 'average': True, 'bobyqa': True, 'json': [idx0]}
+                x = {'out': 'output.npz', 'mf': 500.0, "dir": Directory_H, 'lw': None,
+                     'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025, "verbose": False, 'tb': 4,
+                     'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 10, 'auto': True,
+                     'average': True, 'bobyqa': True, 'json': [idx0]}
                 sys.stdout = open(os.devnull, 'w')
-                np_dat = anmr.main(args=argparse.Namespace(**x))
+                np_dat: npt.NDArray[np.float64] = anmr.main(
+                    args=argparse.Namespace(**x))
                 sys.stdout = sys.__stdout__
-                maximum = np.max(np_dat)
-                ax.plot(np_dat[0], -np_dat[1]/maximum*5 + C_ppm, linewidth=0.5)
-                ax.text(0, C_ppm, f"{C_ppm:12.3f}",
-                        ha="right", va="center", fontsize=6)
+                maximum: np.float64 = np.max(np_dat)
+                ax.plot(np_dat[0], -np_dat[1]/maximum*5 + C_ppm, linewidth=1)
+                if len(idx0_neighbor.values()) == 1:
+                    text: Text = ax.text(x_lowest, C_ppm, f"{C_ppm:12.2f} ({idxAtom_C}C,",
+                                         ha="right", va="center", fontsize=8)
+                    text = ax.annotate(f" {tuple(idx0_neighbor.values())[0]}H)",
+                                       xycoords=text, xy=(1.00, 0.5), ha="left", va="center", color="blue", fontsize=8)
+                else:
+                    text = ax.text(x_lowest, C_ppm, f"{C_ppm:12.2f} ({idxAtom_C}C,",
+                                   ha="right", va="center", fontsize=8)
+                    text = ax.annotate(f" {tuple(idx0_neighbor.values())}H)",
+                                       xycoords=text, xy=(1.00, 0.5), ha="left", va="center", color="blue", fontsize=8)
 
     plt.subplots_adjust(hspace=0.5, wspace=0.5)
+    # plt.savefig("output.pdf", dpi=300)
+    # plt.savefig("output.svg")
+
+    plt.show()
     return bond_order, neighbor, idxAtoms_H, idxAtoms_C
 
 
@@ -154,35 +243,20 @@ def print_report(bond_order, neighbor, idxAtoms_H, idxAtoms_C) -> None:
     return
 
 
-def plot_target(ax) -> None:
-    data: npt.NDArray[np.float64] = np.genfromtxt("out")
-    ic(data)
-    for i in data:
-        ax.scatter(i[1], i[0], marker="o", color="r",
-                   s=30, alpha=0.5)  # type: ignore
-    return
-
-
-def main(args=argparse.Namespace()) -> None:
+def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
-        pass
+        args = cml()
     print_arguments()
 
-    directory_H: str = "Test/34.Ergocalciferol/04.Hydrogen"
-    directory_C: str = "Test/34.Ergocalciferol/07.Carbon"
-    data_x, data_y = Load_Directory(directory_H, directory_C)
+    in_dir: tuple[Path, Path] = args.dir[0], args.dir[1]
 
-    ax = plot_2D_basic(data_x, data_y)
+    data_xy, h_limits, c_limits = Load_Directory(
+        in_dir, args.h_limits, args.c_limits)
+
+    ax: Axes = draw_2D_basic(data_xy)
     bond_order, neighbor, idxAtoms_H, idxAtoms_C = plot_2D_slice(
-        ax, data_x, data_y)
-
+        ax, in_dir, data_xy, h_limits, c_limits)
     print_report(bond_order, neighbor, idxAtoms_H, idxAtoms_C)
-    from censo_ext.Tools.utility import save_figure
-    save_figure()
-
-    ax.set_xlim(max(data_x.T[0]), min(data_x.T[0]))
-    ax.set_ylim(max(data_y.T[0]), min(data_y.T[0]))
-    plt.show()
 
 
 if __name__ == "__main__":
