@@ -406,10 +406,10 @@ class Peaks_npz():
         Note:
             The center position is calculated as (Start + End) / 2 for each peak.
         """
-        first: npt.NDArray[np.float64] = self.__peaks['cID']
-        second: npt.NDArray[np.float64] = (
+        cID: npt.NDArray[np.float64] = self.__peaks['cID']
+        center_ppm: npt.NDArray[np.float64] = (
             self.__peaks['Start']+self.__peaks['End'])/2
-        return np.stack((first, second))
+        return np.stack((cID, center_ppm))
 
     def get_peaks_integral_number(self) -> zip[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]]:
         """Get peak centers and normalized integral numbers.
