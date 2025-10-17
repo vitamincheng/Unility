@@ -18,22 +18,19 @@ args_Normal: dict = {"dir": DirName, "ref": RefDat, "mf": 500,
 
 @pytest.fixture(scope="function")
 def setup_and_teardown():
-    anmr_init()
-    BOBYQA_init()
+    anmr_BOBYQA_init()
     yield
     BOBYQA_final_remove_files()
 
 
-def anmr_init():
+def anmr_BOBYQA_init():
     # Create Average/NMR/orcaS.out and Average/NMR/orcaS_BOBYQA.out file
-    args_x: dict = {"auto": True, "average": False, "dir": DirName, "bobyqa": False, "mf": 500,
-                    "lw": None, "thr": None, "json": None, "thrab": 0.025, "tb": 4, "mss": 9, "verbose": False,
-                    "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.npz"}
-    args = argparse.Namespace(**args_x)
+    args_anmr: dict = {"auto": True, "average": False, "dir": DirName, "bobyqa": False, "mf": 500,
+                       "lw": None, "thr": None, "json": None, "thrab": 0.025, "tb": 4, "mss": 9, "verbose": False,
+                       "cutoff": 0.001, "show": False, "start": None, "end": None, "out": "output.npz"}
+    args = argparse.Namespace(**args_anmr)
     anmr.main(args)
 
-
-def BOBYQA_init():
     args_Normal['prog'] = None
     args_x = argparse.Namespace(**args_Normal)
 
