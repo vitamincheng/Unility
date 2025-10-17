@@ -5,6 +5,7 @@ from numba import jit
 import argparse
 from icecream import ic
 from cachier import cachier
+type cplex = npt.NDArray[np.complex128]
 
 
 @cachier(separate_files=True)
@@ -23,17 +24,17 @@ def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[n
         Tuple containing the three Pauli matrices (sigma_x, sigma_y, sigma_z)
     """
 
-    sigma_x: npt.NDArray[np.complex128] = np.array([[0, 1 / 2], [1 / 2, 0]])
-    sigma_y: npt.NDArray[np.complex128] = np.array([[0, -1j / 2], [1j / 2, 0]])
-    sigma_z: npt.NDArray[np.complex128] = np.array([[1 / 2, 0], [0, -1 / 2]])
-    unit: npt.NDArray[np.complex128] = np.array([[1, 0], [0, 1]])
+    sigma_x: cplex = np.array([[0, 1 / 2], [1 / 2, 0]])
+    sigma_y: cplex = np.array([[0, -1j / 2], [1j / 2, 0]])
+    sigma_z: cplex = np.array([[1 / 2, 0], [0, -1 / 2]])
+    unit: cplex = np.array([[1, 0], [0, 1]])
 
-    L: npt.NDArray[np.complex128] = np.empty(
+    L: cplex = np.empty(
         (3, nspins, 2 ** nspins, 2 ** nspins), dtype=np.complex128)
     for n in range(nspins):
-        Lx_current: npt.NDArray[np.complex128] = np.array([1])
-        Ly_current: npt.NDArray[np.complex128] = np.array([1])
-        Lz_current: npt.NDArray[np.complex128] = np.array([1])
+        Lx_current: cplex = np.array([1])
+        Ly_current: cplex = np.array([1])
+        Lz_current: cplex = np.array([1])
 
         for k in range(nspins):
             if k == n:
@@ -49,8 +50,8 @@ def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[n
         L[1][n] = Ly_current
         L[2][n] = Lz_current
 
-    L_T: npt.NDArray[np.complex128] = L.transpose(1, 0, 2, 3)
-    Lproduct: npt.NDArray[np.complex128] = np.tensordot(
+    L_T: cplex = L.transpose(1, 0, 2, 3)
+    Lproduct: cplex = np.tensordot(
         L_T, L, axes=((1, 3), (0, 2))).swapaxes(1, 2).astype(np.complex128)
 
     return L, Lproduct
@@ -469,39 +470,3 @@ def _doublet(plist: list[tuple[float, int]], JCoups, delta) -> list[tuple[float,
         # the right of doublet if J is positive
         res.append((v - JCoups / 2, intensit / 2 * k_large))
     return res
-
-
-if __name__ == "__main__":
-
-    x: dict = {"out": "output.dat", "start": -
-               0.5, "end": 10.5, "lw": 0.1, "mf": 500.0, "cutoff": 0.001, "debug": False, "bobyqa": False}
-    args = argparse.Namespace(**x)
-
-    # v: positive or negative of the frequency is the same of spectra
-    # J: only one AB quartet, positive or negative of the J Coupling constant the spectra is the same
-
-    # v: list = [1100, 1200, 1900, 2500]
-    # J: npt.NDArray[np.float64] = np.array([[0.0,   -16.0,   0.0,   4.0],
-    #                         [-16.0,   0.0, 2.0,   4.0],
-    #                          [0.0, 2.0,   0.0,   0.0],
-    #                          [4.0,   4.0,   0.0,   0.0]])
-
-    v: list[float] = [480, 645, 645, 645, 645, 480]
-    J: npt.NDArray[np.float64] = \
-        np.array([[0.00000,      7.12744,      7.12267,     -0.22011,   -0.21844,     -0.02230],
-                  [7.12744,      0.00000,    -13.32467,      6.11500,    6.85267,     -0.21511],  # nopep8
-                  [7.12267,    -13.32467,      0.00000,      6.81333,    6.12033,     -0.21878],  # nopep8
-                  [-0.22011,      6.11500,      6.81333,     0.00000,  -13.32433,      7.12589],  # nopep8
-                  [-0.21844,      6.85267,      6.12033,   -13.32433,    0.00000,      7.12811],  # nopep8
-                  [-0.02230,     -0.21511,     -0.21878,     7.12589,    7.12811,      0.00000]])
-
-    R_peak: list = qm_full(v=v, J=J, args=args)
-    ic(len(R_peak), R_peak)
-    print_plot(in_plist=R_peak, dpi=10000, Active_range=20, args=args)
-
-    R_peaks = []
-    for idx in range(len(v)):
-        R_peaks += qm_partial(v=v, J=J, idx0_nspins=idx, args=args)
-
-    ic(len(R_peaks), R_peaks)
-    print_plot(in_plist=R_peaks, dpi=10000, Active_range=20, args=args)

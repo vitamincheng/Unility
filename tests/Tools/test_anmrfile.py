@@ -25,6 +25,23 @@ def test_anmrfile_read_OrcaSJ() -> None:
         "tests/data/06.EthylAcetate/03.Censo/CONF1/NMR/orcaS.out")
 
 
+def test_anmrfile_anmrrc_missing_folder_file():
+    file: Anmr = Anmr("tests/data/34.Ergocalciferol/05.Hydrogen-missing")
+    with pytest.raises(SystemExit) as e:
+        file.method_read_anmrrc()
+    assert e.type is SystemExit
+    assert e.value.code == 0
+
+    file: Anmr = Anmr("tests/data/34.Ergocalciferol/05.Hydrogen-missing")
+    with pytest.raises(SystemExit) as e:
+        file.method_read_anmrrc()
+    assert e.type is SystemExit
+    assert e.value.code == 0
+    assert file.get_Dir() == Path("tests/data/34.Ergocalciferol/05.Hydrogen-missing")
+    with pytest.raises(AttributeError):
+        assert file.get_Anmr_Active()
+
+
 def test_anmrfile_anmrrc() -> None:
     # For Hydrogen
     file: Anmr = Anmr("tests/data/34.Ergocalciferol/04.Hydrogen")
