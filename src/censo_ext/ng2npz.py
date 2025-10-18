@@ -28,7 +28,7 @@ def cml() -> argparse.Namespace:
         description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
-        add_help=False
+        add_help=True
     )
 
     parser.add_argument(
