@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 import argparse
-import os
-import sys
 import numpy as np
 import numpy.typing as npt
 from icecream import ic
@@ -81,11 +79,11 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def read_data(args) -> tuple[dict[int, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]], dict[int, int], dict[int, int]]:
+def read_data(args) -> tuple[dict[int, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]], dict[int, int], dict[int, int], dict]:
     from censo_ext.Tools.topo import Topo
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     Sts_topo: Topo = Topo(args.file)
-    _, neighbor, circleMols, residualMols = Sts_topo.topology()
+    _, neighbor, circleMols, residualMols, residualMols_all_pairs = Sts_topo.topology()
     idx_atomsCN: dict[int, int] = Sts_topo.get_cn()
     if args.verbose:
         ic(neighbor, circleMols, residualMols)
@@ -94,48 +92,53 @@ def read_data(args) -> tuple[dict[int, npt.NDArray[np.int64]], list[list[int]], 
     if args.verbose:
         ic(idx_Bond_order)
         ic(residualMols)
-    return neighbor, circleMols, residualMols, idx_Bond_order, idx_atomsCN
+    return neighbor, circleMols, residualMols, idx_Bond_order, idx_atomsCN, residualMols_all_pairs
 
 
-def get_xyzSplit(residualMols: list[list[np.int64]], Bond_order: dict[int, int], atomsCN: dict[int, int], flattenCircleMols: list[int]) -> dict[int, int]:
+def get_xyzSplit(residualMols: list[list[np.int64]], Bond_order: dict[int, int], atomsCN: dict[int, int], flattenCircleMols: list[int], residualMols_all_pairs) -> dict[int, int]:
     xyzSplit: dict[int, int] = {}
     for Mol in residualMols:
         mol: list[int] = list(map(int, Mol))
         flexibleMols: list[int] = [
             a for a in mol if a not in flattenCircleMols]
         nodeMols: list[int] = [a for a in mol if a in flattenCircleMols]
-
+        # ic(flexibleMols, nodeMols)
         if len(flexibleMols) == 1:
             continue
+        mol = nodeMols+flexibleMols
         # ic(flexibleMols, nodeMols)
 
         flexibleMolsCNis4: list = [
             a for a in flexibleMols if atomsCN[a] == 4]
         # ic(mol, flexibleMolsCNis4, nodeMols)
-        for nodeMol in nodeMols:
-            argmin: int = mol.index(nodeMol)
-            argmax: int = len(mol)-2
-            for arg in range(argmin, argmax+1):
-                if arg+1 < len(mol) and mol[arg+1] in flexibleMolsCNis4:
-                    if Bond_order[mol[arg+1]] != 3:
-                        if Bond_order[mol[arg]] == 3:
-                            num: int = 1
-                            while (Bond_order[mol[arg-num]] == 3):
-                                num += 1
-                            xyzSplit[mol[arg-num]] = mol[arg+1]
-                            # ic(mol[arg-num], mol[arg+1])
-                        else:
-                            xyzSplit[mol[arg]] = mol[arg+1]
-                            # ic(mol[arg], mol[arg+1])
-                    else:
-                        # Bond_order[mol[arg+1]] == 3
-                        # next Atoms is bond_order is 3. if Atom is Carbon, it is End of molecule.
-                        # nothing needs to do, Only pass
-                        pass
-                else:
-                    # if it have two nodes, second node is set as end point.
-                    # and it must be in flexibleMolCNis4 list
+        # ic(nodeMols)
+        if len(nodeMols) == 1:
+            # ic(residualMols_all_pairs[nodeMols[0]])
+            a = residualMols_all_pairs[nodeMols[0]].values()
+            import math
+            b = [x for x in a if not math.isinf(x)]
+            for x in range(0, max(b)-1):
+                # print(x, x+1)
+                out_key: int = 0
+                out_value: int = 0
+                if x == 0:
+                    # print("key: ", nodeMols[0])
+                    out_key = nodeMols[0]
+                for key, distance in residualMols_all_pairs[nodeMols[0]].items():
+                    if distance == x:
+                        if len([c for c in residualMols_all_pairs[key].values() if c == 1]) != 1:
+                            # print("key: ", key)
+                            out_key = key
+                    if distance == x+1:
+                        if len([c for c in residualMols_all_pairs[key].values() if c == 1]) != 1:
+                            # print("value: ", key)
+                            out_value = key
+                if out_key not in flexibleMolsCNis4 and out_value not in flexibleMolsCNis4:
                     pass
+                else:
+                    # ic(out_key, out_value)
+                    xyzSplit[out_key] = out_value
+
     return xyzSplit
 
 
@@ -187,9 +190,9 @@ def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> 
         import censo_ext.xyzSplit as xyzSplit
         args_x: dict = {"file": splitIn, "atoms": [key, value], "cuts": args.cuts,
                         "print": False, "out": splitOut}
-        sys.stdout = open(os.devnull, 'w')
+        # sys.stdout = open(os.devnull, 'w')
         xyzSplit.main(argparse.Namespace(**args_x))
-        sys.stdout = sys.__stdout__
+        # sys.stdout = sys.__stdout__
         move_file(splitOut, splitIn)
 
     move_file(splitIn, outFile)
@@ -202,14 +205,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml()
     print_arguments()
 
-    _, circleMols, residualMols, Bond_order, atomsCN = read_data(
+    _, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
         args)
+
+    if args.verbose:
+        ic(circleMols)
+
     flattenCircleMols: list[int] = []
     for mol in circleMols:
         flattenCircleMols += mol
-
+    flattenCircleMols = list(set(flattenCircleMols))
+    if args.verbose:
+        ic(residualMols, flattenCircleMols)
     xyzSplit: dict[int, int] = get_xyzSplit(residualMols,
-                                            Bond_order, atomsCN, flattenCircleMols)
+                                            Bond_order, atomsCN, flattenCircleMols, residualMols_all_pairs)
     gen_GeometryXYZs(xyzSplit, args)
 
 

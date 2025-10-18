@@ -155,7 +155,7 @@ class Topo():
             print(f" Bonding : {idx_p} @ Neighbors_Atoms")
         return Neighbors_Atoms
 
-    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]]]:
+    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[int, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]], dict]:
         """Analyzes the molecular structure to classify it into circular and residual molecules.
 
         This method identifies circular (ring) structures and residual (non-ring) fragments
@@ -251,19 +251,14 @@ class Topo():
         g_straight: Graph = g.copy()
 
         # residual_Mols is use graph : is_connected to find the connect node and append
-        residual_Mols: list[list[np.int64]] = []
-        for atom in residual_atoms:
-            Molecules: list[np.int64] = []
-            for node in list(g_straight.nodes()):  # type: ignore
-                if g_straight.is_connected(atom, node):
-                    Molecules.append(node)
-            the_same: bool = False
-            for residual_Mol in residual_Mols:
-                if set(Molecules) == set(residual_Mol):
-                    the_same = True
-            if not the_same:
-                residual_Mols.append(Molecules)
-        return mol, idx_neighbors, circle_Mols, residual_Mols
+        g_components = g_straight.components()
+        residual_Mols = []
+        for g_component in g_components:
+            if len(g_component) != 1:
+                residual_Mols.append(g_component)
+        residual_Mols_all_pairs = g_straight.all_pairs_shortest_paths()
+
+        return mol, idx_neighbors, circle_Mols, residual_Mols, residual_Mols_all_pairs
 
     def topology_components(self) -> list[set[int]]:
         '''
