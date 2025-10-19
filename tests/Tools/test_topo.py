@@ -43,13 +43,13 @@ def test_topo_Bonding(input_Path: Path, bonding: int, Neighbors_Atoms: list):
 
 @pytest.mark.parametrize(argnames="input_Path,bonding,len_neighbor,circle_Mols,residual_Mols",
                          argvalues=[(FileName_Full, 51, 29, [[1, 6, 7, 8, 3, 2], [21, 33, 30, 27, 24, 23], [21, 23, 24, 27, 30, 40, 37, 35, 33], [33, 30, 40, 37, 35]],
-                                     [[3, 13], [1, 15, 19, 21], [6, 16], [40, 44, 50, 51, 52, 55, 56, 57, 60, 61], [30, 45]]),
-                                    (FileName_Small, 3, 7, [[6, 3, 2, 1, 10, 9]], [[6, 17]],)])
+                                     [{1, 19, 21, 15}, {3, 13}, {16, 6}, {40, 44, 50, 51, 52, 55, 56, 57, 60, 61}, {45, 30}]),
+                                    (FileName_Small, 3, 7, [[6, 3, 2, 1, 10, 9]], [{6, 17}],)])
 def test_topo_topology(input_Path: Path, bonding: int, len_neighbor: int, circle_Mols: list, residual_Mols: list):
     # for crest_conformers.xyz
     x = {"file": input_Path, "bonding": bonding, "print": True, "debug": False}
     args = argparse.Namespace(**x)
-    mol, neighbors, circle_Mols_R, residual_Mols_R = Topo(
+    mol, neighbors, circle_Mols_R, residual_Mols_R, residual_Mols_all_pairs = Topo(
         Path(args.file)).topology()
     assert len(neighbors) == len_neighbor
     assert (circle_Mols_R) == circle_Mols

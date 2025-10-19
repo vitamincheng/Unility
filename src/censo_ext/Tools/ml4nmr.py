@@ -45,7 +45,7 @@ covalent_rad_2009: npt.NDArray[np.float64] = np.array([
 covalent_rad_d3 = 4.0 / 3.0 * covalent_rad_2009
 
 
-def read_mol_neighbors(DirFileName: Path | str) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]]]:
+def read_mol_neighbors(DirFileName: Path | str, check: bool = True) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]]]:
     """Read molecule from .xyz file and return atoms object with neighbor list.
 
     Args:
@@ -98,8 +98,8 @@ def read_mol_neighbors(DirFileName: Path | str) -> tuple[Atoms | list[Atoms], di
         idx1_neighbors[idx+1] = indices+int(1)
 
         # exit if an H atom has not exactly 1 neighbor
-        if mol.get_atomic_numbers()[idx] == 1 and len(idx1_neighbors[idx+1]) != 1:  # type: ignore # nopep8
-            print(f"  ERROR: H atom {idx+1} has not one neighbor! File in: {DirFileName}")  # nopep8
+        if check is True and mol.get_atomic_numbers()[idx] == 1 and len(idx1_neighbors[idx+1]) != 1:  # type: ignore # nopep8
+            print(f"  ERROR: H atom {idx+1} don't just have one bond !!! File in: {DirFileName}")  # nopep8
             print("  Exit and close the program !!!")
             exit(1)
 

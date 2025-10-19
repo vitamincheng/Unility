@@ -82,6 +82,12 @@ def cml() -> argparse.Namespace:
         action="store_true",
         help="Print output to screen [default False]",
     )
+    parser.add_argument(
+        "--check",
+        dest="check",
+        action="store_true",
+        help="Check hydrogen atom is only one bond [default False]",
+    )
 
     args: argparse.Namespace = parser.parse_args()
     return args
@@ -114,7 +120,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                "print": False, "debug": False}
 
     from censo_ext.Tools.topo import Topo
-    Sts_topo: Topo = Topo(x["file"])
+    Sts_topo: Topo = Topo(x["file"], check=args.check)
     idx0_broken_bond_H: list[int] = [
         x-1 for x in Sts_topo.method_broken_bond_H(argparse.Namespace(**x))]
 
