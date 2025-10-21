@@ -196,10 +196,10 @@ class Topo():
                 [x for x in value if x not in idx1_Hydorgen_atoms])
 
         # Transfer neighbors to Graph
-        graph_in: list[tuple[int, npt.NDArray[np.int64]]] = list()
+        graph_in: list[tuple[int, int]] = list()
         for key, value in idx_neighbors.items():
             for x in value:
-                graph_in.append((key, x))
+                graph_in.append((key, int(x)))
         g = Graph(from_list=graph_in)
 
         # Get the node of bonding numbers 3 to 6
