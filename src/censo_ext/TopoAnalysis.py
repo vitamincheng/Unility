@@ -5,7 +5,11 @@ from censo_ext.Tools.xyzfile import GeometryXYZs
 from censo_ext.xyzGenFlexible import get_xyzSplit, read_data
 descr = """
 ________________________________________________________________________________
-| Input   : -i input.xyz 
+| Usages   : TopoAnalysis.py <geometry> [options]
+| Input    : -i input xyz file [default traj.xyz]
+| [options]
+| index     : -d index of reference structure in xyz file [defalut 1]
+| limits    : -l limits of delta std in xyz file [default 0.40]
 |______________________________________________________________________________
 """
 
@@ -26,7 +30,8 @@ def cml() -> argparse.Namespace:
         action="store",
         required=False,
         type=str,
-        help="Provide two input_file name ",
+        default="traj.xyz",
+        help="Provide input xyz file name [default traj.xyz]",
     )
 
     parser.add_argument(
@@ -48,7 +53,7 @@ def cml() -> argparse.Namespace:
         required=False,
         type=float,
         default=0.4,
-        help="Provide limits of delta std of xyz files [default 0.4] ",
+        help="Provide limits of delta std in xyz file [default 0.4] ",
     )
 
     args: argparse.Namespace = parser.parse_args()

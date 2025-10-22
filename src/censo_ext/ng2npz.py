@@ -37,7 +37,7 @@ def cml() -> argparse.Namespace:
         dest="path",
         action="store",
         type=str,
-        required=False,
+        required=True,
         help="Provide the path of your pdata (under 1r folder) ",
     )
 

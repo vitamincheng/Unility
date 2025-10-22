@@ -16,7 +16,7 @@ ________________________________________________________________________________
 | Atom     : -a or --atom [1 2] idx of atom's number  
 |              1 : Fixed atom
 |              2 : Rotation axis atom (360 degrees) 
-| nCut     : -c or cut Number of cut to make 360 degrees around the roation axis 
+| nCut     : -c or cut Number of cut to make 360 degrees around the roation axis [default 3]
 | Print    : -p Print output to screen [default False]
 |______________________________________________________________________________
 """
@@ -59,7 +59,7 @@ def cml() -> argparse.Namespace:
         type=int,
         nargs=2,
         default=None,
-        required=False,
+        required=True,
         metavar=('FIXED', 'ROTATION'),
         help="two atom indics: first is fixed, second is rotation axis"
     )
@@ -70,9 +70,9 @@ def cml() -> argparse.Namespace:
         dest="cuts",
         action="store",
         type=int,
-        default=None,
+        default=1,
         required=False,
-        help="Number of cuts to make in 360 degrees around the rotation axis",
+        help="Number of cuts to make in 360 degrees around the rotation axis [default 3]",
     )
 
     parser.add_argument(

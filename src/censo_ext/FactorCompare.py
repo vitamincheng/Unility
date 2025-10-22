@@ -30,7 +30,7 @@ def cml() -> argparse.Namespace:
         "--input",
         dest="file",
         action="store",
-        required=False,
+        required=True,
         type=str,
         nargs=2,
         help="Provide two input_file name ",

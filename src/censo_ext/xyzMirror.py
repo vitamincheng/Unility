@@ -14,11 +14,11 @@ ________________________________________________________________________________
 | Input    : -i xyz file [default traj.xyz]
 | Output   : -o Saved xyz file [default output.xyz] 
 | [Options]
-| Atom     : -a or --atom [1 2 3] idx of atom  
+| Atom     : -a or --atom [1 2 3] idx of atom [required] 
 |              1 : Fixed atom and return origin (mirror)
 |              2 : Rotation atom and z axis (not mirror)
 |              3 : Rotation atom and lay on xz plane (not mirror)
-| Replace  : -r Replace the input file
+| Replace  : -r Replace the input file [default False]
 |______________________________________________________________________________
 """
 
@@ -59,7 +59,7 @@ def cml() -> argparse.Namespace:
         action="store",
         type=int,
         nargs=3,
-        required=False,
+        required=True,
         help="Provide three idx of atom's nubmers (mirror xz plane, active 1 but not include 2,3) \
             if empty will mirror total atoms [1(origin) 2(z axis) 3(xz plane)]",
     )

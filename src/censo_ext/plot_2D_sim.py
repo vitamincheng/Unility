@@ -14,8 +14,11 @@ from pathlib import Path
 descr = """
 ________________________________________________________________________________
 | For plot_2D_Sim.py
-| Usages   : plot_2D_sim.py <geometry> [options]
+| Usages    : plot_2D_sim.py <geometry> [options]
 | [options]
+| Directory : -d two input directory folder [required] 
+| Proton    : -p limits of proton spectra [default from data]
+| Carbon    : -c limits of carbon spectra [default from data]
 |______________________________________________________________________________
 """
 

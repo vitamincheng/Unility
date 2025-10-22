@@ -16,14 +16,14 @@ ________________________________________________________________________________
 | Input    : -i xyz file [default traj.xyz]
 | Output   : -o Saved xyz file [default output.xyz] 
 | [Options]
-| Atom     : -a or --atom [1 2 3] idx of atom  
+| Atom     : -a or --atom [1 2 3] idx of atom [required] 
 |              1 : Fixed atom and return origin
 |              2 : Rotation atom and z axis
 |              3 : Rotation atom and lay on xz plane
 | Automatic: --auto Automatically search for the minimum deviation setting 
 |                   origin of all atoms [default False] 
-| Replace  : -r Replace the input file
-| Print    : -p Print the final data on screen 
+| Replace  : -r Replace the input file [default False]
+| Print    : -p Print the final data on screen [default False]
 |______________________________________________________________________________
 """
 
@@ -64,7 +64,7 @@ def cml() -> argparse.Namespace:
         action="store",
         type=int,
         nargs=3,
-        required=False,
+        required=True,
         help="Provide three idx of atom's nubmers [1(origin) 2(z axis) 3(xz plane)]",
     )
 

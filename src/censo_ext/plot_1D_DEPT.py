@@ -16,7 +16,6 @@ peaks_fileName = "plot_1D_DEPT.peaks"
 
 descr = """
 ________________________________________________________________________________
-|                                          [10.05.2024] vitamin.cheng@gmail.com
 | For Plot 1D sepctra in experiments using nmrglue module
 | Usage: plot_1D_DEPT.py <geometry> [options]
 | [Options]
@@ -25,8 +24,6 @@ ________________________________________________________________________________
 |          : -end   end point of chemical shift [default from data]
 | Save     : --save saved the report of carbon [default false]
 | Hidden   : -h show the plot [default False]
-| Package  : Tools 
-| Module   : spectra.py
 |______________________________________________________________________________
 """
 useit = """

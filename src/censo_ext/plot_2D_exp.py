@@ -13,7 +13,6 @@ import numpy as np
 
 descr = """
 ________________________________________________________________________________
-|                                          [10.05.2024] vitamin.cheng@gmail.com
 | For Plot 2D sepctra in experiments using nmrglue module
 | Usage: plot_2D_exp.py <geometry> [options]                  
 | [Options]
@@ -21,8 +20,6 @@ ________________________________________________________________________________
 |          : -F1 F1 shift, usually is Carbon   [default 0.0] 
 |          : -F2 F2 shift, usually is Hydrogen [default 0.0]
 | Hidden   : -h show the plot [default False] 
-| Package  : Tools 
-| Module   : spectra.py
 |______________________________________________________________________________
 """
 
@@ -43,7 +40,7 @@ def cml() -> argparse.Namespace:
         dest="path",
         action="store",
         type=str,
-        required=False,
+        required=True,
         help="Provide the path of your pdata (under 2rr folder) ",
     )
 
