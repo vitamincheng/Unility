@@ -16,7 +16,7 @@ ________________________________________________________________________________
 | Input    : -i xyz file [default traj.xyz]
 | Output   : -o Saved xyz file [default output.xyz] 
 | [Options]
-| Atom     : -a or --atom [1 2 3] idx of atom [required] 
+| Atom     : -a or --atom [1 2 3] idx of atom 
 |              1 : Fixed atom and return origin
 |              2 : Rotation atom and z axis
 |              3 : Rotation atom and lay on xz plane
@@ -64,7 +64,6 @@ def cml() -> argparse.Namespace:
         action="store",
         type=int,
         nargs=3,
-        required=True,
         help="Provide three idx of atom's nubmers [1(origin) 2(z axis) 3(xz plane)]",
     )
 
