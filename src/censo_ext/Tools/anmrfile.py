@@ -435,6 +435,10 @@ class Anmr():
                 self.avg_orcaSJ.JCoups += np.array(y) * \
                     normal_idx_weight[x.CONFSerialNums]
 
+            print("        Conf    Percentage(%)")
+            for key, value in normal_idx_weight.items():
+                print(f"{key:12d} {value*100:12.3f}")
+
             if self.__verbose:
                 ic(self.avg_orcaSJ.SParams)
                 ic(self.avg_orcaSJ.JCoups)
