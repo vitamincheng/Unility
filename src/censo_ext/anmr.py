@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import copy
+from re import I
 import numpy as np
 import numpy.typing as npt
 import argparse
@@ -470,7 +471,8 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
     print(" the group of calculate spectra :", len(idx0_ab_group_sets))
     print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
 
-    if len(inSParams*inHydrogen) <= args.mss:
+    if np.sum(inSParams.astype(bool)*inHydrogen) <= args.mss:
+        # if len(inSParams*inHydrogen) <= args.mss:
         idx0_ab_group = list(idx0_ab_group_sets[0])
         v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
         J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
@@ -648,7 +650,15 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
         while (True):
 
             # the numbers of args.mss is low, all nucleus will be computated as AB quartet
-            if len(inSParams*inHydrogen) <= args.mss:
+            if args.verbose is True:
+                ic(inSParams*inHydrogen)
+                ic(inSParams)
+                ic(inHydrogen)
+                ic((inSParams.astype(bool)*inHydrogen))
+                ic(np.sum(inSParams.astype(bool)*inHydrogen))
+
+            if np.sum(inSParams.astype(bool)*inHydrogen) <= args.mss:
+                # if len(inSParams*inHydrogen) <= args.mss:
                 inJCoups = copy.deepcopy(inJCoups_origin)
 
                 # Step 1: Filter out small coupling constants based on threshold
@@ -754,7 +764,8 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
                 else:
                     raise ValueError("  idx0_ab_group_sets have bugs !!!")
 
-            if len(inSParams*inHydrogen) > args.mss:
+            # if len(inSParams*inHydrogen) > args.mss:
+            if np.sum(inSParams.astype(bool)*inHydrogen) <= args.mss:
                 # Handle CH3 equivalent groups manually (symmetry considerations)
                 # So if chemical shift in AB quartet region need to move to multiplet
                 list_Equivalent3: list[int] = []
