@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import copy
-from re import I
 import numpy as np
 import numpy.typing as npt
 import argparse
@@ -765,7 +764,7 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
                     raise ValueError("  idx0_ab_group_sets have bugs !!!")
 
             # if len(inSParams*inHydrogen) > args.mss:
-            if np.sum(inSParams.astype(bool)*inHydrogen) <= args.mss:
+            if np.sum(inSParams.astype(bool)*inHydrogen) > args.mss:
                 # Handle CH3 equivalent groups manually (symmetry considerations)
                 # So if chemical shift in AB quartet region need to move to multiplet
                 list_Equivalent3: list[int] = []
