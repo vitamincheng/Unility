@@ -460,9 +460,14 @@ def _doublet(plist: list[tuple[float, int]], JCoups, delta) -> list[tuple[float,
     # if c is positive, peaks must be the left of doublet is more low and the right is more high
     # if c is negative, peaks must be the left of doublet is more high and the right is more low
     #
-    _k = JCoups / (JCoups+delta)
+    if (JCoups+delta) == 0:
+        _k = 0
+    else:
+        _k = JCoups / (JCoups+delta)
+
     k_small: float = 1 - _k
     k_large: float = 1 + _k
+
     res: list = []
     for v, intensit in plist:
         # the left of doublet if J is positive

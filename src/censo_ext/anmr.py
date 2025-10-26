@@ -518,13 +518,16 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
                 delta_SParams: list[float] = []
                 for idx_m in idx0_multiplicity:
                     # this is not necessary, but the mat_multi_x_idx0 and idx_ab_group_set is OK
-                    if np.fabs(inSParams[idx0]-inSParams[idx_m]) > 0.1:
-                        delta_SParams.append(inSParams[idx_m]-inSParams[idx0])
-                        inJCoups_multi.append(
-                            (inJCoups[idx0][idx_m], inHydrogen[idx_m]))
-                    else:
-                        print("something wrong!!!!")
-                        exit(0)
+                    # if np.fabs(inSParams[idx0]-inSParams[idx_m]) > 0.1:
+                    #    delta_SParams.append(inSParams[idx_m]-inSParams[idx0])
+                    #    inJCoups_multi.append(
+                    #        (inJCoups[idx0][idx_m], inHydrogen[idx_m]))
+                    delta_SParams.append(inSParams[idx_m]-inSParams[idx0])
+                    inJCoups_multi.append(
+                        (inJCoups[idx0][idx_m], inHydrogen[idx_m]))
+                    # else:
+                    #     print("something wrong!!!!")
+                    #     exit(0)
 
                 if len(inJCoups_multi) >= 1:
                     # tmp: npt.NDArray[np.float64] = np.array(
