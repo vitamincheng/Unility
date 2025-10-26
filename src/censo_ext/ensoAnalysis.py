@@ -377,7 +377,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             (avg_Gibbs_Eh-result_enso['Gibbs']/Eh)*(result_enso['ONOFF'])
         result_enso['mRRHO'] = result_enso['mRRHO'] + \
             Reduced_energy_Eh*result_enso['ONOFF']
-        result_enso['BW'] = avg_fraction
+
+        result_enso['BW'] = 0
+        idx = (result_enso['ONOFF'])
+        idx0 = np.argwhere(idx)
+        result_enso['BW'][idx0] = avg_fraction
+
         if result_enso.dtype.names:
             names_anmr = list(result_enso.dtype.names)
         np.savetxt(args.out, result_enso[names_anmr[:8]], comments="", header="ONOFF NMR  CONF BW      Energy        Gsolv      mRRHO      gi",
