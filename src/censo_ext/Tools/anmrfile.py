@@ -423,9 +423,22 @@ class Anmr():
                 for idz, weight_ppm in zip(idy0, np.array(ppm) * normal_idx_weight[x.CONFSerialNums]):
                     self.avg_orcaSJ.SParams[idz] += weight_ppm.item()
 
-            for key, value in self.avg_orcaSJ.SParams.items():
-                self.avg_orcaSJ.SParams[key] = value - \
-                    self.__AnmrParams.get_Reference_anmrrc()
+            if self.__AnmrParams.get_Reference_anmrrc() == 0:
+                print("  Use y = ax + b slope parameter")
+                slope_fileName = Path(".anmrrc_slope")
+                IsExist(slope_fileName)
+            else:
+                for key, value in self.avg_orcaSJ.SParams.items():
+                    self.avg_orcaSJ.SParams[key] = value - \
+                        self.__AnmrParams.get_Reference_anmrrc()
+
+            # Todo read a and b
+            # if is zero a= -1 b =tms reference
+            # but the cal. use origional SParams parameter is more simple
+            # 1. only use original code to run all data and fit
+            # 2. build .anmrrc_slope reader and run all data
+            # 3. In qm.py, finally use the a,b parameter to fit
+            # 4. return a,b parameter in this function is more simple ???
 
             nShapes: int = np.shape(self.orcaSJ[0].JCoups[0])[0]
             self.avg_orcaSJ.JCoups = np.zeros((nShapes, nShapes))
