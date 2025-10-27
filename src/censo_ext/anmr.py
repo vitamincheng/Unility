@@ -696,6 +696,8 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
                 inJCoups = copy.deepcopy(inJCoups_origin)
                 mat_filter_low_factor = (np.abs(inJCoups) > args.thr).astype(np.uint8)  # nopep8
                 inJCoups[np.logical_not(mat_filter_low_factor)] = 0
+                if args.verbose:
+                    ic(mat_filter_low_factor)
 
                 # Step 2: Identify potential AB quartet systems
                 mat_filter_ab_quartet: npt.NDArray[np.uint8] = np.zeros(
@@ -730,6 +732,16 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
                                 if mat_filter_low_factor[idx0][idy0] == 1:
                                     raise ValueError(
                                         f"{idx0} {x} {idy0} {y} was not found or is a directory")
+
+                # if only one negative Jcoups in one column, adde the largest of positive JCoups of the column
+                for idx0, x in enumerate(mat_filter_ab_quartet):
+                    a = inJCoups[idx0][x.astype(bool)]
+                    nPositives = np.argwhere(a > 0)
+                    nNegatives = np.argwhere(a < 0)
+                    if len(nPositives) == 0 and len(nNegatives) >= 1:
+                        b = np.argmax(inJCoups[idx0])
+                        mat_filter_ab_quartet[idx0][b] = 1
+                        mat_filter_ab_quartet[b][idx0] = 1
 
             if args.verbose:
                 ic(mat_filter_ab_quartet)
