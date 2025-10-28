@@ -1506,8 +1506,12 @@ class OrcaSJ():
             with matching lengths for correct operation.
         """
         a, b = linear
+
+        print("  Linear regression: y = ax + b")
+        print(f"  a = {a}     b = {b}")
+        print("")
         if len(self.idx1Atoms) == len(self.SParams):
-            print("Nucleus  Element   Anisotropy")
+            print("Nucleus  Element     Anisotropy")
             for idx, Atom in self.idx1Atoms.items():
                 print(f'{idx:>5d}', f'{Atom:>8s}', end="")
                 print(f'{a*self.SParams[idx]+b:>15.3f}')
