@@ -113,7 +113,7 @@ class global_variable():
     prog: bool
     mf: float
     lw: float
-    ref: float = 31.820
+    ref: tuple[float, float]
     idx_keys: list
     AD_bobyqa: AD_BOBYQA
     AD_normal: AD_Normal
@@ -191,7 +191,9 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
             print("  Nucleus  Element    Isotropic     Anisotropy")
             print("  -------  -------  ------------   ------------")
             sys.stdout = sys.__stdout__
-        SParams_exec.T[1] = SParams_exec.T[1] + g_var.ref
+
+        a, b = g_var.ref
+        SParams_exec.T[1] = (SParams_exec.T[1] - b) / a
         SParams_exec.T[0] = SParams_exec.T[0]-1
         file_orcaS_main = Path("CONF1/NMR/orcaS-main.out")
         np.savetxt(file_orcaS_main, SParams_exec,
@@ -434,7 +436,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     from censo_ext.Tools.anmrfile import Anmr
     inAnmr: Anmr = Anmr(Dir=args.dir, verbose=args.verbose)
     inAnmr.method_read_anmrrc()
-    g_var.ref = inAnmr.get_Anmr_Reference_anmrrc()
+    g_var.ref = inAnmr.get_Anmrrc_linear()
 
     if g_var.AD_normal.Exist():
         print(f"  The File {g_var.AD_normal._file_orcaS} is exist")

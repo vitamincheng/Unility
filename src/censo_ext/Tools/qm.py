@@ -5,6 +5,8 @@ from numba import jit
 import argparse
 from icecream import ic
 from cachier import cachier
+
+from censo_ext.anmr import Anmr
 type cplex = npt.NDArray[np.complex128]
 
 
@@ -262,7 +264,7 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, args: ar
     return list(zip(freq, intensit))
 
 
-def print_plot(in_plist: list[tuple[float, float]], dpi: int,
+def print_plot(inAnmr: Anmr, in_plist: list[tuple[float, float]], dpi: int,
                args: argparse.Namespace, Active_range: int) -> npt.NDArray[np.float64]:
     """
     Generate and save a plot of the NMR spectrum.
@@ -282,6 +284,8 @@ def print_plot(in_plist: list[tuple[float, float]], dpi: int,
     """
     plist: npt.NDArray[np.float64] = np.array(in_plist)
     plist.T[0] = plist.T[0] / args.mf
+    a, b = inAnmr.get_Anmrrc_linear()
+    plist.T[0] = a*plist.T[0]+b
     Normal_plist = plist.tolist()
     if args.verbose:
         ic(plist)

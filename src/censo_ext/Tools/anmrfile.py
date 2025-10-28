@@ -110,6 +110,8 @@ class Anmrrc():
             if x[3] == 1:
                 self.Active.append(self.Nums_element[int(x[0])])
 
+        self.linear = self.get_anmrrc_linear()
+
     def __repr__(self) -> str:
         """
         Return a string representation of the Anmrrc object.
@@ -185,7 +187,7 @@ class Anmrrc():
                                  i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
         return [x for x in NoShow_Remove_Group if x in idx1_H_atom]
 
-    def get_Reference_anmrrc(self) -> float:
+    def get_anmrrc_linear(self) -> tuple[float, float]:
         """Retrieve the reference shielding value from the .anmrrc file.
 
         This method searches through the internal anmrrc data structure to find
@@ -206,12 +208,27 @@ class Anmrrc():
             if x[3] == 1:
                 reference = x[1]
 
-        if reference:
-            return reference
-        else:
-            print("  No reference in your .anmrrc file")
-            print("  Exit and Close the program !!!")
+        if reference is None:
+            print("  no reference in your .anmrrc file")
+            print("  exit and close the program !!!")
             exit(0)
+        elif reference == 0:
+            try:
+                np_inData = np.genfromtxt(
+                    ".anmrrc_linear", comments="#", usecols=[1])
+            except FileNotFoundError:
+                print("  no linear parameter in your .anmrrc_linear file")
+                print("  exit and close the program !!!")
+                exit(0)
+            if len(np_inData) == 2:
+                return (np_inData[0], np_inData[1])
+            else:
+                print(
+                    "  linear parameters of your .anmrrc_linear file have Error, see the top words in .anmrrc_linear file")
+                print("  exit and close the program !!!")
+                exit(0)
+        else:
+            return (-1, reference)
 
 
 class Anmr():
@@ -270,7 +287,7 @@ class Anmr():
         """
         return self.__Dir
 
-    def get_Anmr_Active(self) -> list[str]:
+    def get_Anmrrc_Active(self) -> list[str]:
         """Get the list of active species from the .anmrrc file.
 
         This method retrieves the active atomic species that are currently
@@ -283,8 +300,8 @@ class Anmr():
         """
         return self.__AnmrParams.Active
 
-    def get_Anmr_Reference_anmrrc(self) -> float:
-        return self.__AnmrParams.get_Reference_anmrrc()
+    def get_Anmrrc_linear(self) -> tuple[float, float]:
+        return self.__AnmrParams.linear
 
     def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFile: Path | str = Path("crest_conformers.xyz")) -> list[int]:
         """
@@ -423,17 +440,17 @@ class Anmr():
                 for idz, weight_ppm in zip(idy0, np.array(ppm) * normal_idx_weight[x.CONFSerialNums]):
                     self.avg_orcaSJ.SParams[idz] += weight_ppm.item()
 
-            if self.__AnmrParams.get_Reference_anmrrc() == 0:
-                print("  Use y = ax + b slope parameter")
-                slope_fileName = Path(".anmrrc_slope")
-                IsExist(slope_fileName)
-            else:
-                for key, value in self.avg_orcaSJ.SParams.items():
-                    self.avg_orcaSJ.SParams[key] = value - \
-                        self.__AnmrParams.get_Reference_anmrrc()
+            # if self.__AnmrParams.get_Reference_anmrrc() == 0:
+            #    print("  Use y = ax + b slope parameter of linear regression")
+            #    slope_fileName = Path(".anmrrc_linear")
+            #    IsExist(slope_fileName)
+            # else:
+                # for key, value in self.avg_orcaSJ.SParams.items():
+                #    self.avg_orcaSJ.SParams[key] = - value + \
+                #        self.__AnmrParams.get_Reference_anmrrc()
 
             # Todo read a and b
-            # if is zero a= -1 b =tms reference
+            # if is zero a= -1 b=tms reference
             # but the cal. use origional SParams parameter is more simple
             # 1. only use original code to run all data and fit
             # 2. build .anmrrc_slope reader and run all data
@@ -807,6 +824,13 @@ class Anmr():
         """
         raise NotImplementedError("Under Construct")
 
+    def method_linear_orcaS(self, inSParams: dict[int, float]) -> dict[int, float]:
+
+        a, b = self.__AnmrParams.linear
+        outSParams: dict[int, float] = {key: a*value + b for key,
+                                        value in inSParams.items()}
+        return outSParams
+
     def method_save_avg_orcaSJ(self) -> None:
         """
         Save average orcaSJ data to files in Average/NMR directory.
@@ -832,9 +856,13 @@ class Anmr():
             - orcaA.out: Atom indices
         """
         self.avg_data.idx1Atoms = self.avg_orcaSJ.idx1Atoms
-        self.avg_data.SParams = self.avg_orcaSJ.SParams
+
+        self.avg_data.SParams = self.method_linear_orcaS(
+            self.avg_orcaSJ.SParams)
+
         self.avg_data.JCoups = self.avg_orcaSJ.JCoups
         self.avg_data.method_save_files()
+        self.avg_data.SParams = self.avg_orcaSJ.SParams
         # avg_Dir: Path = Path("Average/NMR")
         # avg_orcaS: Path = self.__Dir / avg_Dir / Path("orcaS.out")      # nopep8
         # avg_orcaJ: Path = self.__Dir / avg_Dir / Path("orcaJ.out")      # nopep8
@@ -1457,7 +1485,7 @@ class OrcaSJ():
         """
         raise NotImplementedError("Under Construct")
 
-    def method_print_orcaS(self) -> None:
+    def method_print_orcaS(self, linear) -> None:
         """Print ORCA-S data.
 
         This method displays the nucleus indices, element symbols, and chemical
@@ -1477,12 +1505,12 @@ class OrcaSJ():
             This method requires self.idx1Atoms and self.SParams to be properly initialized
             with matching lengths for correct operation.
         """
-
+        a, b = linear
         if len(self.idx1Atoms) == len(self.SParams):
             print("Nucleus  Element   Anisotropy")
             for idx, Atom in self.idx1Atoms.items():
                 print(f'{idx:>5d}', f'{Atom:>8s}', end="")
-                print(f'{self.SParams[idx]:>15.3f}')
+                print(f'{a*self.SParams[idx]+b:>15.3f}')
         else:
             raise ValueError("your orcaJ and orcaS is not fit each other")
 

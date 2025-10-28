@@ -285,7 +285,7 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
         # Process all ORCA files and generate average data
         inAnmr.method_read_enso()
         inAnmr.method_read_folder_orcaSJ()
-        for idx1, Active in enumerate(inAnmr.get_Anmr_Active(), 1):
+        for idx1, Active in enumerate(inAnmr.get_Anmrrc_Active(), 1):
             if idx1 == 1:  # only one Active nuclear element
                 inAnmr.method_filter_active_orcaSJ(Active)
             elif idx1 > 1:
@@ -333,8 +333,7 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
     Example:
         >>> s_params, j_coups, hydrogen, range_val, dpi_val, updated_args = preprocess_spin_system(anmr_obj, args)
     """
-
-    inAnmr.avg_orcaSJ.method_print_orcaS()
+    inAnmr.avg_orcaSJ.method_print_orcaS(inAnmr.get_Anmrrc_linear())
     inAnmr.avg_orcaSJ.method_print_orcaJ()
 
     # Extract spin parameters and coupling constants from the Anmr object
@@ -346,7 +345,7 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
     inFile: Path = Path("crest_conformers.xyz")
 
     # Process different nuclear element (C or H)
-    for idx1, Active in enumerate(inAnmr.get_Anmr_Active(), 1):
+    for idx1, Active in enumerate(inAnmr.get_Anmrrc_Active(), 1):
         if idx1 == 1:  # only one Active nuclear element
             if Active == 'C':
                 # Carbon processing - read molecular structure using ML4NMR tool
@@ -646,7 +645,7 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
     # Main processing loop for identifying and categorizing spin systems
     inSParams, inJCoups, inHydrogen = inParameter
 
-    if not args.json and inAnmr.get_Anmr_Active()[0] == 'H':
+    if not args.json and inAnmr.get_Anmrrc_Active()[0] == 'H':
         inJCoups_origin: npt.NDArray[np.float64] = copy.deepcopy(inJCoups)
 
         while (True):
@@ -896,7 +895,7 @@ def generate_final_spectrum(finalPeaks: list[tuple[float, float]], inAnmr: Anmr,
     if dpi and Active_range:
         print(" All done ...")
         from censo_ext.Tools.qm import print_plot
-        return print_plot(in_plist=finalPeaks, dpi=dpi, args=args, Active_range=Active_range)
+        return print_plot(inAnmr=inAnmr, in_plist=finalPeaks, dpi=dpi, args=args, Active_range=Active_range)
     else:
         print("  dpi and Active_range is wrong")
         print("  Exit and Close the program !!!")
@@ -931,20 +930,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     if args.json:
         idx0_peaks_range, accPeaks = _process_qm_json_spin_system(inAnmr, args)
     else:
-        if inAnmr.get_Anmr_Active()[0] == 'H':
+        if inAnmr.get_Anmrrc_Active()[0] == 'H':
             idx0_peaks_range, accPeaks = _process_qm_hydrogen_spin_system(
                 inParameter, idx0_ab_group_sets, mat_filter_multi, inAnmr, args)
-        elif inAnmr.get_Anmr_Active()[0] == 'C':
+        elif inAnmr.get_Anmrrc_Active()[0] == 'C':
             accPeaks = _process_qm_carbon_spin_system(inParameter, inAnmr)
         else:
             raise ValueError("  Something Wrong in your get_anmr_Active()")
 
     finalPeaks: list[tuple[float, float]] = []
-    if inAnmr.get_Anmr_Active()[0] == 'H':
+    if inAnmr.get_Anmrrc_Active()[0] == 'H':
         for idx0, peak in enumerate(accPeaks):
             if idx0 in idx0_peaks_range:
                 finalPeaks += peak
-    elif inAnmr.get_Anmr_Active()[0] == 'C':
+    elif inAnmr.get_Anmrrc_Active()[0] == 'C':
         for peak in accPeaks:
             finalPeaks += peak
     else:
