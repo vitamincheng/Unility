@@ -281,6 +281,10 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
             print("  Something wrong in your Average orcaSJ data !!!")
             print("  Exit and Close the program !!!")
             exit(1)
+        else:
+            a, b = inAnmr.get_Anmrrc_linear()
+            inAnmr.avg_orcaSJ.SParams = {
+                key: (value-b)/a for key, value in inAnmr.avg_orcaSJ.SParams.items()}
     else:
         # Process all ORCA files and generate average data
         inAnmr.method_read_enso()
@@ -335,6 +339,7 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
     """
     inAnmr.avg_orcaSJ.method_print_orcaS(inAnmr.get_Anmrrc_linear())
     inAnmr.avg_orcaSJ.method_print_orcaJ()
+    # ic(inAnmr.avg_orcaSJ.SParams)
 
     # Extract spin parameters and coupling constants from the Anmr object
     inSParams: npt.NDArray[np.float64] = np.array(
