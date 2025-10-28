@@ -68,8 +68,8 @@ def test_unility_unilityIsExist():
 
 def test_unility_move_file():
     from censo_ext.Tools.utility import move_file
-    source = Path("/tmp/test_source.txt")
-    destination = Path("/tmp/test_destination.txt")
+    source = Path("test_source.txt")
+    destination = Path("test_destination.txt")
 
     with open(source, 'w') as f:
         f.write("Hello World!")
@@ -77,17 +77,23 @@ def test_unility_move_file():
     move_file(source, destination)
     assert destination.exists()
 
+    from censo_ext.Tools.utility import delete_all_files
+    delete_all_files(source, destination)
+
 
 def test_unility_copy_file():
     from censo_ext.Tools.utility import copy_file
-    source = Path("/tmp/test_source.txt")
-    destination = Path("/tmp/test_destination.txt")
+    source = Path("test_source.txt")
+    destination = Path("test_destination.txt")
 
     with open(source, 'w') as f:
         f.write("Hello World!")
 
     copy_file(source, destination)
     assert destination.exists()
+
+    from censo_ext.Tools.utility import delete_all_files
+    delete_all_files(source, destination)
 
 
 def test_unility_delete_all_files():

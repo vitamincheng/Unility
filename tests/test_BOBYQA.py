@@ -154,7 +154,7 @@ if __name__ == "__main__":
     pr = cProfile.Profile()
     pr.enable()
 
-    test_BOBYQA_single()
+    test_BOBYQA_single(None)
 
     pr.disable()
     stats = Stats(pr)

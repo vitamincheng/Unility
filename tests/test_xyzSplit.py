@@ -10,7 +10,7 @@ outFile: Path = Path("tests/compare/output.xyz")
 
 
 def test_xyzSplit():
-    x: dict = {"file": inFile, "cuts": 12,
+    x: dict = {"file": inFile, "cuts": 12, "check": True,
                "atoms": [52, 55], "out": outFile, "print": False}
     args = argparse.Namespace(**x)
     xyzSplit.main(args)
@@ -21,7 +21,7 @@ def test_xyzSplit():
 
 
 def test_xyzSplit_miss_cuts():
-    x: dict = {"file": inFile, "cuts": None,
+    x: dict = {"file": inFile, "cuts": None, "check": True,
                "atoms": [52, 55], "out": outFile, "print": False}
 
     with pytest.raises(SystemExit) as e:
@@ -31,7 +31,7 @@ def test_xyzSplit_miss_cuts():
 
 
 def test_xyzSplit_miss_atoms():
-    x: dict = {"file": inFile, "cuts": 12,
+    x: dict = {"file": inFile, "cuts": 12, "check": True,
                "atoms": None, "out": outFile, "print": False}
 
     with pytest.raises(SystemExit) as e:
@@ -41,7 +41,7 @@ def test_xyzSplit_miss_atoms():
 
 
 def test_xyzSplit_miss_cuts_atoms():
-    x: dict = {"file": inFile, "cuts": None,
+    x: dict = {"file": inFile, "cuts": None, "check": True,
                "atoms": None, "out": outFile, "print": False}
 
     with pytest.raises(SystemExit) as e:
