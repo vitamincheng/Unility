@@ -580,7 +580,7 @@ def _process_qm_carbon_spin_system(inParameter: tuple[npt.NDArray[np.float64], n
     accPeaks: list[list[tuple[float, float]]] = []
     for idx0, ppm in enumerate(inSParams):
         dat: list = []
-        dat.append((float(ppm*(-1)), float(inHydrogen[idx0])))
+        dat.append((float(ppm), float(inHydrogen[idx0])))
         accPeaks.append(dat)
 
     import json
