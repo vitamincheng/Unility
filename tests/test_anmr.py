@@ -19,8 +19,8 @@ compare_Ergo_C: Path = Path("tests/compare/anmr_peaks_C.json")
 _system: str = platform.system()
 
 x: dict = {"auto": True, "bobyqa": False, "mf": 500, "verbose": False,
-           "lw": None, "thr": None, "thrab": 0.025, "tb": 4, "mss": 9,
-           "cutoff": 0.001, "show": False, "start": None, "end": None, "out": outFile}
+           "lw": None, "thr": None, "thrab": 0.025, "tb": 4, "mss": 10,
+           "cutoff": 0.001, "show": False, "start": None, "end": None, "out": out_npz}
 
 
 def test_anmr_miss_args() -> None:

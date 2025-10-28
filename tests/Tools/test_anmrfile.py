@@ -56,7 +56,7 @@ def test_anmrfile_anmrrc() -> None:
     assert filecmp.cmp(filename, source)
     os.remove(filename)
     assert file.get_Dir() == Path("tests/data/34.Ergocalciferol/04.Hydrogen")
-    assert file.get_Anmr_Active() == ['H']
+    assert file.get_Anmrrc_Active() == ['H']
 
     # For Carbon
     file: Anmr = Anmr("tests/data/34.Ergocalciferol/07.Carbon")
@@ -71,7 +71,7 @@ def test_anmrfile_anmrrc() -> None:
     assert filecmp.cmp(filename, source)
     os.remove(filename)
     assert file.get_Dir() == Path("tests/data/34.Ergocalciferol/07.Carbon")
-    assert file.get_Anmr_Active() == ['C']
+    assert file.get_Anmrrc_Active() == ['C']
 
 
 def test_anmrfile_get_avg_orcaSJ_Exist() -> None:
