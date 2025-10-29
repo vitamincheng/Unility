@@ -742,7 +742,7 @@ class Anmr():
         # else:
         #    return False
 
-    def method_load_avg_orcaSJ(self, bobyqa_bool) -> bool:
+    def method_BOBYQA_load_avg_orcaSJ(self) -> bool:
         """
         Load average orcaSJ data from files.
 
@@ -781,8 +781,12 @@ class Anmr():
         # self.avg_data.method_BOBYQA_mode(bobyqa_bool)
         Result: bool = self.avg_data.method_load_files()
         self.avg_orcaSJ.idx1Atoms = self.avg_data.idx1Atoms
-        if isinstance(self.avg_data.SParams, dict):
-            self.avg_orcaSJ.SParams = self.avg_data.SParams
+        if isinstance(self.avg_data.ChemicalShifts, dict):
+            self.avg_orcaSJ.ChemicalShits = self.avg_data.ChemicalShifts
+            a, b = self.get_Anmrrc_linear()
+            self.avg_orcaSJ.SParams = {
+                key: (value-b)/a for key, value in self.avg_orcaSJ.ChemicalShits.items()}
+            self.avg_orcaSJ.ChemicalShits = {}
         else:
             print("  The tpye of your SParams have something wrong !!!")
             print("  Exit and Close the program !!!")
@@ -1297,9 +1301,14 @@ class OrcaSJ():
         """
         self.JCoups: npt.NDArray[np.float64]
         self.SParams: dict[int, float] = {}
+        self.ChemicalShits: dict[int, float] = {}
         self.Anisotropy: dict[int, float] = {}
         self.CONFSerialNums: int
         self.idx1Atoms: dict[int, str] = {}
+        self.linear: tuple[float, float]
+
+    def method_load_anmrrc_linear(self, linear) -> None:
+        self.linear = linear
 
     def method_read_orcaJ(self, file: Path | str = Path("orcaJ.out")) -> bool:
         """
@@ -1485,7 +1494,20 @@ class OrcaSJ():
         """
         raise NotImplementedError("Under Construct")
 
-    def method_print_orcaS(self, linear) -> None:
+    def method_setup_ChemicalShifts(self):
+        a, b = self.linear
+        print(" ===== Print the Linear Regression =====")
+        print("  y = ax + b")
+        print(f"  a = {a}     b = {b}")
+        print("  [see .anmrrc and .anmrrc_linear]")
+        print("")
+        self.ChemicalShits = {
+            key: a*value + b for key, value in self.SParams.items()}
+
+    def method_teardown_ChemicalShifts(self):
+        self.ChemicalShits = {}
+
+    def method_print_av_orcaS(self) -> None:
         """Print ORCA-S data.
 
         This method displays the nucleus indices, element symbols, and chemical
@@ -1505,16 +1527,13 @@ class OrcaSJ():
             This method requires self.idx1Atoms and self.SParams to be properly initialized
             with matching lengths for correct operation.
         """
-        a, b = linear
-
-        print("  Linear regression: y = ax + b")
-        print(f"  a = {a}     b = {b}")
-        print("")
-        if len(self.idx1Atoms) == len(self.SParams):
-            print("Nucleus  Element     Anisotropy")
+        if len(self.idx1Atoms) == len(self.ChemicalShits):
+            print(" ===== Print the Chemical Shift of Atoms =====")
+            print("    coord  Element     Anisotropy")
             for idx, Atom in self.idx1Atoms.items():
-                print(f'{idx:>5d}', f'{Atom:>8s}', end="")
-                print(f'{a*self.SParams[idx]+b:>15.3f}')
+                print(f'   {idx:>5d}', f'{Atom:>8s}', end="")
+                print(f'{self.ChemicalShits[idx]:>15.3f}')
+            print("")
         else:
             raise ValueError("your orcaJ and orcaS is not fit each other")
 
@@ -1538,10 +1557,12 @@ class OrcaSJ():
             This method modifies the standard output stream directly.
             The matrix is assumed to be square and symmetric (for coupling constants).
         """
+        print(" ===== Print the Coupling Constant =====")
         for idx0 in range(self.JCoups[0].size):
             for idy0 in range(self.JCoups[0].size):
                 print(f'{(self.JCoups[idx0][idy0]):>8.3f}', end="")
             print("")
+        print("")
 
 
 class Average_Directory(object):
@@ -1580,6 +1601,7 @@ class Average_Directory(object):
         self._file_orcaJ: Path = self._Dir / Path("orcaJ.out")  # nopep8
         self._file_orcaA: Path = self._Dir / Path("orcaA.out")  # nopep8
         self.SParams: dict | npt.NDArray
+        self.ChemicalShifts: dict | npt.NDArray
         self.JCoups: npt.NDArray
         self.idx1Atoms: dict
 
@@ -1629,9 +1651,9 @@ class Average_Directory(object):
                 Data: dict[int, float] = {}
                 for x in lines:
                     Data[int(x.split()[0])] = float(x.split()[1])
-                self.SParams = Data
+                self.ChemicalShifts = Data
             elif len(lines[0].split()) == 3:
-                self.SParams = np.loadtxt(self._file_orcaS)
+                self.ChemicalShifts = np.loadtxt(self._file_orcaS)
             else:
                 print("  The type of your SParams have something wrong !!!")
                 print("  Exit and Close the program !!!")
@@ -1666,16 +1688,16 @@ class Average_Directory(object):
             SystemExit: If the SParams format is invalid or has incorrect dimensions
         """
         (self._Dir).mkdir(parents=True, exist_ok=True)
-        if isinstance(self.SParams, dict):
+        if isinstance(self.ChemicalShifts, dict):
             with open(self._file_orcaS, 'w') as f:
-                for key, value in self.SParams.items():
+                for key, value in self.ChemicalShifts.items():
                     f.write('%10d %12.5f \n' % (key, value))
-        elif isinstance(self.SParams, np.ndarray):
-            if self.SParams.shape[1] == 3:
-                np.savetxt(self._file_orcaS, self.SParams,
+        elif isinstance(self.ChemicalShifts, np.ndarray):
+            if self.ChemicalShifts.shape[1] == 3:
+                np.savetxt(self._file_orcaS, self.ChemicalShifts,
                            fmt="%10d   %10.5f %10d")
-            elif self.SParams.shape[1] == 2:
-                np.savetxt(self._file_orcaS, self.SParams,
+            elif self.ChemicalShifts.shape[1] == 2:
+                np.savetxt(self._file_orcaS, self.ChemicalShifts,
                            fmt="%10d   %10.5f")
             else:
                 print("  The type of your SParams.shape have someting wrong !!!!")

@@ -277,14 +277,10 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
         >>> process_average_data(anmr_obj, args)
     """
     if inAnmr.get_avg_orcaSJ_Exist() and args.average:
-        if not inAnmr.method_load_avg_orcaSJ(bobyqa_bool=args.bobyqa):
+        if not inAnmr.method_BOBYQA_load_avg_orcaSJ():
             print("  Something wrong in your Average orcaSJ data !!!")
             print("  Exit and Close the program !!!")
             exit(1)
-        else:
-            a, b = inAnmr.get_Anmrrc_linear()
-            inAnmr.avg_orcaSJ.SParams = {
-                key: (value-b)/a for key, value in inAnmr.avg_orcaSJ.SParams.items()}
     else:
         # Process all ORCA files and generate average data
         inAnmr.method_read_enso()
@@ -337,7 +333,10 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
     Example:
         >>> s_params, j_coups, hydrogen, range_val, dpi_val, updated_args = preprocess_spin_system(anmr_obj, args)
     """
-    inAnmr.avg_orcaSJ.method_print_orcaS(inAnmr.get_Anmrrc_linear())
+    inAnmr.avg_orcaSJ.method_load_anmrrc_linear(inAnmr.get_Anmrrc_linear())
+    inAnmr.avg_orcaSJ.method_setup_ChemicalShifts()
+    inAnmr.avg_orcaSJ.method_print_av_orcaS()
+    inAnmr.avg_orcaSJ.method_teardown_ChemicalShifts()
     inAnmr.avg_orcaSJ.method_print_orcaJ()
     # ic(inAnmr.avg_orcaSJ.SParams)
 
@@ -865,7 +864,7 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
                 idx0_set*x for x, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
             print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
                 a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
-        print(" Use this parameter to calculate the Full Spectra")
+        print("  [Use this parameter to calculate the Full Spectra]")
     return (inSParams, inJCoups, inHydrogen), idx0_ab_group_sets, mat_filter_multi
 
 

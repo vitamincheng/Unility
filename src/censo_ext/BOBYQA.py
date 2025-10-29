@@ -158,22 +158,22 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
     from censo_ext.Tools.datfile import CensoDat
     # SParams_bobyqa: npt.NDArray[np.float64] = np.genfromtxt(
     #    g_var.AD_bobyqa._file_orcaS)
-    SParams_bobyqa: npt.NDArray[np.float64] = g_var.AD_bobyqa.SParams  # type: ignore # nopep8
+    CS_bobyqa: npt.NDArray[np.float64] = g_var.AD_bobyqa.ChemicalShifts  # type: ignore # nopep8
 
     if len(x0) == 1:
         # single peak
         for idx_key in g_var.idx_keys:
-            SParams_bobyqa[idx_key][1] = x0[0]
+            CS_bobyqa[idx_key][1] = x0[0]
     else:
         # group peaks
         for idx0, loop in enumerate(g_var.idx_keys):
             for idx_key in loop:  # type: ignore
-                SParams_bobyqa[idx_key][1] = x0[idx0]
+                CS_bobyqa[idx_key][1] = x0[idx0]
 
-    g_var.AD_bobyqa.SParams = SParams_bobyqa
+    g_var.AD_bobyqa.ChemicalShifts = CS_bobyqa
     g_var.AD_bobyqa.method_save_files()
-    SParams_exec: npt.NDArray[np.float64] = np.delete(
-        SParams_bobyqa, 2, axis=1)
+    CS_exec: npt.NDArray[np.float64] = np.delete(
+        CS_bobyqa, 2, axis=1)
 
     if g_var.prog:
         # print("External program: anmr")
@@ -193,10 +193,10 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
             sys.stdout = sys.__stdout__
 
         a, b = g_var.ref
-        SParams_exec.T[1] = (SParams_exec.T[1] - b) / a
-        SParams_exec.T[0] = SParams_exec.T[0]-1
+        CS_exec.T[1] = (CS_exec.T[1] - b) / a
+        CS_exec.T[0] = CS_exec.T[0]-1
         file_orcaS_main = Path("CONF1/NMR/orcaS-main.out")
-        np.savetxt(file_orcaS_main, SParams_exec,
+        np.savetxt(file_orcaS_main, CS_exec,
                    fmt="%7d       H    %10.5f          0")
         subprocess.call(
             f"cat {file_orcaS_main} >> CONF1/NMR/orcaS.out", shell=True)
@@ -214,7 +214,7 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
 
     elif not g_var.prog:
         # print("Internal python: anmr.py")
-        g_var.AD_normal.SParams = SParams_exec
+        g_var.AD_normal.ChemicalShifts = CS_exec
         g_var.AD_normal.method_save_files()
         import censo_ext.anmr as anmr
         x: dict = {'out': 'output.npz', "dir": g_var.Dir, "json": None, 'mf': g_var.mf,
@@ -257,9 +257,9 @@ def Scan_single_Peak(args) -> None:
     """
     import pybobyqa
 
-    SParams_bobyqa: npt.NDArray[np.float64] = g_var.AD_bobyqa.SParams.T  # type: ignore # nopep8
+    CS_bobyqa: npt.NDArray[np.float64] = g_var.AD_bobyqa.ChemicalShifts.T  # type: ignore # nopep8
 
-    in_sets: set[int] = set(SParams_bobyqa[2].astype(int).tolist())
+    in_sets: set[int] = set(CS_bobyqa[2].astype(int).tolist())
     in_sets = {x for x in in_sets if x < 1000 and x >= 1}
     print(f"  {in_sets=}")
     print("  ========== Start single_peak ==========")
@@ -268,15 +268,15 @@ def Scan_single_Peak(args) -> None:
         if args.verbose:
             ic(in_set)
         intp: npt.NDArray[np.int64] = np.argwhere(
-            SParams_bobyqa[2] == in_set).flatten()
-        SParams: list[float] = list(
-            map(float, np.atleast_1d(SParams_bobyqa[1][intp[0]])))
+            CS_bobyqa[2] == in_set).flatten()
+        in_CS: list[float] = list(
+            map(float, np.atleast_1d(CS_bobyqa[1][intp[0]])))
         if args.verbose:
-            ic(SParams)
+            ic(in_CS)
             ic(intp)
 
         g_var.idx_keys = list(intp)
-        x0: npt.NDArray[np.float64] = np.array(SParams)
+        x0: npt.NDArray[np.float64] = np.array(in_CS)
         bounds: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]
                       ] = x0 - g_var.limit, x0 + g_var.limit
 
@@ -304,7 +304,7 @@ def Scan_group_Peaks(args) -> None:
         None: This function performs optimization but doesn't return a value.
     """
     import pybobyqa
-    SParams_bobyqa: npt.NDArray[np.float64] = g_var.AD_bobyqa.SParams.T  # type: ignore # nopep8
+    SParams_bobyqa: npt.NDArray[np.float64] = g_var.AD_bobyqa.ChemicalShifts.T  # type: ignore # nopep8
 
     in_sets: set[int] = set(SParams_bobyqa[2].astype(int).tolist())
     in_sets = {x for x in in_sets if x >= 1000}
@@ -379,10 +379,10 @@ def Create_BOBYQA() -> None:
     Returns:
         None: This function creates a file and exits the program.
     """
-    SParams: npt.NDArray[np.float64] = np.array(list(g_var.AD_normal.SParams.items()))  # type: ignore # nopep8
+    ChemicalShifts: npt.NDArray[np.float64] = np.array(list(g_var.AD_normal.ChemicalShifts.items()))  # type: ignore # nopep8
     g_var.AD_bobyqa.idx1Atoms = g_var.AD_normal.idx1Atoms
     g_var.AD_bobyqa.JCoups = g_var.AD_normal.JCoups
-    g_var.AD_bobyqa.SParams = np.insert(SParams, 2, 0, axis=1)
+    g_var.AD_bobyqa.ChemicalShifts = np.insert(ChemicalShifts, 2, 0, axis=1)
     g_var.AD_bobyqa.method_save_files()
 
     descr = """
