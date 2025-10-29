@@ -51,7 +51,6 @@ def cal_RMSD(xyzfile, idx_p, idx_q) -> float:
 
 def Factor_xyzCompare(args) -> None:
     import subprocess
-    import re
     merge_FileName: Path = Path("temp_save.xyz")
     subprocess.call(
         f"cat {args.file[0]} {args.file[1]} > {merge_FileName}", shell=True)
@@ -107,9 +106,9 @@ def Factor_xyzCompare(args) -> None:
     start_idx0: int = 0
     end_idx0: int = 0
     for idx0, line in enumerate(lines):
-        if re.search(r"Erel/kcal", line):
+        if r"Erel/kcal" in line:
             start_idx0 = idx0 + 1
-        if re.search(r"ensemble average energy", line):
+        if r"ensemble average energy" in line:
             end_idx0 = idx0 - 3
     St_crest: npt.NDArray[np.float64] = np.array([])
     for idx0, line in enumerate(lines):

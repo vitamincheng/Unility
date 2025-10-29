@@ -169,9 +169,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
         print(f" Running:  {xtb_cmd}")
 
         lines: list = open("thermo.out", "r").readlines()
-        import re
         for line in lines:
-            if re.search(r'contrib\.', line):
+            if r'G(RRHO) contrib.' in line:
                 thermo.append(line.split()[3])
 
     from censo_ext.Tools.utility import delete_all_files

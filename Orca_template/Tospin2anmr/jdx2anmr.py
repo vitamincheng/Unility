@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from censo_ext.Tools.utility import save_simulation_spectra_file
-import re
 from icecream import ic
 from sys import argv as sysargv
 import argparse
@@ -110,9 +109,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     idx0_lines_end: int = 0
 
     for idx0, line in enumerate(lines):
-        if re.search(r"XYDATA", line):
+        if r"XYDATA" in line:
             idx0_lines_start = idx0
-        if re.search(r"END", line):
+        if r"END" in line:
             idx0_lines_end = idx0
 
     if idx0_lines_start == 0 or idx0_lines_end == 0:

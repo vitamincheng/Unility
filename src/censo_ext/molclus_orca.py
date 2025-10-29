@@ -148,10 +148,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(f" Running: {orca_path} {args.template} > {idx1_str}.out")
 
         orca_lines: list[str] = open(template_Name + ".out", "r").readlines()
-        import re
         get_energy: int | None = None
-        for idy0, y in enumerate(orca_lines):
-            if re.search(r"FINAL SINGLE POINT ENERGY", y):
+        for idy0, line in enumerate(orca_lines):
+            if r"FINAL SINGLE POINT ENERGY" in line:
                 get_energy = idy0
 
         from os.path import exists
@@ -159,7 +158,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         if templateFileIsExists:
             templateLines: list[str] = open(f"{template_Name}.xyz", "r").readlines()  # nopep8
             for idy0, y in enumerate(templateLines):
-                if re.search(rf"Coordinates from ORCA-job {template_Name}", y) and get_energy:
+                if rf"Coordinates from ORCA-job {template_Name}" in y and get_energy:
                     # get_comment_template = idy
                     templateLines[idy0] = str(
                         orca_lines[get_energy].split()[4] + "\n")

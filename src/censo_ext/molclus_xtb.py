@@ -173,9 +173,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         else:
             # print("singe point")
             lines: list[str] = open("xtb.out", "r").readlines()
-            import re
             for idy0, y in enumerate(lines):
-                if re.search(r"TOTAL ENERGY", y):
+                if r"TOTAL ENERGY" in y:
                     get_energy = idy0
             if get_energy:
                 xyzFile.Sts[idx1 -

@@ -927,13 +927,12 @@ class Anmr():
         DataJ: list[str] = []
         lines: list[str] = open(fileName, "r").readlines()
 
-        import re
         firstLine: bool = False
         start_shielding_idx1: int = 0
         for idx0, line in enumerate(lines):
-            if re.search(r"MATRIX PRINTED:", line):
+            if r"MATRIX PRINTED:" in line:
                 start_idx1 = idx0 + 1
-            if re.search(r"\+\/\-", line) and not firstLine:
+            if r"+/-" in line and not firstLine:
                 start_shielding_idx1 = idx0
                 firstLine = True
         if start_shielding_idx1 != 0:
@@ -951,13 +950,13 @@ class Anmr():
             DataJ.append(lines[x].rstrip())
 
         for line in lines:
-            if re.search(r"\+\/\-", line):
+            if r"+/-" in line:
                 tmp: list[float] = [int(i) for i in line.split()[0:3]]
                 tmp.append(float(line.split()[3]))
                 self.anmrS.append(tmp)
 
         for line in lines:
-            if re.search(r"1H resonance frequency", line):
+            if r"1H resonance frequency" in line:
                 self.frq = float(line.split()[6])
 
         ListDataJ: list[str] = DataJ
@@ -1349,22 +1348,21 @@ class OrcaSJ():
         Data_str: list[str] = []
         DataJ: list[list[str]] = []
         lines: list[str] = open(file, "r").readlines()
-        import re
         nVersion: str = ""
 
         for line in lines:
-            if re.search(r"Program Version", line):
+            if r"Program Version" in line:
                 nVersion: str = line
 
         if int(nVersion.split()[2][0]) == 5:
             nLines = 0
             start_idx = 0
             for idx0, line in enumerate(lines):
-                if re.search(r"Number of nuclei for epr/nmr", line):
+                if r"Number of nuclei for epr/nmr" in line:
                     nNuclei = int(line.split()[-1])
                     nLines = int(np.ceil(nNuclei/6))*(nNuclei+1)
 
-                if re.search(r"SUMMARY OF ISOTROPIC COUPLING CONSTANTS", line):
+                if r"SUMMARY OF ISOTROPIC COUPLING CONSTANTS" in line:
                     start_idx = idx0 + 2
 
             if nLines != 0 and start_idx != 0:
@@ -1372,9 +1370,9 @@ class OrcaSJ():
 
         elif int(nVersion.split()[2][0]) == 6:
             for idx0, line in enumerate(lines):
-                if re.search(r"Maximum memory used throughout the entire PROP", line):
+                if r"Maximum memory used throughout the entire PROP" in line:
                     end_idx = idx0 - 4
-                if re.search(r"SUMMARY OF ISOTROPIC COUPLING CONSTANTS", line):
+                if r"SUMMARY OF ISOTROPIC COUPLING CONSTANTS" in line:
                     start_idx = idx0 + 2
         else:
             print("This program is not work with before orca 5.0 ")
@@ -1440,28 +1438,27 @@ class OrcaSJ():
         start_idx, end_idx = 0, 0
         DataS: list[str] = []
         lines: list[str] = open(file, "r").readlines()
-        import re
         nVersion: str = ""
         nNuclei: int = 0
 
         for line in lines:
-            if re.search(r"Program Version", line):
+            if r"Program Version" in line:
                 nVersion: str = line
 
         if int(nVersion.split()[2][0]) == 5:
             for idx0, line in enumerate(lines):
-                if re.search(r"Number of nuclei for epr/nmr", line):
+                if r"Number of nuclei for epr/nmr" in line:
                     nNuclei = int(line.split()[-1])
-                if re.search(r"CHEMICAL SHIELDING SUMMARY", line):
+                if r"CHEMICAL SHIELDING SUMMARY" in line:
                     start_idx = idx0 + 6
             end_idx = start_idx + nNuclei - 1
             if end_idx == 0 or start_idx == 0 or nNuclei == 0:
                 return False
         elif int(nVersion.split()[2][0]) == 6:
             for idx0, line in enumerate(lines):
-                if re.search(r"Maximum memory used throughout the entire PROP", line):
+                if r"Maximum memory used throughout the entire PROP" in line:
                     end_idx = idx0 - 5
-                if re.search(r"CHEMICAL SHIELDING SUMMARY", line):
+                if r"CHEMICAL SHIELDING SUMMARY" in line:
                     start_idx = idx0 + 6
         else:
             print(" This program is not work with before orca 5.0 ")

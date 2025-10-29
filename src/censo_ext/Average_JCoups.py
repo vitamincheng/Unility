@@ -115,11 +115,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             raise FileNotFoundError(f"{file} the file is not exist ...")
 
         lines: list[str] = open(file, "r").readlines()
-        import re
         idx_h_lines: list[int] = []
         for idx0, line in enumerate(lines):
-            if re.search(r"h", line):
+            if r"h" in line:
                 idx_h_lines.append(idx0)
+            # if r"h" in line:
+            #    idx_h_lines.append(idx0)
         np_idx_h_lines: npt.NDArray[np.int64] = np.array(idx_h_lines) - 1
         np.set_printoptions(formatter={'float': '{:12.5f}'.format})
 
