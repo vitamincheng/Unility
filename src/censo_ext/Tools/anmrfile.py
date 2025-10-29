@@ -861,7 +861,7 @@ class Anmr():
         """
         self.avg_data.idx1Atoms = self.avg_orcaSJ.idx1Atoms
 
-        self.avg_data.SParams = self.method_linear_orcaS(
+        self.avg_data.ChemicalShifts = self.method_linear_orcaS(
             self.avg_orcaSJ.SParams)
 
         self.avg_data.JCoups = self.avg_orcaSJ.JCoups
