@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-# from icecream import ic
 import numpy.typing as npt
 from pathlib import Path
 import shutil
 import numpy as np
+
 #
 # https://steam.oxxostudio.tw/category/python/library/shutil.html
 #
@@ -353,8 +353,8 @@ def print_arguments() -> None:
 def save_figure(fileName: str = "nmrplot") -> None:
     """Save the current matplotlib figure to PDF and SVG formats.
 
-    This function saves the currently active matplotlib figure in both PDF (300 dpi) 
-    and SVG formats with the specified base filename. The function creates two output 
+    This function saves the currently active matplotlib figure in both PDF (300 dpi)
+    and SVG formats with the specified base filename. The function creates two output
     files: one with .pdf extension and another with .svg extension.
 
     Args:
@@ -373,7 +373,7 @@ def save_figure(fileName: str = "nmrplot") -> None:
         # Saves files as "nmrplot.pdf" and "nmrplot.svg"
 
     Note:
-        This function requires matplotlib to be imported and a figure to be 
+        This function requires matplotlib to be imported and a figure to be
         currently active. The PDF file is saved with high resolution (300 dpi).
     """
     import matplotlib.pyplot as plt
@@ -512,89 +512,53 @@ def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12)
     """
     sorted_data = np.array(sorted_data)
 
-    if len(sorted_data) < 3:
-        print("  The numbers of sorted_data need more than three !!!")
-        print("  Exit and Close the program !!!")
-        exit(0)
-
-    if len(sorted_data) < max_number:
-        return np.array([len(sorted_data)])
-    # from icecream import ic
-    # ic(sorted_data)
     delta: npt.NDArray[np.float64] = np.diff(sorted_data)
-    idx0_sorted_delta: npt.NDArray[np.float64] = delta.argsort()[::-1]
-    # ic(delta)
-    # ic(idx0_sorted_delta)
-    for length in range(1, len(delta)//2):
-        idx0_cut: npt.NDArray[np.float64] = idx0_sorted_delta[:length]
-        # ic(idx0_cut)
-        # ic(idx0_sorted_delta[:length])
-        idx0_cut = np.insert(idx0_cut, 0, -1)
-        idx0_cut = np.insert(idx0_cut, 0, len(delta))
-        idx0_cut.sort()
-        cut_diff: npt.NDArray[np.float64] = np.diff(idx0_cut)
-        # ic(idx0_cut, cut_diff)
-        if int(np.max(cut_diff)) <= max_number:
-            result: npt.NDArray[np.int64] = np.array([])
-            Max: int = int(np.max(cut_diff))
-            argmax = np.argmax(cut_diff)
+    idx0_sorted_delta: npt.NDArray[np.int64] = delta.argsort()[::-1]
 
-            quotient, remainder = divmod(
-                int(np.sum(cut_diff[:argmax])), (Max-1))
-            # ic(quotient, remainder)
+    # Check the cutter point is enough to condition (walls  4 <x< len-4)
+    # if the condtion is enough, added cutter point list
+    # and two different list is more than 16, is more than 16, find next cutter point
+    cutter_list = [len(delta)]
 
-            if quotient == 0 and remainder == 0:
-                pass
-            elif quotient == 0 and remainder != 0:
-                result = np.append(result, remainder)
-            else:
-                for x in range(quotient):
-                    result = np.append(result, Max-1)
-                if remainder != 0:
-                    result = np.append(result, remainder)
-            result = np.append(result, Max)
-            # ic(result)
-            del quotient
-            del remainder
+    while (1):
+        if len(cutter_list) == 1:
+            for x in idx0_sorted_delta:
+                if x > max_number//4-1 and x < len(delta)-4:
+                    cutter_list: list[int] = [int(x), len(delta)-int(x)]
+                    print(f"  Sub_numbers : {cutter_list}")
+                    return np.array(cutter_list)
 
-            quotient, remainder = divmod(
-                int(np.sum(cut_diff[argmax+1:])), Max-1)
-            # ic(quotient, remainder)
-            # ic(cut_diff, cut_diff[argmax+1:])
-            if quotient == 0 and remainder == 0:
-                pass
-            elif quotient == 0 and remainder != 0:
-                result = np.append(result, remainder)
-            else:
-                for x in range(quotient):
-                    result = np.append(result, Max-1)
-                if remainder != 0:
-                    result = np.append(result, remainder)
-            # ic(quotient, remainder)
-            # ic(result)
-            return result.astype(np.int64)
-            # return cut_diff
-    print("  Adjust the max_number to fit !!!")
-    print("  Exit and Close the program !!!")
-    exit(0)
+        elif max(cutter_list) > 16:
+            arg_max: int = cutter_list.index(max(cutter_list))
+            for x in idx0_sorted_delta:
+                start_from0: int = sum(cutter_list[:arg_max])
+                end_from0: int = sum(cutter_list[:arg_max+1])
+                if x > start_from0+max_number//4-1 and x < end_from0 - 3:
+                    total = max(cutter_list)
+                    cutter_list.pop(arg_max)
+                    cutter_list.insert(arg_max, int(total-x))
+                    cutter_list.insert(arg_max, int(x))
+                    print(f"  Sub_numbers : {cutter_list}")
+        else:
+            return np.array(cutter_list)
 
 
 def R_square(x: npt.NDArray, y: npt.NDArray) -> float:
     """Calculate the coefficient of determination (R-squared) for two arrays.
 
-    This function computes the R-squared value, which represents the proportion 
-    of the variance in the dependent variable (y) that is predictable from 
-    the independent variable (x). It is calculated as the square of the Pearson 
+    This function computes the R-squared value, which represents the proportion
+    of the variance in the dependent variable (y) that is predictable from
+    the independent variable (x). It is calculated as the square of the Pearson
     correlation coefficient between the two arrays.
 
     Args:
         x (npt.NDArray): Independent variable array. Should be 1D array-like.
-        y (npt.NDArray): Dependent variable array. Should be 1D array-like and 
+        y (npt.NDArray): Dependent variable array. Should be 1D array-like and
             have the same length as x.
 
     Returns:
-        float: The coefficient of determination (R-squared) value, ranging from 
-               0 to 1. A value of 1 indicates perfect correlation, while 0 indicates 
+        float: The coefficient of determination (R-squared) value, ranging from
+               0 to 1. A value of 1 indicates perfect correlation, while 0 indicates
                no linear relationship.
 
     Example:
@@ -605,8 +569,8 @@ def R_square(x: npt.NDArray, y: npt.NDArray) -> float:
         1.0
 
     Note:
-        Both input arrays must have the same length and contain numeric data. 
-        The function uses numpy's corrcoef function to calculate the correlation 
+        Both input arrays must have the same length and contain numeric data.
+        The function uses numpy's corrcoef function to calculate the correlation
         coefficient before squaring it to get R-squared.
     """
     # Calculate the correlation matrix
