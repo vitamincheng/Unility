@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from censo_ext.Tools.anmrfile import AD_BOBYQA, AD_Normal
-from censo_ext.Tools.utility import cosine_similarity, print_arguments
+from censo_ext.Tools.utility import print_arguments
+from icecream import ic
 import argparse
 import numpy as np
 import numpy.typing as npt
@@ -34,20 +35,21 @@ def cml() -> argparse.Namespace:
         action="store",
         required=False,
         type=int,
-        default=15,
-        help="Maximum of Combinations [default 16]",
+        default=100,
+        help="Maximum of Combinations [default 100]",
     )
-
     parser.add_argument(
-        "-l",
-        "--limits",
-        dest="limits",
+        "-d",
+        "--del",
+        dest="delete",
         action="store",
         required=False,
-        type=float,
+        type=int,
+        nargs="+",
         default=None,
-        help="limits of border ppms [default 2 ppm in H, 20 ppm in C if .anmrrc is exists]",
+        help="Under Calculation, the neglect atoms",
     )
+
     args: argparse.Namespace = parser.parse_args()
     return args
 
@@ -85,11 +87,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         inAnmr: Anmr = Anmr()
         inAnmr.method_read_nucinfo()
         inAnmr.method_read_anmrrc()
-        match(inAnmr.get_Anmrrc_Active()):
-            case ["C"]:
-                args.limits = 20
-            case ["H"]:
-                args.limits = 2
+        Anmrrc_Active = inAnmr.get_Anmrrc_Active()
+        if Anmrrc_Active == ['H']:
+            limits = 0.5
+        elif Anmrrc_Active == ['C']:
+            limits = 10
+        else:
+            print(" Active element of anmrrc is not H or C ")
+            exit(0)
 
         ChemEqvs: dict[int, list[int]] = {key: value for key, value in
                                           inAnmr.NeighborChemEqvs.items()
@@ -108,138 +113,99 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             unique_ChemEqvs_first_idx.append(item[0])
 
         # Normal Sim_SParams/sorted_SParams is more than real known peaks
-        Sim_ChemicalShifts: list[float] = []
+        Sim_CS: list[float] = []
         for x in unique_ChemEqvs_first_idx:
             index: tuple[npt.NDArray[np.intp], ...] = np.where(OrcaS.T[0] == x)
-            Sim_ChemicalShifts.append(float(OrcaS.T[1][index][0]))
+            Sim_CS.append(float(OrcaS.T[1][index][0]))
 
-        sorted_ChemicalShifts: npt.NDArray[np.float64] = np.array(
-            sorted(Sim_ChemicalShifts))
+        sorted_CS: npt.NDArray[np.float64] = np.array(
+            sorted(Sim_CS))
         real_Peaks: npt.NDArray[np.float64] = peaks.get_cIDs_center_peaks()
         print("\n  ===== Display the peaks of real spectra =====")
+        print(f"The numbers of Real Peaks : {len(real_Peaks.T)}")
         print(f"Real Peaks : \n{real_Peaks.T}")
         print("\n  ===== Display the peaks of calculation spectra =====")
-        print(f"Sorted ChemicalShifts : \n{sorted_ChemicalShifts}\n")
+        print(f"The numbers of Sorted ChemicalShifts : {len(sorted_CS)}")
+        print(f"Sorted ChemicalShifts : \n{sorted_CS}\n")
 
-        # if len(sorted_ChemicalShifts) < len(real_Peaks.T):
-        #    print(
-        #        "  The numbers of real peaks are more than the numbers of simulation in normal")
-        #    print("  Exit and Close the program !!!")
-        #    exit(0)
-        from censo_ext.Tools.utility import sub_numpy
-        if len(sorted_ChemicalShifts) <= 4:
-            print("  The numbers of sorted_data need more than four !!!")
-            print("  Exit and Close the program !!!")
-            exit(0)
-        else:
-            # nGroups: npt.NDArray[np.int64] = sub_numpy(
-            #    sorted_ChemicalShifts, args.comb)
-            if len(sorted_ChemicalShifts) >= args.comb:
-                nGroups = sub_numpy(
-                    sorted_ChemicalShifts, args.comb)
-            else:
-                nGroups = np.array([len(sorted_ChemicalShifts)])
         OrcaS_BOBYQA: npt.NDArray[np.float64] = np.insert(OrcaS, 2, 0, axis=1)
 
-        print(f"  Sub-Groups : {nGroups}")
+        # Wait_Check_CS: npt.NDArray[np.float64] = sorted_CS
+        Wait_Check_Reals: npt.NDArray[np.float64] = real_Peaks[1]
 
-        counter: int = 1
-        for idx, _ in enumerate(nGroups):
+        start = Wait_Check_Reals.min()-limits
+        end = Wait_Check_Reals.max()+limits
+        args_start = sorted_CS > start
+        args_end = sorted_CS < end
+        args_intersection = np.logical_and(args_start, args_end)
+        Wait_Check_CS = sorted_CS[args_intersection]
 
-            start: np.int64 = np.sum(nGroups[:idx])+1
-            if idx == 0:
-                start = np.int64(0)
-            end: np.int64 = np.sum(nGroups[:idx+1])
+        if args.delete is not None:
+            print("  Activated Delete Atoms : ")
+            for x in args.delete:
+                y = OrcaS[np.where(OrcaS.T[0] == x)[0]][0][1]
+                print(f"  {x}  {y}")
+                z = np.where(Wait_Check_CS == y)[0]
+                Wait_Check_CS = np.delete(Wait_Check_CS, z)
+        print(
+            f"The numbers of be Checked ChemicalShifts : {len(Wait_Check_CS)}")
+        print(f"be Checked ChemicalShifts : \n{Wait_Check_CS}\n")
 
-            Wait_Check_ChemicalShifts: npt.NDArray[np.float64] = sorted_ChemicalShifts[start:end+1]
-            S_start: float = float(
-                sorted_ChemicalShifts[start] - args.limits)
-            S_end: float = float(sorted_ChemicalShifts[end] + args.limits)
+        # this process is for combination. it is more simple. And this is only for order numbers.
+        # Normally the distance of Wait_Check_Reals is more width than Wait_Check_CS, so peaks is more
+        # If the peaks of Wait_Check_Reals is not including in. it will less.
+        if len(Wait_Check_Reals) >= len(Wait_Check_CS):
+            Large = Wait_Check_Reals
+            Small = Wait_Check_CS
+        elif len(Wait_Check_CS) > len(Wait_Check_Reals):
+            Large = Wait_Check_CS
+            Small = Wait_Check_Reals
+        else:
+            ic()
+            raise ValueError("  BOBYQA_gen.py have error")
+        # print(len(Large), len(Small))
 
-            a: npt.NDArray[np.intp] = np.argwhere(real_Peaks[1] > S_start)
-            b: npt.NDArray[np.intp] = np.argwhere(real_Peaks[1] < S_end)
+        from itertools import combinations
+        print("\n  ===== Combination of large nubmers of peaks =====")
+        print(f"  The numbers of ({len(Large)}, {len(Small)})")
 
-            total_set: npt.NDArray[np.int64] = np.array(
-                list(set(a.T[0]).intersection(set(b.T[0]))))
+        combs: list[tuple[int, ...]] = list(combinations(
+            [*range(0, len(Large))], len(Small)))  # type: ignore # nopep8
+        result: list[float] = []
+        print(f"  The numbers of Combinations : {len(combs)}")
+        for comb in combs:
+            distance = Large[list(comb)]-Small
+            result.append(np.sum(np.square(distance)))
 
-            if len(total_set) == 0:
-                Wait_Check_Reals: npt.NDArray[np.float64] = np.array(
-                    [])
+        print(f"  The result of Euclidean Distance : {np.array(result)}")
+
+        print(f"\n  The best of the result : {min(result)}")
+        args_combs: tuple[int, ...] = combs[result.index(min(result))]
+
+        if len(Wait_Check_Reals) >= len(Wait_Check_CS):
+            Wait_Check_Reals = Large[list(args_combs)]
+            Wait_Check_CS = Small
+        if len(Wait_Check_CS) > len(Wait_Check_Reals):
+            Wait_Check_CS = Large[list(args_combs)]
+            Wait_Check_Reals = Small
+
+        print(f"  The best of the array (Real) : {Wait_Check_Reals}")
+        print(
+            f"  The best of the array (Cal.) : {Wait_Check_CS}\n")
+
+        counter = 1
+        for idx, x in enumerate(Wait_Check_CS):
+            intp: tuple[npt.NDArray[np.intp], ...] = np.where(
+                OrcaS.T[1] == x)
+            OrcaS_BOBYQA.T[1][intp] = Wait_Check_Reals[idx]
+
+            if OrcaS_BOBYQA.T[2][intp] != 0:
+                print("repeated value ")
+                exit(0)
             else:
-                Wait_Check_Reals: npt.NDArray[np.float64] = np.array(
-                    real_Peaks[1][total_set])
+                OrcaS_BOBYQA.T[2][intp] = counter
+            counter += 1
 
-            # this process is for combination. it is more simple. And this is only for order numbers.
-            if len(Wait_Check_Reals) >= len(Wait_Check_ChemicalShifts):
-                Large = Wait_Check_Reals
-                Small = Wait_Check_ChemicalShifts
-            elif len(Wait_Check_ChemicalShifts) > len(Wait_Check_Reals):
-                Large = Wait_Check_ChemicalShifts
-                Small = Wait_Check_Reals
-            else:
-                raise ValueError("  BOBYQA_gen.py about 181 lines have error")
-            # print(len(Large), len(Small))
-
-            from itertools import combinations
-            print("\n  ===== Combination of large nubmers of peaks =====")
-            print(f"  The numbers of ({len(Large)}, {len(Small)})")
-
-            combs: list[tuple[int, ...]] = list(combinations(
-                [*range(0, len(Large))], len(Small)))  # type: ignore # nopep8
-            result: list[float] = []
-            print(f"  The numbers of Combinations : {len(combs)}")
-            for comb in combs:
-                result.append(cosine_similarity(
-                    Large[list(comb)], Small))  # type: ignore # nopep8
-
-            print(f"  The result of cosine_similarity : {np.array(result)}")
-
-            print(f"\n  The best of the result : {max(result)}")
-            args_combs: tuple[int, ...] = combs[result.index(max(result))]
-
-            # print(len(Large), len(Small), args_combs)  # nopep8
-            # ic(list(args_combs), Large, Small)
-            if len(Wait_Check_Reals) >= len(Wait_Check_ChemicalShifts):
-                # ordered_orcaS = Large[list(args_combs)]  # type: ignore # nopep8
-                Wait_Check_Reals = Large[list(args_combs)]
-                Wait_Check_ChemicalShifts = Small
-            if len(Wait_Check_ChemicalShifts) > len(Wait_Check_Reals):
-                # ordered_orcaS = Small[list(args_combs)]  # type: ignore # nopep8
-                Wait_Check_ChemicalShifts = Large[list(args_combs)]
-                Wait_Check_Reals = Small
-
-                # Wait_Check_ChemicalShifts = Large[list(args_combs)]
-            # exit(1001)
-            # print(f"The best of the array : {ordered_orcaS}\n")
-            print(f"  The best of the array (Real) : {Wait_Check_Reals}")
-            print(
-                f"  The best of the array (Cal.) : {Wait_Check_ChemicalShifts}\n")
-
-            # ic(ordered_orcaS, OrcaS.T[1])
-            for idx, x in enumerate(Wait_Check_ChemicalShifts):
-                intp: tuple[npt.NDArray[np.intp], ...] = np.where(
-                    OrcaS.T[1] == x)
-                # intp: tuple[npt.NDArray[np.intp], ...] = np.where(
-                #    OrcaS.T[1] == x)
-                OrcaS_BOBYQA.T[1][intp] = Wait_Check_Reals[idx]
-
-                if OrcaS_BOBYQA.T[2][intp] != 0:
-                    print("repeated value ")
-                    exit(0)
-                else:
-                    OrcaS_BOBYQA.T[2][intp] = counter
-                counter += 1
-
-            # for idx, x in enumerate(ordered_orcaS):
-            #    intp: tuple[npt.NDArray[np.intp], ...] = np.where(
-            #        real_Peaks[1] == x)
-            #    # intp: tuple[npt.NDArray[np.intp], ...] = np.where(
-            #    #    OrcaS.T[1] == x)
-            #    OrcaS_BOBYQA.T[1][intp] = Wait_Check_Reals[idx]
-            #    OrcaS_BOBYQA.T[2][intp] = counter
-            #    counter += 1
-
-        # ic(OrcaS_BOBYQA)
         AD_bobyqa: AD_BOBYQA = AD_BOBYQA()
         AD_bobyqa.JCoups = AD_orcaS.JCoups
         AD_bobyqa.idx1Atoms = AD_orcaS.idx1Atoms

@@ -483,66 +483,6 @@ def cosine_similarity(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np
     return cosine_similarity
 
 
-def sub_numpy(sorted_data: npt.NDArray[np.float64] | list, max_number: int = 12) -> npt.NDArray[np.int64]:
-    """Find optimal subdivision points for sorted data based on delta analysis.
-
-    This function analyzes the differences between consecutive elements in sorted data
-    to determine optimal subdivision points. It attempts to distribute the largest
-    gaps evenly across the data while respecting a maximum segment size constraint.
-
-    Args:
-        sorted_data: A sorted array or list of float64 values to be subdivided.
-        max_number: Maximum allowed size for any segment (default: 12).
-
-    Returns:
-        An array of integers representing optimal subdivision points.
-
-    Raises:
-        SystemExit: If no valid subdivision is found within the given constraints,
-            prompting user to adjust max_number parameter.
-
-    Example:
-        >>> data = [1.0, 2.0, 3.0, 10.0, 15.0]
-        >>> sub_numpy(data, max_number=5)
-        array([3, 2])
-
-    Note:
-        The function uses a greedy approach to find the best subdivision by
-        examining all possible cuts up to half the length of the data.
-    """
-    sorted_data = np.array(sorted_data)
-
-    delta: npt.NDArray[np.float64] = np.diff(sorted_data)
-    idx0_sorted_delta: npt.NDArray[np.int64] = delta.argsort()[::-1]
-
-    # Check the cutter point is enough to condition (walls  4 <x< len-4)
-    # if the condtion is enough, added cutter point list
-    # and two different list is more than 16, is more than 16, find next cutter point
-    cutter_list = [len(delta)]
-
-    while (1):
-        if len(cutter_list) == 1:
-            for x in idx0_sorted_delta:
-                if x > max_number//4-1 and x < len(delta)-4:
-                    cutter_list: list[int] = [int(x), len(delta)-int(x)]
-                    print(f"  Sub_numbers : {cutter_list}")
-                    return np.array(cutter_list)
-
-        elif max(cutter_list) > 16:
-            arg_max: int = cutter_list.index(max(cutter_list))
-            for x in idx0_sorted_delta:
-                start_from0: int = sum(cutter_list[:arg_max])
-                end_from0: int = sum(cutter_list[:arg_max+1])
-                if x > start_from0+max_number//4-1 and x < end_from0 - 3:
-                    total = max(cutter_list)
-                    cutter_list.pop(arg_max)
-                    cutter_list.insert(arg_max, int(total-x))
-                    cutter_list.insert(arg_max, int(x))
-                    print(f"  Sub_numbers : {cutter_list}")
-        else:
-            return np.array(cutter_list)
-
-
 def R_square(x: npt.NDArray, y: npt.NDArray) -> float:
     """Calculate the coefficient of determination (R-squared) for two arrays.
 
