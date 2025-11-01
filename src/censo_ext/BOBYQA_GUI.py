@@ -570,13 +570,13 @@ def process_auto_mode(args, intensit, y_heighest, thres, thres_baseline, uc, pea
         nGroups = 0
     else:
         AD_normal.method_load_files()
-        if not isinstance(AD_normal.SParams, dict):
+        if not isinstance(AD_normal.ChemicalShifts, dict):
             print("  The format of orcaS.out is not dict !!!")
             print("  Exit and Close the program !!!")
             exit(0)
         else:
             idx1_orcaS: list[int] = list(
-                map(int, AD_normal.SParams.keys()))
+                map(int, AD_normal.ChemicalShifts.keys()))
         from censo_ext.Tools.anmrfile import Anmr
         inAnmr: Anmr = Anmr()
         inAnmr.method_read_nucinfo()
