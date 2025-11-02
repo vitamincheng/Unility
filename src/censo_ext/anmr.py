@@ -6,7 +6,7 @@ import argparse
 from icecream import ic
 from pathlib import Path
 
-from censo_ext.Tools.anmrfile import Anmr
+from censo_ext.Tools.anmrfile import AD_BOBYQA, AD_Normal, Anmr
 from censo_ext.Tools.utility import print_arguments
 
 descr = """
@@ -21,6 +21,7 @@ ________________________________________________________________________________
 | auto     : -auto --auto automated to adjust the threshold of J and AB quartet [default False]
 | decoups  : -de --decoups deCoupings mode [defalut False][pending]
 | average  : -av load the average folder data to plot spectra [default False]
+| BOBYQA   : -b --bobyqa load the average folder data to plot (use orcaS.BOBYQA) [default False]
 | thr      : -t -thr threshold of coupling constant (J) [default 0.30]
 | thrtab   : -tab -thrab threshold of AB quartet (JCoups / diff chemical shift) [default 0.020]
 | tbpent   : -tb threshold of AB quartet bond pententration distance [default 4]
@@ -30,7 +31,6 @@ ________________________________________________________________________________
 | Start    : -start start ppm of plotting spectra [default from data]
 | End      : -end end ppm of plotting spectra [default from data]
 | ref      : reference standard - see .anmrrc file
-| BOBYQA   : -b --bobyqa BOBYQA mode [default False]
 | JSON     : -j --json Read the raw data of every single peak [if is -1(All)]
 |______________________________________________________________________________
 """
@@ -152,7 +152,7 @@ def cml() -> argparse.Namespace:
         "--average",
         dest="average",
         action="store_true",
-        help="Load the Average/NMR/ folder data to plot spectra even use --auto argument [default False]",
+        help="Load the Average/NMR folder data to plot spectra even use --auto argument [default False]",
     )
 
     parser.add_argument(
@@ -160,7 +160,7 @@ def cml() -> argparse.Namespace:
         "--bobyqa",
         dest="bobyqa",
         action="store_true",
-        help="BOBYQA mode [default False]",
+        help="Load the Average/NMR folder data to plot spectra (use orcaS.BOBYQA) [default False]",
     )
 
     parser.add_argument(
@@ -276,7 +276,17 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
     Example:
         >>> process_average_data(anmr_obj, args)
     """
-    if inAnmr.get_avg_orcaSJ_Exist() and args.average:
+    if args.average:
+        inAnmr.avg_Data_AD = AD_Normal()
+        inAnmr.get_avg_orcaSJ_Exist()
+        if not inAnmr.method_BOBYQA_load_avg_orcaSJ():
+            print("  Something wrong in your Average orcaSJ data !!!")
+            print("  Exit and Close the program !!!")
+            exit(1)
+
+    elif args.bobyqa and not args.average:
+        inAnmr.avg_Data_AD = AD_BOBYQA()
+        inAnmr.get_avg_orcaSJ_Exist()
         if not inAnmr.method_BOBYQA_load_avg_orcaSJ():
             print("  Something wrong in your Average orcaSJ data !!!")
             print("  Exit and Close the program !!!")
@@ -294,6 +304,7 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
                 exit(0)
         inAnmr.method_update_equiv_orcaSJ()
         inAnmr.method_avg_orcaSJ()
+        inAnmr.avg_Data_AD = AD_Normal()
         inAnmr.method_save_avg_orcaSJ()
 
 

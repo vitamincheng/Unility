@@ -276,7 +276,9 @@ class Anmr():
         self.NeighborMangetEqvs: dict[int, list[int]] = {}
 
         # For the data of Average Directory
-        self.avg_data: AD_Normal = AD_Normal(self.__Dir)
+        # self.avg_data: AD_Normal = AD_Normal(self.__Dir)
+        # self.avg_data_BOBYQA: AD_BOBYQA = AD_BOBYQA(self.__Dir)
+        self.avg_Data_AD: Average_Directory = Average_Directory(self.__Dir)
 
     def get_Dir(self) -> Path:
         """
@@ -712,6 +714,7 @@ class Anmr():
             print("  Exit and Close the program !!!")
             exit(0)
 
+    # def get_avg_orcaSJ_Exist(self, AD: Average_Directory) -> bool:
     def get_avg_orcaSJ_Exist(self) -> bool:
         """
         Check if average orcaSJ files exist in the Average/NMR directory.
@@ -729,7 +732,8 @@ class Anmr():
             bool: True if all average orcaSJ files exist in the Average/NMR directory,
                   False if any of the files are missing.
         """
-        return self.avg_data.Exist()
+        return self.avg_Data_AD.Exist()
+        # AD.Exist()
 
         # avg_Dir: Path = Path("Average/NMR")
         # file_avg_orcaS: Path = self.__Dir / avg_Dir / Path("orcaS.out")
@@ -750,10 +754,6 @@ class Anmr():
         including atom indices, scalar coupling constants (SParams), and J-couplings (JCoups).
         The method handles both BOBYQA and non-BOBYQA versions of the ORCA output files.
 
-        Args:
-            args: Command-line arguments containing BOBYQA flag.
-                - args.bobyqa (bool): Flag indicating whether to use BOBYQA version
-                    of the ORCA output files.
 
         Returns:
             bool: True if successful, False otherwise.
@@ -767,58 +767,38 @@ class Anmr():
             - self.avg_orcaSJ.JCoups: J-coupling values
 
         Example:
-            >>> args = argparse.Namespace(bobyqa=True)
             >>> success = self.method_load_avg_orcaSJ(args)
             >>> print(success)
             True
 
         Files accessed:
-            - Average/NMR/orcaS-BOBYQA.out (if args.bobyqa is True)
-            - Average/NMR/orcaS.out (if args.bobyqa is False)
+            - Average/NMR/orcaS-BOBYQA.out 
+            - Average/NMR/orcaS.out 
             - Average/NMR/orcaJ.out
             - Average/NMR/orcaA.out
         """
-        # self.avg_data.method_BOBYQA_mode(bobyqa_bool)
-        Result: bool = self.avg_data.method_load_files()
-        self.avg_orcaSJ.idx1Atoms = self.avg_data.idx1Atoms
-        if isinstance(self.avg_data.ChemicalShifts, dict):
-            self.avg_orcaSJ.ChemicalShits = self.avg_data.ChemicalShifts
+        AD = self.avg_Data_AD
+        Result: bool = AD.method_load_files()
+        self.avg_orcaSJ.idx1Atoms = AD.idx1Atoms
+        if isinstance(AD.ChemicalShifts, dict):
+            self.avg_orcaSJ.ChemicalShits = AD.ChemicalShifts
             a, b = self.get_Anmrrc_linear()
             self.avg_orcaSJ.SParams = {
-                key: (value-b)/a for key, value in self.avg_orcaSJ.ChemicalShits.items()}
+                key: (value-b)/a for key, value in AD.ChemicalShifts.items()}
+            self.avg_orcaSJ.ChemicalShits = {}
+        elif isinstance(AD.ChemicalShifts, np.ndarray):
+            temp = {int(key): float(value)
+                    for key, value, _ in AD.ChemicalShifts}
+            a, b = self.get_Anmrrc_linear()
+            self.avg_orcaSJ.SParams = {
+                key: (value-b)/a for key, value in temp.items()}
             self.avg_orcaSJ.ChemicalShits = {}
         else:
-            print("  The tpye of your SParams have something wrong !!!")
+            print("  The type of your SParams have something wrong !!!")
             print("  Exit and Close the program !!!")
             exit(1)
-        self.avg_orcaSJ.JCoups = self.avg_data.JCoups
+        self.avg_orcaSJ.JCoups = AD.JCoups
         return Result
-        # from censo_ext.Tools.utility import jsonKeys2int, load_dict_orcaS
-        # avg_Dir: Path = Path("Average/NMR")
-        # if self.get_avg_orcaSJ_Exist():
-        #    # Check the name of file
-        #    if bobyqa_bool:
-        #        file_avg_orcaS: Path = self.__Dir / \
-        #            avg_Dir/Path("orcaS-BOBYQA.out")
-        #    else:
-        #        file_avg_orcaS: Path = self.__Dir / \
-        #            avg_Dir/Path("orcaS.out")
-        #    file_avg_orcaJ: Path = self.__Dir/avg_Dir/Path("orcaJ.out")
-        #    file_avg_orcaAtoms: Path = self.__Dir / \
-        #        avg_Dir/Path("orcaA.out")
-
-        #    # load the data of file
-        #    import json
-        #    with open(file_avg_orcaAtoms) as f:
-        #        self.avg_orcaSJ.idx1Atoms = json.loads(
-        #            f.read(), object_pairs_hook=jsonKeys2int)
-
-        #    self.avg_orcaSJ.SParams = load_dict_orcaS(
-        #        file_avg_orcaS)
-        #    self.avg_orcaSJ.JCoups = np.loadtxt(file_avg_orcaJ)
-        #    return True
-        # else:
-        #    return False
 
     def method_save_adjust_avg_orcaS(self) -> None:
         """
@@ -859,27 +839,14 @@ class Anmr():
             - orcaJ.out: Coupling constants
             - orcaA.out: Atom indices
         """
-        self.avg_data.idx1Atoms = self.avg_orcaSJ.idx1Atoms
+        self.avg_Data_AD.idx1Atoms = self.avg_orcaSJ.idx1Atoms
 
-        self.avg_data.ChemicalShifts = self.method_linear_orcaS(
+        self.avg_Data_AD.ChemicalShifts = self.method_linear_orcaS(
             self.avg_orcaSJ.SParams)
 
-        self.avg_data.JCoups = self.avg_orcaSJ.JCoups
-        self.avg_data.method_save_files()
-        self.avg_data.SParams = self.avg_orcaSJ.SParams
-        # avg_Dir: Path = Path("Average/NMR")
-        # avg_orcaS: Path = self.__Dir / avg_Dir / Path("orcaS.out")      # nopep8
-        # avg_orcaJ: Path = self.__Dir / avg_Dir / Path("orcaJ.out")      # nopep8
-        # avg_orcaAtoms: Path = self.__Dir / avg_Dir / Path("orcaA.out")  # nopep8
-
-        # (self.__Dir / avg_Dir).mkdir(parents=True, exist_ok=True)
-
-        # from censo_ext.Tools.utility import save_dict_orcaS
-        # save_dict_orcaS(avg_orcaS, self.avg_orcaSJ.SParams)
-        # import json
-        # with open(avg_orcaAtoms, 'w') as f:
-        #    f.write(json.dumps(self.avg_orcaSJ.idx1Atoms))
-        # np.savetxt(avg_orcaJ, self.avg_orcaSJ.JCoups, fmt="%10.5f")
+        self.avg_Data_AD.JCoups = self.avg_orcaSJ.JCoups
+        self.avg_Data_AD.method_save_files()
+        self.avg_Data_AD.SParams = self.avg_orcaSJ.SParams
 
     def method_save_folder_orcaSJ(self) -> None:
         """
