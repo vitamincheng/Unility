@@ -1,6 +1,6 @@
 from pathlib import Path
 import pytest
-from censo_ext.Tools.anmrfile import Anmr
+from censo_ext.Tools.anmrfile import AD_Normal, Anmr
 from censo_ext.Tools.anmrfile import OrcaSJ
 import sys
 import os
@@ -79,6 +79,7 @@ def test_anmrfile_get_avg_orcaSJ_Exist() -> None:
     # For Hydrogen
     Dir: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen")
     file: Anmr = Anmr(Dir)
+    file.avg_Data_AD = AD_Normal(Dir)
     shutil.copytree(Dir/Path("Average_backup"), Dir /
                     Path("Average"), dirs_exist_ok=True)
     assert file.get_avg_orcaSJ_Exist()
@@ -87,6 +88,7 @@ def test_anmrfile_get_avg_orcaSJ_Exist() -> None:
     # for Carbon
     Dir: Path = Path("tests/data/34.Ergocalciferol/07.Carbon")
     file: Anmr = Anmr(Dir)
+    file.avg_Data_AD = AD_Normal(Dir)
     shutil.copytree(Dir/Path("Average_backup"), Dir /
                     Path("Average"), dirs_exist_ok=True)
     assert file.get_avg_orcaSJ_Exist()

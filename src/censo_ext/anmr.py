@@ -277,7 +277,7 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
         >>> process_average_data(anmr_obj, args)
     """
     if args.average:
-        inAnmr.avg_Data_AD = AD_Normal()
+        inAnmr.avg_Data_AD = AD_Normal(Dir=args.dir)
         inAnmr.get_avg_orcaSJ_Exist()
         if not inAnmr.method_BOBYQA_load_avg_orcaSJ():
             print("  Something wrong in your Average orcaSJ data !!!")
@@ -285,7 +285,7 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
             exit(1)
 
     elif args.bobyqa and not args.average:
-        inAnmr.avg_Data_AD = AD_BOBYQA()
+        inAnmr.avg_Data_AD = AD_BOBYQA(Dir=args.dir)
         inAnmr.get_avg_orcaSJ_Exist()
         if not inAnmr.method_BOBYQA_load_avg_orcaSJ():
             print("  Something wrong in your Average orcaSJ data !!!")
@@ -304,7 +304,7 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
                 exit(0)
         inAnmr.method_update_equiv_orcaSJ()
         inAnmr.method_avg_orcaSJ()
-        inAnmr.avg_Data_AD = AD_Normal()
+        inAnmr.avg_Data_AD = AD_Normal(Dir=args.dir)
         inAnmr.method_save_avg_orcaSJ()
 
 
