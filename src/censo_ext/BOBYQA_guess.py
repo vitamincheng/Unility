@@ -310,9 +310,9 @@ def process_auto_mode(args, intensit, y_heighest, thres, thres_baseline, uc, pea
         nGroups = 0
     else:
         AD_normal.method_load_files()
-        if isinstance(AD_normal.SParams, dict):
+        if isinstance(AD_normal.ChemicalShifts, dict):
             idx1_orcaS: list[int] = list(
-                map(int, AD_normal.SParams.keys()))
+                map(int, AD_normal.ChemicalShifts.keys()))
         else:
             print("  The format of orcaS.out is not dict !!!")
             print("  Exit and Close the program !!!")
