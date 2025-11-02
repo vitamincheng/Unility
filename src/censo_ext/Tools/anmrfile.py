@@ -257,13 +257,11 @@ class Anmr():
         self.__Dir: Path = Path(Dir)
         self.__verbose: bool = verbose
         self.enso: npt.NDArray                              # anmr_enso
-
-        # Generation from anmr
-        self.anmrJ: npt.NDArray[np.float64]                 # JCoup of anmr.out is generated from anmr # nopep8
-        self.anmrS: list[list[float]] = []                  # SParams of anmr.out is generated from anmr # nopep8
-
+        self.anmrJ: npt.NDArray[np.float64]                 # JCoup of anmr.out generated from anmr # nopep8
+        self.anmrS: list[list[float]] = []                  # Shielding of anmr.out generated from anmr # nopep8
         # directory of orcaSJ
         self.orcaSJ: list[OrcaSJ] = []
+        self.avg_orcaSJ = OrcaSJ()
         self.nNums_orcaS: int = 0
         self.nNums_orcaJ: int = 0
 
@@ -278,6 +276,8 @@ class Anmr():
         self.NeighborMangetEqvs: dict[int, list[int]] = {}
 
         # For the data of Average Directory
+        # self.avg_data: AD_Normal = AD_Normal(self.__Dir)
+        # self.avg_data_BOBYQA: AD_BOBYQA = AD_BOBYQA(self.__Dir)
         self.avg_Data_AD: Average_Directory = Average_Directory(self.__Dir)
 
     def get_Dir(self) -> Path:
@@ -779,7 +779,6 @@ class Anmr():
         """
         AD = self.avg_Data_AD
         Result: bool = AD.method_load_files()
-        ic(AD.idx1Atoms)
         self.avg_orcaSJ.idx1Atoms = AD.idx1Atoms
         if isinstance(AD.ChemicalShifts, dict):
             self.avg_orcaSJ.ChemicalShits = AD.ChemicalShifts
@@ -1695,7 +1694,6 @@ class Average_Directory(object):
         Returns:
             bool: True if all three files exist, False otherwise
         """
-        ic(self._file_orcaS)
 
         if IsExist_bool(self._file_orcaS) and IsExist_bool(self._file_orcaA) and IsExist_bool(self._file_orcaJ):  # nopep8
             return True
