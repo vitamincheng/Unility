@@ -39,6 +39,16 @@ def cml() -> argparse.Namespace:
         help="Maximum of Combinations [default 100]",
     )
     parser.add_argument(
+        "-l",
+        "--limits",
+        dest="limits",
+        action="store",
+        required=False,
+        type=int,
+        default=None,
+        help="Maximum of Combinations of ChemicalShifts [default None]",
+    )
+    parser.add_argument(
         "-d",
         "--del",
         dest="delete",
@@ -47,7 +57,7 @@ def cml() -> argparse.Namespace:
         type=int,
         nargs="+",
         default=None,
-        help="Under Calculation, the neglect atoms",
+        help="Under Calculation, the number of neglect atoms in orcaS.out",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -88,13 +98,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         inAnmr.method_read_nucinfo()
         inAnmr.method_read_anmrrc()
         Anmrrc_Active = inAnmr.get_Anmrrc_Active()
-        if Anmrrc_Active == ['H']:
-            limits = 0.5
-        elif Anmrrc_Active == ['C']:
-            limits = 10
-        else:
-            print(" Active element of anmrrc is not H or C ")
-            exit(0)
+        if args.limits is None:
+            if Anmrrc_Active == ['H']:
+                args.limits = 0.5
+            elif Anmrrc_Active == ['C']:
+                args.limits = 10
+            else:
+                print(" Active element of anmrrc is not H or C ")
+                exit(0)
 
         ChemEqvs: dict[int, list[int]] = {key: value for key, value in
                                           inAnmr.NeighborChemEqvs.items()
@@ -133,8 +144,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # Wait_Check_CS: npt.NDArray[np.float64] = sorted_CS
         Wait_Check_Reals: npt.NDArray[np.float64] = real_Peaks[1]
 
-        start = Wait_Check_Reals.min()-limits
-        end = Wait_Check_Reals.max()+limits
+        start = Wait_Check_Reals.min() - args.limits
+        end = Wait_Check_Reals.max() + args.limits
         args_start = sorted_CS > start
         args_end = sorted_CS < end
         args_intersection = np.logical_and(args_start, args_end)
