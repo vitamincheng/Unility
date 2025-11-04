@@ -385,8 +385,7 @@ class Peaks_npz():
         file_ext: str = file_split[1]
 
         if file_ext == "npz":
-            in_Data = np.load(file)['arr_0']
-            self.__peaks = in_Data
+            self.__peaks = np.load(file)['arr_0']
         else:
             print("  File extension is .npz file !!!")
             print("  Exit and Close the program !!!")

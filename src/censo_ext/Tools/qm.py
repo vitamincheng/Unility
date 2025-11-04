@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import numpy.typing as npt
-from numba import jit
+from numba import njit
 import argparse
 from icecream import ic
 from cachier import cachier
@@ -231,7 +231,9 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, args: ar
     F = F*T
     E: npt.NDArray[np.float64]
     V: npt.NDArray[np.complex128 | np.float64]
+
     E, V = np.linalg.eigh(H)
+
     V = V.real
     if args.verbose:
         ic(F)
@@ -350,7 +352,7 @@ def add_lorentzians(linspace: npt.NDArray[np.float64], plist: list[tuple[float, 
     return result  # type: ignore #nopep8
 
 
-@jit
+@njit
 def lorentz(linspace: npt.NDArray[np.float64], freq: float, Intensity: float, lw: float) -> npt.NDArray[np.float64]:
     scaling_factor: float = 0.5 / lw
     return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (linspace - freq) ** 2))
