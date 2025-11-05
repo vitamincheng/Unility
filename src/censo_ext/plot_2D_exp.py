@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 # from icecream import ic
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -6,10 +6,12 @@ from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 from nmrglue.fileio.fileiobase import unit_conversion
 from censo_ext.Tools.spectra import numpy_thr
-from sys import argv as sysargv
 import nmrglue as ng
 import argparse
 import numpy as np
+import numpy.typing as npt
+
+from censo_ext.Tools.utility import print_arguments
 
 descr = """
 ________________________________________________________________________________
@@ -31,7 +33,7 @@ def cml() -> argparse.Namespace:
         description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
-        add_help=True
+        add_help=False
     )
 
     parser.add_argument(
@@ -40,7 +42,7 @@ def cml() -> argparse.Namespace:
         dest="path",
         action="store",
         type=str,
-        required=True,
+        # required=True,
         help="Provide the path of your pdata (under 2rr folder) ",
     )
 
@@ -117,7 +119,7 @@ def read_udic(udic, data) -> tuple[unit_conversion, unit_conversion]:
     return uc_1h, uc_13c
 
 
-def plot_2D_Basic(udic, data, uc_1h, uc_13c):
+def plot_2D_Basic(udic, data, uc_1h, uc_13c) -> Axes:
     # create the figure
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
     ppm_13c_0, ppm_13c_1 = uc_13c.ppm_limits()
@@ -140,14 +142,10 @@ def plot_2D_Basic(udic, data, uc_1h, uc_13c):
     x_axis_data = np.sum(data, axis=0)
     y_axis_data = np.sum(data, axis=1)
 
-    # height_x_axis_data =np.max(x_axis_data)
-    # height_y_axis_data =np.max(y_axis_data)
-
     ax_histx.plot(uc_1h.ppm_scale(), x_axis_data, color='k', linewidth=1)
     ax_histy.plot(-y_axis_data, uc_13c.ppm_scale(), color='k', linewidth=1)
 
     contour_thr = numpy_thr(data, 10.0)
-    # maximum = np.max(data)
 
     import matplotlib
     # type: ignore  # contour map (colors to use for contours)
@@ -176,7 +174,7 @@ def plot_2D_Basic(udic, data, uc_1h, uc_13c):
     return ax
 
 
-def cal_contour_peak(data, contour_thr_factor: float = 2):
+def cal_contour_peak(data, contour_thr_factor: float = 2) -> list:
 
     from skimage.morphology import extrema
     contour_maxima_thr = numpy_thr(
@@ -193,12 +191,13 @@ def cal_contour_peak(data, contour_thr_factor: float = 2):
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml()
-    print(descr)  # Program description
-    print(f"    provided arguments: {" ".join(sysargv)}")
+    print_arguments()
 
-    # Important
+    ########## Important #########################
     # Remember to fix the pipe.py in ng.pipe.make_uc to remark   171 lines: size = size / 2
-    ###
+    #
+    #
+
     if not args.path:
         args.path = "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01/1H_13C_HSQC/pdata/1/"
         # args.path = "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01/1H_13C_HMBC/pdata/1/"
@@ -208,31 +207,26 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     x_axis_data = np.sum(data, axis=0)
     y_axis_data = np.sum(data, axis=1)
-    # ic(y_axis_data)
+
     from censo_ext.Tools.spectra import numpy_thr
     y_thr: float = numpy_thr(y_axis_data, 3)
     x_thr: float = numpy_thr(x_axis_data, 3)
-    # ic(y_thr)
-    import matplotlib.axes as axes
-    ax: axes.Axes | None = None
+
+    ax: Axes | None = None
     if not args.hidden:
         ax = plot_2D_Basic(udic, data, uc_1h, uc_13c)
     max_peaks: list = cal_contour_peak(data, contour_thr_factor=1)
     max_peaks = [a for a in list(
         max_peaks) if x_axis_data[a[0]] > x_thr and y_axis_data[a[1]] > y_thr]
     y_peaks: list = sorted(set([a[1] for a in list(max_peaks)]))
-    # y_peaks: list = sorted(list(set(np.array(max_peaks).T[1])))
-    # ic(y_peaks)
-    x_grobal_maximum = x_axis_data.max()
+    x_grobal_maximum: float = x_axis_data.max()
 
     for y_idx in y_peaks:
-        xslice = data[y_idx, :]
-        maximum = xslice.max()
-        # x_sum = xslice.sum()
-        xright = uc_1h.ppm(xslice.size)
+        xslice: npt.NDArray = data[y_idx, :]
+        maximum: float = xslice.max()
+        xright: float = uc_1h.ppm(xslice.size)
+
         if not args.hidden and ax:
-            # ax.plot(uc_1h.ppm_scale(), -xslice/maximum *
-            #        5 + uc_13c.ppm(y_idx), linewidth=0.5)
             ax.plot(uc_1h.ppm_scale(), -xslice/x_grobal_maximum *
                     5*4 + uc_13c.ppm(y_idx), linewidth=1)
             ax.text(xright, uc_13c.ppm(y_idx), f"{uc_13c.ppm(
@@ -240,11 +234,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             for x in [x1 for x1, y1 in max_peaks if y1 == y_idx]:
                 if data[y_idx][x] >= maximum * 0.5:
                     ax.scatter(uc_1h.ppm(x), uc_13c.ppm(y_idx), marker="o", color="r", s=100, alpha=0.5)  # type: ignore # nopep8
-        # if y_idx == 52:
-        #    ax.plot(uc_1h.ppm_scale(), -xslice/maximum *
-        #            5 + uc_13c.ppm(y_idx), linewidth=0.5)
-        #    ax.text(xright, uc_13c.ppm(y_idx), f"{uc_13c.ppm(
-        #        y_idx):12.3f}", ha="right", va="center", fontsize=6)
 
     print("#          13C             1H       ")
     for x, y in max_peaks:
@@ -252,7 +241,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         maximum = xslice.max()
         if data[y][x] >= maximum * 0.5:
             print(f"{uc_13c.ppm(y):>15.4f} {uc_1h.ppm(x):>15.4f}")
-            # ax.scatter(uc_1h.ppm(peak[0]), uc_13c.ppm(peak[1]), marker="o", color="r", s=300, alpha=0.5)  # type: ignore # nopep8
 
     from censo_ext.Tools.utility import save_figure
     save_figure()
