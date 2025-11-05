@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-import argparse
-import numpy as np
-import numpy.typing as npt
+# import matplotlib
+# matplotlib.use('qt5agg')  # nopep8
 import matplotlib.pyplot as plt
+import numpy.typing as npt
+import numpy as np
+import argparse
 import nmrglue as ng
 from pathlib import Path
 from matplotlib.figure import Figure
@@ -14,14 +16,13 @@ from censo_ext.Tools.utility import IsExist_bool, print_arguments
 descr = """
 _______________________________________________________________________________
 | For generate the peak.npz for orcaS-BOBYQA.out or Integral of spectra
-| Usages    : BOBYQA_GUI.py <geometry> [options]
+| Usages    : BOBYQA_guess_GUI.py <geometry> [options]
 | [options]
 | File      : -i input dat/npz file [default 1r.npz]
 | Auto      : --atuo Automated mode and read dat/npz file [default False]
 | Basic     : --basic Only one time for threshold under automated mode [default False]
 | Manual    : -m --manual Manual mode and read the peaks.npz [default False]
 | threshold : -t -thr threshold of peaks [default 1.0]
-| phase     : -p --phase phase of spectra (1 to -1) [default 1.0]
 | Delete    : --delete Delete specific cID peaks
 | Merge     : --merge Merge cID peaks to one peak
 | Cut       : --cut Cut cID peak to two peaks by lowest point
@@ -43,15 +44,15 @@ def cml() -> argparse.Namespace:
         description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS)
+
     parser.add_argument(
         "-i",
         "--input",
         dest="file",
         action="store",
         required=False,
-        nargs=2,
-        default=["1r.npz", "output.npz"],
-        help="Provide input one npz file [default ['1r.npz','output.npz']]",
+        default="1r.npz",
+        help="Provide input one npz file [default 1r.npz]",
     )
 
     parser.add_argument(
@@ -84,17 +85,6 @@ def cml() -> argparse.Namespace:
         required=False,
         default=1.0,
         help="threshold of peaks [default 1.0]",
-    )
-
-    parser.add_argument(
-        "-p",
-        "--phase",
-        dest="phase",
-        action="store",
-        type=float,
-        required=False,
-        default=1.0,
-        help="phase of spectra (1 to -1) [default 1.0]",
     )
 
     parser.add_argument(
@@ -155,7 +145,7 @@ peaks_fileName = "peaks.npz"
 class diagram:
     """A class for creating and managing a spectrum diagram with interactive editing capabilities."""
 
-    def __init__(self, fileName: list[str | Path], peaks_npz: Peaks_npz, intensit: npt.NDArray[np.float64], uc: unit_conversion, intensit_output: npt.NDArray[np.float64], uc_output: unit_conversion, thres: float, ng_1r_peaks: npt.NDArray, mf: float) -> None:
+    def __init__(self, args, peaks_npz: Peaks_npz, intensit: npt.NDArray[np.float64], uc: unit_conversion, thres: float, ng_1r_peaks: npt.NDArray) -> None:
         """Initialize the diagram with spectrum data and plotting setup.
 
         Args:
@@ -167,27 +157,20 @@ class diagram:
             ng_1r_peaks: Array of peaks information
         """
         self._fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
-        self._ax_list: list[Axes] = self._fig.subplots(
-            2, 1, sharex=True)  # type: ignore
-        self._ax = self._ax_list[0]
-        self._ax_output = self._ax_list[1]
-        self._fig.subplots_adjust(left=0.07, right=0.93, bottom=0.10,
+        self._ax: Axes = self._fig.subplots()
+        self._fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
                                   top=0.90, wspace=0.05, hspace=0.05)
         self._start, self._end = uc.ppm_limits()
-        self._fileName: Path = Path(fileName[0])
-        self._output_fileName: Path = Path(fileName[1])
-        self._mf: float = mf
+        self._fileName: Path = Path(args.file)
+        self._mf: float = args.mf
         self._peaks_npz: Peaks_npz = peaks_npz
         self._intensit: npt.NDArray[np.float64] = intensit
-        self._intensit_output: npt.NDArray[np.float64] = intensit_output
-        self._button_x = None
-        self._button_y = None
+        self._button_xy: None | tuple[float, float] = None
         self._uc: unit_conversion = uc
-        self._uc_output: unit_conversion = uc_output
         self._thres: float = thres
         self._ng_1r_peaks: npt.NDArray = ng_1r_peaks
-        self._ax.set_title("Edit mode.\nPress 'h' to help. ", loc="left")
-        self._status: list[int] = []
+        # self._ax.set_title("Edit mode.\nPress 'h' to help. ", loc="left")
+        self._status_int: list[int] = []
         self._status_str: str
         self._title: str = "Edit mode.\nPress 'h' to help. "
         self.draw_title()
@@ -226,18 +209,18 @@ class diagram:
     def _execute_action(self):
         """Execute the current action based on key mode."""
         xmin, xmax, ymin, ymax = plt.axis()
-        self._status = list(map(int, set(self._status)))
-        self._status.sort()
-        print(self._status)
+        self._status_int = list(map(int, set(self._status_int)))
+        self._status_int.sort()
+        print(self._status_int)
 
         if self._key == "d":
-            self._peaks_npz.method_delete_cID(self._status)
+            self._peaks_npz.method_delete_cID(self._status_int)
         elif self._key == "m":
-            self._peaks_npz.method_merge_cID(self._status)
+            self._peaks_npz.method_merge_cID(self._status_int)
         elif self._key == "c":
-            if len(self._status) == 1:
+            if len(self._status_int) == 1:
                 self._peaks_npz.method_cut_cID(
-                    self._status[0], self._intensit)
+                    self._status_int[0], self._intensit)
 
         self._ax.clear()
         plt.xlim(xmin, xmax)
@@ -245,7 +228,7 @@ class diagram:
         self.draw_curve()
         self.draw_integral()
         self.draw_title()
-        self._status = []
+        self._status_int = []
         self._fig.canvas.draw_idle()
 
     def _reset_to_edit_mode(self) -> None:
@@ -258,52 +241,56 @@ class diagram:
         plt.ylim(ymin, ymax)
         self.draw_curve()
         self.draw_integral()
-        self._status = []
+        self._status_int = []
         self._title = "Edit mode.\nPress 'h' to help. "
         self.draw_title()
+        self._fig.canvas.draw_idle()
 
     def _show_help(self) -> None:
         """Display help information."""
-        print("Help mode")
-        self._status = []
+        print("Help mode ")
+        self._status_int = []
         self._title = ("Press 'q' to Quit, 's' to Save file.\n"
                        "Press 'm' to Merge / 'd' to Delete / 'c' to Cut mode\n"
                        "'e' to mEasure mode\nPress 'Esc' to Edit mode, 'Enter' to Executive mode")
         self.draw_title()
+        self._fig.canvas.draw_idle()
 
     def _save_file(self) -> None:
         """Save the current peaks data."""
         self._key = 's'
         self._peaks_npz.method_save()
-        self._status = []
+        self._status_int = []
         self._title = "Save to peaks.npz file"
         self.draw_title()
+        self._fig.canvas.draw_idle()
 
     def _set_edit_mode(self, mode_key) -> None:
         """Set edit mode based on key pressed."""
         self._key = mode_key
         key_map: dict[str, str] = {"m": "Merge", "d": "Delete", "c": "Cut"}
         print(f"{key_map[mode_key]} mode : ", end="")
-        self._status = []
+        self._status_int = []
         self._title = f"{key_map[mode_key]} mode"
         self.draw_title()
+        self._fig.canvas.draw_idle()
 
     def _set_measure_mode(self) -> None:
         """Set measure mode."""
         toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
         if toolbar_mode == "zoom rect":
-            self._ax.set_navigate_mode(None)
+            self._ax.set_navigate_mode("ZOOM")
         else:
             self._key = 'e'
             print("Measure mode : ", end="")
-            self._status = []
+            self._status_int = []
             self._title = "Measure mode"
             self.draw_title()
+            self._fig.canvas.draw_idle()
 
     def _redraw_full(self):
         """Redraw the full spectrum."""
         self._ax.clear()
-        self._ax_output.clear()
         self.draw_x_axis()
         self.draw_curve()
         self.draw_integral()
@@ -329,21 +316,28 @@ class diagram:
 
     def on_button_release(self, event) -> None:
         """Handle button release events."""
-        if event.inaxes == self._ax and self._button_x is not None and self._button_y is not None:
-            release_x = event.xdata
-            release_y = event.ydata
-            distance = np.sqrt((release_x-self._button_x) **
-                               2 + (release_y-self._button_y)**2)
-            tolerance = 0.01
-            x_distance = np.abs(release_x-self._button_x)
+        toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
+        if event.inaxes == self._ax and self._button_xy is not None:
 
-            if self._key == 'e':
+            release_xy = event.xdata, event.ydata
+            distance = np.sqrt(
+                np.sum((np.array(release_xy)-np.array(self._button_xy))**2))
+            tolerance = 0.01
+            x_distance = np.abs(release_xy[0]-self._button_xy[0])
+
+            # print(f"{self._key=} {toolbar_mode=}")
+            if self._key == "e" and toolbar_mode != "zoom rect":
                 self._status_str = f"Chemical shift : {x_distance:12.6f} ppm\n in {self._mf}MHz {x_distance*self._mf:12.3f} Hz"
                 self.draw_status_str()
+                self._fig.canvas.draw_idle()
                 return None
+            elif toolbar_mode == "zoom rect":
+                self._ax.set_navigate_mode("ZOOM")
+
             cID: int
             if distance < tolerance:
-                Result: int | None = self._peaks_npz.method_ppm2cID(release_x)
+                Result: int | None = self._peaks_npz.method_ppm2cID(
+                    release_xy[0])
                 if Result is None:
                     return None
                 else:
@@ -351,30 +345,41 @@ class diagram:
             else:
                 return None
 
-            self._button_x = None
-            self._button_y = None
+            self._button_xy = None
 
-            if self._key == 'c' and len(self._status) == 0:
-                self._status.append(cID)
-            elif self._key == 'c' and len(self._status) == 1:
+            if self._key == 'c' and len(self._status_int) == 0:
+                self._status_int.append(cID)
+            elif self._key == 'c' and len(self._status_int) == 1:
                 pass
             else:
-                self._status.append(cID)
+                self._status_int.append(cID)
 
-            self.draw_status()
+            self.draw_status_int()
 
     def on_button_press(self, event) -> None:
         """Handle button press events."""
         from matplotlib.backend_bases import MouseButton
-        if event.inaxes == self._ax and event.button == MouseButton.LEFT:
-            self._button_x = event.xdata
-            self._button_y = event.ydata
+        toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
+        if self._key == "e" and toolbar_mode == "zoom rect":
+            self._title = ""
+            self._status_int = []
+            # self.draw_title()
+            self._ax.set_navigate_mode("ZOOM")
+            self._fig.canvas.draw_idle()
+        elif event.inaxes == self._ax and event.button == MouseButton.LEFT:
+            self._button_xy = event.xdata, event.ydata
 
     def on_mouse_motion(self, event) -> None:
         """Handle mouse motion events."""
         from matplotlib.backend_bases import MouseButton
         if event.button is MouseButton.LEFT and event.inaxes == self._ax:
-            if self._key == "e":
+            toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
+            if self._key == "e" and toolbar_mode == "zoom rect":
+                self._title = ""
+                self.draw_title()
+                self._ax.set_navigate_mode("ZOOM")
+                self._fig.canvas.draw_idle()
+            elif self._key == "e" and toolbar_mode != "zoom rect":
                 xmin, xmax, ymin, ymax = plt.axis()
                 self._ax.clear()
                 plt.xlim(xmin, xmax)
@@ -382,9 +387,9 @@ class diagram:
                 self.draw_curve()
                 self.draw_integral()
                 self.draw_title()
-                plt.vlines(self._button_x, self._button_y*0.95, self._button_y*1.05, colors='k', linestyles="solid", linewidth=2)  # type: ignore # nopep8
-                plt.vlines(event.xdata, self._button_y*0.95, self._button_y*1.05, colors='k', linestyles="solid", linewidth=2)  # type: ignore # nopep8
-                plt.hlines(self._button_y, self._button_x, event.xdata, colors='k', linestyles="solid", linewidth=1)  # type: ignore # nopep8
+                plt.vlines(self._button_xy[0], self._button_xy[1]-ymax*0.01, self._button_xy[1]+ymax*0.01, colors='k', linestyles="solid", linewidth=2)  # type: ignore # nopep8
+                plt.vlines(event.xdata, self._button_xy[1]-ymax*0.01, self._button_xy[1]+ymax*0.01, colors='k', linestyles="solid", linewidth=2)  # type: ignore # nopep8
+                plt.hlines(self._button_xy[1], self._button_xy[0], event.xdata, colors='k', linestyles="solid", linewidth=1)  # type: ignore # nopep8
                 self._fig.canvas.draw_idle()
 
     def connect(self) -> None:
@@ -408,17 +413,14 @@ class diagram:
     def draw_status_str(self) -> None:
         """Draw status string on the plot."""
         self._ax.set_title(f"{self._status_str}", loc="right", fontsize=10)
-        self._fig.canvas.draw_idle()
 
-    def draw_status(self) -> None:
+    def draw_status_int(self) -> None:
         """Draw status on the plot."""
-        self._ax.set_title(f"{self._status}", loc="right", fontsize=10)
-        self._fig.canvas.draw_idle()
+        self._ax.set_title(f"{self._status_int}", loc="right", fontsize=10)
 
     def draw_title(self) -> None:
         """Draw title on the plot."""
         self._ax.set_title(self._title, loc="left")
-        self._fig.canvas.draw_idle()
 
     def draw_integra_numbers(self) -> None:
         """Draw integral numbers on the plot."""
@@ -472,54 +474,27 @@ class diagram:
 
     def draw_curve(self) -> None:
         """Draw the main spectrum curve."""
-        # plt.plot(self._uc.ppm_scale(), self._intensit, 'b', linewidth=1)
-        self._ax.plot(self._uc.ppm_scale(), self._intensit, 'b', linewidth=1)
-        self._ax_output.plot(self._uc_output.ppm_scale(),
-                             self._intensit_output, 'b', linewidth=1)
+        plt.plot(self._uc.ppm_scale(), self._intensit, 'b', linewidth=1)
 
     def draw_x_axis(self) -> None:
         """Draw x-axis configuration."""
         y_heighest = float(np.max(self._intensit))
         y_lowest = float(np.min(self._intensit))
-        y_heighest_output = float(np.max(self._intensit_output))
-        y_lowest_output = float(np.min(self._intensit_output))
         plt.xlim(self._end, self._start)
-
-        # top
         self._ax.spines["right"].set_visible(False)
         self._ax.spines["top"].set_visible(False)
         self._ax.spines["left"].set_visible(False)
-        # self._ax.tick_params(axis="x", which="both", bottom=True,
-        #                     top=False, labelbottom=True, labelsize=8)
-        # self._ax.tick_params(axis="y", which="both", left=False,
-        #                     right=False, labelleft=False)
+        self._ax.tick_params(axis="x", which="both", bottom=True,
+                             top=False, labelbottom=True, labelsize=12)
+        self._ax.tick_params(axis="y", which="both", left=False,
+                             right=False, labelleft=False)
         self._ax.get_yaxis().set_visible(False)
-
-        # bottom
-        self._ax_output.spines["right"].set_visible(False)
-        self._ax_output.spines["bottom"].set_visible(False)
-        self._ax_output.spines["left"].set_visible(False)
-        self._ax_output.spines["top"].set_visible(False)
-        # self._ax_output.tick_params(axis="x", which="both", top=True,
-        #                            bottom=False, labelbottom=True, labelsize=12)
-        # self._ax_output.tick_params(axis="y", which="both", left=False,
-        #                            right=False, labelleft=False)
-
-        self._ax_output.get_yaxis().set_visible(False)
 
         # If phase is -1, it will adjust the y axis
         if y_lowest*(-1) < y_heighest*0.2:
-            self._ax.set_ylim((-0.05*y_heighest, 1.10*y_heighest))
+            plt.ylim(-0.05*y_heighest, 1.10*y_heighest)
         else:
-            self._ax.set_ylim((1.10*y_lowest, 1.10*y_heighest))
-
-        if y_lowest_output*(-1) < y_heighest_output*0.2:
-            self._ax_output.set_ylim(
-                (1.10*y_heighest_output, -0.05*y_heighest_output))
-        else:
-            self._ax_output.set_ylim(
-                (1.10*y_heighest_output, 1.10*y_lowest_output))
-
+            plt.ylim(1.10*y_lowest, 1.10*y_heighest)
         self._fig.suptitle(str(self._fileName), fontsize=12, y=0.98)
         self._fig.text(0.5, 0.04, "$\\delta$ / ppm", ha="center", fontsize=12)
 
@@ -541,61 +516,52 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("  Exit and Close the program !!!")
         exit(0)
 
-    if not IsExist_bool(args.file[0]) or not IsExist_bool(args.file[1]):
+    if not IsExist_bool(args.file):
         return
 
     # Load the data from dat/npz file
-    # 1r.npz
-    censo_0: CensoDat = CensoDat(args.file[0])
-    Data_1r = censo_0.get_Dat().T
-
-    # output.npz
-    censo_1: CensoDat = CensoDat(args.file[1])
-    Data_output = censo_1.get_Dat().T
-
-    ppm: npt.NDArray[np.float64] = Data_1r[0]
-    intensit: npt.NDArray[np.float64] = Data_1r[1]
-    ppm_output: npt.NDArray[np.float64] = Data_output[0]
-    intensit_output: npt.NDArray[np.float64] = Data_output[1]
+    censo: CensoDat = CensoDat(args.file)
+    in_Data = censo.get_Dat().T
+    ppm: npt.NDArray[np.float64] = in_Data[0]
+    intensit: npt.NDArray[np.float64] = in_Data[1]
 
     # Calculate the threshold
     y_heighest: float = float(np.max(intensit))
     from censo_ext.Tools.spectra import numpy_thr_mean_3
     thres: float = numpy_thr_mean_3(intensit)*args.thr + y_heighest * 0.01
-    # thres_baseline: float = thres
+    thres_baseline: float = thres
     uc: unit_conversion = unit_conversion(ppm)
-    uc_output: unit_conversion = unit_conversion(ppm_output)
 
     peaks_npz: Peaks_npz = Peaks_npz(uc)
     ng_1r_peaks: npt.NDArray = ng.peakpick.pick(
         data=intensit, pthres=thres, algorithm="downward")
 
-    diagrams: diagram = diagram(args.file,
-                                peaks_npz, intensit, uc, intensit_output, uc_output, thres, ng_1r_peaks, args.mf)
+    diagrams: diagram = diagram(args,
+                                peaks_npz, intensit, uc, thres, ng_1r_peaks)
 
     # Automatically Integate the peaks
-    # if args.auto:
-    #    process_auto_mode(args, intensit, y_heighest, thres,
-    #                      thres_baseline, uc, peaks_npz, ng_1r_peaks)
+    if args.auto:
+        process_auto_mode(args, intensit, y_heighest, thres,
+                          thres_baseline, uc, peaks_npz, ng_1r_peaks)
 
     # Integrate the peaks if manually fixed the peaks.npz file
-    # if args.manual:
-    #    peaks_npz.method_read_file()
-    #    print("  ========== Before ==========")
-    #    peaks_npz.method_print()
+    if args.manual:
+        peaks_npz.method_read_file()
+        print("  ========== Before ==========")
+        peaks_npz.method_print()
 
     # Draw the intergral lines and cID of peaks
     # Plot the integration lines, limits and cID of peaks
-    # if args.auto or args.manual:
-    #    diagrams.draw_integral()
+    if args.auto or args.manual:
+        diagrams.draw_integral()
 
     # add markers for peak positions. It is only for preview.
-    # if not args.auto and not args.manual:
-    #    diagrams.draw_preivew()
+    if not args.auto and not args.manual:
+        diagrams.draw_preivew()
 
     # draw the threshold line and text and for adjust threshold for next time
-    # if args.auto:
-    #    diagrams.draw_threshold()
+    if args.auto:
+        diagrams.draw_threshold()
 
     diagrams.draw_curve()
     diagrams.draw_x_axis()

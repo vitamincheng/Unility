@@ -28,6 +28,7 @@ def cml() -> argparse.Namespace:
         default="peaks.npz",
         help="Provide one input xyz file [default peaks.npz]",
     )
+
     parser.add_argument(
         "-c",
         "--comb",
@@ -38,16 +39,27 @@ def cml() -> argparse.Namespace:
         default=100,
         help="Maximum of Combinations [default 100]",
     )
+
     parser.add_argument(
-        "-l",
-        "--limits",
-        dest="limits",
+        "-start",
+        "--start",
+        dest="start",
         action="store",
         required=False,
-        type=int,
-        default=None,
-        help="Maximum of Combinations of ChemicalShifts [default None]",
+        type=float,
+        help="start ppm of Chemical shift",
     )
+
+    parser.add_argument(
+        "-end",
+        "--end",
+        dest="end",
+        action="store",
+        required=False,
+        type=float,
+        help="end ppm of Chemical shift",
+    )
+
     parser.add_argument(
         "-d",
         "--del",
@@ -58,6 +70,17 @@ def cml() -> argparse.Namespace:
         nargs="+",
         default=None,
         help="Under Calculation, the number of neglect atoms in orcaS.out",
+    )
+
+    parser.add_argument(
+        "--index",
+        dest="index",
+        action="store",
+        required=False,
+        type=int,
+        nargs="+",
+        default=None,
+        help="index of the peaks in peaks.npz [default None]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -98,11 +121,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         inAnmr.method_read_nucinfo()
         inAnmr.method_read_anmrrc()
         Anmrrc_Active = inAnmr.get_Anmrrc_Active()
-        if args.limits is None:
+
+        if args.start and args.end and not args.index:
+            pass
+        else:
             if Anmrrc_Active == ['H']:
-                args.limits = 0.5
+                limits = 0.5
             elif Anmrrc_Active == ['C']:
-                args.limits = 10
+                limits = 10
             else:
                 print(" Active element of anmrrc is not H or C ")
                 exit(0)
@@ -126,7 +152,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # Normal Sim_SParams/sorted_SParams is more than real known peaks
         Sim_CS: list[float] = []
         for x in unique_ChemEqvs_first_idx:
-            index: tuple[npt.NDArray[np.intp], ...] = np.where(OrcaS.T[0] == x)
+            index: tuple[npt.NDArray[np.intp], ...] = np.where(
+                OrcaS.T[0] == x)
             Sim_CS.append(float(OrcaS.T[1][index][0]))
 
         sorted_CS: npt.NDArray[np.float64] = np.array(
@@ -139,28 +166,43 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(f"The numbers of Sorted ChemicalShifts : {len(sorted_CS)}")
         print(f"Sorted ChemicalShifts : \n{sorted_CS}\n")
 
-        OrcaS_BOBYQA: npt.NDArray[np.float64] = np.insert(OrcaS, 2, 0, axis=1)
+        OrcaS_BOBYQA: npt.NDArray[np.float64] = np.insert(
+            OrcaS, 2, 0, axis=1)
 
         # Wait_Check_CS: npt.NDArray[np.float64] = sorted_CS
         Wait_Check_Reals: npt.NDArray[np.float64] = real_Peaks[1]
 
-        start = Wait_Check_Reals.min() - args.limits
-        end = Wait_Check_Reals.max() + args.limits
-        args_start = sorted_CS > start
-        args_end = sorted_CS < end
-        args_intersection = np.logical_and(args_start, args_end)
-        Wait_Check_CS = sorted_CS[args_intersection]
+        if not args.index:
+            if args.start and args.end:
+                start = args.start
+                end = args.end
+            else:
+                start = Wait_Check_Reals.min() - limits  # type: ignore
+                end = Wait_Check_Reals.max() + limits  # type: ignore
 
-        if args.delete is not None:
-            print("  Activated Delete Atoms : ")
-            for x in args.delete:
-                y = OrcaS[np.where(OrcaS.T[0] == x)[0]][0][1]
-                print(f"  {x}  {y}")
-                z = np.where(Wait_Check_CS == y)[0]
-                Wait_Check_CS = np.delete(Wait_Check_CS, z)
-        print(
-            f"The numbers of be Checked ChemicalShifts : {len(Wait_Check_CS)}")
-        print(f"be Checked ChemicalShifts : \n{Wait_Check_CS}\n")
+            args_start = sorted_CS > start
+            args_end = sorted_CS < end
+            args_intersection = np.logical_and(args_start, args_end)
+            Wait_Check_CS = sorted_CS[args_intersection]
+
+            if args.delete is not None:
+                print("  Activated Delete Atoms : ")
+                for x in args.delete:
+                    y = OrcaS[np.where(OrcaS.T[0] == x)[0]][0][1]
+                    print(f"  {x}  {y}")
+                    z = np.where(Wait_Check_CS == y)[0]
+                    Wait_Check_CS = np.delete(Wait_Check_CS, z)
+            print(
+                f"The numbers of be Checked ChemicalShifts : {len(Wait_Check_CS)}")
+            print(f"be Checked ChemicalShifts : \n{Wait_Check_CS}\n")
+
+        else:
+            list_x: list = []
+            for x in args.index:
+                a = np.argwhere(OrcaS.T[0] == x)[0][0]
+                list_x.append(int(a))
+            Wait_Check_CS: npt.NDArray = OrcaS[list_x].T[1]
+            Wait_Check_CS.sort()
 
         # this process is for combination. it is more simple. And this is only for order numbers.
         # Normally the distance of Wait_Check_Reals is more width than Wait_Check_CS, so peaks is more
@@ -174,7 +216,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         else:
             ic()
             raise ValueError("  BOBYQA_gen.py have error")
-        # print(len(Large), len(Small))
 
         from itertools import combinations
         print("\n  ===== Combination of large nubmers of peaks =====")
