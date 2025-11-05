@@ -63,7 +63,9 @@ class Anmrrc():
         """
         DirFile = Path(DirFile)
         lines: list[str] = open(DirFile, "r").readlines()
-
+        from censo_ext.Tools.utility import IsExists_DirFileName
+        Dir, File = IsExists_DirFileName(DirFile)
+        self.__Dir: Path = Path(Dir)
         # Dict of Atomic Numbers and Atomic label
         self.Nums_element: dict[int, str] = {
             1: 'H', 6: 'C', 9: 'F', 14: 'Si', 15: 'P'}
@@ -215,7 +217,7 @@ class Anmrrc():
         elif reference == 0:
             try:
                 np_inData = np.genfromtxt(
-                    ".anmrrc_linear", comments="#", usecols=[1])
+                    self.__Dir / Path(".anmrrc_linear"), comments="#", usecols=[1])
             except FileNotFoundError:
                 print("  no linear parameter in your .anmrrc_linear file")
                 print("  exit and close the program !!!")

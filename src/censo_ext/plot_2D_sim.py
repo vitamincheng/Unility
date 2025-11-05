@@ -40,6 +40,13 @@ def cml() -> argparse.Namespace:
         help="Provide two input directory folder [dir of Hydrogen, dir of Carbon]",
     )
     parser.add_argument(
+        "-av",
+        "--average",
+        dest="average",
+        action="store_true",
+        help="Use the Average Directory of nmr [default False]",
+    )
+    parser.add_argument(
         "-p",
         "--proton",
         dest="h_limits",
@@ -65,23 +72,25 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def Load_Directory(in_dir: tuple[Path, Path], h_limits, c_limits) \
+def Load_Directory(args) \
         -> tuple[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]],
                  tuple[float, float], tuple[float, float]]:
 
     import censo_ext.anmr as anmr
+    in_dir: tuple[Path, Path] = args.dir[0], args.dir[1]
+    h_limits = args.h_limits
+    c_limits = args.c_limits
     directory_H, directory_C = in_dir
-
-    args_x: dict = {"auto": True, "average": True, "bobyqa": True, "mf": 500,
-                    "dir": directory_H, "thr": None, "json": [-1], "thrab": 0.025,
+    args_x: dict = {"auto": True, "average": args.average, "bobyqa": False, "mf": 500,
+                    "dir": directory_H, "thr": None, "json": None, "thrab": 0.025,
                     "verbose": False, "lw": 1, "tb": 4, "mss": 10, "cutoff": 0.001,
                     "show": False, "start": None, "end": None, "out": "output.npz"}
     sys.stdout = open(os.devnull, 'w')
     data_x = anmr.main(argparse.Namespace(**args_x)).T
     sys.stdout = sys.__stdout__
 
-    args_y: dict = {"auto": True, "average": True, "bobyqa": True, "mf": 500,
-                    "dir": directory_C, "thr": None, "json": [-1], "thrab": 0.025,
+    args_y: dict = {"auto": True, "average": args.average, "bobyqa":  False, "mf": 500,
+                    "dir": directory_C, "thr": None, "json": None, "thrab": 0.025,
                     "verbose": False, "lw": 1, "tb": 4, "mss": 10, "cutoff": 0.001,
                     "show": False, "start": None, "end": None, "out": "output.npz"}
     sys.stdout = open(os.devnull, 'w')
@@ -157,21 +166,20 @@ def plot_2D_slice(ax: Axes, in_dir: tuple[Path, Path], data_xy: tuple[npt.NDArra
     tmp_c: list = list(np.genfromtxt(
         Directory_C / Path("Average/NMR/orcaS-BOBYQA.out"), usecols=[0, 1]))
 
-    idxAtoms_C: dict = {int(x): -y for x, y in tmp_c}
-    # list_idxAtoms_C:list = list(idxAtoms_C.keys())
+    idxAtoms_C: dict = {int(x): y for x, y in tmp_c}
 
     tmp_h: list = list(np.genfromtxt(
         Directory_H/Path("Average/NMR/orcaS-BOBYQA.out"), usecols=[0, 1]))
-    idxAtoms_H: dict = {int(x): -y for x, y in tmp_h}
+    idxAtoms_H: dict = {int(x): y for x, y in tmp_h}
     ax.set_xlim(h_limits[1], h_limits[0])
     ax.set_ylim(c_limits[1], c_limits[0])
     x_lowest, x_highest = h_limits
     x_lowest = abs(x_lowest-x_highest)*0.03 + x_lowest
 
-    for idxAtom_C, C_ppm in idxAtoms_C.items():
+    for idx_C, C_ppm in idxAtoms_C.items():
 
         idx0_neighbor: dict = {}
-        for idx_neighbor_Atoms_H in neighbor[idxAtom_C]:
+        for idx_neighbor_Atoms_H in neighbor[idx_C]:
             for idx, value in enumerate(idxAtoms_H.keys()):
                 if idx_neighbor_Atoms_H == value:
                     if value in idx0_neighbor:
@@ -184,9 +192,9 @@ def plot_2D_slice(ax: Axes, in_dir: tuple[Path, Path], data_xy: tuple[npt.NDArra
 
                 import censo_ext.anmr as anmr
                 x = {'out': 'output.npz', 'mf': 500.0, "dir": Directory_H, 'lw': None,
-                     'ascal': None, 'bscal': None, 'thr': None, 'thrab': 0.025, "verbose": False, 'tb': 4,
+                     'thr': None, 'thrab': 0.025, "verbose": False, 'tb': 4,
                      'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 10, 'auto': True,
-                     'average': True, 'bobyqa': True, 'json': [idx0]}
+                     'average': True, 'bobyqa': False, 'json': [idx0]}
                 sys.stdout = open(os.devnull, 'w')
                 np_dat: npt.NDArray[np.float64] = anmr.main(
                     args=argparse.Namespace(**x))
@@ -194,12 +202,12 @@ def plot_2D_slice(ax: Axes, in_dir: tuple[Path, Path], data_xy: tuple[npt.NDArra
                 maximum: np.float64 = np.max(np_dat)
                 ax.plot(np_dat[0], -np_dat[1]/maximum*5 + C_ppm, linewidth=1)
                 if len(idx0_neighbor.values()) == 1:
-                    text: Text = ax.text(x_lowest, C_ppm, f"{C_ppm:12.2f} ({idxAtom_C}C,",
+                    text: Text = ax.text(x_lowest, C_ppm, f"{C_ppm:12.2f} ({idx_C}C,",
                                          ha="right", va="center", fontsize=8)
                     text = ax.annotate(f" {tuple(idx0_neighbor.values())[0]}H)",
                                        xycoords=text, xy=(1.00, 0.5), ha="left", va="center", color="blue", fontsize=8)
                 else:
-                    text = ax.text(x_lowest, C_ppm, f"{C_ppm:12.2f} ({idxAtom_C}C,",
+                    text = ax.text(x_lowest, C_ppm, f"{C_ppm:12.2f} ({idx_C}C,",
                                    ha="right", va="center", fontsize=8)
                     text = ax.annotate(f" {tuple(idx0_neighbor.values())}H)",
                                        xycoords=text, xy=(1.00, 0.5), ha="left", va="center", color="blue", fontsize=8)
@@ -253,8 +261,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     in_dir: tuple[Path, Path] = args.dir[0], args.dir[1]
 
-    data_xy, h_limits, c_limits = Load_Directory(
-        in_dir, args.h_limits, args.c_limits)
+    data_xy, h_limits, c_limits = Load_Directory(args)
 
     ax: Axes = draw_2D_basic(data_xy)
     bond_order, neighbor, idxAtoms_H, idxAtoms_C = plot_2D_slice(
