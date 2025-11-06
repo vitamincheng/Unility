@@ -29,4 +29,5 @@ dependencies = [
     "tqdm",
     "cachier",
     "pyqt5",
+    "numba"
 ]
