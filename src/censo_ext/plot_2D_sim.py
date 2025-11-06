@@ -78,15 +78,15 @@ def Load_Directory(args) \
 
     import censo_ext.anmr as anmr
     in_dir: tuple[Path, Path] = args.dir[0], args.dir[1]
-    h_limits = args.h_limits
-    c_limits = args.c_limits
+    h_limits: tuple[float, float] = args.h_limits
+    c_limits: tuple[float, float] = args.c_limits
     directory_H, directory_C = in_dir
     args_x: dict = {"auto": True, "average": args.average, "bobyqa": False, "mf": 500,
                     "dir": directory_H, "thr": None, "json": None, "thrab": 0.025,
                     "verbose": False, "lw": 1, "tb": 4, "mss": 10, "cutoff": 0.001,
                     "show": False, "start": None, "end": None, "out": "output.npz"}
     sys.stdout = open(os.devnull, 'w')
-    data_x = anmr.main(argparse.Namespace(**args_x)).T
+    data_x: npt.NDArray[np.float64] = anmr.main(argparse.Namespace(**args_x)).T
     sys.stdout = sys.__stdout__
 
     args_y: dict = {"auto": True, "average": args.average, "bobyqa":  False, "mf": 500,
@@ -94,7 +94,7 @@ def Load_Directory(args) \
                     "verbose": False, "lw": 1, "tb": 4, "mss": 10, "cutoff": 0.001,
                     "show": False, "start": None, "end": None, "out": "output.npz"}
     sys.stdout = open(os.devnull, 'w')
-    data_y = anmr.main(argparse.Namespace(**args_y)).T
+    data_y: npt.NDArray[np.float64] = anmr.main(argparse.Namespace(**args_y)).T
     sys.stdout = sys.__stdout__
 
     if h_limits is None:
@@ -113,7 +113,7 @@ def Load_Directory(args) \
     return (data_x, data_y), h_limits, c_limits
 
 
-def draw_2D_basic(data_xy) -> Axes:
+def draw_2D_basic(data_xy: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]) -> Axes:
     data_x, data_y = data_xy
     fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
     gs: GridSpec = fig.add_gridspec(2, 2,  width_ratios=(1, 19), height_ratios=(1, 9),
@@ -141,12 +141,11 @@ def draw_2D_basic(data_xy) -> Axes:
     return ax
 
 
-def plot_2D_slice(ax: Axes, in_dir: tuple[Path, Path], data_xy: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]], h_limits, c_limits) \
+def plot_2D_slice(ax: Axes, in_dir: tuple[Path, Path], h_limits: tuple[float, float], c_limits: tuple[float, float]) \
         -> tuple[dict[int, int], dict[int, npt.NDArray], dict, dict]:
 
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     from ase.atoms import Atoms
-    data_x, data_y = data_xy
     Directory_H, Directory_C = in_dir
     mol: Atoms | list[Atoms]
     neighbor: dict[int, npt.NDArray[np.int64]]
@@ -164,12 +163,12 @@ def plot_2D_slice(ax: Axes, in_dir: tuple[Path, Path], data_xy: tuple[npt.NDArra
         neighbor[key] = np.array([x for x in value if x in idx_H_atom])
 
     tmp_c: list = list(np.genfromtxt(
-        Directory_C / Path("Average/NMR/orcaS-BOBYQA.out"), usecols=[0, 1]))
+        Directory_C / Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
 
     idxAtoms_C: dict = {int(x): y for x, y in tmp_c}
 
     tmp_h: list = list(np.genfromtxt(
-        Directory_H/Path("Average/NMR/orcaS-BOBYQA.out"), usecols=[0, 1]))
+        Directory_H/Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
     idxAtoms_H: dict = {int(x): y for x, y in tmp_h}
     ax.set_xlim(h_limits[1], h_limits[0])
     ax.set_ylim(c_limits[1], c_limits[0])
@@ -191,10 +190,10 @@ def plot_2D_slice(ax: Axes, in_dir: tuple[Path, Path], data_xy: tuple[npt.NDArra
             for idx0, value in idx0_neighbor.items():
 
                 import censo_ext.anmr as anmr
-                x = {'out': 'output.npz', 'mf': 500.0, "dir": Directory_H, 'lw': None,
-                     'thr': None, 'thrab': 0.025, "verbose": False, 'tb': 4,
-                     'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 10, 'auto': True,
-                     'average': True, 'bobyqa': False, 'json': [idx0]}
+                x: dict = {'out': 'output.npz', 'mf': 500.0, "dir": Directory_H, 'lw': None,
+                           'thr': None, 'thrab': 0.025, "verbose": False, 'tb': 4,
+                           'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 10, 'auto': True,
+                           'average': True, 'bobyqa': False, 'json': [idx0]}
                 sys.stdout = open(os.devnull, 'w')
                 np_dat: npt.NDArray[np.float64] = anmr.main(
                     args=argparse.Namespace(**x))
@@ -265,7 +264,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     ax: Axes = draw_2D_basic(data_xy)
     bond_order, neighbor, idxAtoms_H, idxAtoms_C = plot_2D_slice(
-        ax, in_dir, data_xy, h_limits, c_limits)
+        ax, in_dir, h_limits, c_limits)
     print_report(bond_order, neighbor, idxAtoms_H, idxAtoms_C)
 
 
