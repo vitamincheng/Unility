@@ -33,7 +33,9 @@ def cml() -> argparse.Namespace:
         description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
+        << << << < HEAD
         add_help=True,
+        >>>>>> > ee5f26970538ed2cb6814f94e1af3e82555b5114
     )
 
     parser.add_argument(
@@ -42,6 +44,8 @@ def cml() -> argparse.Namespace:
         dest="path",
         action="store",
         type=str,
+        << << << < HEAD
+        >> >>>> > ee5f26970538ed2cb6814f94e1af3e82555b5114
         help="Provide the path of your pdata (under 2rr folder) ",
     )
 
