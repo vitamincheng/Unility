@@ -172,6 +172,8 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
 
     g_var.AD_bobyqa.ChemicalShifts = CS_bobyqa
     g_var.AD_bobyqa.method_save_files()
+    CS_exec: npt.NDArray[np.float64] = np.delete(
+        CS_bobyqa, 2, axis=1)
 
     if g_var.prog:
         # print("External program: anmr")
@@ -191,9 +193,6 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
             sys.stdout = sys.__stdout__
 
         a, b = g_var.ref
-        CS_exec: npt.NDArray[np.float64] = np.delete(
-            CS_bobyqa, 2, axis=1)
-
         CS_exec.T[1] = (CS_exec.T[1] - b) / a
         CS_exec.T[0] = CS_exec.T[0]-1
 
@@ -215,9 +214,12 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
         dat_Sim: CensoDat = CensoDat(file=g_var.DirFileAnmr)
 
     elif not g_var.prog:
+        # print("Internal python: anmr.py")
+        g_var.AD_normal.ChemicalShifts = CS_exec
+        g_var.AD_normal.method_save_files()
         import censo_ext.anmr as anmr
         x: dict = {'out': 'output.npz', "dir": g_var.Dir, "json": None, 'mf': g_var.mf,
-                   'lw': g_var.lw, 'ascal': None, 'bscal': None, 'thr': 0.30, 'thrab': 0.020,
+                   'lw': g_var.lw, 'thr': 0.30, 'thrab': 0.020,
                    'tb': 4, 'cutoff': 0.001, 'start': None, 'end': None, "verbose": False,
                    'mss': 10, 'auto': True, 'average': False, 'bobyqa': True}
         import sys
