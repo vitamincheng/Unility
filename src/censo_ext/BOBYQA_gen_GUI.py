@@ -125,12 +125,11 @@ class diagram:
         self._button_xy: tuple[float, float] | None = None
         self._uc_top: unit_conversion = uc[0]
         self._uc_bottom: unit_conversion = uc[1]
-        self._ax_top.set_title("Edit mode.\nPress 'h' to help. ", loc="left")
         self._top_status_int: list[int] = peaks_npz.get_cIDs_center_peaks()[0]
         self._bottom_status_select_int: list[int] = []
         self._bottom_status_delete_int: list[int] = []
         self._bottom_status_str: str
-        self._title: str = "Edit mode.\nPress 'h' to help. "
+        self._title_bottom: str = "Edit mode.\nPress 'h' to help. "
         self.draw_title()
         self.draw_status()
         self._key: str = ""
@@ -228,7 +227,7 @@ class diagram:
         self._key = 'escape'
 
         self.clear_local_axes()
-        self._title = "Edit mode.\nPress 'h' to help. "
+        self._title_bottom = "Edit mode.\nPress 'h' to help. "
         self.draw_curve()
         self.draw_title()
         self.draw_status()
@@ -239,10 +238,10 @@ class diagram:
         """Display help information."""
         print("Help mode : ")
         self._bottom_status_select_int = []
-        self._title = ("Press 'q' to Quit, 'g' to Generate file.\n"
-                       "Press 'd' to Delete, 'f' to Full screen\n"
-                       "'e' sElect mode, 'Esc' retrun to Edit mode\n"
-                       "'Enter' execute mode, ")
+        self._title_bottom = ("Press 'q' to Quit, 'g' to Generate file.\n"
+                              "Press 'd' to Delete, 'f' to Full screen\n"
+                              "'e' sElect mode, 'Esc' retrun to Edit mode\n"
+                              "'Enter' execute mode, ")
         self.draw_title()
         self._fig.canvas.draw_idle()
 
@@ -250,7 +249,7 @@ class diagram:
         """Save the current peaks data."""
         self._key = 'g'
         print("Generate mode : ", end="")
-        self._title = "Generate file : "
+        self._title_bottom = "Generate file : "
 
         args_x: dict = {"file": "peaks.npz", "comb": 100, "start": None, "end": None,
                         "index": self._bottom_status_select_int, "delete": None}
@@ -264,7 +263,7 @@ class diagram:
         """Set edit mode based on key pressed."""
         self._key = 'd'
         print("Delete mode : ", end="")
-        self._title = "Delete mode : "
+        self._title_bottom = "Delete mode : "
         self.draw_title()
         self._fig.canvas.draw_idle()
 
@@ -276,7 +275,7 @@ class diagram:
         else:
             self._key = 'e'
             print("Select mode : ", end="")
-            self._title = "Select mode : "
+            self._title_bottom = "Select mode : "
             self.draw_title()
             self._fig.canvas.draw_idle()
 
@@ -361,7 +360,7 @@ class diagram:
             toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
 
             if self._key == "e" and toolbar_mode == "zoom rect":
-                self._title = ""
+                self._title_bottom = ""
                 self.draw_title()
                 self._key = ""
                 self._ax_bottom.set_navigate_mode("ZOOM")
@@ -405,15 +404,15 @@ class diagram:
     def draw_status(self) -> None:
         """Draw status on the plot."""
         self._ax_top.set_title(
-            f"Select : {self._top_status_int}", loc="right", fontsize=10)
+            f"Select : {self._top_status_int}\nSizes of Select : {len(self._top_status_int)}", loc="right", fontsize=10)
         self._ax_bottom.set_title(
-            f"Select : {self._bottom_status_select_int}\n\
+            f"Select : {self._bottom_status_select_int}\nSizes of Select : {len(self._bottom_status_select_int)}\n\
               Delete : {self._bottom_status_delete_int}", loc="right", y=0, fontsize=10)
         # self._fig.canvas.draw_idle()
 
     def draw_title(self) -> None:
         """Draw title on the plot."""
-        self._ax_top.set_title(self._title, loc="left")
+        self._ax_bottom.set_title(self._title_bottom, loc="left", y=0)
         # self._fig.canvas.draw_idle()
 
     def draw_scatter_numbers(self) -> None:

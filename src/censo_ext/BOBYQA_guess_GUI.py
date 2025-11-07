@@ -355,6 +355,7 @@ class diagram:
                 self._status_int.append(cID)
 
             self.draw_status_int()
+            self._fig.canvas.draw_idle()
 
     def on_button_press(self, event) -> None:
         """Handle button press events."""

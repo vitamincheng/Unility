@@ -21,7 +21,7 @@ ________________________________________________________________________________
 | Input    : -i the pdata path(under 2rr folder) [required] 
 |          : -F1 F1 shift, usually is Carbon   [default 0.0] 
 |          : -F2 F2 shift, usually is Hydrogen [default 0.0]
-| Hidden   : -h show the plot [default False] 
+| Hidden   : --hidden show the plot [default False] 
 |______________________________________________________________________________
 """
 
@@ -33,7 +33,7 @@ def cml() -> argparse.Namespace:
         description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
-        add_help=False
+        add_help=True,
     )
 
     parser.add_argument(
@@ -42,7 +42,6 @@ def cml() -> argparse.Namespace:
         dest="path",
         action="store",
         type=str,
-        # required=True,
         help="Provide the path of your pdata (under 2rr folder) ",
     )
 
@@ -69,7 +68,6 @@ def cml() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-h",
         "--hidden",
         dest="hidden",
         action="store",
@@ -78,7 +76,6 @@ def cml() -> argparse.Namespace:
         default=False,
         help="Show the plot [default False]",
     )
-
     args: argparse.Namespace = parser.parse_args()
     return args
 
