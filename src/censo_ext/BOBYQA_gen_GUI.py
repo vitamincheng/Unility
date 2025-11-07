@@ -316,7 +316,6 @@ class diagram:
                     self._bottom_status_select_int = a
 
                     self.clear_local_axes()
-                    self.draw_x_axis()
                     self.draw_curve()
                     self.draw_title()
                     self.draw_status()
@@ -370,7 +369,6 @@ class diagram:
                 bottom_y = self._ax_bottom.get_ylim()
 
                 self.clear_local_axes()
-                self.draw_x_axis()
                 self.draw_curve()
                 self.draw_title()
                 self.draw_status()
@@ -452,7 +450,7 @@ class diagram:
         y_lowest_1r = float(np.min(self._intensit_top))
         y_heighest_output = float(np.max(self._intensit_bottom))
         y_lowest_output = float(np.min(self._intensit_bottom))
-        plt.xlim(self._end, self._start)
+        self._ax_bottom.set_xlim(self._end, self._start)
 
         # top
         self._ax_top.spines["right"].set_visible(False)
