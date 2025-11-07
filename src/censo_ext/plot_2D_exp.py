@@ -33,9 +33,7 @@ def cml() -> argparse.Namespace:
         description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS,
-        << << << < HEAD
         add_help=True,
-        >>>>>> > ee5f26970538ed2cb6814f94e1af3e82555b5114
     )
 
     parser.add_argument(
@@ -44,8 +42,6 @@ def cml() -> argparse.Namespace:
         dest="path",
         action="store",
         type=str,
-        << << << < HEAD
-        >> >>>> > ee5f26970538ed2cb6814f94e1af3e82555b5114
         help="Provide the path of your pdata (under 2rr folder) ",
     )
 
@@ -120,7 +116,7 @@ def read_udic(udic, data) -> tuple[unit_conversion, unit_conversion]:
     return uc_1h, uc_13c
 
 
-def plot_2D_Basic(udic, data, uc_1h, uc_13c) -> Axes:
+def plot_2D_Basic(udic, data, uc_1h, uc_13c) -> tuple[Axes, Axes]:
     # create the figure
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
     ppm_13c_0, ppm_13c_1 = uc_13c.ppm_limits()
@@ -172,7 +168,7 @@ def plot_2D_Basic(udic, data, uc_1h, uc_13c) -> Axes:
     ax.set_xlim(ppm_1h_0, ppm_1h_1)
     ax.set_ylim(ppm_13c_0, ppm_13c_1)
     plt.subplots_adjust(hspace=0.5, wspace=0.5)
-    return ax
+    return ax, ax_histy
 
 
 def cal_contour_peak(data, contour_thr_factor: float = 2) -> list:
@@ -215,23 +211,26 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     ax: Axes | None = None
     if not args.hidden:
-        ax = plot_2D_Basic(udic, data, uc_1h, uc_13c)
+        ax, ax_histy = plot_2D_Basic(udic, data, uc_1h, uc_13c)
     max_peaks: list = cal_contour_peak(data, contour_thr_factor=1)
     max_peaks = [a for a in list(
         max_peaks) if x_axis_data[a[0]] > x_thr and y_axis_data[a[1]] > y_thr]
     y_peaks: list = sorted(set([a[1] for a in list(max_peaks)]))
     x_grobal_maximum: float = x_axis_data.max()
+    y_lowest = (-y_axis_data).min()
 
     for y_idx in y_peaks:
         xslice: npt.NDArray = data[y_idx, :]
         maximum: float = xslice.max()
-        xright: float = uc_1h.ppm(xslice.size)
+        # xright: float = uc_1h.ppm(xslice.size)
 
         if not args.hidden and ax:
             ax.plot(uc_1h.ppm_scale(), -xslice/x_grobal_maximum *
                     5*4 + uc_13c.ppm(y_idx), linewidth=1)
-            ax.text(xright, uc_13c.ppm(y_idx), f"{uc_13c.ppm(
-                y_idx):12.3f}", ha="right", va="center", fontsize=6)
+            # ax.text(xright, uc_13c.ppm(y_idx), f"{uc_13c.ppm(
+            #    y_idx):12.3f}", ha="right", va="center", fontsize=6)
+            ax_histy.text(y_lowest, uc_13c.ppm(y_idx), f"{uc_13c.ppm(y_idx):12.3f}", ha="right", va="center", fontsize=6)  # type: ignore # nopep8
+
             for x in [x1 for x1, y1 in max_peaks if y1 == y_idx]:
                 if data[y_idx][x] >= maximum * 0.5:
                     ax.scatter(uc_1h.ppm(x), uc_13c.ppm(y_idx), marker="o", color="r", s=100, alpha=0.5)  # type: ignore # nopep8
