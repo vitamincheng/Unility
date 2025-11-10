@@ -13,8 +13,6 @@ import sys
 from censo_ext.Tools.spectra import numpy_thr_mean_3
 from censo_ext.Tools.utility import delete_all_files, print_arguments
 
-# global variable
-peaks_fileName = "plot_1D_DEPT.peaks"
 
 descr = """
 ________________________________________________________________________________
@@ -98,6 +96,7 @@ def cml() -> argparse.Namespace:
 
 # global variable
 pipe_fid_filename = ".1d_pipe.fid"
+peaks_fileName = "plot_1D_DEPT.peaks"
 
 
 def Channel(args, path, thr: float, thr_ch3_180: float, ax: Axes, phase: float = 1.0) -> dict:
@@ -194,8 +193,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     ch3: Path = Path('DEPT_135')
     thr: dict[Path, float] = {ch1: 2.0, ch2: 20.0, ch3: 2.0}
     thr_ch3_180: float = 2.0
-    directory: Path = Path(
-        "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01")
+
+    import platform
+    _system = platform.system()
+    if _system == "Linux":
+        directory: Path = Path(
+            "/home/vitamin/Simulation/38.Ergocalciferol(Vitamin_D2)/00.Spectra/bmse000510/nmr/set01")
+    elif _system == "Darwin":
+        directory: Path = Path(
+            "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01")
+    else:
+        print("  Only for ubuntu or Darwin system ...")
+        print("  Exit and Close the program !!!")
+        exit(0)
+
     path[ch1] = directory / ch1 / Path("pdata/1")
     path[ch2] = directory / ch2 / Path("pdata/1")
     path[ch3] = directory / ch3 / Path("pdata/1")
