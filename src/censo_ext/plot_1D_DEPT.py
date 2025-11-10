@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 from pathlib import Path
 from icecream import ic
 from matplotlib.axes import Axes
@@ -7,9 +7,9 @@ import nmrglue as ng
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
-from sys import argv as sysargv
 import argparse
 import sys
+from censo_ext.Tools.utility import print_arguments
 
 # global variable
 peaks_fileName = "plot_1D_DEPT.peaks"
@@ -23,7 +23,7 @@ ________________________________________________________________________________
 |          : -start start point of chemical shift [default from data]
 |          : -end   end point of chemical shift [default from data]
 | Save     : --save saved the report of carbon [default false]
-| Hidden   : -h show the plot [default False]
+| Hidden   : --hidden show the plot [default False]
 |______________________________________________________________________________
 """
 useit = """
@@ -83,7 +83,6 @@ def cml() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-h",
         "--hidden",
         dest="hidden",
         action="store_true",
@@ -169,7 +168,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if not args.hidden:
         print(descr)  # Program description
-        print(f"    provided arguments: {" ".join(sysargv)}")
+        print_arguments()
 
     path: dict[Path, Path] = {}
 
@@ -225,10 +224,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         if value == -1:
             StAtoms[key] = 0
 
-    # ic(StAtoms)
-    # channel:
-    #
-    #
     channel = ch1
     dic: dict
     data: npt.NDArray
@@ -267,7 +262,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # ic(len(data))
     # for H 65536 for C 131072
     # DEPT 90 32768 DEPT 32768
-    threshold += y_heighest * 0.01
+    threshold += float(y_heighest) * 0.01
     peaks, _ = find_peaks(data, height=threshold, width=1)
 
     # plot and indicate all peaks
