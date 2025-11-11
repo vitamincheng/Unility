@@ -1,0 +1,17 @@
+# linear regression
+#  y=ax+b
+#
+# funcS/basisS: revtpss-novdw/pcSseg-1 
+# H   y = 0.98382x +  31.347  R2=0.99696 (***)
+# a    -0.98382
+# b    31.347 
+# funcS/basisS: wb97x-d4/def2-svp 
+# C   y = 0.98356x + 195.987  R2=0.99926 (***) 
+# a    -0.98356
+# b   195.987
+# funcS/basisS: PBE0/pcSseg-2 v.1.2.1  orca-5.0.4(***)
+# H   y = 0.91281x + 28.9278  R2=0.99547
+# C   y = 0.92174x + 171.157  R2=0.99584
+#
+a   -0.98382
+b   31.347

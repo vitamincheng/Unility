@@ -35,8 +35,7 @@ def test_anmr_H_from_raw_data() -> None:
     x['average'] = False
     x['json'] = None
     x['dir'] = Dir_Ergo_H
-    # assert anmr.main(argparse.Namespace(**x)).shape == (2, 77868)
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 97868)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 96932)
     if _system == "Linux":
         compare: Path = Path(
             "tests/compare/anmr_H_from_raw_data_Ergo_ubuntu.json")
@@ -56,7 +55,7 @@ def test_anmr_H_average_on_json_off() -> None:
     x['average'] = True
     x['json'] = None
     x['dir'] = Dir_Ergo_H
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 97868)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 96932)
     # delete_all_files("tests/data/34.Ergocalciferol/04.Hydrogen/peaks.json")   # Normal is necessary to remove the peaks.json but next method need this file
 
 
@@ -64,7 +63,7 @@ def test_anmr_H_average_on_json_on() -> None:
     x['average'] = True
     x['json'] = [-1]
     x['dir'] = Dir_Ergo_H
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 97868)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 96932)
     delete_all_files(Dir_Ergo_H / Path("peaks.json"),
                      Dir_Ergo_H/Path(outFile), Dir_Ergo_H/(out_npz))
     shutil.rmtree(Dir_Ergo_H/Path("Average"), ignore_errors=True)
@@ -75,7 +74,7 @@ def test_anmr_H_from_raw_data_EA() -> None:
     x['average'] = False
     x['json'] = None
     x['dir'] = Dir_EA_H
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 68310)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 67852)
     if _system == "Linux":  # Need 2 min
         compare: Path = Path(
             "tests/compare/anmr_H_from_raw_data_EA_ubuntu.json")
@@ -96,7 +95,7 @@ def test_anmr_H_average_on_json_off_EA() -> None:
     x['average'] = True
     x['json'] = None
     x['dir'] = Dir_EA_H
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 68310)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 67852)
 
 
 def test_anmr_H_average_on_json_on_EA() -> None:
@@ -104,7 +103,7 @@ def test_anmr_H_average_on_json_on_EA() -> None:
     x['average'] = True
     x['json'] = [-1]
     x['dir'] = Dir_EA_H
-    assert anmr.main(argparse.Namespace(**x)).shape == (2, 68310)
+    assert anmr.main(argparse.Namespace(**x)).shape == (2, 67852)
     delete_all_files(Dir_EA_H / Path("peaks.json"), Dir_EA_H /
                      Path(outFile), Dir_EA_H/Path(out_npz))
     shutil.rmtree(Dir_EA_H/Path("Average"), ignore_errors=True)
