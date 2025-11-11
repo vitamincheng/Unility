@@ -1,18 +1,14 @@
 #! /usr/bin/env python
 from pathlib import Path
 from icecream import ic
-from matplotlib.axes import Axes
-from matplotlib.figure import Figure
 import nmrglue as ng
-import matplotlib.pyplot as plt
+from nmrglue.fileio.fileiobase import unit_conversion
 import numpy as np
 import numpy.typing as npt
 import argparse
 import sys
-from censo_ext.Tools.utility import print_arguments
+from censo_ext.Tools.utility import delete_all_files, print_arguments
 
-# global variable
-peaks_fileName = "plot_1D_DEPT.peaks"
 
 descr = """
 ________________________________________________________________________________
@@ -23,7 +19,6 @@ ________________________________________________________________________________
 |          : -start start point of chemical shift [default from data]
 |          : -end   end point of chemical shift [default from data]
 | Save     : --save saved the report of carbon [default false]
-| Hidden   : --hidden show the plot [default False]
 |______________________________________________________________________________
 """
 useit = """
@@ -82,28 +77,25 @@ def cml() -> argparse.Namespace:
         help="Saved the report of carbon [default False]",
     )
 
-    parser.add_argument(
-        "--hidden",
-        dest="hidden",
-        action="store_true",
-        help="Show the plot [default False]",
-    )
-
     args: argparse.Namespace = parser.parse_args()
     return args
+
+
+# global variable
+peaks_fileName = "plot_1D_DEPT.peaks"
+fid_fileName = ".1d_pipe.fid"
 
 
 def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> dict[int, float]:
     dic, data = ng.bruker.read_pdata(str(path[channel]))
     udic = ng.bruker.guess_udic(dic, data)
-    # ic(phase)
+
     C = ng.convert.converter()
     C.from_bruker(dic, data, udic)
-    pipe_fid_filename = ".1d_pipe.fid"
-    ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
-    dic, data = ng.pipe.read(pipe_fid_filename)
+    ng.pipe.write(fid_fileName, *C.to_pipe(), overwrite=True)
+    dic, data = ng.pipe.read(fid_fileName)
     data = data.real*phase  # type: ignore
-    uc_1h = ng.pipe.make_uc(dic, data)
+    uc_1h: unit_conversion = ng.pipe.make_uc(dic, data)
 
     # end ---------+--------- start
     # args.end                args.start
@@ -114,20 +106,14 @@ def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> 
     if not args.start or not args.end:
         args.end, args.start = uc_1h.ppm_limits()
 
-    # output = np.vstack((ppm, np.real(data))).T[::-1]
-    # np.savetxt("output.dat", output, fmt=" %12.5f  %12.5e")
     from censo_ext.Tools.spectra import numpy_thr_mean_3
     threshold: float = 0
     if isinstance(thr, float):
         threshold: float = numpy_thr_mean_3(data.astype(np.float64))*thr
-        # ic(threshold, thr)
+
     # detect all peaks with a threshold
     from scipy.signal import find_peaks
     y_heighest = max(data)
-    # y_lowest = min(data)
-    # ic(len(data))
-    # for H 65536 for C 131072
-    # DEPT 90 32768 DEPT 32768
     threshold += y_heighest * 0.01
     peaks, _ = find_peaks(data, height=threshold, width=1)
 
@@ -144,15 +130,8 @@ def Compare_two_dict(CH1: dict, CH2: dict, StAtoms: dict, Label: int) -> None:
     from censo_ext.Tools.spectra import find_nearest
     for x in CH2.values():
         nearest_peak, idx0 = find_nearest(list(CH1.values()), x)
-        # ic(nearest_peak-x)
         if (nearest_peak-x) < 0.05:
-            # if StAtoms[idx0+1] == -1:
             StAtoms[idx0+1] = Label
-            # else:
-            #    print("some peaks is overlap")
-            #    ic(StAtoms)
-            #    ic(idx0+1)
-            #    exit(0)
         else:
             print("some peaks is more than 0.02 ppm")
             print("  Exit and Close the program !!!")
@@ -165,10 +144,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # read in the Bruker data
     if args == argparse.Namespace():
         args = cml()
-
-    if not args.hidden:
-        print(descr)  # Program description
-        print_arguments()
+    print_arguments()
 
     path: dict[Path, Path] = {}
 
@@ -177,27 +153,30 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     ch3: Path = Path('DEPT_135')
     thr: dict[Path, float] = {ch1: 2.0, ch2: 20.0, ch3: 2.0}
     thr_ch3_180: float = 2.0
-    directory: Path = Path(
-        "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01")
+
+    import platform
+    _system = platform.system()
+    if _system == "Linux":
+        directory: Path = Path(
+            "/home/vitamin/Simulation/38.Ergocalciferol(Vitamin_D2)/00.Spectra/bmse000510/nmr/set01")
+    elif _system == "Darwin":
+        directory: Path = Path(
+            "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01")
+    else:
+        print("  Only for ubuntu or Darwin system ...")
+        print("  Exit and Close the program !!!")
+        exit(0)
+
     path[ch1] = directory / ch1 / Path("pdata/1")
     path[ch2] = directory / ch2 / Path("pdata/1")
     path[ch3] = directory / ch3 / Path("pdata/1")
 
     channel: Path = ch1
     Result_ch1: dict = Channel(args, path, channel, thr[channel])
-
-    # print("13C  #             ppm")
-    # for idx1, ppm in Result_ch1.items():
-    # print(f"{idx1:6d}", f"{ppm:>15.5f}")
     StAtoms: dict[int, int] = {key: -1 for key, value in Result_ch1.items()}
 
     channel: Path = ch2
     Result_ch2: dict = Channel(args, path, channel, thr[channel])
-
-    # from Tools.spectra import find_nearest
-    # nearest_peak = find_nearest(list(Result_ch1.values()), Result_ch2[1])
-    # ic(nearest_peak[0]-Result_ch2[1])
-
     print("DEPT90             ppm")
     for idx1, ppm in Result_ch2.items():
         print(f"{idx1:6d} {ppm:>15.5f}")
@@ -213,13 +192,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     channel: Path = ch3
     Result_ch3_180: dict = Channel(args, path, channel, thr_ch3_180, phase=-1.0)  # nopep8
     Compare_two_dict(Result_ch1, Result_ch3_180, StAtoms, Label=2)
-
     print("DEPT135(down)      ppm")
-    #
     for idx1, ppm in Result_ch3_180.items():
         print(f"{idx1:6d} {ppm:>15.5f}")
-    # ic(StAtoms)
-
     for key, value in StAtoms.items():
         if value == -1:
             StAtoms[key] = 0
@@ -228,15 +203,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     dic: dict
     data: npt.NDArray
     dic, data = ng.bruker.read_pdata(str(path[channel]))
-
     udic: dict = ng.bruker.guess_udic(dic, data)
 
     C = ng.convert.converter()
     C.from_bruker(dic, data, udic)
-    ng.pipe.write(".1d_pipe.fid", *C.to_pipe(), overwrite=True)
-    dic, data = ng.pipe.read(".1d_pipe.fid")
+    ng.pipe.write(fid_fileName, *C.to_pipe(), overwrite=True)
+    dic, data = ng.pipe.read(fid_fileName)
     data = data.real  # type: ignore
-    uc_1h = ng.pipe.make_uc(dic, data)
+    uc_1h: unit_conversion = ng.pipe.make_uc(dic, data)
 
     # end ---------+--------- start
     # args.end                args.start
@@ -248,9 +222,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if not args.start or not args.end:
         args.end, args.start = uc_1h.ppm_limits()
 
-    output: npt.NDArray[np.float64] = np.vstack((ppm, np.real(data))).T[::-1]
-    from censo_ext.Tools.utility import save_simulation_spectra_file
-    save_simulation_spectra_file("output.dat", output)
     from censo_ext.Tools.spectra import numpy_thr_mean_3
     threshold: float = numpy_thr_mean_3(
         data.astype(np.float64))*thr[channel]
@@ -258,80 +229,27 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # detect all peaks with a threshold
     from scipy.signal import find_peaks
     y_heighest = max(data)
-    y_lowest = min(data)
-    # ic(len(data))
-    # for H 65536 for C 131072
-    # DEPT 90 32768 DEPT 32768
     threshold += float(y_heighest) * 0.01
     peaks, _ = find_peaks(data, height=threshold, width=1)
 
-    # plot and indicate all peaks
-    fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
-    ax: Axes = fig.subplots()
-    fig.subplots_adjust(left=0.07, right=0.93, bottom=0.1,
-                        top=0.90, wspace=0.05, hspace=0.05)
-
     # print the final data
-    print("#   ID             ppm    nHydrogens")
-    for n, peak in enumerate(peaks):
-        height = data[int(peak)]
-        ppm = uc_1h.ppm(peak)
-        print(f"{n+1:6d} {ppm:>15.5f}        {StAtoms[n+1]:>3d}")
+    print_outcome(StAtoms, uc_1h, peaks)
 
     # save to file
     if args.save:
         with open(peaks_fileName, "w") as f:
             sys.stdout = f
-            print("#   ID             ppm    nHydrogens")
-            for n, peak in enumerate(peaks):
-                height = data[int(peak)]
-                ppm = uc_1h.ppm(peak)
-                print(f"{n+1:6d} {ppm:>15.5f}        {StAtoms[n+1]:>3d}")
+            print_outcome(StAtoms, uc_1h, peaks)
         sys.stdout = sys.__stdout__
 
-    # add markers for peak positions
+    delete_all_files(fid_fileName)
+
+
+def print_outcome(StAtoms, uc_1h, peaks):
+    print("#   ID             ppm    nHydrogens")
     for n, peak in enumerate(peaks):
-        height = data[int(peak)]
         ppm = uc_1h.ppm(peak)
-        if ppm < args.end and ppm > args.start:
-            # ax.scatter(ppm, height, marker="o", color="r",
-            #           s=100, alpha=0.5)  # type: ignore
-            # ax.text(ppm, height + threshold*5, f"{contour_heights[n]:12.3f}" , ha="center", va="center",rotation=90)
-            if StAtoms[n+1] == 0:
-                ax.text(ppm.tolist(), height*1.10,
-                        str("C"), ha="center", va="center", rotation=90)
-            elif StAtoms[n+1] == 1:
-                ax.text(ppm.tolist(), height*1.10,
-                        "CH", ha="center", va="center", rotation=90)
-            else:
-                ax.text(ppm.tolist(), height*1.10,
-                        "CH"+rf'$_{str(StAtoms[n+1])}$', ha="center", va="center", rotation=90)
-
-            # ax.text(ppm.tolist(), height*1.05,
-            #        str(n+1), ha="center", va="center")
-
-    plt.plot(uc_1h.ppm_scale(), data, 'b', linewidth=1)
-    plt.hlines(threshold, args.end, args.start,
-               linestyles="dashdot", linewidth=0.5)
-    plt.xlim(args.end, args.start)
-    ax.spines["right"].set_visible(False)
-    ax.spines["top"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-    ax.tick_params(axis="x", which="both", bottom=True,
-                   top=False, labelbottom=True, labelsize=12)
-    ax.tick_params(axis="y", which="both", left=False,
-                   right=False, labelleft=False)
-    ax.get_yaxis().set_visible(False)
-    # plt.xlim(ppm_1h_0,ppm_1h_1)
-
-    if y_lowest*(-1) < y_heighest*0.2:
-        plt.ylim(-0.05*y_heighest, 1.10*y_heighest)
-    else:
-        plt.ylim(1.10*y_lowest, 1.10*y_heighest)
-        # plt.ylim(-0.01*y_heighest, 1.10*y_heighest)
-    fig.suptitle(args.path, fontsize=12, y=0.98)
-    fig.text(0.5, 0.04, "$\\delta$ / ppm", ha="center", fontsize=12)
-    plt.show()
+        print(f"{n+1:6d} {ppm:>15.5f}        {StAtoms[n+1]:>3d}")
 
 
 if __name__ == "__main__":
