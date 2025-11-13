@@ -10,7 +10,6 @@ import numpy as np
 import numpy.typing as npt
 import argparse
 import sys
-from censo_ext.Tools.spectra import numpy_thr_mean_3
 from censo_ext.Tools.utility import delete_all_files, print_arguments
 
 
@@ -89,10 +88,14 @@ def cml() -> argparse.Namespace:
 # global variable
 pipe_fid_filename = ".1d_pipe.fid"
 peaks_fileName = "plot_1D_DEPT.peaks"
+CH_13C: Path = Path("13C")
+CH_90: Path = Path("DEPT_90")
+CH_135: Path = Path("DEPT_135")
+CH_135_down: Path = Path("DEPT_135_down")
 
 
 class diagram:
-    def __init__(self, path: dict[Path, Path], args: argparse.Namespace) -> None:
+    def __init__(self, directory: Path, args: argparse.Namespace) -> None:
         self._fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
         self._ax_list: list[Axes] = self._fig.subplots(
             3, 1, sharex=True)  # type: ignore
@@ -100,25 +103,30 @@ class diagram:
                                   top=0.90, wspace=0.05, hspace=0.05)
         self._data: dict[Path, npt.NDArray] = {}
         self._uc_1h: dict[Path, unit_conversion] = {}
-        self._path: dict[Path, Path] = path
+        self._directory: Path = directory
         self._limits: tuple[float, float] = args.end, args.start
-        self._thr: dict[Path, float] = {}
+        self._thr: dict[Path, float] = {
+            CH_13C: 0.0, CH_90: 0.0, CH_135: 0.0, CH_135_down: 0.0}
+        self._Result: dict = {}
         self._title = "Normal Mode"
-        self._key = ""
-        self._ax_selected = ""
+        self._key: str = ""
+        self._ax_selected: Axes
+        self._StAtoms: dict = {}
+        self._peaks: list = []
         self.load_data()
         self.draw_curve()
         self.draw_x_axis(full=True)
         self.draw_title()
 
-    def load_data(self):
-        print(self._path)
-        for x, value in self._path.items():
-            self.load_singlet_data(x, 1)
-        self.load_singlet_data(Path("DEPT_135"), -1)
+    def load_data(self) -> None:
+        self.load_singlet_data(CH_13C, 1)
+        self.load_singlet_data(CH_90, 1)
+        self.load_singlet_data(CH_135, 1)
+        self.load_singlet_data(CH_135, -1)
 
     def load_singlet_data(self, x, phase):
-        dic, data = ng.bruker.read_pdata(str(self._path[Path(x)]))
+        pdata = Path("pdata/1")
+        dic, data = ng.bruker.read_pdata(self._directory / x / pdata)
         udic = ng.bruker.guess_udic(dic, data)
         C = ng.convert.converter()
         C.from_bruker(dic, data, udic)
@@ -130,18 +138,18 @@ class diagram:
             self._data[x] = data
             self._uc_1h[x] = uc_1h
         elif phase == -1:
-            self._data[Path("DEPT_135_down")] = data
-            self._uc_1h[Path("DEPT_135_down")] = uc_1h
+            self._data[CH_135_down] = data
+            self._uc_1h[CH_135_down] = uc_1h
 
-    def draw_curve(self):
+    def draw_curve(self) -> None:
         self.draw_singlet_curve(
-            self._data[Path('13C')], self._uc_1h[Path('13C')], self._ax_list[2])
+            self._data[CH_13C], self._uc_1h[CH_13C], self._ax_list[2])
         self.draw_singlet_curve(
-            self._data[Path('DEPT_90')], self._uc_1h[Path('DEPT_90')], self._ax_list[0])
+            self._data[CH_90], self._uc_1h[CH_90], self._ax_list[0])
         self.draw_singlet_curve(
-            self._data[Path('DEPT_135')], self._uc_1h[Path('DEPT_135')], self._ax_list[1])
+            self._data[CH_135], self._uc_1h[CH_135], self._ax_list[1])
 
-    def draw_singlet_curve(self, data, uc_1h, ax):
+    def draw_singlet_curve(self, data, uc_1h, ax) -> None:
         ax.spines["right"].set_visible(False)
         ax.spines["top"].set_visible(False)
         ax.spines["left"].set_visible(False)
@@ -152,14 +160,17 @@ class diagram:
                        top=False, labelbottom=False)
         ax.plot(uc_1h.ppm_scale(), data, 'b', linewidth=1)
 
-    def draw_x_axis(self, full: bool = False):
-        end, start = self._uc_1h[Path('13C')].ppm_limits()
-        xlimits = self._ax_list[2].get_xlim()
+    def draw_x_axis(self, full: bool = False) -> None:
+        end, start = self._uc_1h[CH_13C].ppm_limits()
+        xmin, xmax, ymin, ymax = plt.axis()
+        xlimits: tuple[float, float] = self._ax_list[2].get_xlim()
         if isinstance(self._limits[0], (int, float)) and isinstance(self._limits[1], (int, float)):
-            start = self._limits[1]
-            end = self._limits[0]
+            start: float | int = self._limits[1]
+            end: float | int = self._limits[0]
         if full:
-            self._ax_list[2].set_xlim(end, start)
+            plt.xlim(end, start)
+            self._limits = end, start
+
         else:
             self._ax_list[2].set_xlim(xlimits[0], xlimits[1])
         self._ax_list[2].spines["bottom"].set_visible(True)
@@ -168,6 +179,24 @@ class diagram:
         self._fig.text(0.5, 0.04, "$\\delta$ / ppm",
                        ha="center", fontsize=12)
 
+    def draw_status(self) -> None:
+        if self._key == "t":
+            self._ax_list[2].set_title(
+                f"Threshold : {self._thr[CH_13C]:7.2f}\n", loc="right", x=1.05, y=0, fontsize=8)
+            self._ax_list[0].set_title(
+                f"Threshold : {self._thr[CH_90]:7.2f}\n", loc="right", x=1.05, y=0, fontsize=8)
+            self._ax_list[1].set_title(
+                f"Threshold : {self._thr[CH_135]:7.2f}\n\
+                Threshold : {self._thr[CH_135_down]:7.2f}\n", loc="right", x=1.05, y=0, fontsize=8)
+        if self._key == "d":
+            self._ax_list[2].set_title(
+                f"Total Numbers : {len(self._Result[CH_13C])}\n", loc="right", x=1.05, y=0, fontsize=8)
+            self._ax_list[0].set_title(
+                f"Total Numbers : {len(self._Result[CH_90])}\n", loc="right", x=1.05, y=0, fontsize=8)
+            self._ax_list[1].set_title(
+                f"Total Numbers : {len(self._Result[CH_135])}\n\
+                Total Numbers : {len(self._Result[CH_135_down])}\n", loc="right", x=1.05, y=0, fontsize=8)
+
     def clear_local_axes(self) -> None:
         for ax in self._ax_list:
             _x, _y = ax.get_xlim(), ax.get_ylim()
@@ -175,11 +204,14 @@ class diagram:
             ax.set_xlim(_x)
             ax.set_ylim(_y)
 
-    def on_key_press(self, event):
+    def on_key_press(self, event) -> None:
         """Callback function for key press events."""
         if event.key == 'q':
             print("Quitting the application.")
             plt.close(event.canvas.figure)
+
+        elif event.key == 'escape':
+            self._reset_to_edit_mode()
 
         elif event.key == 'h':
             self._show_help()
@@ -187,23 +219,137 @@ class diagram:
         elif event.key == 's':
             self._save_file()
 
+        elif event.key == 'f':
+            self._redraw_full()
+
         elif event.key == 't':
             self._set_threshold()
 
         elif event.key == 'd':
             self._display_carbon()
 
-    def _save_file(self):
-        pass
+    def _redraw_full(self) -> None:
+        xmin, xmax, ymin, ymax = plt.axis()
+        for x in self._ax_list:
+            x.clear()
+        plt.xlim(xmin, xmax)
+        plt.ylim(ymin, ymax)
+        self.draw_curve()
+        self.draw_title()
+        self.draw_x_axis(full=True)
+        self._fig.canvas.draw_idle()
 
-    def _set_threshold(self):
+    def _reset_to_edit_mode(self) -> None:
+        print("Normal mode")
+        self._key = 'escape'
+
+        self.clear_local_axes()
+        self._title = "Normal mode.\nPress 'h' to help. "
+        self.draw_curve()
+        self.draw_title()
+        self.draw_x_axis()
+        self._fig.canvas.draw_idle()
+
+    def _save_file(self) -> None:
+        out: list | npt.NDArray = []
+
+        print("#   ID             ppm    nHydrogens")
+        for key, value in self._Result[CH_13C].items():
+            print(
+                f"{key:6d} {float(value):>15.5f}        {self._StAtoms[key]:>3d}")
+            out.append([float(key), float(value), float(self._StAtoms[key])])
+        out = np.array(out)
+        np.savetxt(peaks_fileName, out, fmt='%6d %15.5f %3d',
+                   header="   ID             ppm    nHydrogens", comments="#")
+
+    def _set_threshold(self) -> None:
         self._title = "Set Threshold"
         self._key = "t"
         self.draw_title()
         self._fig.canvas.draw_idle()
 
-    def _display_carbon(self):
-        pass
+    def _display_carbon(self) -> None:
+        self._title = "Display Carbon"
+        self._key = "d"
+
+        self.clear_local_axes()
+        self.draw_curve()
+        self.draw_x_axis()
+        self.draw_title()
+        self.cal_singlet_ch(CH_13C)
+        self.cal_singlet_ch(CH_90)
+        self.cal_singlet_ch(CH_135)
+        self.cal_singlet_ch(CH_135_down)
+        self.cal_st()
+        self.draw_carbon_number()
+        self.draw_status()
+        self._fig.canvas.draw_idle()
+
+    def draw_carbon_number(self) -> None:
+
+        for n, peak in enumerate(self._peaks):
+            height = self._data[CH_13C][int(peak)]
+            ppm = self._uc_1h[CH_13C].ppm(peak)
+            end, start = self._limits
+            if ppm < end and ppm > start:
+                if self._StAtoms[n+1] == 0:
+                    self._ax_list[2].text(ppm.tolist(), height*1.20,
+                                          str("C"), ha="center", va="center", rotation=90)
+                elif self._StAtoms[n+1] == 1:
+                    self._ax_list[2].text(ppm.tolist(), height*1.20,
+                                          "CH", ha="center", va="center", rotation=90)
+                else:
+                    self._ax_list[2].text(ppm.tolist(), height*1.20,
+                                          "CH"+rf'$_{str(self._StAtoms[n+1])}$', ha="center", va="center", rotation=90)
+
+    def cal_st(self) -> None:
+        self._StAtoms = {
+            key: -1 for key, _ in self._Result[CH_13C].items()}
+        self.Compare_two_dict(CH_13C, CH_135, Label=3)
+        self.Compare_two_dict(CH_13C, CH_90, Label=1)
+        self.Compare_two_dict(CH_13C, CH_135_down, Label=2)
+
+        for key, value in self._StAtoms.items():
+            if value == -1:
+                self._StAtoms[key] = 0
+
+        # print the final data
+        print("#   ID             ppm    nHydrogens")
+        for key, value in self._Result[CH_13C].items():
+            print(
+                f"{key:6d} {float(value):>15.5f}        {self._StAtoms[key]:>3d}")
+
+    def Compare_two_dict(self, CH1: Path, CH2: Path, Label: int) -> None:
+        from censo_ext.Tools.spectra import find_nearest
+        for x in self._Result[CH2].values():
+            nearest_peak, idx0 = find_nearest(
+                list(self._Result[CH1].values()), x)
+            # ic(nearest_peak-x)
+            if (nearest_peak-x) < 0.05:
+                # if StAtoms[idx0+1] == -1:
+                self._StAtoms[idx0+1] = Label
+            else:
+                print("some peaks is more than 0.02 ppm")
+                print("  Exit and Close the program !!!")
+                ic()
+                exit(0)
+
+    def cal_singlet_ch(self, channel: Path):
+        thr: float = self._thr[channel]
+        data = self._data[channel]
+        uc_1h: unit_conversion = self._uc_1h[channel]
+        from scipy.signal import find_peaks
+        peaks, _ = find_peaks(data, height=thr, width=1)
+
+        # add markers for peak positions
+        Result: dict[int, float] = dict()
+
+        for n, peak in enumerate(peaks):
+            ppm: float = uc_1h.ppm(peak)
+            Result[n+1] = ppm
+        self._Result[channel] = Result
+        if channel == CH_13C:
+            self._peaks = peaks
 
     def on_button_release(self, event):
         from matplotlib.backend_bases import MouseButton
@@ -214,9 +360,18 @@ class diagram:
             self._ax_list[2].set_navigate_mode("ZOOM")
 
         elif event.inaxes in self._ax_list and self._key == "t" and event.button == MouseButton.LEFT:
-            self._button_xy = event.xdata, event.ydata
+            # self._button_xy = event.xdata, event.ydata
             # self._ax_selected = event.inaxes
-            self._ax_selected = None
+            if event.inaxes == self._ax_list[0]:
+                self._thr[CH_90] = event.ydata
+            elif event.inaxes == self._ax_list[1] and event.ydata >= 0:
+                self._thr[CH_135] = event.ydata
+            elif event.inaxes == self._ax_list[1] and event.ydata < 0:
+                self._thr[CH_135_down] = -event.ydata
+            elif event.inaxes == self._ax_list[2]:
+                self._thr[CH_13C] = event.ydata
+
+            self.draw_status()
             self._fig.canvas.draw_idle()
 
     def on_button_press(self, event):
@@ -231,25 +386,25 @@ class diagram:
             self._ax_list[2].set_navigate_mode("ZOOM")
             self._fig.canvas.draw_idle()
         elif event.inaxes in self._ax_list and self._key == "t" and event.button == MouseButton.LEFT:
-            self._button_xy = event.xdata, event.ydata
-            self._ax_selected = event.inaxes
+            self._button_xy: tuple[float, float] = event.xdata, event.ydata
+            self._ax_selected: Axes = event.inaxes
             start, end = event.inaxes.get_xlim()
 
             self.clear_local_axes()
             self.draw_curve()
             self.draw_title()
             self.draw_x_axis()
+            self.draw_status()
             event.inaxes.hlines(self._button_xy[1], end, start, colors='k', linestyles="dashed", linewidth=1)  # type: ignore # nopep8
             self._fig.canvas.draw_idle()
 
-    def on_mouse_motion(self, event):
+    def on_mouse_motion(self, event) -> None:
         from matplotlib.backend_bases import MouseButton
 
-        if event.inaxes is self._ax_selected and event.button is MouseButton.LEFT:
+        if event.inaxes is self._ax_list and event.button is MouseButton.LEFT:
             toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
 
             if self._key == "t" and toolbar_mode == "zoom rect":
-                self._title_bottom = ""
                 self.draw_title()
                 self._key = ""
                 self._ax_list[0].set_navigate_mode("ZOOM")
@@ -258,16 +413,23 @@ class diagram:
                 self._fig.canvas.draw_idle()
             if self._key == "t" and toolbar_mode != "zoom rect":
 
+                if event.inaxes == self._ax_list[0]:
+                    self._thr[CH_90] = event.ydata
+                elif event.inaxes == self._ax_list[1] and event.ydata >= 0:
+                    self._thr[CH_135] = event.ydata
+                elif event.inaxes == self._ax_list[1] and event.ydata < 0:
+                    self._thr[CH_135_down] = event.ydata
+                elif event.inaxes == self._ax_list[2]:
+                    self._thr[CH_13C] = event.ydata
+
                 self.clear_local_axes()
                 self.draw_curve()
                 self.draw_title()
                 self.draw_x_axis()
-                # self.draw_status()
-                # self.draw_scatter_numbers()
+                self.draw_status()
 
                 if event.inaxes in self._ax_list and self._key == "t" and event.inaxes == self._ax_selected:
                     start, end = event.inaxes.get_xlim()
-                    # event.inaxes.hlines(self._button_xy[1], end, start, colors='k', linestyles="dashed", linewidth=1)  # type: ignore # nopep8
                     event.inaxes.hlines(event.ydata, end, start, colors='k', linestyles="dashed", linewidth=1)  # type: ignore # nopep8
 
                 self._fig.canvas.draw_idle()
@@ -276,11 +438,10 @@ class diagram:
         """Draw title on the plot."""
         self._ax_list[0].set_title(self._title, loc="left")
 
-    def _show_help(self):
+    def _show_help(self) -> None:
         pass
         """Display help information."""
         print("Help mode ")
-        self._status_int = []
         self._title = ("Press 'q' to Quit, 's' to Save file.\n"
                        "Press 't' to set the threshold.\n"
                        "Press 'd' to display the Carbon.\n")
@@ -289,13 +450,13 @@ class diagram:
 
     def connect(self):
         """Connect all event handlers."""
-        self._cID_key = self._fig.canvas.mpl_connect(
+        self._cID_key: int = self._fig.canvas.mpl_connect(
             'key_press_event', self.on_key_press)
-        self._cID_button_press = self._fig.canvas.mpl_connect(
+        self._cID_button_press: int = self._fig.canvas.mpl_connect(
             'button_press_event', self.on_button_press)
-        self._cID_button_motion = self._fig.canvas.mpl_connect(
+        self._cID_button_motion: int = self._fig.canvas.mpl_connect(
             'motion_notify_event', self.on_mouse_motion)
-        self._cID_button_release = self._fig.canvas.mpl_connect(
+        self._cID_button_release: int = self._fig.canvas.mpl_connect(
             'button_release_event', self.on_button_release)
 
     def disconnect(self):
@@ -303,84 +464,6 @@ class diagram:
         self._fig.canvas.mpl_disconnect(self._cID_button_press)
         self._fig.canvas.mpl_disconnect(self._cID_button_release)
         self._fig.canvas.mpl_disconnect(self._cID_button_motion)
-
-
-def Channel(args, path, ax: Axes, phase: float = 1.0) -> dict:
-    dic, data = ng.bruker.read_pdata(str(path))
-    udic = ng.bruker.guess_udic(dic, data)
-    C = ng.convert.converter()
-    C.from_bruker(dic, data, udic)
-    ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
-    dic, data = ng.pipe.read(pipe_fid_filename)
-    data = data.real*phase  # type: ignore
-    uc_1h: unit_conversion = ng.pipe.make_uc(dic, data)
-
-    # from censo_ext.Tools.spectra import numpy_thr_mean_3
-    # threshold: float = numpy_thr_mean_3(data.astype(np.float64))*thr
-    if phase == 1:
-        # ax.hlines(threshold, args.end, args.start,
-        #          linestyles="dashdot", linewidth=0.5)
-        # if "DEPT_135" in str(path):
-        #    threshold: float = numpy_thr_mean_3(
-        #        data.astype(np.float64))*thr_ch3_180*(-1)
-        # ax.hlines(threshold, args.end, args.start,
-        #          linestyles="dashdot", linewidth=0.5)
-        ax.spines["right"].set_visible(False)
-        ax.spines["top"].set_visible(False)
-        ax.spines["left"].set_visible(False)
-        ax.spines["bottom"].set_visible(False)
-        ax.tick_params(axis="x", which="both", bottom=False,
-                       top=False, labelbottom=False)
-        ax.tick_params(axis="y", which="both", left=False,
-                       right=False, labelleft=False)
-        ax.set_xlim(args.end, args.start)
-        ax.plot(uc_1h.ppm_scale(), data, 'b', linewidth=1)
-
-    # end ---------+--------- start
-    # args.end                args.start
-    # ppm_1h_0                ppm_1h_1
-
-    # ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
-    # ppm = np.linspace(ppm_1h_0, ppm_1h_1, data.shape[0])
-
-    # if isinstance(args.start, (int, float)) and isinstance(args.end, (int, float)):
-    #    pass
-    # else:
-    #    args.end, args.start = uc_1h.ppm_limits()
-
-    # from censo_ext.Tools.spectra import numpy_thr_mean_3
-    # threshold: float = 0
-    # if isinstance(thr, float):
-    #    threshold: float = numpy_thr_mean_3(data.astype(np.float64))*thr
-    # detect all peaks with a threshold
-    # from scipy.signal import find_peaks
-    # y_heighest = max(data)
-    # threshold += y_heighest * 0.01
-    # peaks, _ = find_peaks(data, height=threshold, width=1)
-
-    # add markers for peak positions
-    Result: dict[int, float] = dict()
-
-    # for n, peak in enumerate(peaks):
-    #    ppm: float = uc_1h.ppm(peak)
-    #    Result[n+1] = ppm
-
-    return Result  # type: ignore
-
-
-def Compare_two_dict(CH1: dict, CH2: dict, StAtoms: dict, Label: int) -> None:
-    from censo_ext.Tools.spectra import find_nearest
-    for x in CH2.values():
-        nearest_peak, idx0 = find_nearest(list(CH1.values()), x)
-        # ic(nearest_peak-x)
-        if (nearest_peak-x) < 0.05:
-            # if StAtoms[idx0+1] == -1:
-            StAtoms[idx0+1] = Label
-        else:
-            print("some peaks is more than 0.02 ppm")
-            print("  Exit and Close the program !!!")
-            ic()
-            exit(0)
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
@@ -397,15 +480,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     plt.rcParams['toolbar'] = 'toolbar2'
     plt.ion()
 
-    path: dict[Path, Path] = {}
-
-    ch1: Path = Path('13C')
-    ch2: Path = Path('DEPT_90')
-    ch3: Path = Path('DEPT_135')
-
-    # thr: dict[Path, float] = {ch1: 2.0, ch2: 20.0, ch3: 2.0}
-    # thr_ch3_180: float = 2.0
-
     import platform
     _system = platform.system()
     if _system == "Linux":
@@ -419,52 +493,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print("  Exit and Close the program !!!")
         exit(0)
 
-    path[ch1] = directory / ch1 / Path("pdata/1")
-    path[ch2] = directory / ch2 / Path("pdata/1")
-    path[ch3] = directory / ch3 / Path("pdata/1")
-
     # plot and indicate all peaks
-    digrams: diagram = diagram(path, args)
+    digrams: diagram = diagram(directory, args)
     digrams.connect()
     plt.ioff()
     plt.show()
     delete_all_files(pipe_fid_filename)
+
     exit(0)
-    # channel: Path = ch1
-    # Result_ch1 = Channel(args, path=path[channel], ax=ax[2])
-
-    StAtoms: dict[int, int] = {key: -1 for key, value in Result_ch1.items()}
-
-    channel: Path = ch2
-    Result_ch2 = Channel(args, path=path[channel], ax=ax[0])
-
-    channel: Path = ch3
-    Result_ch3 = Channel(args, path=path[channel], ax=ax[1])
-
-    channel: Path = ch3
-    Result_ch3_180 = Channel(args, path=path[channel], ax=ax[2], phase=-1.0)  # nopep8
-
-    Compare_two_dict(Result_ch1, Result_ch3, StAtoms, Label=3)
-    Compare_two_dict(Result_ch1, Result_ch2, StAtoms, Label=1)
-
-    print("DEPT90             ppm")
-    for idx1, ppm in Result_ch2.items():
-        print(f"{idx1:6d} {ppm:>15.5f}")
-
-    print("DEPT135(up)        ppm")
-    for idx1, ppm in Result_ch3.items():
-        print(f"{idx1:6d} {ppm:>15.5f}")
-
-    Compare_two_dict(Result_ch1, Result_ch3_180, StAtoms, Label=2)
-
-    print("DEPT135(down)      ppm")
-    #
-    for idx1, ppm in Result_ch3_180.items():
-        print(f"{idx1:6d} {ppm:>15.5f}")
-
-    for key, value in StAtoms.items():
-        if value == -1:
-            StAtoms[key] = 0
 
     # channel: Path = ch1
     # dic, data = ng.bruker.read_pdata(str(path[channel]))
@@ -534,14 +570,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     #                       "CH"+rf'$_{str(StAtoms[n+1])}$', ha="center", va="center", rotation=90)
 
     # fig.suptitle(args.path, fontsize=12, y=0.98)
-    fig.text(0.5, 0.04, "$\\delta$ / ppm",
-             ha="center", fontsize=12)
-    ax[2].tick_params(axis="x", which="both", bottom=True,
-                      top=False, labelbottom=True, labelsize=12)
-
-    digrams.connect()
-    plt.ioff()
-    plt.show()
 
 
 if __name__ == "__main__":
