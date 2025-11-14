@@ -7,6 +7,8 @@ import sys
 import numpy as np
 import numpy.typing as npt
 import copy
+from typing import NewType
+AtomID = NewType("AtomID", int)
 
 
 class Geometry():
@@ -35,7 +37,7 @@ class Geometry():
         ...                     extras=[['charge1'], ['charge2']])
     """
 
-    def __init__(self, names: dict[int, str], coord: list[npt.NDArray[np.float64]], extras: list[list[str]], comment: str = "", energy: float = 0, nClusters: int = 0) -> None:
+    def __init__(self, names: dict[AtomID, str], coord: list[npt.NDArray[np.float64]], extras: list[list[str]], comment: str = "", energy: float = 0, nClusters: int = 0) -> None:
         """ 
         Initialize a Geometry object with atom names, coordinates, and metadata.
 
@@ -48,7 +50,7 @@ class Geometry():
             nClusters (int): Optional cluster index.
         """
 
-        self.names: dict[int, str] = names                  # atom's name   H Li Na K B C O S F Cl # nopep8
+        self.names: dict[AtomID, str] = names                  # atom's name   H Li Na K B C O S F Cl # nopep8
         self.coord: list[npt.NDArray[np.float64]] = coord
         # coordinates of every atom
         self.nAtoms: int = len(names)                       # numbers of atom
@@ -71,7 +73,7 @@ class Geometry():
         import copy
         geometry: Geometry = copy.deepcopy(self)
         for key in other.names.keys():
-            geometry.names[len(self.names) + key] = other.names[key]
+            geometry.names[AtomID(len(self.names) + key)] = other.names[key]
         # coordinates of every atom
         geometry.coord = self.coord + other.coord
         geometry.extras = self.extras + other.extras
@@ -91,7 +93,7 @@ class Geometry():
         for idx0 in range(self.nAtoms):
             extra: str = "   ".join(
                 self.extras[idx0]) if self.extras[idx0] != [] else ""
-            Str += f'{self.names[idx0+1]:>3s}    {self.coord[idx0][0]: 14.10f}'  # nopep8
+            Str += f'{self.names[AtomID(idx0+1)]:>3s}    {self.coord[idx0][0]: 14.10f}'  # nopep8
             Str += f'    {self.coord[idx0][1]: 14.10f}    {self.coord[idx0][2]: 14.10f}    {extra}\n'  # nopep8
         return Str
 
@@ -132,12 +134,12 @@ class Geometry():
             bool: True if operation succeeded.
         """
 
-        new_names: dict[int, str] = {}
-        x: int = 1
+        new_names: dict[AtomID, str] = {}
+        x: AtomID = AtomID(1)
         for names_key in self.names.copy():
             if names_key in idx1_Select_Names:
                 new_names[x] = self.names[names_key]
-                x = x + 1
+                x = AtomID(x + 1)
             else:
                 del self.names[names_key]
         self.names = new_names
@@ -548,17 +550,17 @@ class GeometryXYZs():
             while line != "":
                 nAtoms = int(line)
                 comment: str = f.readline().rstrip()
-                names: dict[int, str] = dict()
+                names: dict[AtomID, str] = dict()
                 coords: list[npt.NDArray[np.float64]] = list()
                 extras: list[list[str]] = list()
 
-                for i in range(nAtoms):
+                for i in range(1, nAtoms+1):
                     line = f.readline()
                     data: list[str] = line.split()
                     name, x, y, z = data[0:4]
                     extra: list[str] = data[4:]
 
-                    names[i+1] = name.capitalize()
+                    names[AtomID(i)] = name.capitalize()
                     coords.append(np.array([float(x), float(y), float(z)]))
                     if extra:
                         extras.append(extra)

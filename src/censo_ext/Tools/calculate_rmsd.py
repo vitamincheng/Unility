@@ -14,6 +14,8 @@ import numpy.typing as npt
 from pathlib import Path
 import censo_ext.Tools.Parameter as Parameter
 from censo_ext.Tools.xyzfile import GeometryXYZs
+from typing import NewType
+AtomID = NewType("AtomID", int)
 
 
 NAMES_ELEMENT = {value: key for key, value in Parameter.ELEMENT_NAMES.items()}

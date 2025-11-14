@@ -371,7 +371,7 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
                 inJCoups = np.zeros_like(inJCoups)
 
                 # validate that the atom types match between ORCA files
-                if set(inAnmr.avg_orcaSJ.idx1Atoms.values()) != set(Active):
+                if set(inAnmr.avg_orcaSJ.Element.values()) != set(Active):
                     raise ValueError(
                         "  Yours Average orcaS.out and orcaJ.out have something errors !!!")
 
@@ -381,7 +381,7 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
                     inAnmr, args, inFile)
 
                 # Validate that the atom types match between ORCA files
-                if set(inAnmr.avg_orcaSJ.idx1Atoms.values()) != set(Active):
+                if set(inAnmr.avg_orcaSJ.Element.values()) != set(Active):
                     raise ValueError(
                         "  Your orcaS.out have Something error !!!")
             else:
@@ -438,7 +438,7 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
         tuple[list[int], int, int]: Hydrogen counts, Active range, and DPI values
     """
     idx1_nMagEqvHydrogens: dict[int, int] = {}
-    for key in inAnmr.avg_orcaSJ.idx1Atoms.keys():
+    for key in inAnmr.avg_orcaSJ.Element.keys():
         idx1_nMagEqvHydrogens[key] = inAnmr.nMagnetEqvs[key]
 
     # Remove hydrogen atoms that are part of acid groups
@@ -799,7 +799,7 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
                 list_Equivalent3: list[int] = []
                 for key in inAnmr.nMagnetEqvs.keys():
                     if inAnmr.nMagnetEqvs[key] == 3:
-                        for idy0, y in enumerate(inAnmr.avg_orcaSJ.idx1Atoms):
+                        for idy0, y in enumerate(inAnmr.avg_orcaSJ.Element):
                             if y == min(inAnmr.NeighborMangetEqvs[key]):
                                 list_Equivalent3.append(idy0)
                 set_Equivalent3: set[int] = set(list_Equivalent3)

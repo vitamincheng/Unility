@@ -260,7 +260,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         AD_bobyqa: AD_BOBYQA = AD_BOBYQA()
         AD_bobyqa.JCoups = AD_orcaS.JCoups
-        AD_bobyqa.idx1Atoms = AD_orcaS.idx1Atoms
+        AD_bobyqa.Element = AD_orcaS.Element
         AD_bobyqa.ChemicalShifts = OrcaS_BOBYQA
         AD_bobyqa.method_save_files()
         print("\nThe data is saved to orcaS-BOBYQA.out file")

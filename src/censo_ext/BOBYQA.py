@@ -381,7 +381,7 @@ def Create_BOBYQA() -> None:
         None: This function creates a file and exits the program.
     """
     ChemicalShifts: npt.NDArray[np.float64] = np.array(list(g_var.AD_normal.ChemicalShifts.items()))  # type: ignore # nopep8
-    g_var.AD_bobyqa.idx1Atoms = g_var.AD_normal.idx1Atoms
+    g_var.AD_bobyqa.Element = g_var.AD_normal.Element
     g_var.AD_bobyqa.JCoups = g_var.AD_normal.JCoups
     g_var.AD_bobyqa.ChemicalShifts = np.insert(ChemicalShifts, 2, 0, axis=1)
     g_var.AD_bobyqa.method_save_files()

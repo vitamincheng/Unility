@@ -8,6 +8,8 @@ import numpy.typing as npt
 from icecream import ic
 from pathlib import Path
 from censo_ext.Tools.utility import IsExist, IsExist_bool
+from typing import NewType
+AtomID = NewType("AtomID", int)
 # from dataclasses import dataclass
 
 
@@ -271,11 +273,11 @@ class Anmr():
         # idx1 and numbers of Chemical Equivalent
         self.nChemEqvs: dict[int, int] = {}
         # idx1 and neighbors index of Chemical Equivalent
-        self.NeighborChemEqvs: dict[int, list[int]] = {}
+        self.NeighborChemEqvs: dict[int, list[AtomID]] = {}
         # idx1 and numbers of Magnetic Equivalent
         self.nMagnetEqvs: dict[int, int] = {}
         # idx1 and neighbors index of Magnetic Equivalent
-        self.NeighborMangetEqvs: dict[int, list[int]] = {}
+        self.NeighborMangetEqvs: dict[int, list[AtomID]] = {}
 
         # For the data of Average Directory
         # self.avg_data: AD_Normal = AD_Normal(self.__Dir)
@@ -432,14 +434,14 @@ class Anmr():
             # orcaSParams and orcaJCoups using weighting to calculate and
             # save to Average_orcaSJ
             self.avg_orcaSJ: OrcaSJ = OrcaSJ()
-            self.avg_orcaSJ.idx1Atoms = self.orcaSJ[0].idx1Atoms
+            self.avg_orcaSJ.Element = self.orcaSJ[0].Element
 
             # inital condition, let the chemical shift of average of orcaS is set to 0.0
             for x in self.orcaSJ[0].SParams.keys():
                 self.avg_orcaSJ.SParams[x] = 0.0
 
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
-                idy0: list[int] = list(map(int, x.SParams.keys()))
+                idy0: list[AtomID] = list(map(AtomID, x.SParams.keys()))
                 ppm: list[float] = list(map(float, x.SParams.values()))
                 for idz, weight_ppm in zip(idy0, np.array(ppm) * normal_idx_weight[x.CONFSerialNums]):
                     self.avg_orcaSJ.SParams[idz] += weight_ppm.item()
@@ -464,16 +466,16 @@ class Anmr():
 
     def method_filter_active_orcaSJ(self, Active: str) -> None:
 
-        del_idx1_Atoms: list[int] = [
-            key for key, value in self.orcaSJ[0].idx1Atoms.items() if value != Active]
-        intp = np.sort(np.array(list(self.orcaSJ[0].idx1Atoms.keys())))
+        del_idx1_Atoms: list[AtomID] = [
+            key for key, value in self.orcaSJ[0].Element.items() if value != Active]
+        intp = np.sort(np.array(list(self.orcaSJ[0].Element.keys())))
         arg_del_idx0_Atoms = np.array(intp).searchsorted(del_idx1_Atoms)
         if len(del_idx1_Atoms) != 0:
             print(" ===== Filter the Active Atom of SParams and JCoups =====")
             for _orcaSJ in self.orcaSJ:
                 for x in del_idx1_Atoms[::-1]:
-                    if x in _orcaSJ.idx1Atoms:
-                        del _orcaSJ.idx1Atoms[x]
+                    if x in _orcaSJ.Element:
+                        del _orcaSJ.Element[x]
                     if x in _orcaSJ.SParams:
                         del _orcaSJ.SParams[x]
                 for x in arg_del_idx0_Atoms[::-1]:
@@ -518,7 +520,8 @@ class Anmr():
         else:
             print(" ===== Update the equivalent of SParams and JCoups =====")
 
-            Atoms: list[int] = [x for x in self.orcaSJ[0].idx1Atoms.keys()]
+            Atoms: list[int] = [
+                x for x in self.orcaSJ[0].Element.keys()]
             AtomsKeep: npt.NDArray[np.int64] = np.array(Atoms)
             AtomsEqvKeep: npt.NDArray[np.int64] = AtomsKeep.copy()
 
@@ -571,14 +574,14 @@ class Anmr():
                 for idx0, x in enumerate(orcaSJ.JCoups):
                     orcaSJ.JCoups[idx0][idx0] = 0
 
-            AtomsDelete: list[int] = list(
-                map(int, set(AtomsKeep).difference(set(list(AtomsEqvKeep)))))
+            AtomsDelete: list[AtomID] = list(
+                map(AtomID, set(AtomsKeep).difference(set(list(AtomsEqvKeep)))))
             AtomsDelete.sort()
 
             # Delete Equivalent Atoms of idx1Atoms and orcaSParams
             for orcaSJ in self.orcaSJ:
                 for x in AtomsDelete:
-                    del orcaSJ.idx1Atoms[x]
+                    del orcaSJ.Element[x]
                     del orcaSJ.SParams[x]
 
             # Delete Equivalent Atom of orcaJCoups
@@ -610,7 +613,7 @@ class Anmr():
                         if idy0 not in idx0_AtomsDelete:
                             idx0_AtomsDelete.append(idy0)
                         del orcaSJ.SParams[SParam]
-                        del orcaSJ.idx1Atoms[SParam]
+                        del orcaSJ.Element[SParam]
 
             # Delete orcaSJ orcaJCoups in acid_atoms_NoShow
             idx0_AtomsDelete.sort
@@ -764,7 +767,7 @@ class Anmr():
         """
         AD = self.avg_Data_AD
         Result: bool = AD.method_load_files()
-        self.avg_orcaSJ.idx1Atoms = AD.idx1Atoms
+        self.avg_orcaSJ.Element = AD.Element
         if isinstance(AD.ChemicalShifts, dict):
             self.avg_orcaSJ.ChemicalShits = AD.ChemicalShifts
             a, b = self.get_Anmrrc_linear()
@@ -772,7 +775,7 @@ class Anmr():
                 key: (value-b)/a for key, value in AD.ChemicalShifts.items()}
             self.avg_orcaSJ.ChemicalShits = {}
         elif isinstance(AD.ChemicalShifts, np.ndarray):
-            temp = {int(key): float(value)
+            temp = {AtomID(key): float(value)
                     for key, value, _ in AD.ChemicalShifts}
             a, b = self.get_Anmrrc_linear()
             self.avg_orcaSJ.SParams = {
@@ -793,11 +796,11 @@ class Anmr():
         """
         raise NotImplementedError("Under Construct")
 
-    def method_linear_orcaS(self, inSParams: dict[int, float]) -> dict[int, float]:
+    def method_linear_orcaS(self, inSParams: dict[AtomID, float]) -> dict[AtomID, float]:
 
         a, b = self.__AnmrParams.linear
-        outSParams: dict[int, float] = {key: a*value + b for key,
-                                        value in inSParams.items()}
+        outSParams: dict[AtomID, float] = {key: a*value + b for key,
+                                           value in inSParams.items()}
         return outSParams
 
     def method_save_avg_orcaSJ(self) -> None:
@@ -824,7 +827,7 @@ class Anmr():
             - orcaJ.out: Coupling constants
             - orcaA.out: Atom indices
         """
-        self.avg_Data_AD.idx1Atoms = self.avg_orcaSJ.idx1Atoms
+        self.avg_Data_AD.Element = self.avg_orcaSJ.Element
 
         self.avg_Data_AD.ChemicalShifts = self.method_linear_orcaS(
             self.avg_orcaSJ.SParams)
@@ -1082,9 +1085,9 @@ class Anmr():
             if (idx0 % 2) == 0:
                 self.nChemEqvs[int(x.split()[0])] = int(x.split()[1])
             else:
-                int_tmp: list[int] = []
+                int_tmp: list[AtomID] = []
                 for y in x.split():
-                    int_tmp.append(int(y))
+                    int_tmp.append(AtomID(int(y)))
                 self.NeighborChemEqvs[int(x.split()[0])] = int_tmp
 
         Magnetlines: list[str] = lines[int(len(lines)/2):len(lines)]
@@ -1093,9 +1096,9 @@ class Anmr():
             if (idx0 % 2) == 0:
                 self.nMagnetEqvs[int(x.split()[0])] = int(x.split()[1])
             else:
-                int_tmp: list[int] = []
+                int_tmp: list[AtomID] = []
                 for y in x.split():
-                    int_tmp.append(int(y))
+                    int_tmp.append(AtomID(int(y)))
                 self.NeighborMangetEqvs[int(x.split()[0])] = int_tmp
 
     def method_create_enso(self, in_np: npt.NDArray) -> None:
@@ -1251,11 +1254,11 @@ class OrcaSJ():
             idx1Atoms (dict[int, str]): Mapping of atom indices to atom names.
         """
         self.JCoups: npt.NDArray[np.float64]
-        self.SParams: dict[int, float] = {}
-        self.ChemicalShits: dict[int, float] = {}
-        self.Anisotropy: dict[int, float] = {}
+        self.SParams: dict[AtomID, float] = {}
+        self.ChemicalShits: dict[AtomID, float] = {}
+        self.Anisotropy: dict[AtomID, float] = {}
         self.CONFSerialNums: int
-        self.idx1Atoms: dict[int, str] = {}
+        self.Element: dict[AtomID, str] = {}
         self.linear: tuple[float, float]
 
     def method_load_anmrrc_linear(self, linear) -> None:
@@ -1420,11 +1423,12 @@ class OrcaSJ():
         for x in range(start_idx, end_idx+1):
             DataS.append(lines[x].rstrip())
 
-        self.idx1Atoms, self.Anisotropy, self.SParams = {}, {}, {}
+        self.Element, self.Anisotropy, self.SParams = {}, {}, {}
         for x in DataS:
-            self.idx1Atoms[int(x.split()[0])+1] = str(x.split()[1])
-            self.SParams[int(x.split()[0])+1] = float(x.split()[2])
-            self.Anisotropy[int(x.split()[0])+1] = float(x.split()[3])
+            idx1: AtomID = AtomID(int(x.split()[0]) + 1)
+            self.Element[idx1] = str(x.split()[1])
+            self.SParams[idx1] = float(x.split()[2])
+            self.Anisotropy[idx1] = float(x.split()[3])
         return True
 
     def method_save_orcaS(self) -> list:
@@ -1476,10 +1480,10 @@ class OrcaSJ():
             This method requires self.idx1Atoms and self.SParams to be properly initialized
             with matching lengths for correct operation.
         """
-        if len(self.idx1Atoms) == len(self.ChemicalShits):
+        if len(self.Element) == len(self.ChemicalShits):
             print(" ===== Print the Chemical Shift of Atoms =====")
             print("    coord  Element     Anisotropy")
-            for idx, Atom in self.idx1Atoms.items():
+            for idx, Atom in self.Element.items():
                 print(f'   {idx:>5d}', f'{Atom:>8s}', end="")
                 print(f'{self.ChemicalShits[idx]:>15.3f}')
             print("")
@@ -1549,10 +1553,10 @@ class Average_Directory(object):
         self._file_orcaS: Path
         self._file_orcaJ: Path = self._Dir / Path("orcaJ.out")  # nopep8
         self._file_orcaA: Path = self._Dir / Path("orcaA.out")  # nopep8
-        self.SParams: dict | npt.NDArray
-        self.ChemicalShifts: dict | npt.NDArray
+        self.SParams: dict[AtomID, float] | npt.NDArray
+        self.ChemicalShifts: dict[AtomID, float] | npt.NDArray
         self.JCoups: npt.NDArray
-        self.idx1Atoms: dict
+        self.Element: dict[AtomID, str]
 
     def method_print_file(self):
         """Print the file paths of ORCA A, S, and J files."""
@@ -1591,15 +1595,15 @@ class Average_Directory(object):
             # load the orcaA file
             import json
             with open(self._file_orcaA) as f:
-                self.idx1Atoms = json.loads(
+                self.Element = json.loads(
                     f.read(), object_pairs_hook=jsonKeys2int)
 
             # self.SParams = load_dict_orcaS(self.__file_orcaS)
             lines: list = open(self._file_orcaS, "r").readlines()
             if len(lines[0].split()) == 2:
-                Data: dict[int, float] = {}
+                Data: dict[AtomID, float] = {}
                 for x in lines:
-                    Data[int(x.split()[0])] = float(x.split()[1])
+                    Data[AtomID(int(x.split()[0]))] = float(x.split()[1])
                 self.ChemicalShifts = Data
             elif len(lines[0].split()) == 3:
                 self.ChemicalShifts = np.loadtxt(self._file_orcaS)
@@ -1660,7 +1664,7 @@ class Average_Directory(object):
 
         import json
         with open(self._file_orcaA, 'w') as f:
-            f.write(json.dumps(self.idx1Atoms))
+            f.write(json.dumps(self.Element))
 
         np.savetxt(self._file_orcaJ, self.JCoups, fmt="%10.5f")
 
