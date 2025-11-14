@@ -269,13 +269,13 @@ class Anmr():
 
         # anmr_nucinfo
         # idx1 and numbers of Chemical Equivalent
-        self.nChemEqvs: dict[int, int] = {}
+        self.nChemEqvs: dict[AtomID, AtomID] = {}
         # idx1 and neighbors index of Chemical Equivalent
-        self.NeighborChemEqvs: dict[int, list[AtomID]] = {}
+        self.NeighborChemEqvs: dict[AtomID, list[AtomID]] = {}
         # idx1 and numbers of Magnetic Equivalent
-        self.nMagnetEqvs: dict[int, int] = {}
+        self.nMagnetEqvs: dict[AtomID, AtomID] = {}
         # idx1 and neighbors index of Magnetic Equivalent
-        self.NeighborMangetEqvs: dict[int, list[AtomID]] = {}
+        self.NeighborMangetEqvs: dict[AtomID, list[AtomID]] = {}
 
         # For the data of Average Directory
         # self.avg_data: AD_Normal = AD_Normal(self.__Dir)
@@ -1081,23 +1081,25 @@ class Anmr():
         for idx0, x in enumerate(Chemlines):
             x: str = x.rstrip()
             if (idx0 % 2) == 0:
-                self.nChemEqvs[int(x.split()[0])] = int(x.split()[1])
+                self.nChemEqvs[AtomID(int(x.split()[0]))] = AtomID(
+                    int(x.split()[1]))
             else:
                 int_tmp: list[AtomID] = []
                 for y in x.split():
                     int_tmp.append(AtomID(int(y)))
-                self.NeighborChemEqvs[int(x.split()[0])] = int_tmp
+                self.NeighborChemEqvs[AtomID(int(x.split()[0]))] = int_tmp
 
         Magnetlines: list[str] = lines[int(len(lines)/2):len(lines)]
         for idx0, x in enumerate(Magnetlines):
             x: str = x.rstrip()
             if (idx0 % 2) == 0:
-                self.nMagnetEqvs[int(x.split()[0])] = int(x.split()[1])
+                self.nMagnetEqvs[AtomID(int(x.split()[0]))] = AtomID(
+                    int(x.split()[1]))
             else:
                 int_tmp: list[AtomID] = []
                 for y in x.split():
                     int_tmp.append(AtomID(int(y)))
-                self.NeighborMangetEqvs[int(x.split()[0])] = int_tmp
+                self.NeighborMangetEqvs[AtomID(int(x.split()[0]))] = int_tmp
 
     def method_create_enso(self, in_np: npt.NDArray) -> None:
         """Validate the enso data structure from an input numpy array.
@@ -1481,9 +1483,9 @@ class OrcaSJ():
         if len(self.Element) == len(self.ChemicalShits):
             print(" ===== Print the Chemical Shift of Atoms =====")
             print("    coord  Element     Anisotropy")
-            for idx, Atom in self.Element.items():
-                print(f'   {idx:>5d}', f'{Atom:>8s}', end="")
-                print(f'{self.ChemicalShits[idx]:>15.3f}')
+            for idx1, Element in self.Element.items():
+                print(f'   {idx1:>5d}', f'{Element:>8s}', end="")
+                print(f'{self.ChemicalShits[idx1]:>15.3f}')
             print("")
         else:
             raise ValueError("your orcaJ and orcaS is not fit each other")

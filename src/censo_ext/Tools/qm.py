@@ -5,7 +5,6 @@ from numba import njit
 import argparse
 from icecream import ic
 from cachier import cachier
-
 from censo_ext.anmr import Anmr
 type cplex = npt.NDArray[np.complex128]
 

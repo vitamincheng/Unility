@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from __future__ import annotations
 from scipy.interpolate import interp1d
 from typing import Self

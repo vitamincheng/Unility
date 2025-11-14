@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 from pointgroup import PointGroup
 import numpy as np
 import numpy.typing as npt

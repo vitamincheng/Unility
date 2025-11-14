@@ -14,8 +14,7 @@ import numpy.typing as npt
 from pathlib import Path
 from censo_ext.Tools.Parameter import ELEMENT_NAMES
 from censo_ext.Tools.xyzfile import GeometryXYZs
-from typing import NewType
-AtomID = NewType("AtomID", int)
+from censo_ext.Tools.utility import AtomID
 
 
 NAMES_ELEMENT: dict[str, int] = {
@@ -49,7 +48,7 @@ def atom2int(atom: str) -> int:
     return NAMES_ELEMENT[atom]
 
 
-def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[int]) -> tuple[dict[int, float], float]:
+def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_atom: list[int]) -> tuple[dict[int, float], float]:
     """
     Calculate Root-mean-square deviation from two sets of vectors.
 
@@ -60,7 +59,7 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[
 
     Returns:
         Tuple[dict,float]: A tuple containing:
-            - atom_square (dict): Dictionary mapping atom indices to their squared
+            - idx1_coord_square (dict): Dictionary mapping atom indices to their squared
               coordinate differences.
             - rmsd (float): Root-mean-square deviation between the two vectors.
 
@@ -74,17 +73,17 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx_atom: list[
     """
 
     diff: npt.NDArray[np.float64] = P - Q
-    idx_atomSquare: dict[int, float] = {}
+    idx1_coord_Square: dict[int, float] = {}
     coord_square_total: float = 0
-    for idx0, x in enumerate(idx_atom):
+    for idx0, x in enumerate(idx1_atom):
         coord_square: float = float((diff[idx0]**2).sum())
         # ic(coord_square)
         if __name__ == "__main__":
             print(f"{x:>5}", end=" ")
             print(f"{coord_square:>10.5f}")
-        idx_atomSquare[x] = coord_square
+        idx1_coord_Square[x] = coord_square
         coord_square_total += coord_square
-    return idx_atomSquare, float(np.sqrt(coord_square_total / P.shape[0]))
+    return idx1_coord_Square, float(np.sqrt(coord_square_total / P.shape[0]))
 
 
 def kabsch_rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_Atom: list[int],
@@ -209,12 +208,12 @@ def get_Coordinates(xyzFile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
          [ 0.0  1.0  0.0]]
     """
 
-    idx_Names: dict[int, str] = xyzFile.Sts[idx0].names
-    element: npt.NDArray[np.int64] = np.array(
-        [atom2int(atom) for atom in idx_Names.values()])
+    Names: dict[AtomID, str] = xyzFile.Sts[idx0].names
+    atomic_Number: npt.NDArray[np.int64] = np.array(
+        [atom2int(atom) for atom in Names.values()])
     V: npt.NDArray[np.float64] = np.array(
         xyzFile.Sts[idx0].coord, dtype=np.float64)
-    return element, V
+    return atomic_Number, V
 
 
 def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> tuple[dict[int, float], float]:
@@ -245,7 +244,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     idx_q -= 1
 
     # index of p_all_atoms and q_all_atoms is from 0 to n-1
-    # element
+    # atomic_Number
     p_all_atoms: npt.NDArray[np.int64]
     q_all_atoms: npt.NDArray[np.int64]
 
@@ -253,6 +252,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     # COORD
     p_all: npt.NDArray[np.float64]
     q_all: npt.NDArray[np.float64]
+
     p_all_atoms, p_all = get_Coordinates(xyzFile, idx_p)
     q_all_atoms, q_all = get_Coordinates(xyzFile, idx_q)
 
