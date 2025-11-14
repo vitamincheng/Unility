@@ -12,13 +12,14 @@ import copy
 import numpy as np
 import numpy.typing as npt
 from pathlib import Path
-import censo_ext.Tools.Parameter as Parameter
+from censo_ext.Tools.Parameter import ELEMENT_NAMES
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from typing import NewType
 AtomID = NewType("AtomID", int)
 
 
-NAMES_ELEMENT = {value: key for key, value in Parameter.ELEMENT_NAMES.items()}
+NAMES_ELEMENT: dict[str, int] = {
+    value: key for key, value in ELEMENT_NAMES.items()}
 
 
 def atom2str(atom: int) -> str:
@@ -31,7 +32,7 @@ def atom2str(atom: int) -> str:
     Returns:
         str: Atom type as string.
     """
-    return Parameter.ELEMENT_NAMES[atom]
+    return ELEMENT_NAMES[atom]
 
 
 def atom2int(atom: str) -> int:
