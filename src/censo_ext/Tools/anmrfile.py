@@ -7,9 +7,7 @@ import numpy as np
 import numpy.typing as npt
 from icecream import ic
 from pathlib import Path
-from censo_ext.Tools.utility import IsExist, IsExist_bool
-from typing import NewType
-AtomID = NewType("AtomID", int)
+from censo_ext.Tools.utility import IsExist, IsExist_bool, AtomID
 # from dataclasses import dataclass
 
 

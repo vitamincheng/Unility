@@ -7,8 +7,7 @@ import sys
 import numpy as np
 import numpy.typing as npt
 import copy
-from typing import NewType
-AtomID = NewType("AtomID", int)
+from censo_ext.Tools.utility import AtomID
 
 
 class Geometry():

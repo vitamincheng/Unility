@@ -4,6 +4,8 @@ from pathlib import Path
 import shutil
 import numpy as np
 
+from typing import NewType
+AtomID = NewType("AtomID", int)
 #
 # https://steam.oxxostudio.tw/category/python/library/shutil.html
 #
