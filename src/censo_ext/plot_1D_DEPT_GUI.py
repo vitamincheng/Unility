@@ -104,12 +104,14 @@ class diagram:
         self._limits: tuple[float, float] = args.end, args.start
         self._thr: dict[DEPT, float] = {
             DEPT._13C: 0.0, DEPT._90: 0.0, DEPT._135: 0.0, DEPT._135_down: 0.0}
-        self._Result: dict = {}
+        # index, and ppm
+        self._Result: dict[DEPT, dict[int, float]] = {}
         self._title = "Normal Mode"
         self._key: str = ""
         self._ax_selected: Axes
-        self._StAtoms: dict = {}
-        self._peaks: list = []  # index of peaks in Data
+        # index: numbers of Hyddrogen bonding to Atoms
+        self._nHydrogens_Atom: dict[int, list[int]] = {}
+        self._peaks: dict[int, int] = {}  # index of peaks in Data
         self.load_data()
         self.draw_curve()
         self.draw_x_axis(full=True)
@@ -121,7 +123,7 @@ class diagram:
         self.load_singlet_data(DEPT._135, 1)
         self.load_singlet_data(DEPT._135, -1)
 
-    def load_singlet_data(self, x: DEPT, phase: float):
+    def load_singlet_data(self, x: DEPT, phase: float) -> None:
         pdata = Path("pdata/1")
         dic, data = ng.bruker.read_pdata(
             str(self._directory / x.value / pdata))
@@ -130,7 +132,7 @@ class diagram:
         C.from_bruker(dic, data, udic)
         ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
         dic, data = ng.pipe.read(pipe_fid_filename)
-        data = data.real*phase  # type: ignore
+        data: npt.NDArray = data.real*phase  # type: ignore
         uc_1h: unit_conversion = ng.pipe.make_uc(dic, data)
         if phase == 1:
             self._data[x] = data
@@ -174,19 +176,29 @@ class diagram:
 
     def draw_status(self) -> None:
         if self._key == "t":
+            # display the Total numbers
             for x in [DEPT._13C, DEPT._90]:
                 self._ax_dict[x].set_title(
                     f"Threshold : {self._thr[x]:7.2f}\n", loc="right", x=1.05, y=0, fontsize=8)
             self._ax_dict[DEPT._135].set_title(
                 f"Threshold : {self._thr[DEPT._135]:7.2f}\n\
                 Threshold : {self._thr[DEPT._135_down]:7.2f}\n", loc="right", x=1.05, y=0, fontsize=8)
+
         if self._key == "d":
+            # display the Total numbers
             for x in [DEPT._13C, DEPT._90]:
                 self._ax_dict[x].set_title(
                     f"Total Numbers : {len(self._Result[x])}\n", loc="right", x=1.05, y=0, fontsize=8)
             self._ax_dict[DEPT._135].set_title(
                 f"Total Numbers : {len(self._Result[DEPT._135])}\n\
                 Total Numbers : {len(self._Result[DEPT._135_down])}\n", loc="right", x=1.05, y=0, fontsize=8)
+
+            # display the total Hydrogens
+            xmin, xmax = self._ax_dict[DEPT._13C].get_xlim()
+            ymin, ymax = self._ax_dict[DEPT._13C].get_ylim()
+            y: float = (ymax-ymin)*0.05
+            self._ax_dict[DEPT._13C].text(
+                xmin, y, f"Total Hydrogens : {sum([x[0] for x in self._nHydrogens_Atom.values()])}", ha="center", va="center", rotation=0)
 
     def clear_local_axes(self) -> None:
         for ax in self._ax_dict.values():
@@ -244,14 +256,15 @@ class diagram:
     def _save_file(self) -> None:
         out: list | npt.NDArray = []
 
-        print("#   ID             ppm    nHydrogens")
+        print("#   ID             ppm        Hydrogens     manual")
         for key, value in self._Result[DEPT._13C].items():
             print(
-                f"{key:6d} {float(value):>15.5f}        {self._StAtoms[key]:>3d}")
-            out.append([float(key), float(value), float(self._StAtoms[key])])
+                f"{key:6d} {float(value):>15.5f} {self._nHydrogens_Atom[key][0]:>12d} {self._nHydrogens_Atom[key][1]:>12d}")
+            out.append([float(key), float(value),
+                       int(self._nHydrogens_Atom[key][0]), int(self._nHydrogens_Atom[key][1])])
         out = np.array(out)
-        np.savetxt(peaks_fileName, out, fmt='%6d %15.5f %3d',
-                   header="   ID             ppm    nHydrogens", comments="#")
+        np.savetxt(peaks_fileName, out, fmt='%6d %15.5f %12d %12d',
+                   header="ID             ppm       nHydrogens     manual", comments="  # ")
         print(f" Saved the file to {peaks_fileName}")
 
     def _set_threshold(self) -> None:
@@ -279,37 +292,37 @@ class diagram:
 
     def draw_carbon_number(self) -> None:
 
-        for idx0, peak in enumerate(self._peaks):
+        for idx1, peak in self._peaks.items():
             height: float = self._data[DEPT._13C][int(peak)]
             ppm: float = self._uc_1h[DEPT._13C].ppm(peak)
             end, start = self._limits
             if ppm < end and ppm > start:
                 AX: Axes = self._ax_dict[DEPT._13C]
-                if self._StAtoms[idx0+1] == 0:
+                if self._nHydrogens_Atom[idx1][1] == 0:
+                    _COLOR = "k"
+                else:
+                    _COLOR = "r"
+
+                if self._nHydrogens_Atom[idx1][0] == 0:
                     AX.text(ppm, height*1.20,
-                            str("C"), ha="center", va="center", rotation=90)
-                elif self._StAtoms[idx0+1] == 1:
+                            str("C"), ha="center", va="center", rotation=90, color=_COLOR)
+                elif self._nHydrogens_Atom[idx1][0] == 1:
                     AX.text(ppm, height*1.20,
-                            "CH", ha="center", va="center", rotation=90)
+                            "CH", ha="center", va="center", rotation=90, color=_COLOR)
                 else:
                     AX.text(ppm, height*1.20,
-                            "CH"+rf'$_{str(self._StAtoms[idx0+1])}$', ha="center", va="center", rotation=90)
+                            "CH"+rf'$_{str(self._nHydrogens_Atom[idx1][0])}$', ha="center", va="center", rotation=90, color=_COLOR)
 
     def cal_st(self) -> None:
-        self._StAtoms = {
-            key: -1 for key, _ in self._Result[DEPT._13C].items()}
+        self._nHydrogens_Atom = {
+            key: [-1, 0] for key, _ in self._Result[DEPT._13C].items()}
         self.Compare_two_dict(DEPT._13C, DEPT._135, Label=3)
         self.Compare_two_dict(DEPT._13C, DEPT._90, Label=1)
         self.Compare_two_dict(DEPT._13C, DEPT._135_down, Label=2)
 
-        for key, value in self._StAtoms.items():
-            if value == -1:
-                self._StAtoms[key] = 0
-        # print the final data
-        print("#   ID             ppm    nHydrogens")
-        for key, value in self._Result[DEPT._13C].items():
-            print(
-                f"{key:6d} {float(value):>15.5f}        {self._StAtoms[key]:>3d}")
+        for key, value in self._nHydrogens_Atom.items():
+            if value[0] == -1:
+                self._nHydrogens_Atom[key][0] = 0
 
     def Compare_two_dict(self, CH1: DEPT, CH2: DEPT, Label: int) -> None:
         from censo_ext.Tools.spectra import find_nearest
@@ -317,31 +330,32 @@ class diagram:
             nearest_peak, idx0 = find_nearest(
                 list(self._Result[CH1].values()), x)
             if (nearest_peak-x) < 0.05:
-                self._StAtoms[idx0+1] = Label
+                self._nHydrogens_Atom[idx0+1][0] = Label
             else:
                 print("some peaks is more than 0.02 ppm")
                 print("  Exit and Close the program !!!")
                 ic()
                 exit(0)
 
-    def cal_singlet_ch(self, channel: DEPT):
-        thr: float = self._thr[channel]
-        data = self._data[channel]
-        uc_1h: unit_conversion = self._uc_1h[channel]
+    def cal_singlet_ch(self, ch: DEPT) -> None:
+        thr: float = self._thr[ch]
+        data = self._data[ch]
+        uc_1h: unit_conversion = self._uc_1h[ch]
         from scipy.signal import find_peaks
         peaks, _ = find_peaks(data, height=thr, width=1)
 
         # add markers for peak positions
         Result: dict[int, float] = dict()
 
-        for n, peak in enumerate(peaks):
+        for n, peak in enumerate(peaks, 1):
             ppm: float = uc_1h.ppm(peak)
-            Result[n+1] = ppm
-        self._Result[channel] = Result
-        if channel == DEPT._13C:
-            self._peaks = peaks
+            Result[n] = ppm
+        self._Result[ch] = Result
+        if ch == DEPT._13C:
+            for n, peak in enumerate(peaks, 1):
+                self._peaks[n] = peak
 
-    def on_button_release(self, event):
+    def on_button_release(self, event) -> None:
         from matplotlib.backend_bases import MouseButton
         toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
         if self._key == "t" and toolbar_mode == "zoom rect":
@@ -360,7 +374,7 @@ class diagram:
             self.draw_status()
             self._fig.canvas.draw_idle()
 
-    def on_button_press(self, event):
+    def on_button_press(self, event) -> None:
         from matplotlib.backend_bases import MouseButton
         toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
         if self._key == "t" and toolbar_mode == "zoom rect":
@@ -379,6 +393,26 @@ class diagram:
             self.draw_x_axis()
             self.draw_status()
             event.inaxes.hlines(self._button_xy[1], end, start, colors='k', linestyles="dashed", linewidth=1)  # type: ignore # nopep8
+            self._fig.canvas.draw_idle()
+
+        elif event.inaxes is self._ax_dict[DEPT._13C] and self._key == "d" and event.button == MouseButton.LEFT:
+            x = event.xdata
+            xmin, xmax = self._ax_dict[DEPT._13C].get_xlim()
+            xscale: float = abs(xmax-xmin)*0.02
+            for key, ppm in self._Result[DEPT._13C].items():
+                if x-xscale < ppm < x+xscale:
+                    self._nHydrogens_Atom[key][1] = 1
+                    if self._nHydrogens_Atom[key][0] == 3:
+                        self._nHydrogens_Atom[key][0] = 0
+                    else:
+                        self._nHydrogens_Atom[key][0] += 1
+
+            self.clear_local_axes()
+            self.draw_curve()
+            self.draw_title()
+            self.draw_x_axis()
+            self.draw_status()
+            self.draw_carbon_number()
             self._fig.canvas.draw_idle()
 
     def on_mouse_motion(self, event) -> None:
@@ -430,7 +464,7 @@ class diagram:
         self.draw_title()
         self._fig.canvas.draw_idle()
 
-    def connect(self):
+    def connect(self) -> None:
         """Connect all event handlers."""
         self._cID_key: int = self._fig.canvas.mpl_connect(
             'key_press_event', self.on_key_press)
@@ -441,7 +475,7 @@ class diagram:
         self._cID_button_release: int = self._fig.canvas.mpl_connect(
             'button_release_event', self.on_button_release)
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         self._fig.canvas.mpl_disconnect(self._cID_key)
         self._fig.canvas.mpl_disconnect(self._cID_button_press)
         self._fig.canvas.mpl_disconnect(self._cID_button_release)
@@ -463,7 +497,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     plt.ion()
 
     import platform
-    _system = platform.system()
+    _system: str = platform.system()
     if _system == "Linux":
         directory: Path = Path(
             "/home/vitamin/Simulation/38.Ergocalciferol(Vitamin_D2)/00.Spectra/bmse000510/nmr/set01")
