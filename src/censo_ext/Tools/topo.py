@@ -6,6 +6,7 @@ import censo_ext.Tools.ml4nmr as ml4nmr
 from graph import Graph
 from ase.atoms import Atoms
 from pathlib import Path
+from censo_ext.Tools.utility import AtomID
 
 
 class Topo():
@@ -34,7 +35,7 @@ class Topo():
         self.__neighbors: dict[int, npt.NDArray[np.int64]]
         self.__mol, self.__neighbors = ml4nmr.read_mol_neighbors(
             self.__fileName, check)
-        self.idx1_Hydrogen_atom: list[int] = [idx1 for idx1,
+        self.idx1_Hydrogen_atom: list[AtomID] = [AtomID(idx1) for idx1,
                            i in enumerate(self.__mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
 
     def get_cn(self) -> dict[int, int]:
@@ -110,7 +111,7 @@ class Topo():
         """
         idx_p, idx_q = args.bond_broken
         idx_neighbors: dict[int, npt.NDArray[np.int64]] = self.__neighbors
-        idx1_Hydrogen_atoms: list[int] = self.idx1_Hydrogen_atom
+        idx1_Hydrogen_atoms: list[AtomID] = self.idx1_Hydrogen_atom
         idx1_Hydrogen_atoms.append(idx_q)
         NeighborsAtoms_not_H: dict[int, npt.NDArray[np.int64]] = {}
         for idx in idx_neighbors.keys():
@@ -187,7 +188,7 @@ class Topo():
         idx_neighbors: dict[int, npt.NDArray[np.int64]
                             ] = self.__neighbors.copy()
         # neighbors is removed all H-atoms
-        idx1_Hydorgen_atoms: list[int] = self.idx1_Hydrogen_atom
+        idx1_Hydorgen_atoms: list[AtomID] = self.idx1_Hydrogen_atom
         for key, value in idx_neighbors.copy().items():
             if key in idx1_Hydorgen_atoms:
                 del idx_neighbors[key]

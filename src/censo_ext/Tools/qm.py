@@ -7,10 +7,12 @@ from icecream import ic
 from cachier import cachier
 from censo_ext.anmr import Anmr
 type cplex = npt.NDArray[np.complex128]
+type np_uint = npt.NDArray[np.uint8]
+type np_float = npt.NDArray[np.float64]
 
 
 @cachier(separate_files=True)
-def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.complex128]]:
+def Pauil_matrix(nspins: int) -> tuple[cplex, cplex]:
     """
     Create Pauli matrices for a given number of spins.
 
@@ -59,7 +61,7 @@ def Pauil_matrix(nspins: int) -> tuple[npt.NDArray[np.complex128], npt.NDArray[n
 
 
 @cachier(separate_files=True)
-def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.uint8]:
+def F_matrix(nspins: int, idx0_nspins: int) -> np_uint:
     """
     Generate interaction matrix F for spin systems.
 
@@ -75,7 +77,7 @@ def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.uint8]:
     """
 
     n: int = 2 ** nspins
-    F: npt.NDArray[np.uint8] = np.zeros((n, n), dtype=np.uint8)
+    F: np_uint = np.zeros((n, n), dtype=np.uint8)
     idx: int = int(2**(nspins-idx0_nspins-1))
     # idx = ~int(2**idx0_nspins)+1
     for i in range(n - 1):
@@ -87,7 +89,7 @@ def F_matrix(nspins: int, idx0_nspins: int) -> npt.NDArray[np.uint8]:
 
 
 @cachier(separate_files=True)
-def T_matrix(nspins: int) -> npt.NDArray[np.uint8]:
+def T_matrix(nspins: int) -> np_uint:
     """
     Generate transition matrix T for spin systems.
 
@@ -103,7 +105,7 @@ def T_matrix(nspins: int) -> npt.NDArray[np.uint8]:
     """
 
     n: int = 2 ** nspins
-    T: npt.NDArray[np.uint8] = np.zeros((n, n), dtype=np.uint8)
+    T: np_uint = np.zeros((n, n), dtype=np.uint8)
     for i in range(n - 1):
         for j in range(i + 1, n):
             if bin(i ^ j).count('1') == 1:
@@ -112,7 +114,7 @@ def T_matrix(nspins: int) -> npt.NDArray[np.uint8]:
     return T
 
 
-def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArray[np.complex128], npt.NDArray[np.uint8]]:
+def qm_parameter(v: list[float], J: np_float) -> tuple[cplex, np_uint]:
     """
     Calculate the Hamiltonian and transition matrix for a spin system.
 
@@ -130,20 +132,20 @@ def qm_parameter(v: list[float], J: npt.NDArray[np.float64]) -> tuple[npt.NDArra
     """
 
     L, Lproduct = Pauil_matrix(len(v))
-    T: npt.NDArray[np.uint8] = T_matrix(len(v))
+    T: np_uint = T_matrix(len(v))
 
     Lz = L[2]  # array of Lz operators
-    H: npt.NDArray[np.complex128] = np.tensordot(
+    H: cplex = np.tensordot(
         v, Lz, axes=1).astype(np.complex128)
     # ic(H)
 
-    scalars: npt.NDArray[np.float64] = 0.5 * J
+    scalars: np_float = 0.5 * J
     H += np.tensordot(scalars, Lproduct, axes=2)
 
     return H, T
 
 
-def qm_full(v: list[float], J: npt.NDArray[np.float64], args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_full(v: list[float], J: np_float, args: argparse.Namespace) -> list[tuple[float, float]]:
     """
     Calculate full spin system spectrum using quantum mechanical approach.
 
@@ -166,8 +168,8 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], args: argparse.Namespace
 
     H, T = qm_parameter(v, J)
 
-    E: npt.NDArray[np.float64]
-    V: npt.NDArray[np.complex128 | np.float64]
+    E: np_float
+    V: cplex | np_float
 
     E, V = np.linalg.eigh(H)
     if args.verbose:
@@ -178,17 +180,17 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], args: argparse.Namespace
         np.savetxt("eigenValue.out", E.real, fmt="%6.2f")
         np.savetxt("eigenVector.out", V.real, fmt="%6.2f")
     V = V.real
-    I_np: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
+    I_np: np_float = np.square(V.T.dot(T.dot(V)))
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
-    I_upper: npt.NDArray[np.float64] = np.triu(I_np)
-    E_matrix: npt.NDArray[np.float64] = np.abs(E[:, np.newaxis] - E)
-    E_upper: npt.NDArray[np.float64] = np.triu(E_matrix)
-    combo: npt.NDArray[np.float64] = np.stack([E_upper, I_upper])
-    iv: npt.NDArray[np.float64] = combo.reshape(2, I_np.shape[0] ** 2).T
+    I_upper: np_float = np.triu(I_np)
+    E_matrix: np_float = np.abs(E[:, np.newaxis] - E)
+    E_upper: np_float = np.triu(E_matrix)
+    combo: np_float = np.stack([E_upper, I_upper])
+    iv: np_float = combo.reshape(2, I_np.shape[0] ** 2).T
 
     # an arbitrary cutoff where peaks below this intensity are filtered out of the solution
-    peaklist: npt.NDArray[np.float64] = iv[iv[:, 1] >= args.cutoff]
+    peaklist: np_float = iv[iv[:, 1] >= args.cutoff]
     if args.verbose:
         ic(I_upper)
         ic(E_matrix)
@@ -200,7 +202,7 @@ def qm_full(v: list[float], J: npt.NDArray[np.float64], args: argparse.Namespace
     return list(zip(freq, intensit))
 
 
-def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_partial(v: list[float], J: np_float, idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
     """
     Calculate partial spin system spectrum for a specific spin.
 
@@ -224,12 +226,12 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, args: ar
         raise ValueError("Your idx0_nspins is Error")
 
     H, T = qm_parameter(v, J)
-    F: npt.NDArray[np.uint8] = F_matrix(nspins, idx0_nspins)
+    F: np_uint = F_matrix(nspins, idx0_nspins)
 
     F += F.T
     F = F*T
-    E: npt.NDArray[np.float64]
-    V: npt.NDArray[np.complex128 | np.float64]
+    E: np_float
+    V: cplex | np_float
 
     E, V = np.linalg.eigh(H)
 
@@ -239,22 +241,22 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, args: ar
         ic(E, V)
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
-    I_np: npt.NDArray[np.float64] = np.square(V.T.dot(T.dot(V)))
-    IF: npt.NDArray[np.float64] = np.square(V.T.dot(F.dot(V)))
-    I_upper: npt.NDArray[np.float64] = np.triu(I_np*IF)
+    I_np: np_float = np.square(V.T.dot(T.dot(V)))
+    IF: np_float = np.square(V.T.dot(F.dot(V)))
+    I_upper: np_float = np.triu(I_np*IF)
     if args.verbose:
         ic(I_np)
         ic(IF)
         ic(I_np*IF)
 
-    E_matrix: npt.NDArray[np.float64] = np.abs(E[:, np.newaxis] - E)
+    E_matrix: np_float = np.abs(E[:, np.newaxis] - E)
 
-    E_upper: npt.NDArray[np.float64] = np.triu(E_matrix)
+    E_upper: np_float = np.triu(E_matrix)
 
-    combo: npt.NDArray[np.float64] = np.stack([E_upper, I_upper])
-    iv: npt.NDArray[np.float64] = combo.reshape(2, I_np.shape[0] ** 2).T
-    thr: np.float64 = np.max(iv[:, 1])*args.cutoff
-    peaklist: npt.NDArray[np.float64] = iv[iv[:, 1] >= thr]
+    combo: np_float = np.stack([E_upper, I_upper])
+    iv: np_float = combo.reshape(2, I_np.shape[0] ** 2).T
+    thr: np_float = np.max(iv[:, 1])*args.cutoff
+    peaklist: np_float = iv[iv[:, 1] >= thr]
     if args.verbose:
         ic(E_matrix)
         ic(iv)
@@ -266,7 +268,7 @@ def qm_partial(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, args: ar
 
 
 def print_plot(inAnmr: Anmr, in_plist: list[tuple[float, float]], dpi: int,
-               args: argparse.Namespace, Active_range: int) -> npt.NDArray[np.float64]:
+               args: argparse.Namespace, Active_range: int) -> np_float:
     """
     Generate and save a plot of the NMR spectrum.
 
@@ -283,7 +285,7 @@ def print_plot(inAnmr: Anmr, in_plist: list[tuple[float, float]], dpi: int,
     Returns:
         npt.NDArray: Array containing x and y coordinates of the plot data.
     """
-    plist: npt.NDArray[np.float64] = np.array(in_plist)
+    plist: np_float = np.array(in_plist)
     plist.T[0] = plist.T[0] / args.mf
     a, b = inAnmr.get_Anmrrc_linear()
     plist.T[0] = a*plist.T[0]+b
@@ -301,7 +303,7 @@ def print_plot(inAnmr: Anmr, in_plist: list[tuple[float, float]], dpi: int,
     lw: float = args.lw * 2 / 1000
     lw_points: int = int((args.end - args.start) * dpi)+1
 
-    xy_curve: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]] = \
+    xy_curve: tuple[np_float, np_float] = \
         mpl_plot(Normal_plist, lw=lw, limits=limits, lw_points=lw_points)
     from censo_ext.Tools.utility import save_simulation_spectra_file
     save_simulation_spectra_file(args.out, np.vstack(xy_curve).T)
@@ -309,7 +311,7 @@ def print_plot(inAnmr: Anmr, in_plist: list[tuple[float, float]], dpi: int,
 
 
 def mpl_plot(plist: list[tuple[float, float]], limits: tuple[float, float], lw=1.0, lw_points=200_000) \
-        -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+        -> tuple[np_float, np_float]:
     """
     Generate a plot using lorentzian lineshape for NMR spectrum.
 
@@ -335,13 +337,13 @@ def mpl_plot(plist: list[tuple[float, float]], limits: tuple[float, float], lw=1
     else:
         l_limit: float = plist[0][0] - 50
         r_limit: float = plist[-1][0] + 50
-    x: npt.NDArray[np.float64] = np.linspace(
+    x: np_float = np.linspace(
         float(l_limit), float(r_limit), lw_points).astype(np.float64)
-    y: npt.NDArray[np.float64] = add_lorentzians(x, plist, lw)
+    y: np_float = add_lorentzians(x, plist, lw)
     return x, y
 
 
-def add_lorentzians(linspace: npt.NDArray[np.float64], plist: list[tuple[float, float]], lw: float) -> npt.NDArray[np.float64]:
+def add_lorentzians(linspace: np_float, plist: list[tuple[float, float]], lw: float) -> np_float:
 
     for freq, intensit in plist:
         try:
@@ -352,12 +354,12 @@ def add_lorentzians(linspace: npt.NDArray[np.float64], plist: list[tuple[float, 
 
 
 @njit
-def lorentz(linspace: npt.NDArray[np.float64], freq: float, Intensity: float, lw: float) -> npt.NDArray[np.float64]:
+def lorentz(linspace: np_float, freq: float, Intensity: float, lw: float) -> np_float:
     scaling_factor: float = 0.5 / lw
     return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (linspace - freq) ** 2))
 
 
-def qm_base(v: list[float], J: npt.NDArray[np.float64], idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_base(v: list[float], J: np_float, idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
     """
     Base quantum mechanical calculation function for spin systems.
 

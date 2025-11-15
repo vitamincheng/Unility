@@ -5,7 +5,7 @@ import numpy.typing as npt
 from censo_ext.Tools.xyzfile import Geometry
 
 
-def method_get_point_group(Sts: list[Geometry], idx: int, Hydrogen: bool) -> str:
+def method_get_point_group(Sts: list[Geometry], idx0: int, hasHydrogen: bool) -> str:
     """
     Determine the point group symmetry for a specified molecular geometry.
 
@@ -34,15 +34,15 @@ def method_get_point_group(Sts: list[Geometry], idx: int, Hydrogen: bool) -> str
     pos: npt.NDArray[np.float64]
     sym: npt.NDArray[np.float64]
 
-    if not Hydrogen:
-        idx0_names: list[int] = [key-1 for key, value in Sts[idx].names.items()
-                                 if value != 'H']
+    if not hasHydrogen:
+        idx0_AtomID: list[int] = [key-1 for key, value in Sts[idx0].names.items()
+                                  if value != 'H']
 
-        pos = np.array(Sts[idx].coord)[idx0_names]
-        sym = np.array(list(Sts[idx].names.values()))[idx0_names]
+        pos = np.array(Sts[idx0].coord)[idx0_AtomID]
+        sym = np.array(list(Sts[idx0].names.values()))[idx0_AtomID]
 
     else:
-        pos = np.array([a.tolist() for a in Sts[idx].coord])
-        sym = np.array([a for a in Sts[idx].names.values()])
+        pos = np.array([a.tolist() for a in Sts[idx0].coord])
+        sym = np.array([a for a in Sts[idx0].names.values()])
 
     return PointGroup(pos, sym).get_point_group()
