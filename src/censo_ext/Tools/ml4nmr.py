@@ -9,7 +9,7 @@ from ase.atoms import Atoms
 from ase.neighborlist import NeighborList
 import numpy as np
 import numpy.typing as npt
-from censo_ext.Tools.utility import IsExist
+from censo_ext.Tools.utility import AtomID, IsExist
 from ase.data import covalent_radii
 custom_radii: npt.NDArray[np.float64] = covalent_radii.copy()
 custom_radii[3] -= 0.15   # reduce radius of Li
@@ -45,7 +45,7 @@ covalent_rad_2009: npt.NDArray[np.float64] = np.array([
 covalent_rad_d3 = 4.0 / 3.0 * covalent_rad_2009
 
 
-def read_mol_neighbors(DirFileName: Path | str, check: bool = True) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]]]:
+def read_mol_neighbors(DirFileName: Path | str, check: bool = True) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]]]:
     """Read molecule from .xyz file and return atoms object with neighbor list.
 
     Args:
@@ -90,23 +90,23 @@ def read_mol_neighbors(DirFileName: Path | str, check: bool = True) -> tuple[Ato
     # build neighbor list and write list of neighboring atoms to the dict neighbors
     nl: NeighborList = neighborlist.build_neighbor_list(
         mol, cutoffs, self_interaction=False, bothways=True)
-    idx1_neighbors: dict[int, npt.NDArray[np.int64]] = {}
-    for idx in range(len(mol)):
+    idx1_neighbors: dict[AtomID, npt.NDArray[np.int64]] = {}
+    for idx0 in range(len(mol)):
         # nl.get_neighbors(i) returns [0]: indices and [1]: offsets
-        indices: npt.NDArray[np.int64] = nl.get_neighbors(idx)[0]
+        indices: npt.NDArray[np.int64] = nl.get_neighbors(idx0)[0]
         # add 1 to key and to value to start counting of atoms at 1
-        idx1_neighbors[idx+1] = indices+int(1)
+        idx1_neighbors[AtomID(idx0+1)] = indices+int(1)
 
         # exit if an H atom has not exactly 1 neighbor
-        if check is True and mol.get_atomic_numbers()[idx] == 1 and len(idx1_neighbors[idx+1]) != 1:  # type: ignore # nopep8
-            print(f"  ERROR: H atom {idx+1} don't just have one bond !!! File in: {DirFileName}")  # nopep8
+        if check is True and mol.get_atomic_numbers()[idx0] == 1 and len(idx1_neighbors[idx0+1]) != 1:  # type: ignore # nopep8
+            print(f"  ERROR: H atom {idx0+1} don't just have one bond !!! File in: {DirFileName}")  # nopep8
             print("  Exit and close the program !!!")
             exit(1)
 
     return mol, idx1_neighbors
 
 
-def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conformers.xyz")) -> tuple[Atoms | list[Atoms], dict[int, npt.NDArray[np.int64]], dict[int, int]]:
+def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conformers.xyz")) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]], dict[AtomID, int]]:
     """Read molecule and calculate bond orders for carbon atoms.
 
     This function reads molecular coordinates from an XYZ file and determines
@@ -136,18 +136,18 @@ def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conforme
     # read the .xyz coordinates from the molecular structures
     DirfileName = Path(DirfileName)
     mol: Atoms | list[Atoms]
-    idx1_neighbors: dict[int, npt.NDArray[np.int64]]
+    idx1_neighbors: dict[AtomID, npt.NDArray[np.int64]]
     mol, idx1_neighbors = read_mol_neighbors(DirfileName)
 
-    idx_H_atoms: list[int] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
-    idx_C_atoms: list[int] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "C"]  # type: ignore # nopep8
-    idx1_BondOrder: dict[int, int] = {}
-    for idx in idx1_neighbors.keys():
+    idx1_H_atoms: list[int] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
+    idx1_C_atoms: list[int] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "C"]  # type: ignore # nopep8
+    idx1_BondOrder: dict[AtomID, int] = {}
+    for idx1 in idx1_neighbors.keys():
         count: int = 0
-        for idy in idx1_neighbors[idx]:
-            if idy in idx_H_atoms:
+        for idy in idx1_neighbors[idx1]:
+            if idy in idx1_H_atoms:
                 count = count + 1
-        if idx in idx_C_atoms:
-            idx1_BondOrder[idx] = count
+        if idx1 in idx1_C_atoms:
+            idx1_BondOrder[idx1] = count
 
     return mol, idx1_neighbors, idx1_BondOrder

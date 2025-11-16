@@ -217,7 +217,7 @@ def normalize_peaklist(peaklist, nIntegrals: int) -> list[tuple[float, float]]:
     n : int or float (optional)
         total intensity to normalize to (default = 1).
     """
-    peaks = np.array(peaklist)
+    peaks: npt.NDArray[np.float64] = np.array(peaklist)
     freq, intensit = peaks.T[0], peaks.T[1]
     intensit = intensit*nIntegrals / np.sum(intensit)
     return list(zip(freq, intensit))
@@ -301,7 +301,7 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
 
 
 def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
-    -> tuple[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[AtomID]],
+    -> tuple[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[int]],
              int, int, argparse.Namespace]:
     """Preprocess spin system data for NMR analysis based on active nuclear element.
 
@@ -389,7 +389,7 @@ def preprocess_spin_system(inAnmr: Anmr, args: argparse.Namespace) \
     return (inSParams, inJCoups, inHydrogen), Active_range, dpi, args  # type: ignore # nopep8
 
 
-def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFile: Path) -> tuple[list[AtomID], int, int]:
+def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFile: Path) -> tuple[list[int], int, int]:
     """Process carbon spin system data.
 
     Args:
@@ -400,14 +400,15 @@ def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFil
     Returns:
         tuple[list[int], int, int]: Hydrogen counts, Active range, and DPI values
     """
-    from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
-    *_, bond_order = read_mol_neighbors_bond_order(
-        inAnmr.get_Dir() / inFile)
 
     # For C/CH/CH2/CH3 from 0 1 2 3 to 1 2 3 4 for Carbon spectra
     # Convert bond order values to hydrogen counts (add 1 to each value)
-    inHydrogen: list[AtomID] = [AtomID(value+1)
-                                for value in bond_order.values()]
+    from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
+    *_, idx1_bond_order = read_mol_neighbors_bond_order(
+        inAnmr.get_Dir() / inFile)
+    inHydrogen: list[int] = [(value+1)
+                             for value in idx1_bond_order.values()]
+
     Active_range = int(200*0.1)
     if not args.lw:
         args.lw = 20
@@ -419,7 +420,7 @@ def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFil
     return inHydrogen, Active_range, dpi
 
 
-def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFile: Path) -> tuple[list[AtomID], int, int]:
+def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFile: Path) -> tuple[list[int], int, int]:
     """Process hydrogen spin system data.
 
     Args:
@@ -430,7 +431,7 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
     Returns:
         tuple[list[int], int, int]: Hydrogen counts, Active range, and DPI values
     """
-    idx1_nMagEqvHydrogens: dict[AtomID, AtomID] = {}
+    idx1_nMagEqvHydrogens: dict[AtomID, int] = {}
     for key in inAnmr.avg_orcaSJ.Element.keys():
         idx1_nMagEqvHydrogens[key] = inAnmr.nMagnetEqvs[key]
 
@@ -441,7 +442,7 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
             del idx1_nMagEqvHydrogens[AtomID(y)]
 
     # Extract hydrogen counts for each equivalent group
-    inHydrogen: list[AtomID] = [
+    inHydrogen: list[int] = [
         value for value in idx1_nMagEqvHydrogens.values()]
 
     Active_range = int(20*0.1)
@@ -455,7 +456,7 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
     return inHydrogen, Active_range, dpi
 
 
-def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64],  list[AtomID]], idx0_ab_group_sets: list[set[int]], mat_filter_multi: npt.NDArray[np.uint8], inAnmr: Anmr, args: argparse.Namespace) -> tuple[list[int], list[list[tuple[float, float]]]]:
+def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64],  list[int]], idx0_ab_group_sets: list[set[int]], mat_filter_multi: npt.NDArray[np.uint8], inAnmr: Anmr, args: argparse.Namespace) -> tuple[list[int], list[list[tuple[float, float]]]]:
     """Process QM hydrogen spin system data.
 
     Args:
@@ -555,7 +556,7 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
     return idx0_peaks_range, accPeaks
 
 
-def _process_qm_carbon_spin_system(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[AtomID]], inAnmr: Anmr) -> list[list[tuple[float, float]]]:
+def _process_qm_carbon_spin_system(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[int]], inAnmr: Anmr) -> list[list[tuple[float, float]]]:
     """Process QM carbon spin system data.
 
     Args:
@@ -606,8 +607,8 @@ def _process_qm_json_spin_system(inAnmr: Anmr, args: argparse.Namespace) -> tupl
     return idx0_peaks_range, accPeaks
 
 
-def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[AtomID]], inAnmr: Anmr, args: argparse.Namespace) \
-        -> tuple[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[AtomID]], list[set[int]], npt.NDArray[np.uint8]]:
+def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[int]], inAnmr: Anmr, args: argparse.Namespace) \
+        -> tuple[tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[int]], list[set[int]], npt.NDArray[np.uint8]]:
     """Process AB quartet spin systems for NMR spectrum simulation.
 
     This function identifies and categorizes spin systems into AB quartets and multiplets
@@ -655,7 +656,8 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
 
             if np.sum(inSParams.astype(bool)*inHydrogen) <= args.mss:
                 # if len(inSParams*inHydrogen) <= args.mss:
-                inJCoups = copy.deepcopy(inJCoups_origin)
+                inJCoups: npt.NDArray[np.float64] = copy.deepcopy(
+                    inJCoups_origin)
 
                 # Step 1: Filter out small coupling constants based on threshold
                 # Delete Too Small JCoups J = args.lw*(-0.3) ~ args.lw*(0.3) use matrix Filter
@@ -675,7 +677,7 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
                         inSParams = np.insert(inSParams, idx, inSParams[idx])
                         inJCoups = np.insert(inJCoups, idx, inJCoups[idx], axis=1)  # nopep8
                         inJCoups = np.insert(inJCoups, idx, inJCoups[idx], axis=0)  # nopep8
-                inHydrogen: list[AtomID] = [AtomID(1)]*len(inSParams)
+                inHydrogen: list[int] = [1]*len(inSParams)
                 mat_filter_low_factor = np.ones(
                     (inSParams.size, inSParams.size), dtype=np.uint8)
                 np.fill_diagonal(mat_filter_low_factor, 0)
@@ -730,10 +732,10 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
                 # if only one negative Jcoups in one column, adde the largest of positive JCoups of the column
                 for idx0, x in enumerate(mat_filter_ab_quartet):
                     a = inJCoups[idx0][x.astype(bool)]
-                    nPositives = np.argwhere(a > 0)
-                    nNegatives = np.argwhere(a < 0)
+                    nPositives: npt.NDArray[np.intp] = np.argwhere(a > 0)
+                    nNegatives: npt.NDArray[np.intp] = np.argwhere(a < 0)
                     if len(nPositives) == 0 and len(nNegatives) >= 1:
-                        b = np.argmax(inJCoups[idx0])
+                        b: np.intp = np.argmax(inJCoups[idx0])
                         mat_filter_ab_quartet[idx0][b] = 1
                         mat_filter_ab_quartet[b][idx0] = 1
 
@@ -911,7 +913,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
     # preprocessing_spin_system
     inParameter: tuple[npt.NDArray[np.float64],
-                       npt.NDArray[np.float64], list[AtomID]]
+                       npt.NDArray[np.float64], list[int]]
     inParameter, Active_range, dpi, args = preprocess_spin_system(
         inAnmr=inAnmr, args=args)
 

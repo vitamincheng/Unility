@@ -136,7 +136,7 @@ class Anmrrc():
             Res += f"{x[0]:<d}  {x[1]:<9.2f} {x[2]:<6.1f} {x[3]:>2d}\n"
         return Res
 
-    def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFile: Path | str) -> list[int]:
+    def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFile: Path | str) -> list[AtomID]:
         """
         Get the list of hydrogen atom indices to be removed based on acid atom settings.
 
@@ -175,17 +175,17 @@ class Anmrrc():
                                         for i in self.acid_atoms_NoShow]
         from censo_ext.Tools.ml4nmr import read_mol_neighbors
         mol, neighbors = read_mol_neighbors(DirFile)
-        acid_atoms_NoShowRemove: list[int] = []
+        acid_atoms_NoShowRemove: list[AtomID] = []
         for idx1, x in enumerate(mol, 1):
             for y in acid_atoms_NoShow:
                 if x.symbol == y:  # type: ignore
-                    acid_atoms_NoShowRemove.append(idx1)
+                    acid_atoms_NoShowRemove.append(AtomID(idx1))
         NoShow_Remove_Group: npt.NDArray[np.int64] = np.array(
             [], dtype=np.int64)
         for x in acid_atoms_NoShowRemove:
             NoShow_Remove_Group = np.concatenate(
                 (NoShow_Remove_Group, neighbors[x]), axis=None)
-        idx1_H_atom: list[int] = [idx1 for idx1,
+        idx1_H_atom: list[AtomID] = [idx1 for idx1,
                                  i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
         return [x for x in NoShow_Remove_Group if x in idx1_H_atom]
 
@@ -269,11 +269,11 @@ class Anmr():
 
         # anmr_nucinfo
         # idx1 and numbers of Chemical Equivalent
-        self.nChemEqvs: dict[AtomID, AtomID] = {}
+        self.nChemEqvs: dict[AtomID, int] = {}
         # idx1 and neighbors index of Chemical Equivalent
         self.NeighborChemEqvs: dict[AtomID, list[AtomID]] = {}
         # idx1 and numbers of Magnetic Equivalent
-        self.nMagnetEqvs: dict[AtomID, AtomID] = {}
+        self.nMagnetEqvs: dict[AtomID, int] = {}
         # idx1 and neighbors index of Magnetic Equivalent
         self.NeighborMangetEqvs: dict[AtomID, list[AtomID]] = {}
 
@@ -307,7 +307,7 @@ class Anmr():
     def get_Anmrrc_linear(self) -> tuple[float, float]:
         return self.__AnmrParams.linear
 
-    def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFile: Path | str = Path("crest_conformers.xyz")) -> list[int]:
+    def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFile: Path | str = Path("crest_conformers.xyz")) -> list[AtomID]:
         """
         Get the list of hydrogen atom indices to be removed based on acid atom settings.
 
@@ -518,7 +518,7 @@ class Anmr():
         else:
             print(" ===== Update the equivalent of SParams and JCoups =====")
 
-            Atoms: list[int] = [
+            Atoms: list[AtomID] = [
                 x for x in self.orcaSJ[0].Element.keys()]
             AtomsKeep: npt.NDArray[np.int64] = np.array(Atoms)
             AtomsEqvKeep: npt.NDArray[np.int64] = AtomsKeep.copy()
@@ -583,10 +583,10 @@ class Anmr():
                     del orcaSJ.SParams[x]
 
             # Delete Equivalent Atom of orcaJCoups
-            AtomsDelete2idx0: dict[int, int] = {}
+            AtomsDelete2idx0: dict[AtomID, int] = {}
             for idx0, x in enumerate(AtomsKeep):
                 if x in AtomsDelete:
-                    AtomsDelete2idx0[int(x)] = idx0
+                    AtomsDelete2idx0[x] = idx0
 
             if self.__verbose:
                 ic(AtomsDelete2idx0)
@@ -600,16 +600,16 @@ class Anmr():
                     orcaSJ.JCoups = np.delete(orcaSJ.JCoups, x, 0)
                     orcaSJ.JCoups = np.delete(orcaSJ.JCoups, x, 1)
 
-            idx1_acid_atoms_NoShow_RemoveH: list[int] = self.__AnmrParams.get_idx1_acid_atoms_NoShow_RemoveH(
+            idx1_acid_atoms_NoShow_RemoveH: list[AtomID] = self.__AnmrParams.get_idx1_acid_atoms_NoShow_RemoveH(
                 self.__Dir / Path("crest_conformers.xyz"))
 
             # Delete orcaSJ SParams in acid_atoms_NoShow
-            idx0_AtomsDelete: list[int] = []
+            idx0_AtomsDelete: list[AtomID] = []
             for orcaSJ in self.orcaSJ:
                 for idy0, SParam in enumerate(orcaSJ.SParams.copy()):
                     if SParam in idx1_acid_atoms_NoShow_RemoveH:
                         if idy0 not in idx0_AtomsDelete:
-                            idx0_AtomsDelete.append(idy0)
+                            idx0_AtomsDelete.append(AtomID(idy0))
                         del orcaSJ.SParams[SParam]
                         del orcaSJ.Element[SParam]
 
