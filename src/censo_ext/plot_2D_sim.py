@@ -4,7 +4,7 @@ from matplotlib.axes import Axes
 from matplotlib.text import Text
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
-from censo_ext.Tools.utility import print_arguments
+from censo_ext.Tools.utility import AtomID, print_arguments
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
@@ -113,7 +113,7 @@ def Load_Directory(args) \
     return (data_x, data_y), h_limits, c_limits
 
 
-def draw_2D_basic(data_xy: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]) -> Axes:
+def draw_2D_basic(data_xy: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]) -> tuple[Axes, tuple[Axes, float]]:
     data_x, data_y = data_xy
     fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
     gs: GridSpec = fig.add_gridspec(2, 2,  width_ratios=(1, 19), height_ratios=(1, 9),
@@ -138,18 +138,21 @@ def draw_2D_basic(data_xy: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64
     ax_histy.plot(-y_axis_data, data_y.T[0])
     ax.xaxis.tick_top()
     ax.xaxis.set_label_position('top')
-    return ax
+
+    y_lowest = (-data_y).min()
+    return ax, (ax_histy, y_lowest)
 
 
-def plot_2D_slice(ax: Axes, in_dir: tuple[Path, Path], h_limits: tuple[float, float], c_limits: tuple[float, float]) \
-        -> tuple[dict[int, int], dict[int, npt.NDArray], dict, dict]:
+def plot_2D_slice(ax: Axes, ax_histy_float, in_dir: tuple[Path, Path], h_limits: tuple[float, float], c_limits: tuple[float, float]) \
+        -> tuple[dict[AtomID, int], dict[AtomID, npt.NDArray], dict[AtomID, float], dict[AtomID, float]]:
 
+    ax_histy, y_lowest = ax_histy_float
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     from ase.atoms import Atoms
     Directory_H, Directory_C = in_dir
     mol: Atoms | list[Atoms]
-    neighbor: dict[int, npt.NDArray[np.int64]]
-    bond_order: dict[int, int]
+    neighbor: dict[AtomID, npt.NDArray[np.int64]]
+    bond_order: dict[AtomID, int]
     mol, neighbor, bond_order = read_mol_neighbors_bond_order(
         Directory_H/Path("crest_conformers.xyz"))
     idx_H_atom: list[int] = [idx+1 for idx,
@@ -157,19 +160,19 @@ def plot_2D_slice(ax: Axes, in_dir: tuple[Path, Path], h_limits: tuple[float, fl
     idx_C_atom: list[int] = [idx+1 for idx,
                              i in enumerate(mol) if i.symbol == "C"]  # type: ignore # nopep8
 
-    neighbor = {key: value for key,
-                value in neighbor.items() if key in idx_C_atom}
+    neighbor: dict[AtomID, npt.NDArray[np.int64]] = {key: value for key,
+                                                     value in neighbor.items() if key in idx_C_atom}
     for key, value in neighbor.items():
         neighbor[key] = np.array([x for x in value if x in idx_H_atom])
 
     tmp_c: list = list(np.genfromtxt(
         Directory_C / Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
 
-    idxAtoms_C: dict = {int(x): y for x, y in tmp_c}
+    idxAtoms_C: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_c}
 
     tmp_h: list = list(np.genfromtxt(
         Directory_H/Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
-    idxAtoms_H: dict = {int(x): y for x, y in tmp_h}
+    idxAtoms_H: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_h}
     ax.set_xlim(h_limits[1], h_limits[0])
     ax.set_ylim(c_limits[1], c_limits[0])
     x_lowest, x_highest = h_limits
@@ -200,37 +203,34 @@ def plot_2D_slice(ax: Axes, in_dir: tuple[Path, Path], h_limits: tuple[float, fl
                 sys.stdout = sys.__stdout__
                 maximum: np.float64 = np.max(np_dat)
                 ax.plot(np_dat[0], -np_dat[1]/maximum*5 + C_ppm, linewidth=1)
+                ax_histy.text(y_lowest, C_ppm, f"{C_ppm:12.2f}",
+                              ha="right", va="center", fontsize=6)
                 if len(idx0_neighbor.values()) == 1:
-                    text: Text = ax.text(x_lowest, C_ppm, f"{C_ppm:12.2f} ({idx_C}C,",
-                                         ha="right", va="center", fontsize=8)
+                    text: Text = ax.text(
+                        x_lowest, C_ppm, f"({idx_C}C,", ha="right", va="center", fontsize=8)
                     text = ax.annotate(f" {tuple(idx0_neighbor.values())[0]}H)",
                                        xycoords=text, xy=(1.00, 0.5), ha="left", va="center", color="blue", fontsize=8)
                 else:
-                    text = ax.text(x_lowest, C_ppm, f"{C_ppm:12.2f} ({idx_C}C,",
-                                   ha="right", va="center", fontsize=8)
+                    text = ax.text(
+                        x_lowest, C_ppm, f"({idx_C}C,", ha="right", va="center", fontsize=8)
                     text = ax.annotate(f" {tuple(idx0_neighbor.values())}H)",
                                        xycoords=text, xy=(1.00, 0.5), ha="left", va="center", color="blue", fontsize=8)
 
     plt.subplots_adjust(hspace=0.5, wspace=0.5)
-    # plt.savefig("output.pdf", dpi=300)
-    # plt.savefig("output.svg")
-
     plt.show()
     return bond_order, neighbor, idxAtoms_H, idxAtoms_C
 
 
-def print_report(bond_order, neighbor, idxAtoms_H, idxAtoms_C) -> None:
+def print_report(bond_order: dict[AtomID, int], neighbor: dict[AtomID, npt.NDArray], idxAtoms_H: dict[AtomID, float], idxAtoms_C: dict[AtomID, float]) -> None:
 
     print("   #C   Bond_Order   13C(HSQC)      1H(HSQC)        #H ")
-
     for idxAtom_C, C_ppm in idxAtoms_C.items():
-
         if bond_order[idxAtom_C] == 0:
             print(f"{idxAtom_C:>5d}     C   {C_ppm:>15.4f}", end="")
         else:
             print(f"{idxAtom_C:>5d}     CH{bond_order[idxAtom_C]:>1d} {C_ppm:>15.4f}", end="")  # nopep8
 
-        idx0_neighbor: list = []
+        idx0_neighbor: list[AtomID] = []
         for idx_neighbor_Atoms_H in neighbor[idxAtom_C]:
             for idx, value in enumerate(idxAtoms_H.keys()):
                 if idx_neighbor_Atoms_H == value:
@@ -239,7 +239,7 @@ def print_report(bond_order, neighbor, idxAtoms_H, idxAtoms_C) -> None:
         if len(idx0_neighbor) == 0:
             print("")
         elif len(idx0_neighbor) == 1:
-            for idx, x in enumerate(idx0_neighbor):
+            for _, x in enumerate(idx0_neighbor):
                 print(f"{idxAtoms_H[x]:>15.4f} {int(x):>10d}", end="")
                 print("")
         else:
@@ -261,10 +261,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     in_dir: tuple[Path, Path] = args.dir[0], args.dir[1]
 
     data_xy, h_limits, c_limits = Load_Directory(args)
-
-    ax: Axes = draw_2D_basic(data_xy)
+    ax, ax_histy_float = draw_2D_basic(data_xy)
     bond_order, neighbor, idxAtoms_H, idxAtoms_C = plot_2D_slice(
-        ax, in_dir, h_limits, c_limits)
+        ax, ax_histy_float, in_dir, h_limits, c_limits)
     print_report(bond_order, neighbor, idxAtoms_H, idxAtoms_C)
 
 
