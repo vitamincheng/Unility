@@ -216,7 +216,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     max_peaks = [a for a in list(
         max_peaks) if x_axis_data[a[0]] > x_thr and y_axis_data[a[1]] > y_thr]
     y_peaks: list = sorted(set([a[1] for a in list(max_peaks)]))
-    x_grobal_maximum: float = x_axis_data.max()
+    x_global_maximum: float = x_axis_data.max()
     y_lowest = (-y_axis_data).min()
 
     for y_idx in y_peaks:
@@ -225,7 +225,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # xright: float = uc_1h.ppm(xslice.size)
 
         if not args.hidden and ax:
-            ax.plot(uc_1h.ppm_scale(), -xslice/x_grobal_maximum *
+            ax.plot(uc_1h.ppm_scale(), -xslice/x_global_maximum *
                     5*4 + uc_13c.ppm(y_idx), linewidth=1)
             # ax.text(xright, uc_13c.ppm(y_idx), f"{uc_13c.ppm(
             #    y_idx):12.3f}", ha="right", va="center", fontsize=6)
