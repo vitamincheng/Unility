@@ -5,6 +5,11 @@
 #%elprop
 #   polar 1 
 #end
+#
+# orca_mapspc freq.out ir -w25
+# orca_mapspc raman.out raman -w50
+# use nmrplot.py or orca-ir.py to draw the diagrams
+# 
 
 ! r2SCAN-3c  opt miniprint PAL8 CPCM(chloroform) noautostart 
 %maxcore 6000
