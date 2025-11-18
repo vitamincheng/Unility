@@ -1,4 +1,11 @@
+# for ir
 #! B97-3c opt freq miniprint
+# for raman
+#! r2SCAN-3c opt freq miniprint
+#%elprop
+#   polar 1 
+#end
+
 ! r2SCAN-3c  opt miniprint PAL8 CPCM(chloroform) noautostart 
 %maxcore 6000
 
