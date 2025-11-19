@@ -348,7 +348,7 @@ def print_arguments() -> None:
     """
 
     import sys
-    print("    provided arguments: {}".format(" ".join(sys.argv)))
+    print(f"    provided arguments: {' '.join(sys.argv)}")
     print("")
 
 
@@ -379,8 +379,11 @@ def save_figure(fileName: str = "nmrplot") -> None:
         currently active. The PDF file is saved with high resolution (300 dpi).
     """
     import matplotlib.pyplot as plt
-    plt.savefig(f"{fileName}.pdf", dpi=300)
-    plt.savefig(f"{fileName}.svg")
+    try:
+        plt.savefig(f"{fileName}.pdf", dpi=300)
+        plt.savefig(f"{fileName}.svg")
+    except Exception as e:
+        print(f"Error saving figure: {e}")
 
 
 def SVD(first_array: npt.NDArray, second_array: npt.NDArray):
@@ -419,7 +422,7 @@ def SVD(first_array: npt.NDArray, second_array: npt.NDArray):
     U, S, VT = np.linalg.svd(first_column_array, full_matrices=False)
     xtilde = VT.T @ np.linalg.inv(np.diag(S)
                                   ) @ U.T @ second_array
-    print(xtilde)
+    return xtilde
 
 
 def cosine_similarity(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np.float64] | list) -> float:
@@ -478,7 +481,7 @@ def cosine_similarity(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np
 
     # Handle division by zero if either magnitude is zero
     if magnitude_vec1 == 0 or magnitude_vec2 == 0:
-        return 0.0  # Or raise an error, depending on desired behavior
+        return 0.0  # Or handle as appropriate for your use case
 
     # Calculate cosine similarity
     cosine_similarity = float(dot_product / (magnitude_vec1 * magnitude_vec2))
@@ -515,6 +518,10 @@ def R_square(x: npt.NDArray, y: npt.NDArray) -> float:
         The function uses numpy's corrcoef function to calculate the correlation
         coefficient before squaring it to get R-squared.
     """
+    # Validate input lengths
+    if len(x) != len(y):
+        raise ValueError("Arrays must have the same length")
+
     # Calculate the correlation matrix
     correlation_matrix = np.corrcoef(x, y)
     r: float = correlation_matrix[0, 1]
