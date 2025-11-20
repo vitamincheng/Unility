@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import numpy.typing as npt
 from icecream import ic
-from censo_ext.Tools.utility import print_arguments
+from censo_ext.Tools.utility import AtomID, print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 
@@ -79,7 +79,7 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def read_data(args) -> tuple[dict[int, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]], dict[int, int], dict[int, int], dict]:
+def read_data(args) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]], dict[AtomID, int], dict[int, int], dict]:
     from censo_ext.Tools.topo import Topo
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     Sts_topo: Topo = Topo(args.file)
@@ -95,7 +95,7 @@ def read_data(args) -> tuple[dict[int, npt.NDArray[np.int64]], list[list[int]], 
     return neighbor, circleMols, residualMols, idx_Bond_order, idx_atomsCN, residualMols_all_pairs
 
 
-def get_xyzSplit(residualMols: list[list[np.int64]], Bond_order: dict[int, int], atomsCN: dict[int, int], flattenCircleMols: list[int], residualMols_all_pairs) -> dict[int, int]:
+def get_xyzSplit(residualMols: list[list[np.int64]], Bond_order: dict[AtomID, int], atomsCN: dict[int, int], flattenCircleMols: list[int], residualMols_all_pairs) -> dict[int, int]:
     xyzSplit: dict[int, int] = {}
     for Mol in residualMols:
         mol: list[int] = list(map(int, Mol))

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from censo_ext.Tools.anmrfile import AD_BOBYQA, AD_Normal
-from censo_ext.Tools.utility import print_arguments
+from censo_ext.Tools.utility import AtomID, print_arguments
 from icecream import ic
 import argparse
 import numpy as np
@@ -133,9 +133,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 print(" Active element of anmrrc is not H or C ")
                 exit(0)
 
-        ChemEqvs: dict[int, list[int]] = {key: value for key, value in
-                                          inAnmr.NeighborChemEqvs.items()
-                                          if key in in_SParams}
+        ChemEqvs: dict[AtomID, list[AtomID]] = {key: value for key, value in
+                                                inAnmr.NeighborChemEqvs.items()
+                                                if key in in_SParams}
         Sorted_ChemEqvs: list[list[int]] = list(
             sorted(value) for value in ChemEqvs.values())
 

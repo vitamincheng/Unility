@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import nmrglue as ng
 from censo_ext.Tools.anmrfile import AD_Normal
 from censo_ext.Tools.datfile import CensoDat, Peaks_npz, unit_conversion
-from censo_ext.Tools.utility import IsExist_bool, print_arguments
+from censo_ext.Tools.utility import AtomID, IsExist_bool, print_arguments
 
 descr = """
 _______________________________________________________________________________
@@ -320,8 +320,8 @@ def process_auto_mode(args, intensit, y_heighest, thres, thres_baseline, uc, pea
         from censo_ext.Tools.anmrfile import Anmr
         inAnmr: Anmr = Anmr()
         inAnmr.method_read_nucinfo()
-        ChemEqvs: dict[int, list[int]] = {key: value for key,
-                                          value in inAnmr.NeighborChemEqvs.items() if key in idx1_orcaS}
+        ChemEqvs: dict[AtomID, list[AtomID]] = {key: value for key,
+                                                value in inAnmr.NeighborChemEqvs.items() if key in idx1_orcaS}
         Groups: list[list[int]] = list(
             sorted(value) for value in ChemEqvs.values())
         unique_group: list = []

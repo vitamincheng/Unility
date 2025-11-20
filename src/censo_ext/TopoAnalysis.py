@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import argparse
-from censo_ext.Tools.utility import print_arguments
+from censo_ext.Tools.utility import AtomID, print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from censo_ext.xyzGenFlexible import get_xyzSplit, read_data
 descr = """
@@ -103,7 +103,7 @@ def TopoAnalysis(args) -> None:
         for node_mol in node_mols:
             # ic(node_mol)
             x = set.intersection(
-                set(map(int, neighbor[int(node_mol)])), resMol)
+                set(map(int, neighbor[AtomID(int(node_mol))])), resMol)
             if (len(x)) != 1:
                 print("  Something wrong in your residualMols")
                 print("  Exit and Close the program !!!")
