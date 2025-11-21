@@ -112,7 +112,7 @@ class Anmrrc():
             if x[3] == 1:
                 self.Active.append(self.Nums_element[int(x[0])])
 
-        self.linear = self.get_anmrrc_linear()
+        self.linear: tuple[float, float] = self.get_anmrrc_linear()
 
     def __repr__(self) -> str:
         """
@@ -150,7 +150,7 @@ class Anmrrc():
                 This file should contain the atomic coordinates and symbols for the molecule.
 
         Returns:
-            list[int]: A list of hydrogen atom indices (1-based) that should be removed 
+            list[AtomID]: A list of hydrogen atom indices (1-based) that should be removed 
                 from the molecular structure. These are hydrogen atoms connected to the 
                 acid atoms specified in acid_atoms_NoShow.
 
@@ -190,21 +190,29 @@ class Anmrrc():
         return [x for x in NoShow_Remove_Group if x in idx1_H_atom]
 
     def get_anmrrc_linear(self) -> tuple[float, float]:
-        """Retrieve the reference shielding value from the .anmrrc file.
+        """Extract linear parameters from .anmrrc and .anmrrc_linear files.
 
-        This method searches through the internal anmrrc data structure to find
-        the reference shielding value. The reference is identified by looking
-        for entries where the fourth element (index 3) equals 1.
+        This method reads linear transformation parameters from the .anmrrc file and
+        optionally from .anmrrc_linear file to determine the appropriate scaling
+        and offset values for chemical shift calculations.
+
+        The method searches for a reference point in the .anmrrc file (where column 3 equals 1)
+        and uses it to determine whether to read from .anmrrc_linear or return a specific
+        offset value. If a reference is found, it returns (-1, reference_value). Otherwise,
+        it attempts to read two values from .anmrrc_linear file.
+
+        Args:
+            self: The instance of the class containing this method.
 
         Returns:
-            float: The reference shielding value found in the .anmrrc file.
+            tuple[float, float]: A tuple containing (a, b) where:
+                - a: scaling factor for linear transformation
+                - b: offset value for linear transformation
 
         Raises:
-            ValueError: If no active species (where x[3] == 1) is found in the
-                .anmrrc file. This indicates that there is no valid reference
-                shielding value available for processing.
+            SystemExit: If no reference is found in .anmrrc file or if .anmrrc_linear
+                file is missing or contains invalid data.
         """
-
         reference: float | None = None
         for x in self.anmrrc:
             if x[3] == 1:
@@ -463,25 +471,44 @@ class Anmr():
         print(" ===== Finished the Average of all folder orcaS.out and orcaJ.out =====")
 
     def method_filter_active_orcaSJ(self, Active: str) -> None:
+        """Filter ORCA SJ data to keep only atoms of specified active element.
 
-        del_idx1_Atoms: list[AtomID] = [
+        This method filters the ORCA SJ data structures to retain only atoms that
+        belong to the specified active element. It removes atoms of other elements
+        from Element, SParams, and JCoups dictionaries/arrays while maintaining the
+        integrity of the remaining data structure.
+
+        Args:
+            self: The instance of the class containing this method.
+            Active (str): The active element symbol to keep in the data structures.
+
+        Returns:
+            None: This method modifies the instance attributes orcaSJ in place.
+
+        Note:
+            The method prints filtering progress information to the console and
+            performs in-place deletion of filtered atoms from all orcaSJ entries.
+        """
+        del_AtomID: list[AtomID] = [
             key for key, value in self.orcaSJ[0].Element.items() if value != Active]
-        intp = np.sort(np.array(list(self.orcaSJ[0].Element.keys())))
-        arg_del_idx0_Atoms = np.array(intp).searchsorted(del_idx1_Atoms)
-        if len(del_idx1_Atoms) != 0:
+        intp: npt.NDArray[np.intp] = np.sort(
+            np.array(list(self.orcaSJ[0].Element.keys())))
+        sorted_intp: npt.NDArray[np.intp] = np.array(
+            intp).searchsorted(del_AtomID)
+        if len(del_AtomID) != 0:
             print(" ===== Filter the Active Atom of SParams and JCoups =====")
             for _orcaSJ in self.orcaSJ:
-                for x in del_idx1_Atoms[::-1]:
+                for x in del_AtomID[::-1]:
                     if x in _orcaSJ.Element:
                         del _orcaSJ.Element[x]
                     if x in _orcaSJ.SParams:
                         del _orcaSJ.SParams[x]
-                for x in arg_del_idx0_Atoms[::-1]:
+                for x in sorted_intp[::-1]:
                     _orcaSJ.JCoups = np.delete(_orcaSJ.JCoups, x, 0)
                     _orcaSJ.JCoups = np.delete(_orcaSJ.JCoups, x, 1)
             print(" ===== Finished the Filter of Active Atom of SParams and JCoups =====")
 
-    def method_update_equiv_orcaSJ(self) -> None:
+    def method_update_equiv_orcaSJ(self, Ref_FileName: Path = Path("crest_conformers.xyz")) -> None:
         """
         Update equivalent atoms in SParams and JCoups according to nuclear information.
 
@@ -601,7 +628,7 @@ class Anmr():
                     orcaSJ.JCoups = np.delete(orcaSJ.JCoups, x, 1)
 
             idx1_acid_atoms_NoShow_RemoveH: list[AtomID] = self.__AnmrParams.get_idx1_acid_atoms_NoShow_RemoveH(
-                self.__Dir / Path("crest_conformers.xyz"))
+                self.__Dir / Ref_FileName)
 
             # Delete orcaSJ SParams in acid_atoms_NoShow
             idx0_AtomsDelete: list[AtomID] = []
@@ -719,18 +746,6 @@ class Anmr():
                   False if any of the files are missing.
         """
         return self.avg_Data_AD.Exist()
-        # AD.Exist()
-
-        # avg_Dir: Path = Path("Average/NMR")
-        # file_avg_orcaS: Path = self.__Dir / avg_Dir / Path("orcaS.out")
-        # file_avg_orcaJ: Path = self.__Dir / avg_Dir / Path("orcaJ.out")
-        # file_avg_orcaAtoms: Path = self.__Dir / avg_Dir / Path("orcaA.out")
-
-        # if IsExist_bool(file_avg_orcaS) and IsExist_bool(file_avg_orcaAtoms) and \
-        #   IsExist_bool(file_avg_orcaJ):
-        #    return True
-        # else:
-        #    return False
 
     def method_BOBYQA_load_avg_orcaSJ(self) -> bool:
         """
@@ -763,22 +778,22 @@ class Anmr():
             - Average/NMR/orcaJ.out
             - Average/NMR/orcaA.out
         """
-        AD = self.avg_Data_AD
+        AD: Average_Directory = self.avg_Data_AD
         Result: bool = AD.method_load_files()
         self.avg_orcaSJ.Element = AD.Element
         if isinstance(AD.ChemicalShifts, dict):
-            self.avg_orcaSJ.ChemicalShits = AD.ChemicalShifts
+            self.avg_orcaSJ.ChemicalShifts = AD.ChemicalShifts
             a, b = self.get_Anmrrc_linear()
             self.avg_orcaSJ.SParams = {
                 key: (value-b)/a for key, value in AD.ChemicalShifts.items()}
-            self.avg_orcaSJ.ChemicalShits = {}
+            self.avg_orcaSJ.ChemicalShifts = {}
         elif isinstance(AD.ChemicalShifts, np.ndarray):
-            temp = {AtomID(key): float(value)
-                    for key, value, _ in AD.ChemicalShifts}
+            temp: dict[AtomID, float] = {AtomID(key): float(value)
+                                         for key, value, _ in AD.ChemicalShifts}
             a, b = self.get_Anmrrc_linear()
             self.avg_orcaSJ.SParams = {
                 key: (value-b)/a for key, value in temp.items()}
-            self.avg_orcaSJ.ChemicalShits = {}
+            self.avg_orcaSJ.ChemicalShifts = {}
         else:
             print("  The type of your SParams have something wrong !!!")
             print("  Exit and Close the program !!!")
@@ -795,7 +810,20 @@ class Anmr():
         raise NotImplementedError("Under Construct")
 
     def method_linear_orcaS(self, inSParams: dict[AtomID, float]) -> dict[AtomID, float]:
+        """Apply linear transformation to ORCA S parameters.
 
+        This method applies a linear transformation to the input S parameters using
+        the linear coefficients stored in self.__AnmrParams.linear. The transformation
+        is defined as: output = a * input + b, where a and b are the linear coefficients.
+
+        Args:
+            inSParams (dict[AtomID, float]): Dictionary mapping atom IDs to their
+                corresponding S parameters that need to be transformed.
+
+        Returns:
+            dict[AtomID, float]: Dictionary containing the transformed S parameters
+                with the same atom ID keys as the input dictionary.
+        """
         a, b = self.__AnmrParams.linear
         outSParams: dict[AtomID, float] = {key: a*value + b for key,
                                            value in inSParams.items()}
@@ -1248,20 +1276,22 @@ class OrcaSJ():
 
         Attributes:
             JCoups (npt.NDArray[np.float64]): Coupling constants data.
-            SParams (dict[int, float]): Shielding parameters.
-            Anisotropy (dict[int, float]): Anisotropy values.
+            SParams (dict[AtomID, float]): Shielding parameters.
+            ChemicalShifts (dict[AtomID, float]): ChemicalShits
+            Anisotropy (dict[AtomID, float]): Anisotropy values.
             CONFSerialNums (int): Configuration serial numbers.
-            idx1Atoms (dict[int, str]): Mapping of atom indices to atom names.
+            Element (dict[AtomID, str]): Mapping of atom indices to atom names.
+            linear (tuple[float,float]): linear regression
         """
         self.JCoups: npt.NDArray[np.float64]
         self.SParams: dict[AtomID, float] = {}
-        self.ChemicalShits: dict[AtomID, float] = {}
+        self.ChemicalShifts: dict[AtomID, float] = {}
         self.Anisotropy: dict[AtomID, float] = {}
         self.CONFSerialNums: int
         self.Element: dict[AtomID, str] = {}
         self.linear: tuple[float, float]
 
-    def method_load_anmrrc_linear(self, linear) -> None:
+    def method_load_anmrrc_linear(self, linear: tuple[float, float]) -> None:
         self.linear = linear
 
     def method_read_orcaJ(self, file: Path | str = Path("orcaJ.out")) -> bool:
@@ -1447,18 +1477,35 @@ class OrcaSJ():
         """
         raise NotImplementedError("Under Construct")
 
-    def method_setup_ChemicalShifts(self):
+    def method_setup_ChemicalShifts(self) -> None:
+        """Setup chemical shifts using linear transformation.
+
+        This method applies a linear transformation to the S parameters to calculate
+        chemical shifts. It uses the linear coefficients stored in self.linear to
+        perform the transformation: chemical_shift = a * s_param + b. The results are
+        stored in self.ChemicalShifts dictionary.
+
+        The method also prints diagnostic information about the linear regression
+        coefficients to the console, including the equation format and coefficient values.
+
+        Args:
+            self: The instance of the class containing this method.
+
+        Returns:
+            None: This method modifies the instance attribute self.ChemicalShifts
+                in place rather than returning a value.
+        """
         a, b = self.linear
         print(" ===== Print the Linear Regression =====")
         print("  y = ax + b")
         print(f"  a = {a}     b = {b}")
         print("  [see .anmrrc and .anmrrc_linear]")
         print("")
-        self.ChemicalShits = {
+        self.ChemicalShifts = {
             key: a*value + b for key, value in self.SParams.items()}
 
-    def method_teardown_ChemicalShifts(self):
-        self.ChemicalShits = {}
+    def method_teardown_ChemicalShifts(self) -> None:
+        self.ChemicalShifts = {}
 
     def method_print_av_orcaS(self) -> None:
         """Print ORCA-S data.
@@ -1480,12 +1527,12 @@ class OrcaSJ():
             This method requires self.idx1Atoms and self.SParams to be properly initialized
             with matching lengths for correct operation.
         """
-        if len(self.Element) == len(self.ChemicalShits):
+        if len(self.Element) == len(self.ChemicalShifts):
             print(" ===== Print the Chemical Shift of Atoms =====")
             print("    coord  Element     Anisotropy")
             for idx1, Element in self.Element.items():
                 print(f'   {idx1:>5d}', f'{Element:>8s}', end="")
-                print(f'{self.ChemicalShits[idx1]:>15.3f}')
+                print(f'{self.ChemicalShifts[idx1]:>15.3f}')
             print("")
         else:
             raise ValueError("your orcaJ and orcaS is not fit each other")
@@ -1547,18 +1594,20 @@ class Average_Directory(object):
         >>> avg_dir = Average_Directory(Path("./analysis"))
         >>> print(avg_dir._Dir)
     """
+    FileName_A = Path("orcaA.out")
+    FileName_J = Path("orcaJ.out")
 
     def __init__(self, Dir: Path = Path(".")) -> None:
         self._Dir: Path = Dir / Path("Average/NMR")
         self._file_orcaS: Path
-        self._file_orcaJ: Path = self._Dir / Path("orcaJ.out")  # nopep8
-        self._file_orcaA: Path = self._Dir / Path("orcaA.out")  # nopep8
+        self._file_orcaJ: Path = self._Dir / self.FileName_J
+        self._file_orcaA: Path = self._Dir / self.FileName_A
         self.SParams: dict[AtomID, float] | npt.NDArray
         self.ChemicalShifts: dict[AtomID, float] | npt.NDArray
         self.JCoups: npt.NDArray
         self.Element: dict[AtomID, str]
 
-    def method_print_file(self):
+    def method_print_file(self) -> None:
         """Print the file paths of ORCA A, S, and J files."""
         print(self._file_orcaA)
         print(self._file_orcaS)
@@ -1598,7 +1647,6 @@ class Average_Directory(object):
                 self.Element = json.loads(
                     f.read(), object_pairs_hook=jsonKeys2int)
 
-            # self.SParams = load_dict_orcaS(self.__file_orcaS)
             lines: list = open(self._file_orcaS, "r").readlines()
             if len(lines[0].split()) == 2:
                 Data: dict[AtomID, float] = {}
@@ -1644,7 +1692,7 @@ class Average_Directory(object):
         if isinstance(self.ChemicalShifts, dict):
             with open(self._file_orcaS, 'w') as f:
                 for key, value in self.ChemicalShifts.items():
-                    f.write('%10d %12.5f \n' % (key, value))
+                    f.write(f'{key:10d} {value:12.5f}\n')
         elif isinstance(self.ChemicalShifts, np.ndarray):
             if self.ChemicalShifts.shape[1] == 3:
                 np.savetxt(self._file_orcaS, self.ChemicalShifts,
@@ -1684,7 +1732,7 @@ class Average_Directory(object):
             bool: True if all three files exist, False otherwise
         """
 
-        if IsExist_bool(self._file_orcaS) and IsExist_bool(self._file_orcaA) and IsExist_bool(self._file_orcaJ):  # nopep8
+        if all(IsExist_bool(file_path) for file_path in (self._file_orcaS, self._file_orcaJ, self._file_orcaA)):
             return True
         else:
             return False
@@ -1711,10 +1759,11 @@ class AD_Normal(Average_Directory):
         >>> ad = AD_Normal(Path("./my_analysis"))
         >>> ad.load_files()
     """
+    FileName_S = Path("orcaS.out")
 
     def __init__(self, Dir: Path = Path(".")) -> None:
         super().__init__(Dir)
-        self._file_orcaS = self._Dir / Path("orcaS.out")  # nopep8
+        self._file_orcaS = self._Dir / self.FileName_S
 
 
 class AD_BOBYQA(Average_Directory):
@@ -1739,6 +1788,8 @@ class AD_BOBYQA(Average_Directory):
         >>> ad.load_files()
     """
 
+    FileName_S = Path("orcaS-BOBYQA.out")
+
     def __init__(self, Dir: Path = Path(".")) -> None:
         super().__init__(Dir)
-        self._file_orcaS = self._Dir / Path("orcaS-BOBYQA.out")  # nopep8
+        self._file_orcaS = self._Dir / self.FileName_S
