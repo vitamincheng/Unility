@@ -1461,22 +1461,6 @@ class OrcaSJ():
             self.Anisotropy[idx1] = float(x.split()[3])
         return True
 
-    def method_save_orcaS(self) -> list:
-        """
-        Save orcaS data to list format.
-
-        Note: This method is currently not implemented.
-        """
-        raise NotImplementedError("Under Construct")
-
-    def method_save_orcaJ(self) -> list:
-        """
-        Save orcaJ data to list format.
-
-        Note: This method is currently not implemented.
-        """
-        raise NotImplementedError("Under Construct")
-
     def method_setup_ChemicalShifts(self) -> None:
         """Setup chemical shifts using linear transformation.
 
