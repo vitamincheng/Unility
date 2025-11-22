@@ -42,7 +42,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
 
     # For idxElement for the data of first xyzFile
     tmp, _ = cal_RMSD_xyz(xyzFile, 1, 1, args=argparse.Namespace(**args_x))
-    idxElement: list[int] = list(tmp.keys())
+    idx1_Element: list[int] = list(tmp.keys())
 
     # Get variance of coord square of all xyzFile
     for idx0 in range(len(xyzFile)):
@@ -51,10 +51,10 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
         var: list[float] = list(coord_square.values())
         coord.append(var)
 
-    idx_dev: dict[int, float] = dict(
-        zip(idxElement, np.std(np.array(coord).T, axis=1).astype(float)))
+    idx1_dev: dict[int, float] = dict(
+        zip(idx1_Element, np.std(np.array(coord).T, axis=1).astype(float)))
     avSTD: np.float64 = np.float64(
-        np.average(np.array(list(idx_dev.values()))))
+        np.average(np.array(list(idx1_dev.values()))))
 
     print(" ========== Factor Analysis Processing ========== ")
     print("\n Average of STD      : ", end="")
@@ -65,7 +65,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
     idx1_MajorFactor: list[int] = []
     idx1_MinorFactor: list[int] = []
 
-    for idx, x in idx_dev.items():
+    for idx, x in idx1_dev.items():
         if (x >= avSTD):
             print(f"{int(idx):>5d} {x:>10.5f}     Major factor")
             idx1_MajorFactor.append(int(idx))
@@ -77,7 +77,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
 
     print(f"\n Major Factor List: {idx1_MajorFactor}")
     print(" ========== Finished ==========")
-    return idx1_MinorFactor, idx_dev
+    return idx1_MinorFactor, idx1_dev
 
 
 def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
@@ -122,8 +122,8 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
     print(" ========== Optimized Broken-bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
     bonding_LowFactor: list[npt.NDArray[np.int64]] = []
-    for idx in low_factor:
-        args_x: dict = {"file": args.file, "bonding": idx,
+    for idx1 in low_factor:
+        args_x: dict = {"file": args.file, "bonding": idx1,
                         "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
         bonding_LowFactor.append(
@@ -131,9 +131,9 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
 
     PairLowFactor: list[list[int]] = []
 
-    for idx0, x in enumerate(low_factor):
-        for idy0, y in enumerate(bonding_LowFactor[idx0]):
-            PairLowFactor.append([x, int(bonding_LowFactor[idx0][idy0])])
+    for idx0, idx1 in enumerate(low_factor):
+        for idy0, _ in enumerate(bonding_LowFactor[idx0]):
+            PairLowFactor.append([idx1, int(bonding_LowFactor[idx0][idy0])])
 
     for x in PairLowFactor:
         if x[0] > x[1]:

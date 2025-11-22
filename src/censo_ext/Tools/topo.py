@@ -147,14 +147,14 @@ class Topo():
         Returns:
             list[int]: A list of atom indices bonded to the specified atom (excluding H atoms).
         """
-        idx_p: AtomID = args.bonding
-        Neighbors_Atoms: list[int] = self.__neighbors[idx_p].tolist()
-        Neighbors_Atoms = [
-            x for x in Neighbors_Atoms if x not in self.idx1_Hydrogen_atom]
-        Neighbors_Atoms.sort()
+        idx1_p: AtomID = args.bonding
+        idx1_bonding_Atoms: list[int] = self.__neighbors[idx1_p].tolist()
+        idx1_bonding_Atoms = [
+            x for x in idx1_bonding_Atoms if x not in self.idx1_Hydrogen_atom]
+        idx1_bonding_Atoms.sort()
         if args.print:
-            print(f" Bonding : {idx_p} @ Neighbors_Atoms")
-        return Neighbors_Atoms
+            print(f" Bonding : {idx1_p} @ Neighbors_Atoms")
+        return idx1_bonding_Atoms
 
     def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[AtomID, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]], dict]:
         """Analyzes the molecular structure to classify it into circular and residual molecules.
@@ -185,20 +185,20 @@ class Topo():
         """
 
         mol: ml4nmr.Atoms | list[ml4nmr.Atoms] = self.__mol
-        idx_neighbors: dict[AtomID, npt.NDArray[np.int64]
-                            ] = self.__neighbors.copy()
+        neighbors: dict[AtomID, npt.NDArray[np.int64]
+                        ] = self.__neighbors.copy()
         # neighbors is removed all H-atoms
-        idx1_Hydorgen_atoms: list[AtomID] = self.idx1_Hydrogen_atom
-        for key, value in idx_neighbors.copy().items():
-            if key in idx1_Hydorgen_atoms:
-                del idx_neighbors[key]
-        for key, value in idx_neighbors.copy().items():
-            idx_neighbors[key] = np.array(
-                [x for x in value if x not in idx1_Hydorgen_atoms])
+        idx1_H_Atoms: list[AtomID] = self.idx1_Hydrogen_atom
+        for key, value in neighbors.copy().items():
+            if key in idx1_H_Atoms:
+                del neighbors[key]
+        for key, value in neighbors.copy().items():
+            neighbors[key] = np.array(
+                [x for x in value if x not in idx1_H_Atoms])
 
         # Transfer neighbors to Graph
         graph_in: list[tuple[int, int]] = list()
-        for key, value in idx_neighbors.items():
+        for key, value in neighbors.items():
             for x in value:
                 graph_in.append((key, int(x)))
         g = Graph(from_list=graph_in)
@@ -213,7 +213,7 @@ class Topo():
         # use Graph Theory to collect the circle sturcutres and not repeated
         circle_Mols: list[list[int]] = list()
         for atom in circle_Atoms:
-            for neighbors_atoms in idx_neighbors[atom]:
+            for neighbors_atoms in neighbors[atom]:
                 start: int = atom
                 end = neighbors_atoms
                 g = Graph(from_list=graph_in)
@@ -238,7 +238,7 @@ class Topo():
 
         # Get residual atoms of circule molecules by use difference set
         residual_atoms: list[int] = list(
-            set(idx_neighbors.keys()).difference(set(flat_circle_Mols)))
+            set(neighbors.keys()).difference(set(flat_circle_Mols)))
         residual_atoms.sort()
 
         # g_straight is the Graph and delete the edge of every circle_Mol
@@ -259,7 +259,7 @@ class Topo():
                 residual_Mols.append(g_component)
         residual_Mols_all_pairs = g_straight.all_pairs_shortest_paths()
 
-        return mol, idx_neighbors, circle_Mols, residual_Mols, residual_Mols_all_pairs
+        return mol, neighbors, circle_Mols, residual_Mols, residual_Mols_all_pairs
 
     def topology_components(self) -> list[set[int]]:
         '''

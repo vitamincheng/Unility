@@ -216,7 +216,7 @@ def get_Coordinates(xyzFile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
     return atomic_Number, V
 
 
-def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.Namespace) -> tuple[dict[int, float], float]:
+def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse.Namespace) -> tuple[dict[int, float], float]:
     """
     Read xyz file and calculate RMSD between two structures.
 
@@ -226,8 +226,8 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     Args:
         xyzFile(GeometryXYZs): The XYZ file object containing molecular structures.
-        idx_p(int): Index of the first structure (1-based indexing).
-        idx_q(int): Index of the second structure (1-based indexing).
+        idx1_p(int): Index of the first structure (1-based indexing).
+        idx1_q(int): Index of the second structure (1-based indexing).
         args(argparse.Namespace): Command-line arguments controlling the RMSD calculation.
 
     Returns:
@@ -240,8 +240,8 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     """
 
     xyz_tmp: Path = Path(".tmp.xyz")
-    idx_p -= 1
-    idx_q -= 1
+    idx0_p: int = idx1_p - 1
+    idx0_q: int = idx1_q - 1
 
     # index of p_all_atoms and q_all_atoms is from 0 to n-1
     # atomic_Number
@@ -253,15 +253,15 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     p_all: npt.NDArray[np.float64]
     q_all: npt.NDArray[np.float64]
 
-    p_all_atoms, p_all = get_Coordinates(xyzFile, idx_p)
-    q_all_atoms, q_all = get_Coordinates(xyzFile, idx_q)
+    p_all_atoms, p_all = get_Coordinates(xyzFile, idx0_p)
+    q_all_atoms, q_all = get_Coordinates(xyzFile, idx0_q)
 
     if p_all.shape[0] != q_all.shape[0]:
         raise ValueError("error: Structures not same size")
 
     # Initialize atom indices
     idx1_Atom: npt.NDArray[np.int64] = np.array([], dtype=np.int64)
-    index: set[int] | list[int] | npt.NDArray[np.int64]
+    index0: npt.NDArray[np.int64]
 
     # index of p_all_atoms and q_all_atoms
     p_view: None | npt.NDArray[np.int64] = None
@@ -281,15 +281,15 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     if args.bond_broken:
         if args.ignore_Hydrogen:
             xyzFile.set_filename(xyz_tmp)
-            xyzFile.method_save_xyz([idx_p])
+            xyzFile.method_save_xyz([idx0_p])
             args_x: dict = {"file": xyz_tmp, "bond_broken": [*args.bond_broken],
                             "print": False, "debug": False}
             from censo_ext.Tools.topo import Topo
             Sts_topo = Topo(args_x["file"])
             idx1_Atom = np.array(Sts_topo.method_broken_bond(
                 argparse.Namespace(**args_x)))
-            index = idx1_Atom-1
-            p_view, q_view = index, index
+            index0 = idx1_Atom-1
+            p_view, q_view = index0, index0
 
         else:
             print("  Only support under ignore Hydrogen condition ")
@@ -306,9 +306,9 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
         idx1_Atom = np.setdiff1d(idx1_Atom, args.remove_idx)
 
         args.remove_idx = np.array(args.remove_idx)-1
-        index = idx1_Atom-1
+        index0 = idx1_Atom-1
 
-        p_view, q_view = index, index
+        p_view, q_view = index0, index0
 
     # Handle index addition
     elif args.add_idx:
@@ -343,7 +343,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
     if (args.add_idx is None) and (args.remove_idx is None) and (not args.ignore_Hydrogen):
         idx1_Atom = np.arange(1, len(p_all_atoms)+1)
 
-    idx_coordSquare, res_rmsd = kabsch_rmsd(p_coord, q_coord, list(idx1_Atom))
+    idx1_coordSquare, res_rmsd = kabsch_rmsd(p_coord, q_coord, list(idx1_Atom))
 
     if __name__ == "__main__":
         print(f"{" RMSD":>5s}", end=" ")
@@ -354,7 +354,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx_p: int, idx_q: int, args: argparse.N
 
     if len(idx1_Atom) == 0:
         raise ValueError("The value of idx1_Atom is error")
-    elif len(idx_coordSquare) == 0:
+    elif len(idx1_coordSquare) == 0:
         raise ValueError("The value of coord_square is error")
     else:
-        return idx_coordSquare, res_rmsd
+        return idx1_coordSquare, res_rmsd
