@@ -7,7 +7,7 @@ import numpy as np
 import numpy.typing as npt
 from icecream import ic
 from pathlib import Path
-from censo_ext.Tools.utility import IsExist, IsExist_bool, AtomID
+from censo_ext.Tools.utility import IntpID, IsExist, IsExist_bool, AtomID
 # from dataclasses import dataclass
 
 
@@ -432,10 +432,10 @@ class Anmr():
             normal_idx_weight: dict[np.int64, np.float64] = dict(
                 zip(np.atleast_1d(idx1_CONF), np.atleast_1d(weight)))
 
-            Active_orcaSJ: list[int] = []
+            Active_orcaSJ: list[IntpID] = []
             for idx0, x in enumerate(self.orcaSJ):
                 if x.CONFSerialNums in idx1_CONF:
-                    Active_orcaSJ.append(idx0)
+                    Active_orcaSJ.append(IntpID(idx0))
 
             # orcaSParams and orcaJCoups using weighting to calculate and
             # save to Average_orcaSJ
@@ -447,10 +447,10 @@ class Anmr():
                 self.avg_orcaSJ.SParams[x] = 0.0
 
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
-                idy0: list[AtomID] = list(map(AtomID, x.SParams.keys()))
+                idy1: list[AtomID] = list(map(AtomID, x.SParams.keys()))
                 ppm: list[float] = list(map(float, x.SParams.values()))
-                for idz, weight_ppm in zip(idy0, np.array(ppm) * normal_idx_weight[x.CONFSerialNums]):
-                    self.avg_orcaSJ.SParams[idz] += weight_ppm.item()
+                for idz1, weight_ppm in zip(idy1, np.array(ppm) * normal_idx_weight[x.CONFSerialNums]):
+                    self.avg_orcaSJ.SParams[idz1] += weight_ppm.item()
 
             nShapes: int = np.shape(self.orcaSJ[0].JCoups[0])[0]
             self.avg_orcaSJ.JCoups = np.zeros((nShapes, nShapes))
@@ -631,14 +631,14 @@ class Anmr():
                 self.__Dir / Ref_FileName)
 
             # Delete orcaSJ SParams in acid_atoms_NoShow
-            idx0_AtomsDelete: list[AtomID] = []
+            idx0_AtomsDelete: list[IntpID] = []
             for orcaSJ in self.orcaSJ:
-                for idy0, SParam in enumerate(orcaSJ.SParams.copy()):
-                    if SParam in idx1_acid_atoms_NoShow_RemoveH:
+                for idy0, Atom in enumerate(orcaSJ.SParams.copy().keys()):
+                    if Atom in idx1_acid_atoms_NoShow_RemoveH:
                         if idy0 not in idx0_AtomsDelete:
-                            idx0_AtomsDelete.append(AtomID(idy0))
-                        del orcaSJ.SParams[SParam]
-                        del orcaSJ.Element[SParam]
+                            idx0_AtomsDelete.append(IntpID(idy0))
+                        del orcaSJ.SParams[Atom]
+                        del orcaSJ.Element[Atom]
 
             # Delete orcaSJ orcaJCoups in acid_atoms_NoShow
             idx0_AtomsDelete.sort
@@ -698,12 +698,12 @@ class Anmr():
             print("  Exit and Close the program !!!")
             exit(0)
         from tqdm import tqdm
-        for idx0, name in enumerate(tqdm(dirNames)):
+        for idx1, name in enumerate(tqdm(dirNames), 1):
             file_orcaS: Path = Dir / Path(name + "/NMR/orcaS.out")  # nopep8
             file_orcaJ: Path = Dir / Path(name + "/NMR/orcaJ.out")  # nopep8
             if self.__verbose:
-                print(f"{idx0}  :  {file_orcaS}")
-                print(f"{idx0}  :  {file_orcaJ}")
+                print(f"{idx1}  :  {file_orcaS}")
+                print(f"{idx1}  :  {file_orcaJ}")
 
             iter: OrcaSJ = OrcaSJ()
             iter.CONFSerialNums = int(name.replace('CONF', ''))

@@ -5,7 +5,10 @@ import shutil
 import numpy as np
 
 from typing import NewType
+# from 1 to Number
 AtomID = NewType("AtomID", int)
+# from 0 to Number - 1 and is the index of some object
+IntpID = NewType("IntpID", int)
 #
 # https://steam.oxxostudio.tw/category/python/library/shutil.html
 #

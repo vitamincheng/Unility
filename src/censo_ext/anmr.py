@@ -479,7 +479,7 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
     print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
 
     if np.sum(inSParams.astype(bool)*inHydrogen) <= args.mss:
-        ab_group = list(ab_group_sets[0])
+        ab_group: list[int] = list(ab_group_sets[0])
         v: npt.NDArray[np.float64] = inSParams[ab_group]
         J: npt.NDArray[np.float64] = inJCoups[ab_group].T[ab_group]
 
@@ -781,8 +781,8 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
                 list_Equivalent3: list[int] = []
                 for key in inAnmr.nMagnetEqvs.keys():
                     if inAnmr.nMagnetEqvs[key] == 3:
-                        for idy0, y in enumerate(inAnmr.avg_orcaSJ.Element):
-                            if y == min(inAnmr.NeighborMangetEqvs[key]):
+                        for idy0, Atom in enumerate(inAnmr.avg_orcaSJ.Element):
+                            if Atom == min(inAnmr.NeighborMangetEqvs[key]):
                                 list_Equivalent3.append(idy0)
                 set_Equivalent3: set[int] = set(list_Equivalent3)
                 del list_Equivalent3
