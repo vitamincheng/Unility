@@ -250,20 +250,20 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
 
     # index of p_all and q_all is from 0 to n-1
     # COORD
-    p_all: npt.NDArray[np.float64]
-    q_all: npt.NDArray[np.float64]
+    p_COORD: npt.NDArray[np.float64]
+    q_COORD: npt.NDArray[np.float64]
 
-    p_all_atoms, p_all = get_Coordinates(xyzFile, idx0_p)
-    q_all_atoms, q_all = get_Coordinates(xyzFile, idx0_q)
+    p_all_atoms, p_COORD = get_Coordinates(xyzFile, idx0_p)
+    q_all_atoms, q_COORD = get_Coordinates(xyzFile, idx0_q)
 
-    if p_all.shape[0] != q_all.shape[0]:
+    if p_COORD.shape[0] != q_COORD.shape[0]:
         raise ValueError("error: Structures not same size")
 
     # Initialize atom indices
     idx1_Atom: npt.NDArray[np.int64] = np.array([], dtype=np.int64)
     idx0_Atom: npt.NDArray[np.int64]
 
-    # index of p_all_atoms and q_all_atoms
+    # index of p_all_atoms and q_all_atoms from 0 to number - 1
     p_view: None | npt.NDArray[np.int64] = None
     q_view: None | npt.NDArray[np.int64] = None
 
@@ -323,15 +323,15 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
     # Set local view
     if p_view is None:
         p_coord: npt.NDArray[np.float64] = copy.deepcopy(
-            p_all)
+            p_COORD)
         q_coord: npt.NDArray[np.float64] = copy.deepcopy(
-            q_all)
+            q_COORD)
 
     else:
         assert p_view is not None
         assert q_view is not None
-        p_coord = copy.deepcopy(p_all[p_view])
-        q_coord = copy.deepcopy(q_all[q_view])
+        p_coord = copy.deepcopy(p_COORD[p_view])
+        q_coord = copy.deepcopy(q_COORD[q_view])
 
     # Recenter to centroid
     p_cent: npt.NDArray[np.float64] = centroid(p_coord)
@@ -343,7 +343,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
     if (args.add_idx is None) and (args.remove_idx is None) and (not args.ignore_Hydrogen):
         idx1_Atom = np.arange(1, len(p_all_atoms)+1)
 
-    idx1_coordSquare, res_rmsd = kabsch_rmsd(p_coord, q_coord, list(idx1_Atom))
+    CoordSquare, res_rmsd = kabsch_rmsd(p_coord, q_coord, list(idx1_Atom))
 
     if __name__ == "__main__":
         print(f"{" RMSD":>5s}", end=" ")
@@ -354,7 +354,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
 
     if len(idx1_Atom) == 0:
         raise ValueError("The value of idx1_Atom is error")
-    elif len(idx1_coordSquare) == 0:
+    elif len(CoordSquare) == 0:
         raise ValueError("The value of coord_square is error")
     else:
-        return idx1_coordSquare, res_rmsd
+        return CoordSquare, res_rmsd

@@ -4,7 +4,7 @@ import argparse
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 import numpy.typing as npt
-from censo_ext.Tools.utility import print_arguments
+from censo_ext.Tools.utility import AtomID, print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
 # from icecream import ic
 from pathlib import Path
@@ -105,7 +105,7 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
     idx1_Atoms: list[int] = list(idx_STD.keys())
     STD_Atoms: list[float] = list(idx_STD.values())
 
-    idx1_Bonding: list[list[int]] = []
+    idx1_Bonding: list[list[AtomID]] = []
     for x in idx1_LowFactor:
         from censo_ext.Tools.topo import Topo
         args_x: dict = {"file": inFile, "bonding": x,

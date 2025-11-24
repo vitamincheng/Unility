@@ -635,7 +635,7 @@ class Anmr():
             for orcaSJ in self.orcaSJ:
                 for idy0, Atom in enumerate(orcaSJ.SParams.copy().keys()):
                     if Atom in idx1_acid_atoms_NoShow_RemoveH:
-                        if idy0 not in idx0_AtomsDelete:
+                        if IntpID(idy0) not in idx0_AtomsDelete:
                             idx0_AtomsDelete.append(IntpID(idy0))
                         del orcaSJ.SParams[Atom]
                         del orcaSJ.Element[Atom]

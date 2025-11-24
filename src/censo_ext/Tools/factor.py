@@ -5,6 +5,7 @@ import argparse
 import numpy as np
 import numpy.typing as npt
 from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
+from censo_ext.Tools.utility import AtomID
 
 
 def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
@@ -152,11 +153,11 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
         args_x = {"file": args.file, "bond_broken": [
             x[0], x[1]], "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
-        idxSTD_L: list[int] = Sts_topo.method_broken_bond(
+        idxSTD_L: list[AtomID] = Sts_topo.method_broken_bond(
             argparse.Namespace(**args_x))
         args_x = {"file": args.file, "bond_broken": [
             x[1], x[0]], "print": False, "debug": False}
-        idxSTD_R: list[int] = Sts_topo.method_broken_bond(
+        idxSTD_R: list[AtomID] = Sts_topo.method_broken_bond(
             argparse.Namespace(**args_x))
 
         tSTD_L: float = float(0.0)  # total STD Left Data
