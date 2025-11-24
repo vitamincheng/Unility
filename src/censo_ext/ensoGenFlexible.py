@@ -3,6 +3,7 @@ import argparse
 import os
 import shutil
 from pathlib import Path
+
 # from icecream import ic
 from censo_ext.Tools.utility import delete_all_files, print_arguments
 from censo_ext.Tools.utility import copy_file
@@ -76,7 +77,7 @@ outFile: Path = Path("isomers.xyz")
 inFile: Path = Path("traj.xyz")
 
 
-def xtb(args):
+def xtb(args: argparse.Namespace) -> None:
     print(" ========== molclus_xtb.py ==========")
     xtbDir: Path = Path(".xtb")
     if not xtbDir.is_dir():
@@ -94,7 +95,7 @@ def xtb(args):
     print(" ========== End ==========")
 
 
-def orca(args, Dir, FileName):
+def orca(args: argparse.Namespace) -> None:
     print(" ========== molclus_orca.py ==========")
     orcaDir: Path = Path(".orca")
     if not orcaDir.is_dir():
@@ -113,7 +114,8 @@ def orca(args, Dir, FileName):
     print(" ========== End ==========")
 
 
-def thermo(args) -> list:
+def thermo(args: argparse.Namespace) -> list[str]:
+
     import censo_ext.molclus_thermo as molclus_thermo
     print(" ========= molclus_thermo.py ==========")
     thermoDir: Path = Path(".thermo")
@@ -125,14 +127,14 @@ def thermo(args) -> list:
     os.chdir(thermoDir)
     args_x: dict = {"file": inFile, "method": "gfn2",
                     "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1}
-    thermo: list = molclus_thermo.main(argparse.Namespace(**args_x))
+    thermo: list[str] = molclus_thermo.main(argparse.Namespace(**args_x))
     os.chdir(cwd)
     shutil.rmtree(thermoDir, ignore_errors=True)
     print(" ========== End ==========")
     return thermo
 
 
-def ensoGen(args, thermo_list) -> None:
+def ensoGen(args: argparse.Namespace, thermo_list: list[str]) -> None:
     from censo_ext.Tools.xyzfile import GeometryXYZs
     from censo_ext.Tools.anmrfile import Anmr
     print(" ========= ensoGenFlexible ==========")
@@ -153,8 +155,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print_arguments()
 
     p = Path(args.file)
-    fileName: str = p.name
-    Dir: Path = p.parents[0]
+    # fileName: str = p.name
+    # Dir: Path = p.parents[0]
 
     if args.manual:
         choice_xtb: str = input(
@@ -164,13 +166,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         choice_orca: str = input(
             " Geometry optimization use orca : Yes or No ").lower().split()[0]
         if choice_orca == "y" or choice_orca == "yes":
-            orca(args, Dir, fileName)
+            orca(args)
         else:
             print(f" Direct use {p} as opt xyz file ")
         ensoGen(args, thermo(args))
     else:
         xtb(args)
-        orca(args, Dir, fileName)
+        orca(args)
         ensoGen(args, thermo(args))
     delete_all_files(inFile, outFile)
 

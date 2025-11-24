@@ -48,7 +48,7 @@ def atom2int(atom: str) -> int:
     return NAMES_ELEMENT[atom]
 
 
-def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_atom: list[int]) -> tuple[dict[int, float], float]:
+def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_atom: list[int]) -> tuple[dict[AtomID, float], float]:
     """
     Calculate Root-mean-square deviation from two sets of vectors.
 
@@ -73,7 +73,7 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_atom: list
     """
 
     diff: npt.NDArray[np.float64] = P - Q
-    idx1_coord_Square: dict[int, float] = {}
+    idx1_coord_Square: dict[AtomID, float] = {}
     coord_square_total: float = 0
     for idx0, x in enumerate(idx1_atom):
         coord_square: float = float((diff[idx0]**2).sum())
@@ -81,13 +81,13 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_atom: list
         if __name__ == "__main__":
             print(f"{x:>5}", end=" ")
             print(f"{coord_square:>10.5f}")
-        idx1_coord_Square[x] = coord_square
+        idx1_coord_Square[AtomID(x)] = coord_square
         coord_square_total += coord_square
     return idx1_coord_Square, float(np.sqrt(coord_square_total / P.shape[0]))
 
 
 def kabsch_rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_Atom: list[int],
-                translate: bool = False) -> tuple[dict[int, float], float]:
+                translate: bool = False) -> tuple[dict[AtomID, float], float]:
     """
     Rotate matrix P unto Q using Kabsch algorithm and calculate the RMSD.
 
@@ -216,7 +216,7 @@ def get_Coordinates(xyzFile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
     return atomic_Number, V
 
 
-def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse.Namespace) -> tuple[dict[int, float], float]:
+def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse.Namespace) -> tuple[dict[AtomID, float], float]:
     """
     Read xyz file and calculate RMSD between two structures.
 
@@ -261,7 +261,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
 
     # Initialize atom indices
     idx1_Atom: npt.NDArray[np.int64] = np.array([], dtype=np.int64)
-    index0: npt.NDArray[np.int64]
+    idx0_Atom: npt.NDArray[np.int64]
 
     # index of p_all_atoms and q_all_atoms
     p_view: None | npt.NDArray[np.int64] = None
@@ -288,8 +288,8 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
             Sts_topo = Topo(args_x["file"])
             idx1_Atom = np.array(Sts_topo.method_broken_bond(
                 argparse.Namespace(**args_x)))
-            index0 = idx1_Atom-1
-            p_view, q_view = index0, index0
+            idx0_Atom = idx1_Atom-1
+            p_view, q_view = idx0_Atom, idx0_Atom
 
         else:
             print("  Only support under ignore Hydrogen condition ")
@@ -306,9 +306,9 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
         idx1_Atom = np.setdiff1d(idx1_Atom, args.remove_idx)
 
         args.remove_idx = np.array(args.remove_idx)-1
-        index0 = idx1_Atom-1
+        idx0_Atom = idx1_Atom-1
 
-        p_view, q_view = index0, index0
+        p_view, q_view = idx0_Atom, idx0_Atom
 
     # Handle index addition
     elif args.add_idx:

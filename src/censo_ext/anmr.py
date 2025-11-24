@@ -404,10 +404,10 @@ def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFil
     # For C/CH/CH2/CH3 from 0 1 2 3 to 1 2 3 4 for Carbon spectra
     # Convert bond order values to hydrogen counts (add 1 to each value)
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
-    *_, idx1_bond_order = read_mol_neighbors_bond_order(
+    *_, bond_order = read_mol_neighbors_bond_order(
         inAnmr.get_Dir() / inFile)
     inHydrogen: list[int] = [(value+1)
-                             for value in idx1_bond_order.values()]
+                             for value in bond_order.values()]
 
     Active_range = int(200*0.1)
     if not args.lw:
@@ -431,19 +431,19 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
     Returns:
         tuple[list[int], int, int]: Hydrogen counts, Active range, and DPI values
     """
-    idx1_nMagEqvHydrogens: dict[AtomID, int] = {}
+    nMagEqvHydrogens: dict[AtomID, int] = {}
     for key in inAnmr.avg_orcaSJ.Element.keys():
-        idx1_nMagEqvHydrogens[key] = inAnmr.nMagnetEqvs[key]
+        nMagEqvHydrogens[key] = inAnmr.nMagnetEqvs[key]
 
     # Remove hydrogen atoms that are part of acid groups
     for y in inAnmr.get_idx1_acid_atoms_NoShow_RemoveH(
             inAnmr.get_Dir()/inFile):
-        if y in idx1_nMagEqvHydrogens.keys():
-            del idx1_nMagEqvHydrogens[AtomID(y)]
+        if y in nMagEqvHydrogens.keys():
+            del nMagEqvHydrogens[AtomID(y)]
 
     # Extract hydrogen counts for each equivalent group
     inHydrogen: list[int] = [
-        value for value in idx1_nMagEqvHydrogens.values()]
+        value for value in nMagEqvHydrogens.values()]
 
     Active_range = int(20*0.1)
     if not args.lw:
@@ -456,7 +456,7 @@ def _preprocess_hydrogen_spin_system(inAnmr: Anmr, args: argparse.Namespace, inF
     return inHydrogen, Active_range, dpi
 
 
-def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64],  list[int]], idx0_ab_group_sets: list[set[int]], mat_filter_multi: npt.NDArray[np.uint8], inAnmr: Anmr, args: argparse.Namespace) -> tuple[list[int], list[list[tuple[float, float]]]]:
+def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64],  list[int]], ab_group_sets: list[set[int]], mat_filter_multi: npt.NDArray[np.uint8], inAnmr: Anmr, args: argparse.Namespace) -> tuple[list[int], list[list[tuple[float, float]]]]:
     """Process QM hydrogen spin system data.
 
     Args:
@@ -475,19 +475,19 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
     inSParams, inJCoups, inHydrogen = inParameter  # type: ignore # nopep8
     print("")
     print(" ===== Processing =====")
-    print(" the group of calculate spectra :", len(idx0_ab_group_sets))
+    print(" the group of calculate spectra :", len(ab_group_sets))
     print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
 
     if np.sum(inSParams.astype(bool)*inHydrogen) <= args.mss:
-        idx0_ab_group = list(idx0_ab_group_sets[0])
-        v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
-        J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
+        ab_group = list(ab_group_sets[0])
+        v: npt.NDArray[np.float64] = inSParams[ab_group]
+        J: npt.NDArray[np.float64] = inJCoups[ab_group].T[ab_group]
 
-        for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
+        for idx0, ab_group_set in enumerate(ab_group_sets):
             mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
                 int).tolist()
-            idx0_ab_group: list[int] = list(idx0_ab_group_set)
-            idx1_ab_group: set[int] = set(a+1 for a in idx0_ab_group_set)
+            idx0_ab_group: list[int] = list(ab_group_set)
+            idx1_ab_group: set[int] = set(a+1 for a in ab_group_set)
             mat_multi_x_idx0: list[int] = [
                 idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
             print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
@@ -498,12 +498,12 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
         accPeaks.append(QM_Bases)
 
     else:
-        for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
+        for idx0, ab_group_set in enumerate(ab_group_sets):
 
             mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
                 int).tolist()
-            idx0_ab_group: list[int] = list(idx0_ab_group_set)
-            idx1_ab_group: set[int] = set(a+1 for a in idx0_ab_group_set)
+            idx0_ab_group: list[int] = list(ab_group_set)
+            idx1_ab_group: set[int] = set(a+1 for a in ab_group_set)
             mat_multi_x_idx0: list[int] = [
                 idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
             print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
@@ -519,7 +519,7 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
             # for QM_base in QM_Bases:
             for freq, Intensit in QM_Bases:
                 idx0_multiplicity: list[int] = list(
-                    set(mat_multi_x_idx0).difference(idx0_ab_group_set))
+                    set(mat_multi_x_idx0).difference(ab_group_set))
 
                 # Chemical Shift, the numbers of Hydrogen in inJ
                 inJCoups_multi: list[tuple[float, int]] = []
@@ -552,8 +552,8 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
     with open(inAnmr.get_Dir()/Path("peaks.json"), "w") as jsonFile:
         json.dump(accPeaks, jsonFile)
 
-    idx0_peaks_range: list[int] = [*range(len(accPeaks))]
-    return idx0_peaks_range, accPeaks
+    peaks_range: list[int] = [*range(len(accPeaks))]
+    return peaks_range, accPeaks
 
 
 def _process_qm_carbon_spin_system(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[int]], inAnmr: Anmr) -> list[list[tuple[float, float]]]:
@@ -601,10 +601,10 @@ def _process_qm_json_spin_system(inAnmr: Anmr, args: argparse.Namespace) -> tupl
         accPeaks = json.load(jsonFile)
 
     if args.json[0] == -1:
-        idx0_peaks_range: list[int] = [*range(len(accPeaks))]
+        peaks_range: list[int] = [*range(len(accPeaks))]
     else:
-        idx0_peaks_range = args.json
-    return idx0_peaks_range, accPeaks
+        peaks_range = args.json
+    return peaks_range, accPeaks
 
 
 def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], list[int]], inAnmr: Anmr, args: argparse.Namespace) \
@@ -635,7 +635,7 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
     """
 
     # Initialize variables for AB quartet detection and processing
-    idx0_ab_group_sets: list[set[int]] = []
+    ab_group_sets: list[set[int]] = []
     mat_filter_multi: npt.NDArray[np.uint8] = np.array([])
 
     # Main processing loop for identifying and categorizing spin systems
@@ -746,19 +746,19 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
 
             # the atom connect relation of AB quaret
-            idx0_ab_connect: list[list[int | set[int]]] = []
+            ab_connect: list[list[int | set[int]]] = []
             for idx0, x in enumerate(mat_filter_ab_quartet):
                 group: set[int] = set(np.array(x*(idx0+1)).nonzero()[0].tolist())  # return arg # nopep8 #idx0+1 is only for nozero
                 group.add(idx0)
-                idx0_ab_connect.append([idx0, group])
+                ab_connect.append([idx0, group])
             if args.verbose:
-                ic(idx0_ab_connect)
+                ic(ab_connect)
 
             # Merge overlapping spin system groups
-            idx0_ab_group_sets = []
-            for _, x in idx0_ab_connect:
+            ab_group_sets = []
+            for _, x in ab_connect:
                 if len(x) == 1:                      # type: ignore
-                    idx0_ab_group_sets.append(x)     # type: ignore
+                    ab_group_sets.append(x)     # type: ignore
                 elif len(x) > 1:                     # type: ignore
                     group: set[int] = x              # type: ignore
                     loop: bool = True
@@ -766,11 +766,11 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
                     while loop:
                         loop = False
                         for y in group:
-                            if (not group.issuperset(idx0_ab_connect[y][1])) and bond_penetration <= args.tb:  # type: ignore # nopep8
+                            if (not group.issuperset(ab_connect[y][1])) and bond_penetration <= args.tb:  # type: ignore # nopep8
                                 loop = True
-                                group = group.union(idx0_ab_connect[y][1])  # type: ignore # nopep8
+                                group = group.union(ab_connect[y][1])  # type: ignore # nopep8
                             bond_penetration += 1
-                    idx0_ab_group_sets.append(group)
+                    ab_group_sets.append(group)
                 else:
                     raise ValueError("  idx0_ab_group_sets have bugs !!!")
 
@@ -789,18 +789,18 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
 
                 # Adjust groups to account for equivalent protons
                 # Equivalent3 is idx0 numbers
-                for idx0, group_set in enumerate(idx0_ab_group_sets):
+                for idx0, group_set in enumerate(ab_group_sets):
                     set_move: set[int] = group_set.intersection(
                         set_Equivalent3)
                     if not len(set_move) == 0:
-                        idx0_ab_group_sets[idx0] = set(group_set).difference(
+                        ab_group_sets[idx0] = set(group_set).difference(
                             set_move).union(set([idx0]))
                         set_move = set_move.difference(set([idx0]))
                     for y in set_move:
                         mat_filter_multi[idx0][y] = 1
 
             if args.verbose:
-                ic(idx0_ab_group_sets)
+                ic(ab_group_sets)
 
             #  show every step of threshold
             if args.verbose:
@@ -812,7 +812,7 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
 
             # calculation the maximum length of the slice of AB quartet
             max_len_AB: int = 0
-            for idx0, group_set in enumerate(idx0_ab_group_sets):
+            for idx0, group_set in enumerate(ab_group_sets):
                 mat_multi_idx0: list[int] = [
                     idx0_set*x for x, idx0_set in enumerate(mat_filter_multi[idx0].tolist())if idx0_set != 0]
                 if args.verbose:
@@ -836,29 +836,29 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
         # Additional processing for AB quartets with identical chemical shifts
         # AB quartet if more than two peaks of AB quartet, added closed peaks (not in AB quartet)
         print(" ===== Modification AB quartet =====")
-        for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
-            idx0_ab_group: list[int] = list(idx0_ab_group_set)
+        for idx0, ab_group_set in enumerate(ab_group_sets):
+            idx0_ab_group: list[int] = list(ab_group_set)
             if len(set(list(inSParams[idx0_ab_group]))) == 1:
                 from censo_ext.Tools.spectra import find_nearest
                 _, Move_idx0 = find_nearest(inSParams[idx0_ab_group],
                                             inSParams[idx0_ab_group[0]])
                 arg = np.argwhere(
                     inSParams[:] == inSParams[int(Move_idx0)])[0]
-                idx0_ab_group_sets[idx0] = idx0_ab_group_set.union(
+                ab_group_sets[idx0] = ab_group_set.union(
                     set(int(x) for x in arg))
 
         # Display the parameter of Full Spectra
-        for idx0, idx0_ab_group_set in enumerate(idx0_ab_group_sets):
+        for idx0, ab_group_set in enumerate(ab_group_sets):
             mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
                 int).tolist()
-            idx0_ab_group: list[int] = list(idx0_ab_group_set)
-            idx1_ab_group: set[int] = set(a+1 for a in idx0_ab_group_set)
+            idx0_ab_group: list[int] = list(ab_group_set)
+            idx1_ab_group: set[int] = set(a+1 for a in ab_group_set)
             mat_multi_x_idx0: list[int] = [
                 idx0_set*x for x, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
             print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
                 a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
         print("  [Use this parameter to calculate the Full Spectra]")
-    return (inSParams, inJCoups, inHydrogen), idx0_ab_group_sets, mat_filter_multi
+    return (inSParams, inJCoups, inHydrogen), ab_group_sets, mat_filter_multi
 
 
 def generate_final_spectrum(finalPeaks: list[tuple[float, float]], inAnmr: Anmr, dpi: int,
@@ -919,17 +919,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
 
     if args.verbose:
         ic(inParameter)
-    inParameter, idx0_ab_group_sets, mat_filter_multi = process_AB_quartet(
+    inParameter, ab_group_sets, mat_filter_multi = process_AB_quartet(
         inParameter, inAnmr=inAnmr, args=args)
 
-    idx0_peaks_range: list[int] = []
+    peaks_range: list[int] = []
     accPeaks: list[list[tuple[float, float]]]
     if args.json:
-        idx0_peaks_range, accPeaks = _process_qm_json_spin_system(inAnmr, args)
+        peaks_range, accPeaks = _process_qm_json_spin_system(inAnmr, args)
     else:
         if inAnmr.get_Anmrrc_Active()[0] == 'H':
-            idx0_peaks_range, accPeaks = _process_qm_hydrogen_spin_system(
-                inParameter, idx0_ab_group_sets, mat_filter_multi, inAnmr, args)
+            peaks_range, accPeaks = _process_qm_hydrogen_spin_system(
+                inParameter, ab_group_sets, mat_filter_multi, inAnmr, args)
         elif inAnmr.get_Anmrrc_Active()[0] == 'C':
             accPeaks = _process_qm_carbon_spin_system(inParameter, inAnmr)
         else:
@@ -938,7 +938,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     finalPeaks: list[tuple[float, float]] = []
     if inAnmr.get_Anmrrc_Active()[0] == 'H':
         for idx0, peak in enumerate(accPeaks):
-            if idx0 in idx0_peaks_range:
+            if idx0 in peaks_range:
                 finalPeaks += peak
     elif inAnmr.get_Anmrrc_Active()[0] == 'C':
         for peak in accPeaks:

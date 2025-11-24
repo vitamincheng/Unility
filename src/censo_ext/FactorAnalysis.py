@@ -163,9 +163,9 @@ def cal_RMSD_coord(args, xyzFile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDAr
          "bond_broken": args.bond_broken, "ignore_Hydrogen": args.ignore_Hydrogen, "debug": False}
     coordSquare: list[list[float]] = []
     for idx0 in (idx0_cal):
-        idx_coordSquare, _ = cal_RMSD_xyz(
+        idx1_coordSquare, _ = cal_RMSD_xyz(
             xyzFile, idx0_cal[0]+1, idx0+1, args=argparse.Namespace(**x))
-        A: list[float] = list(idx_coordSquare.values())
+        A: list[float] = list(idx1_coordSquare.values())
         coordSquare.append(A)
     return np.array(coordSquare, dtype=np.float64)
 
