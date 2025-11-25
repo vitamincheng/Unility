@@ -96,28 +96,29 @@ def TopoAnalysis(args) -> None:
 
     # Check circleMols factor
     print("  ===== Check circle molecule =====")
-    result_circle: list = []
+    result_circle: list[tuple[int, int, int, float, float]] = []
     for resMol in residualMols:
         # ic(resMol)
-        node_mols = [x for x in resMol if x in flattenCircleMols]
+        node_mols: list[int] = [
+            int(x) for x in resMol if x in flattenCircleMols]
         for node_mol in node_mols:
             # ic(node_mol)
-            x = set.intersection(
+            inter_x: set[int] = set.intersection(
                 set(map(int, neighbor[AtomID(int(node_mol))])), resMol)
-            if (len(x)) != 1:
+            if (len(inter_x)) != 1:
                 print("  Something wrong in your residualMols")
                 print("  Exit and Close the program !!!")
                 exit(1)
-            res_node_mol = list(x)[0]
+            res_node_mol: int = list(inter_x)[0]
             # ic(node_mol, res_node_mol)
             nNums = len(xyzFile)
             for x in range(1, nNums+1):
                 if x == idx_p:
                     continue
-                res_left = cal_RMSD(xyzfile=xyzFile, idx_p=idx_p, idx_q=x,
-                                    bond_broken=(node_mol, res_node_mol))
-                res_right = cal_RMSD(xyzfile=xyzFile, idx_p=idx_p, idx_q=x,
-                                     bond_broken=(res_node_mol, node_mol))
+                res_left: float = cal_RMSD(xyzfile=xyzFile, idx_p=idx_p, idx_q=x,
+                                           bond_broken=(node_mol, res_node_mol))
+                res_right: float = cal_RMSD(xyzfile=xyzFile, idx_p=idx_p, idx_q=x,
+                                            bond_broken=(res_node_mol, node_mol))
                 if res_left <= limits and res_right <= limits:
                     result_circle.append(
                         (x, node_mol, res_node_mol, res_left, res_right))
@@ -126,9 +127,9 @@ def TopoAnalysis(args) -> None:
         print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
     # Check straight chain
     print("  ===== Check straight molecule =====")
-    result_straight: list = []
+    result_straight: list[tuple[int, int, int, float, float]] = []
     for key, value in xyzSplit.items():
-        nNums = len(xyzFile)
+        nNums: int = len(xyzFile)
         for x in range(1, nNums+1):
             if x == idx_p:
                 continue

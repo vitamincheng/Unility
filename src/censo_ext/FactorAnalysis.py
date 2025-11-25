@@ -263,13 +263,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.Analysis:
         if not args.factor:
             args.factor = 0.50
-        idx_minor: list[AtomID]
-        idx_dev: dict[AtomID, float]
+        idx1_minor: list[AtomID]
+        deviation: dict[AtomID, float]
         from censo_ext.Tools.factor import method_factor_analysis, method_factor_opt
-        idx_minor, idx_dev = method_factor_analysis(args)
+        idx1_minor, deviation = method_factor_analysis(args)
         if args.opt:
             method_factor_opt(
-                args=args, low_factor=idx_minor, Table_S=idx_dev)
+                args=args, low_factor=idx1_minor, Table_S=deviation)
 
     if args.Filter:
         if not args.factor:

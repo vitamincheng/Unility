@@ -136,25 +136,25 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         ChemEqvs: dict[AtomID, list[AtomID]] = {key: value for key, value in
                                                 inAnmr.NeighborChemEqvs.items()
                                                 if key in in_SParams}
-        Sorted_ChemEqvs: list[list[int]] = list(
+        Sorted_ChemEqvs: list[list[AtomID]] = list(
             sorted(value) for value in ChemEqvs.values())
 
-        unique_ChemEqvs: list[list[int]] = []
+        unique_ChemEqvs: list[list[AtomID]] = []
 
         for Sorted_ChemEqv in Sorted_ChemEqvs:
             if Sorted_ChemEqv not in unique_ChemEqvs:
                 unique_ChemEqvs.append(Sorted_ChemEqv)
 
-        unique_ChemEqvs_first_idx: list[int] = []
+        unique_ChemEqvs_first_idx: list[AtomID] = []
         for item in unique_ChemEqvs:
             unique_ChemEqvs_first_idx.append(item[0])
 
         # Normal Sim_SParams/sorted_SParams is more than real known peaks
         Sim_CS: list[float] = []
         for x in unique_ChemEqvs_first_idx:
-            index: tuple[npt.NDArray[np.intp], ...] = np.where(
+            _idx: tuple[npt.NDArray[np.intp], ...] = np.where(
                 OrcaS.T[0] == x)
-            Sim_CS.append(float(OrcaS.T[1][index][0]))
+            Sim_CS.append(float(OrcaS.T[1][_idx][0]))
 
         sorted_CS: npt.NDArray[np.float64] = np.array(
             sorted(Sim_CS))
@@ -197,7 +197,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             print(f"be Checked ChemicalShifts : \n{Wait_Check_CS}\n")
 
         else:
-            list_x: list = []
+            list_x: list[int] = []
             for x in args.index:
                 a = np.argwhere(OrcaS.T[0] == x)[0][0]
                 list_x.append(int(a))

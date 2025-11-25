@@ -168,21 +168,21 @@ def plot_2D_slice(ax: Axes, ax_histy_float, in_dir: tuple[Path, Path], h_limits:
     tmp_c: list = list(np.genfromtxt(
         Directory_C / Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
 
-    idxAtoms_C: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_c}
+    Atoms_C: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_c}
 
     tmp_h: list = list(np.genfromtxt(
         Directory_H/Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
-    idxAtoms_H: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_h}
+    Atoms_H: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_h}
     ax.set_xlim(h_limits[1], h_limits[0])
     ax.set_ylim(c_limits[1], c_limits[0])
     x_lowest, x_highest = h_limits
     x_lowest = abs(x_lowest-x_highest)*0.03 + x_lowest
 
-    for idx_C, C_ppm in idxAtoms_C.items():
+    for idx_C, C_ppm in Atoms_C.items():
 
         idx0_neighbor: dict = {}
         for idx_neighbor_Atoms_H in neighbor[idx_C]:
-            for idx, value in enumerate(idxAtoms_H.keys()):
+            for idx, value in enumerate(Atoms_H.keys()):
                 if idx_neighbor_Atoms_H == value:
                     if value in idx0_neighbor:
                         idx0_neighbor[idx] = (idx0_neighbor[idx], value)
@@ -218,37 +218,37 @@ def plot_2D_slice(ax: Axes, ax_histy_float, in_dir: tuple[Path, Path], h_limits:
 
     plt.subplots_adjust(hspace=0.5, wspace=0.5)
     plt.show()
-    return bond_order, neighbor, idxAtoms_H, idxAtoms_C
+    return bond_order, neighbor, Atoms_H, Atoms_C
 
 
-def print_report(bond_order: dict[AtomID, int], neighbor: dict[AtomID, npt.NDArray], idxAtoms_H: dict[AtomID, float], idxAtoms_C: dict[AtomID, float]) -> None:
+def print_report(bond_order: dict[AtomID, int], neighbor: dict[AtomID, npt.NDArray], Atoms_H: dict[AtomID, float], Atoms_C: dict[AtomID, float]) -> None:
 
     print("   #C   Bond_Order   13C(HSQC)      1H(HSQC)        #H ")
-    for idxAtom_C, C_ppm in idxAtoms_C.items():
+    for idxAtom_C, C_ppm in Atoms_C.items():
         if bond_order[idxAtom_C] == 0:
             print(f"{idxAtom_C:>5d}     C   {C_ppm:>15.4f}", end="")
         else:
             print(f"{idxAtom_C:>5d}     CH{bond_order[idxAtom_C]:>1d} {C_ppm:>15.4f}", end="")  # nopep8
 
-        idx0_neighbor: list[AtomID] = []
-        for idx_neighbor_Atoms_H in neighbor[idxAtom_C]:
-            for idx, value in enumerate(idxAtoms_H.keys()):
-                if idx_neighbor_Atoms_H == value:
-                    idx0_neighbor.append(value)
+        idx1_neighbor: list[AtomID] = []
+        for idx1_neighbor_Atoms_H in neighbor[idxAtom_C]:
+            for idx, value in enumerate(Atoms_H.keys()):
+                if idx1_neighbor_Atoms_H == value:
+                    idx1_neighbor.append(value)
 
-        if len(idx0_neighbor) == 0:
+        if len(idx1_neighbor) == 0:
             print("")
-        elif len(idx0_neighbor) == 1:
-            for _, x in enumerate(idx0_neighbor):
-                print(f"{idxAtoms_H[x]:>15.4f} {int(x):>10d}", end="")
+        elif len(idx1_neighbor) == 1:
+            for _, x in enumerate(idx1_neighbor):
+                print(f"{Atoms_H[x]:>15.4f} {int(x):>10d}", end="")
                 print("")
         else:
-            for idx, x in enumerate(idx0_neighbor):
+            for idx, x in enumerate(idx1_neighbor):
                 if idx == 0:
-                    print(f"{idxAtoms_H[x]:>15.4f} {int(x):>10d}", end="")
+                    print(f"{Atoms_H[x]:>15.4f} {int(x):>10d}", end="")
                 else:
                     print("\n", " "*27,
-                          f"{idxAtoms_H[x]:>15.4f} {int(x):>10d}", end="")
+                          f"{Atoms_H[x]:>15.4f} {int(x):>10d}", end="")
             print("")
     return
 

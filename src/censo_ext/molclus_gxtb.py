@@ -116,6 +116,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     single_traj_Name = Path(".single_traj.xyz")
     temp_isomer_Name = Path(".isomers.xyz")
+    prog = "xtb"
+
     inFile = Path(args.file)
     outFile = Path(args.out)
 
@@ -125,7 +127,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # Default to xtb command
     from censo_ext.Tools.utility import prog_IsExist
-    prog = "xtb"
     prog_IsExist(prog)
     xtb_cmd += prog
 
@@ -178,7 +179,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         else:
             # print("singe point")
-            lines = open("xtb.out", "r").readlines()
+            lines: list[str] = open("xtb.out", "r").readlines()
             for idy0, line in enumerate(lines):
                 if r"TOTAL ENERGY" in line:
                     get_energy = idy0

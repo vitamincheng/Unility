@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import numpy.typing as npt
 import copy
-from censo_ext.Tools.utility import AtomID, IntpID
+from censo_ext.Tools.utility import AtomID
 
 
 class Geometry():
@@ -453,7 +453,7 @@ class GeometryXYZs():
             print("  Exit and Close the program !!!")
             exit(0)
 
-    def method_idx_molecules_xyzs(self, idx1: int = 1) -> bool:
+    def method_idx1_molecules_xyzs(self, idx1: int = 1) -> bool:
         """
         Split molecules in all Geometry instances using topology data.
 

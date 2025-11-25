@@ -94,19 +94,19 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
+def idx_3atom_opt(inFile: Path) -> tuple[AtomID, AtomID, AtomID]:
     from censo_ext.Tools.factor import method_factor_analysis
     args_x: dict = {"file": inFile,
                     "factor": 0.5, "debug": False, "opt": False}
-    idx1_LowFactor: list[AtomID]
+    LowFactor: list[AtomID]
     idx_STD: dict[AtomID, float]
-    idx1_LowFactor, idx_STD = method_factor_analysis(
+    LowFactor, idx_STD = method_factor_analysis(
         args=argparse.Namespace(**args_x))
     idx1_Atoms: list[AtomID] = list(idx_STD.keys())
     STD_Atoms: list[float] = list(idx_STD.values())
 
     idx1_Bonding: list[list[AtomID]] = []
-    for x in idx1_LowFactor:
+    for x in LowFactor:
         from censo_ext.Tools.topo import Topo
         args_x: dict = {"file": inFile, "bonding": x,
                         "print": False, "debug": False}
@@ -115,7 +115,7 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
             args=argparse.Namespace(**args_x)))
 
     idx1_3atom: list[list[AtomID]] = []
-    for idx0, x in enumerate(idx1_LowFactor):
+    for idx0, x in enumerate(LowFactor):
         # total numbers >=3 or >2 (one of total numbers is )
         if len(idx1_Bonding[idx0]) > 1:
             tmp: list[AtomID] = []
@@ -130,7 +130,7 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
         for y in list(combinations(x, 3)):
             Combine3atom.append(y)
 
-    idx_minTotalDev: int = 0
+    intp_minTotalDev: int = 0
     minTotalDev: float = 100
     for idx0, x in enumerate(Combine3atom):
         TotalDevAtoms: float = 0.0
@@ -138,12 +138,12 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
             TotalDevAtoms += (STD_Atoms[idx1_Atoms.index(AtomID(y))])
         if minTotalDev > TotalDevAtoms:
             minTotalDev = TotalDevAtoms
-            idx_minTotalDev: int = idx0
+            intp_minTotalDev: int = idx0
 
     print("")
-    print(f" 3 atom idx of lowest total factor {Combine3atom[idx_minTotalDev]}")  # nopep8
+    print(f" 3 atom idx of lowest total factor {Combine3atom[intp_minTotalDev]}")  # nopep8
     print("")
-    return (Combine3atom[idx_minTotalDev])
+    return (Combine3atom[intp_minTotalDev])
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
@@ -160,41 +160,41 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if not args.atom and not args.auto:
         raise ValueError(" No any sepific atom in your provided arguments ")
 
-    p_idx: int
-    q_idx: int
-    r_idx: int
+    p_idx1: AtomID
+    q_idx1: AtomID
+    r_idx1: AtomID
     if not args.atom and args.auto:
         print("\n Automated to set the 3 atoms to return origin and lay on XZ plane")
         print(" First FactorAnalysis.py will executive and second continue the RetrunOandZ.py ")
-        p_idx, q_idx, r_idx = idx_3atom_opt(inFile)
+        p_idx1, q_idx1, r_idx1 = idx_3atom_opt(inFile)
     else:
-        p_idx, q_idx, r_idx = args.atom
+        p_idx1, q_idx1, r_idx1 = args.atom
 
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
 
     # Process xyz file
-    for idx_St in range(len(xyzFile)):
+    for idx0_St in range(len(xyzFile)):
 
-        dxyz: npt.NDArray[np.float64] = xyzFile.Sts[idx_St].coord[p_idx-1].copy()
-        xyzFile.Sts[idx_St].coord -= dxyz  # type: ignore
+        dxyz: npt.NDArray[np.float64] = xyzFile.Sts[idx0_St].coord[p_idx1-1].copy()
+        xyzFile.Sts[idx0_St].coord -= dxyz  # type: ignore
         z_axis = (0, 0, np.sqrt(
-            np.sum(np.square(xyzFile.Sts[idx_St].coord[q_idx-1]))))
+            np.sum(np.square(xyzFile.Sts[idx0_St].coord[q_idx1-1]))))
 
-        rotation_axis = xyzFile.Sts[idx_St].coord[q_idx-1] + z_axis
+        rotation_axis = xyzFile.Sts[idx0_St].coord[q_idx1-1] + z_axis
 
         Normalized_RotationAxis: npt.NDArray[np.float64] = np.array([
             0, 1, 0]) if np.linalg.norm(rotation_axis) == 0 else rotation_axis / np.linalg.norm(rotation_axis)
 
         R_pq = R.from_rotvec(np.pi*Normalized_RotationAxis)
-        xyzFile.Sts[idx_St].coord = R_pq.apply(
-            xyzFile.Sts[idx_St].coord)  # type: ignore
+        xyzFile.Sts[idx0_St].coord = R_pq.apply(
+            xyzFile.Sts[idx0_St].coord)  # type: ignore
 
-        Angle_qr = np.angle(complex(xyzFile.Sts[idx_St].coord[r_idx-1][0], complex(
-            xyzFile.Sts[idx_St].coord[r_idx-1][1])))
+        Angle_qr = np.angle(complex(xyzFile.Sts[idx0_St].coord[r_idx1-1][0], complex(
+            xyzFile.Sts[idx0_St].coord[r_idx1-1][1])))
         R_qr = R.from_euler('z', -Angle_qr)
-        xyzFile.Sts[idx_St].coord = R_qr.apply(
-            xyzFile.Sts[idx_St].coord)  # type: ignore
+        xyzFile.Sts[idx0_St].coord = R_qr.apply(
+            xyzFile.Sts[idx0_St].coord)  # type: ignore
 
     # Save or print result
     if args.print:

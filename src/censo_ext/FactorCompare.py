@@ -125,10 +125,10 @@ def Factor_xyzCompare(args) -> None:
 
     np_Res: npt.NDArray[np.float64] = result
     min_Res: npt.NDArray[np.float64] = np_Res.min(0)
-    idx_Res: npt.NDArray[np.float64] = np.array([], dtype=int)
+    idx1_Res: npt.NDArray[np.float64] = np.array([], dtype=int)
 
     for idx in range(len(np_Res[0])):
-        idx_Res = np.append(idx_Res, np.where(
+        idx1_Res = np.append(idx1_Res, np.where(
             np_Res.T[idx] == np_Res.min(0)[idx])[0][0]+1)
 
     sort_Res: npt.NDArray[np.float64] = np.copy(min_Res)
@@ -142,7 +142,7 @@ def Factor_xyzCompare(args) -> None:
     diff2_Res: npt.NDArray[np.float64] = np.diff(np.diff(sort_Res))
     STD_diff2_Res: float = float(diff2_Res.std())
 
-    idx_max_diff2_R: npt.NDArray[np.float64] = np.array([], dtype=int)
+    idx_max_diff2_R: npt.NDArray[np.float64] = np.array([], dtype=np.float64)
     for idx0, num in enumerate(diff2_Res):
         if num > STD_diff2_Res:
             idx_max_diff2_R = np.append(idx_max_diff2_R, idx0)
@@ -160,11 +160,11 @@ def Factor_xyzCompare(args) -> None:
         print(f"{(St_crest.T[0][idx0]):10.3f} {(St_crest.T[1][idx0]):10.5f}", end="")  # nopep8
 
         if x < thr:
-            print(f"{x:>12.5f} {(idx_Res[idx0]):>8d}")
+            print(f"{x:>12.5f} {(idx1_Res[idx0]):>8d}")
             weight_total = weight_total + St_crest.T[1][idx0]
         else:
             print(" "*25, end="")
-            print(f"{x:>12.5f} {idx_Res[idx0]:>8d}")
+            print(f"{x:>12.5f} {idx1_Res[idx0]:>8d}")
 
     print("")
     print(f"Weight_total  :  {weight_total:>12.5f}")

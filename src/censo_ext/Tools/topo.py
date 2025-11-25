@@ -38,7 +38,7 @@ class Topo():
         self._H_atom: list[AtomID] = [AtomID(idx1) for idx1,
                            i in enumerate(self.__mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
 
-    def get_cn(self) -> dict[int, int]:
+    def get_cn(self) -> dict[AtomID, int]:
         """Computes and returns the coordination number (CN) for each atom in the molecular structure.
 
         The coordination number represents the number of nearest neighbors for each atom.
@@ -57,7 +57,7 @@ class Topo():
             pre-computed and contain the neighbor information for each atom.
         """
 
-        idx_cn: dict[int, int] = {}
+        idx_cn: dict[AtomID, int] = {}
         for key, value in self.__neighbors.items():
             idx_cn[key] = len(value)
         return idx_cn

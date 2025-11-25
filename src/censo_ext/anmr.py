@@ -7,8 +7,7 @@ from icecream import ic
 from pathlib import Path
 
 from censo_ext.Tools.anmrfile import AD_BOBYQA, AD_Normal, Anmr
-from censo_ext.Tools.utility import print_arguments
-from censo_ext.Tools.utility import AtomID
+from censo_ext.Tools.utility import print_arguments, AtomID
 
 descr = """
 ________________________________________________________________________________
@@ -205,7 +204,7 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def normalize_peaklist(peaklist, nIntegrals: int) -> list[tuple[float, float]]:
+def normalize_peaklist(peaklist: list[tuple[float, float]], nIntegrals: int) -> list[tuple[float, float]]:
     """
     Normalize the intensities in a peaklist so that total intensity equals
     value n (nominally the number of nuclei giving rise to the signal).

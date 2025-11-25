@@ -79,12 +79,12 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def read_data(args) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]], dict[AtomID, int], dict[int, int], dict]:
+def read_data(args) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]], dict[AtomID, int], dict[AtomID, int], dict]:
     from censo_ext.Tools.topo import Topo
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     Sts_topo: Topo = Topo(args.file)
     _, neighbor, circleMols, residualMols, residualMols_all_pairs = Sts_topo.topology()
-    idx_atomsCN: dict[int, int] = Sts_topo.get_cn()
+    idx_atomsCN: dict[AtomID, int] = Sts_topo.get_cn()
     if args.verbose:
         ic(neighbor, circleMols, residualMols)
         ic(idx_atomsCN)
@@ -95,7 +95,7 @@ def read_data(args) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[int]
     return neighbor, circleMols, residualMols, idx_Bond_order, idx_atomsCN, residualMols_all_pairs
 
 
-def get_xyzSplit(residualMols: list[list[np.int64]], Bond_order: dict[AtomID, int], atomsCN: dict[int, int], flattenCircleMols: list[int], residualMols_all_pairs) -> dict[int, int]:
+def get_xyzSplit(residualMols: list[list[np.int64]], atomsCN: dict[AtomID, int], flattenCircleMols: list[int], residualMols_all_pairs) -> dict[int, int]:
     xyzSplit: dict[int, int] = {}
     for Mol in residualMols:
         mol: list[int] = list(map(int, Mol))
@@ -109,7 +109,7 @@ def get_xyzSplit(residualMols: list[list[np.int64]], Bond_order: dict[AtomID, in
         # ic(flexibleMols, nodeMols)
 
         flexibleMolsCNis4: list = [
-            a for a in flexibleMols if atomsCN[a] == 4]
+            a for a in flexibleMols if atomsCN[AtomID(a)] == 4]
         # ic(mol, flexibleMolsCNis4, nodeMols)
         # ic(nodeMols)
         if len(nodeMols) == 1:
@@ -217,8 +217,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     flattenCircleMols = list(set(flattenCircleMols))
     if args.verbose:
         ic(residualMols, flattenCircleMols)
-    xyzSplit: dict[int, int] = get_xyzSplit(residualMols,
-                                            Bond_order, atomsCN, flattenCircleMols, residualMols_all_pairs)
+    xyzSplit: dict[int, int] = get_xyzSplit(
+        residualMols, atomsCN, flattenCircleMols, residualMols_all_pairs)
     gen_GeometryXYZs(xyzSplit, args)
 
 
