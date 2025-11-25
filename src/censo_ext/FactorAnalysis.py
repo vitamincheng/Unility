@@ -2,7 +2,7 @@
 import argparse
 import numpy as np
 import numpy.typing as npt
-from censo_ext.Tools.utility import print_arguments
+from censo_ext.Tools.utility import AtomID, print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 descr = """
@@ -263,8 +263,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.Analysis:
         if not args.factor:
             args.factor = 0.50
-        idx_minor: list[int]
-        idx_dev: dict[int, float]
+        idx_minor: list[AtomID]
+        idx_dev: dict[AtomID, float]
         from censo_ext.Tools.factor import method_factor_analysis, method_factor_opt
         idx_minor, idx_dev = method_factor_analysis(args)
         if args.opt:

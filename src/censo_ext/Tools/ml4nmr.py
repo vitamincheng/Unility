@@ -139,8 +139,8 @@ def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conforme
     neighbors: dict[AtomID, npt.NDArray[np.int64]]
     mol, neighbors = read_mol_neighbors(DirfileName)
 
-    idx1_H_atoms: list[int] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
-    idx1_C_atoms: list[int] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "C"]  # type: ignore # nopep8
+    idx1_H_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
+    idx1_C_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "C"]  # type: ignore # nopep8
     BondOrder: dict[AtomID, int] = {}
     for idx1 in neighbors.keys():
         count: int = 0

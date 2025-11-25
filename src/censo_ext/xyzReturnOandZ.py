@@ -98,11 +98,11 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
     from censo_ext.Tools.factor import method_factor_analysis
     args_x: dict = {"file": inFile,
                     "factor": 0.5, "debug": False, "opt": False}
-    idx1_LowFactor: list[int]
-    idx_STD: dict[int, float]
+    idx1_LowFactor: list[AtomID]
+    idx_STD: dict[AtomID, float]
     idx1_LowFactor, idx_STD = method_factor_analysis(
         args=argparse.Namespace(**args_x))
-    idx1_Atoms: list[int] = list(idx_STD.keys())
+    idx1_Atoms: list[AtomID] = list(idx_STD.keys())
     STD_Atoms: list[float] = list(idx_STD.values())
 
     idx1_Bonding: list[list[AtomID]] = []
@@ -114,36 +114,36 @@ def idx_3atom_opt(inFile: Path) -> tuple[int, int, int]:
         idx1_Bonding.append(Sts_topo.method_bonding(
             args=argparse.Namespace(**args_x)))
 
-    idx1_3atom: list[list[int]] = []
+    idx1_3atom: list[list[AtomID]] = []
     for idx0, x in enumerate(idx1_LowFactor):
         # total numbers >=3 or >2 (one of total numbers is )
         if len(idx1_Bonding[idx0]) > 1:
-            tmp: list[int] = []
+            tmp: list[AtomID] = []
             tmp.append(x)
             for y in idx1_Bonding[idx0]:
                 tmp.append(y)
             idx1_3atom.append(tmp)
 
     from itertools import combinations
-    idx1_Combine3atom: list[tuple[int, int, int]] = []
+    Combine3atom: list[tuple[AtomID, AtomID, AtomID]] = []
     for x in idx1_3atom:
         for y in list(combinations(x, 3)):
-            idx1_Combine3atom.append(y)
+            Combine3atom.append(y)
 
     idx_minTotalDev: int = 0
     minTotalDev: float = 100
-    for idx0, x in enumerate(idx1_Combine3atom):
+    for idx0, x in enumerate(Combine3atom):
         TotalDevAtoms: float = 0.0
         for y in x:
-            TotalDevAtoms += (STD_Atoms[idx1_Atoms.index(y)])
+            TotalDevAtoms += (STD_Atoms[idx1_Atoms.index(AtomID(y))])
         if minTotalDev > TotalDevAtoms:
             minTotalDev = TotalDevAtoms
             idx_minTotalDev: int = idx0
 
     print("")
-    print(f" 3 atom idx of lowest total factor {idx1_Combine3atom[idx_minTotalDev]}")  # nopep8
+    print(f" 3 atom idx of lowest total factor {Combine3atom[idx_minTotalDev]}")  # nopep8
     print("")
-    return (idx1_Combine3atom[idx_minTotalDev])
+    return (Combine3atom[idx_minTotalDev])
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

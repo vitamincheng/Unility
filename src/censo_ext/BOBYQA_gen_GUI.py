@@ -158,7 +158,7 @@ class diagram:
                 self.OrcaS: npt.NDArray[np.float64] = np.array(
                     list(self._AD_orcaS.ChemicalShifts.items()))
                 print("\n  ===== Loading data OrcaS.out of Average Directory =====")
-                print(f"{self._AD_orcaS._file_orcaS}\n{self.OrcaS}")
+                print(f"{self._AD_orcaS._orcaS}\n{self.OrcaS}")
             else:
                 print("  The OrcaS.out in Averaage Directory is not dict format !!!")
                 print("  Exit and Close the program !!!")

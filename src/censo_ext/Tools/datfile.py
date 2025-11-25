@@ -378,7 +378,7 @@ class Peaks_npz():
             Currently only supports .npz file format. The method extracts data
             from the 'arr_0' key in the npz file.
         """
-        file = Path(self.__fileName)
+        file: Path = Path(self.__fileName)
         from censo_ext.Tools.utility import IsExists_DirFileName
         _, Name = IsExists_DirFileName(file)
         self.__fileName = Path(Name)

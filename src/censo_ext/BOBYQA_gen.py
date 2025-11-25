@@ -108,7 +108,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             OrcaS: npt.NDArray[np.float64] = np.array(
                 list(AD_orcaS.ChemicalShifts.items()))
             print("\n  ===== Loading data OrcaS.out of Average Directory =====")
-            print(f"{AD_orcaS._file_orcaS}\n{OrcaS}")
+            print(f"{AD_orcaS._orcaS}\n{OrcaS}")
             in_SParams: list[int] = list(
                 map(int, AD_orcaS.ChemicalShifts.keys()))
         else:
@@ -264,7 +264,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         AD_bobyqa.ChemicalShifts = OrcaS_BOBYQA
         AD_bobyqa.method_save_files()
         print("\nThe data is saved to orcaS-BOBYQA.out file")
-        print(f"{AD_bobyqa._file_orcaS}\n{AD_bobyqa.ChemicalShifts}")
+        print(f"{AD_bobyqa._orcaS}\n{AD_bobyqa.ChemicalShifts}")
         print("  ========== End ==========")
 
 

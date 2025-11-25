@@ -73,17 +73,17 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_atom: list
     """
 
     diff: npt.NDArray[np.float64] = P - Q
-    idx1_coord_Square: dict[AtomID, float] = {}
-    coord_square_total: float = 0
+    Coord_Square: dict[AtomID, float] = {}
+    Total_coord_square: float = 0
     for idx0, x in enumerate(idx1_atom):
-        coord_square: float = float((diff[idx0]**2).sum())
+        one_coord_square: float = float((diff[idx0]**2).sum())
         # ic(coord_square)
         if __name__ == "__main__":
             print(f"{x:>5}", end=" ")
-            print(f"{coord_square:>10.5f}")
-        idx1_coord_Square[AtomID(x)] = coord_square
-        coord_square_total += coord_square
-    return idx1_coord_Square, float(np.sqrt(coord_square_total / P.shape[0]))
+            print(f"{one_coord_square:>10.5f}")
+        Coord_Square[AtomID(x)] = one_coord_square
+        Total_coord_square += one_coord_square
+    return Coord_Square, float(np.sqrt(Total_coord_square / P.shape[0]))
 
 
 def kabsch_rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_Atom: list[int],
@@ -209,11 +209,11 @@ def get_Coordinates(xyzFile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
     """
 
     Names: dict[AtomID, str] = xyzFile.Sts[idx0].names
-    atomic_Number: npt.NDArray[np.int64] = np.array(
+    Atomic_Number: npt.NDArray[np.int64] = np.array(
         [atom2int(atom) for atom in Names.values()])
     V: npt.NDArray[np.float64] = np.array(
         xyzFile.Sts[idx0].coord, dtype=np.float64)
-    return atomic_Number, V
+    return Atomic_Number, V
 
 
 def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse.Namespace) -> tuple[dict[AtomID, float], float]:

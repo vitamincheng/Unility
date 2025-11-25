@@ -136,7 +136,7 @@ class Anmrrc():
             Res += f"{x[0]:<d}  {x[1]:<9.2f} {x[2]:<6.1f} {x[3]:>2d}\n"
         return Res
 
-    def get_idx1_acid_atoms_NoShow_RemoveH(self, DirFile: Path | str) -> list[AtomID]:
+    def get_acid_atoms_NoShow_RemoveH(self, DirFile: Path | str) -> list[AtomID]:
         """
         Get the list of hydrogen atom indices to be removed based on acid atom settings.
 
@@ -180,14 +180,14 @@ class Anmrrc():
             for y in acid_atoms_NoShow:
                 if x.symbol == y:  # type: ignore
                     acid_atoms_NoShowRemove.append(AtomID(idx1))
-        NoShow_Remove_Group: npt.NDArray[np.int64] = np.array(
+        NoShow_Remove: npt.NDArray[np.int64] = np.array(
             [], dtype=np.int64)
         for x in acid_atoms_NoShowRemove:
-            NoShow_Remove_Group = np.concatenate(
-                (NoShow_Remove_Group, neighbors[x]), axis=None)
-        idx1_H_atom: list[AtomID] = [idx1 for idx1,
+            NoShow_Remove = np.concatenate(
+                (NoShow_Remove, neighbors[x]), axis=None)
+        Has_H_atom: list[AtomID] = [idx1 for idx1,
                                  i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
-        return [x for x in NoShow_Remove_Group if x in idx1_H_atom]
+        return [x for x in NoShow_Remove if x in Has_H_atom]
 
     def get_anmrrc_linear(self) -> tuple[float, float]:
         """Extract linear parameters from .anmrrc and .anmrrc_linear files.
@@ -345,7 +345,7 @@ class Anmr():
             to determine which hydrogen atoms are bonded to the specified acid atoms.
         """
         DirFile = Path(DirFile)
-        return self.__AnmrParams.get_idx1_acid_atoms_NoShow_RemoveH(DirFile)
+        return self.__AnmrParams.get_acid_atoms_NoShow_RemoveH(DirFile)
 
     def method_read_anmrrc(self, file: Path | str = Path(".anmrrc")) -> None:
         """Read .anmrrc setting file from censo.
@@ -610,42 +610,42 @@ class Anmr():
                     del orcaSJ.SParams[x]
 
             # Delete Equivalent Atom of orcaJCoups
-            AtomsDelete2idx0: dict[AtomID, int] = {}
+            AtomsDelete2idx0: dict[AtomID, IntpID] = {}
             for idx0, x in enumerate(AtomsKeep):
                 if x in AtomsDelete:
-                    AtomsDelete2idx0[x] = idx0
+                    AtomsDelete2idx0[x] = IntpID(idx0)
 
             if self.__verbose:
                 ic(AtomsDelete2idx0)
 
-            list_AtomsDelete: list[int] = [
+            IntpID_AtomsDelete: list[IntpID] = [
                 x for x in AtomsDelete2idx0.values()]
-            list_AtomsDelete.reverse()
+            IntpID_AtomsDelete.reverse()
 
             for orcaSJ in self.orcaSJ:
-                for x in list_AtomsDelete:
+                for x in IntpID_AtomsDelete:
                     orcaSJ.JCoups = np.delete(orcaSJ.JCoups, x, 0)
                     orcaSJ.JCoups = np.delete(orcaSJ.JCoups, x, 1)
 
-            idx1_acid_atoms_NoShow_RemoveH: list[AtomID] = self.__AnmrParams.get_idx1_acid_atoms_NoShow_RemoveH(
+            Acid_atoms_NoShow_RemoveH: list[AtomID] = self.__AnmrParams.get_acid_atoms_NoShow_RemoveH(
                 self.__Dir / Ref_FileName)
 
             # Delete orcaSJ SParams in acid_atoms_NoShow
-            idx0_AtomsDelete: list[IntpID] = []
+            IntpID_AtomsDelete: list[IntpID] = []
             for orcaSJ in self.orcaSJ:
                 for idy0, Atom in enumerate(orcaSJ.SParams.copy().keys()):
-                    if Atom in idx1_acid_atoms_NoShow_RemoveH:
-                        if IntpID(idy0) not in idx0_AtomsDelete:
-                            idx0_AtomsDelete.append(IntpID(idy0))
+                    if Atom in Acid_atoms_NoShow_RemoveH:
+                        if IntpID(idy0) not in IntpID_AtomsDelete:
+                            IntpID_AtomsDelete.append(IntpID(idy0))
                         del orcaSJ.SParams[Atom]
                         del orcaSJ.Element[Atom]
 
             # Delete orcaSJ orcaJCoups in acid_atoms_NoShow
-            idx0_AtomsDelete.sort
-            idx0_AtomsDelete.reverse()
+            IntpID_AtomsDelete.sort
+            IntpID_AtomsDelete.reverse()
 
             for orcaSJ in self.orcaSJ:
-                for x in idx0_AtomsDelete:
+                for x in IntpID_AtomsDelete:
                     orcaSJ.JCoups = np.delete(orcaSJ.JCoups, x, 0)
                     orcaSJ.JCoups = np.delete(orcaSJ.JCoups, x, 1)
 
@@ -699,21 +699,21 @@ class Anmr():
             exit(0)
         from tqdm import tqdm
         for idx1, name in enumerate(tqdm(dirNames), 1):
-            file_orcaS: Path = Dir / Path(name + "/NMR/orcaS.out")  # nopep8
-            file_orcaJ: Path = Dir / Path(name + "/NMR/orcaJ.out")  # nopep8
+            _orcaS: Path = Dir / Path(name + "/NMR/orcaS.out")  # nopep8
+            _orcaJ: Path = Dir / Path(name + "/NMR/orcaJ.out")  # nopep8
             if self.__verbose:
-                print(f"{idx1}  :  {file_orcaS}")
-                print(f"{idx1}  :  {file_orcaJ}")
+                print(f"{idx1}  :  {_orcaS}")
+                print(f"{idx1}  :  {_orcaJ}")
 
             iter: OrcaSJ = OrcaSJ()
             iter.CONFSerialNums = int(name.replace('CONF', ''))
-            if not iter.method_read_orcaS(file=file_orcaS):
+            if not iter.method_read_orcaS(file=_orcaS):
                 print(" Your orcaS.out is missing or broken")
             else:
                 self.nNums_orcaS += 1
             from censo_ext.Tools.utility import IsExist_bool
-            if IsExist_bool(file_orcaJ):
-                iter.method_read_orcaJ(file=file_orcaJ)
+            if IsExist_bool(_orcaJ):
+                iter.method_read_orcaJ(file=_orcaJ)
                 self.nNums_orcaJ += 1
             else:
                 print(" Your orcaJ.out is missing or broken")
@@ -1061,13 +1061,13 @@ class Anmr():
 
         for idx1 in self.nChemEqvs.keys():
             print(f"   {idx1:d}   {self.nChemEqvs[idx1]:d}")
-            for y in self.NeighborChemEqvs[idx1]:
-                print(f" {y:d}", end="")
+            for idy1 in self.NeighborChemEqvs[idx1]:
+                print(f" {idy1:d}", end="")
             print("")
         for idx1 in self.nChemEqvs.keys():
             print(f"   {idx1:9d}   {self.nMagnetEqvs[idx1]:9d}")
-            for y in self.NeighborMangetEqvs[idx1]:
-                print(f" {y:4d}", end="")
+            for idy1 in self.NeighborMangetEqvs[idx1]:
+                print(f" {idy1:4d}", end="")
             print("")
 
     def method_read_nucinfo(self, file: Path | str = Path("anmr_nucinfo")) -> None:
@@ -1112,10 +1112,10 @@ class Anmr():
                 self.nChemEqvs[AtomID(int(x.split()[0]))] = AtomID(
                     int(x.split()[1]))
             else:
-                int_tmp: list[AtomID] = []
+                ATomID_tmp: list[AtomID] = []
                 for y in x.split():
-                    int_tmp.append(AtomID(int(y)))
-                self.NeighborChemEqvs[AtomID(int(x.split()[0]))] = int_tmp
+                    ATomID_tmp.append(AtomID(int(y)))
+                self.NeighborChemEqvs[AtomID(int(x.split()[0]))] = ATomID_tmp
 
         Magnetlines: list[str] = lines[int(len(lines)/2):len(lines)]
         for idx0, x in enumerate(Magnetlines):
@@ -1124,10 +1124,10 @@ class Anmr():
                 self.nMagnetEqvs[AtomID(int(x.split()[0]))] = AtomID(
                     int(x.split()[1]))
             else:
-                int_tmp: list[AtomID] = []
+                ATomID_tmp: list[AtomID] = []
                 for y in x.split():
-                    int_tmp.append(AtomID(int(y)))
-                self.NeighborMangetEqvs[AtomID(int(x.split()[0]))] = int_tmp
+                    ATomID_tmp.append(AtomID(int(y)))
+                self.NeighborMangetEqvs[AtomID(int(x.split()[0]))] = ATomID_tmp
 
     def method_create_enso(self, in_np: npt.NDArray) -> None:
         """Validate the enso data structure from an input numpy array.
@@ -1564,9 +1564,9 @@ class Average_Directory(object):
 
     Attributes:
         _Dir: Path object representing the average NMR directory
-        _file_orcaS: Path object for the ORCA S output file (not initialized in base class)
-        _file_orcaJ: Path object for the ORCA J output file
-        _file_orcaA: Path object for the ORCA A output file
+        _orcaS: Path object for the ORCA S output file (not initialized in base class)
+        _orcaJ: Path object for the ORCA J output file
+        _orcaA: Path object for the ORCA A output file
         SParams: Dictionary or NumPy array containing spin parameters
         JCoups: NumPy array containing J coupling constants
         idx1Atoms: Dictionary containing atomic indices
@@ -1580,12 +1580,13 @@ class Average_Directory(object):
     """
     FileName_A = Path("orcaA.out")
     FileName_J = Path("orcaJ.out")
+    FileName_Average = Path("Average/NMR")
 
     def __init__(self, Dir: Path = Path(".")) -> None:
-        self._Dir: Path = Dir / Path("Average/NMR")
-        self._file_orcaS: Path
-        self._file_orcaJ: Path = self._Dir / self.FileName_J
-        self._file_orcaA: Path = self._Dir / self.FileName_A
+        self._Dir: Path = Dir / self.FileName_Average
+        self._orcaS: Path
+        self._orcaJ: Path = self._Dir / self.FileName_J
+        self._orcaA: Path = self._Dir / self.FileName_A
         self.SParams: dict[AtomID, float] | npt.NDArray
         self.ChemicalShifts: dict[AtomID, float] | npt.NDArray
         self.JCoups: npt.NDArray
@@ -1593,9 +1594,9 @@ class Average_Directory(object):
 
     def method_print_file(self) -> None:
         """Print the file paths of ORCA A, S, and J files."""
-        print(self._file_orcaA)
-        print(self._file_orcaS)
-        print(self._file_orcaJ)
+        print(self._orcaA)
+        print(self._orcaS)
+        print(self._orcaJ)
 
     def method_load_files(self) -> bool:
         """Load ORCA files for ANMR analysis.
@@ -1627,25 +1628,25 @@ class Average_Directory(object):
 
             # load the orcaA file
             import json
-            with open(self._file_orcaA) as f:
+            with open(self._orcaA) as f:
                 self.Element = json.loads(
                     f.read(), object_pairs_hook=jsonKeys2int)
 
-            lines: list = open(self._file_orcaS, "r").readlines()
+            lines: list = open(self._orcaS, "r").readlines()
             if len(lines[0].split()) == 2:
                 Data: dict[AtomID, float] = {}
                 for x in lines:
                     Data[AtomID(int(x.split()[0]))] = float(x.split()[1])
                 self.ChemicalShifts = Data
             elif len(lines[0].split()) == 3:
-                self.ChemicalShifts = np.loadtxt(self._file_orcaS)
+                self.ChemicalShifts = np.loadtxt(self._orcaS)
             else:
                 print("  The type of your SParams have something wrong !!!")
                 print("  Exit and Close the program !!!")
                 exit(1)
 
             # load the Joups file
-            self.JCoups = np.loadtxt(self._file_orcaJ)
+            self.JCoups = np.loadtxt(self._orcaJ)
             return True
         else:
             return False
@@ -1674,15 +1675,15 @@ class Average_Directory(object):
         """
         (self._Dir).mkdir(parents=True, exist_ok=True)
         if isinstance(self.ChemicalShifts, dict):
-            with open(self._file_orcaS, 'w') as f:
+            with open(self._orcaS, 'w') as f:
                 for key, value in self.ChemicalShifts.items():
                     f.write(f'{key:10d} {value:12.5f}\n')
         elif isinstance(self.ChemicalShifts, np.ndarray):
             if self.ChemicalShifts.shape[1] == 3:
-                np.savetxt(self._file_orcaS, self.ChemicalShifts,
+                np.savetxt(self._orcaS, self.ChemicalShifts,
                            fmt="%10d   %10.5f %10d")
             elif self.ChemicalShifts.shape[1] == 2:
-                np.savetxt(self._file_orcaS, self.ChemicalShifts,
+                np.savetxt(self._orcaS, self.ChemicalShifts,
                            fmt="%10d   %10.5f")
             else:
                 print("  The type of your SParams.shape have someting wrong !!!!")
@@ -1695,10 +1696,10 @@ class Average_Directory(object):
             exit(1)
 
         import json
-        with open(self._file_orcaA, 'w') as f:
+        with open(self._orcaA, 'w') as f:
             f.write(json.dumps(self.Element))
 
-        np.savetxt(self._file_orcaJ, self.JCoups, fmt="%10.5f")
+        np.savetxt(self._orcaJ, self.JCoups, fmt="%10.5f")
 
     def Exist(self) -> bool:
         """Check if all required ORCA files exist.
@@ -1716,7 +1717,7 @@ class Average_Directory(object):
             bool: True if all three files exist, False otherwise
         """
 
-        if all(IsExist_bool(file_path) for file_path in (self._file_orcaS, self._file_orcaJ, self._file_orcaA)):
+        if all(IsExist_bool(file_path) for file_path in (self._orcaS, self._orcaJ, self._orcaA)):
             return True
         else:
             return False
@@ -1731,9 +1732,9 @@ class AD_Normal(Average_Directory):
     these files.
 
     Attributes:
-        _file_orcaS: Path object pointing to the ORCA S output file
-        _file_orcaA: Path object pointing to the ORCA A output file  
-        _file_orcaJ: Path object pointing to the ORCA J output file
+        _orcaS: Path object pointing to the ORCA S output file
+        _orcaA: Path object pointing to the ORCA A output file  
+        _orcaJ: Path object pointing to the ORCA J output file
 
     Args:
         Dir: Path object representing the directory containing the files.
@@ -1747,7 +1748,7 @@ class AD_Normal(Average_Directory):
 
     def __init__(self, Dir: Path = Path(".")) -> None:
         super().__init__(Dir)
-        self._file_orcaS = self._Dir / self.FileName_S
+        self._orcaS = self._Dir / self.FileName_S
 
 
 class AD_BOBYQA(Average_Directory):
@@ -1759,9 +1760,9 @@ class AD_BOBYQA(Average_Directory):
     naming conventions.
 
     Attributes:
-        _file_orcaS: Path object pointing to the BOBYQA ORCA S output file
-        _file_orcaA: Path object pointing to the BOBYQA ORCA A output file  
-        _file_orcaJ: Path object pointing to the BOBYQA ORCA J output file
+        _orcaS: Path object pointing to the BOBYQA ORCA S output file
+        _orcaA: Path object pointing to the BOBYQA ORCA A output file  
+        _orcaJ: Path object pointing to the BOBYQA ORCA J output file
 
     Args:
         Dir: Path object representing the directory containing the files.
@@ -1776,4 +1777,4 @@ class AD_BOBYQA(Average_Directory):
 
     def __init__(self, Dir: Path = Path(".")) -> None:
         super().__init__(Dir)
-        self._file_orcaS = self._Dir / self.FileName_S
+        self._orcaS = self._Dir / self.FileName_S

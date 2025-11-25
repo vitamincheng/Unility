@@ -440,9 +440,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     g_var.ref = inAnmr.get_Anmrrc_linear()
 
     if g_var.AD_normal.Exist():
-        print(f"  The File {g_var.AD_normal._file_orcaS} is exist")
+        print(f"  The File {g_var.AD_normal._orcaS} is exist")
         if g_var.AD_bobyqa.Exist():
-            print(f"  The file {g_var.AD_bobyqa._file_orcaS} is exist")
+            print(f"  The file {g_var.AD_bobyqa._orcaS} is exist")
             if g_var.prog:
                 cwd: Path = Path.cwd()
                 os.chdir(g_var.Dir)
@@ -473,7 +473,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             Create_BOBYQA()
     else:
         raise FileNotFoundError(
-            f"{g_var.AD_normal._file_orcaS} is not exist !!!")  # type: ignore # nopep8
+            f"{g_var.AD_normal._orcaS} is not exist !!!")  # type: ignore # nopep8
 
 
 if __name__ == "__main__":

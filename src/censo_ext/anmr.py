@@ -486,11 +486,11 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
         for idx0, ab_group_set in enumerate(ab_group_sets):
             mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
                 int).tolist()
-            idx0_ab_group: list[int] = list(ab_group_set)
+            # idx0_ab_group: list[int] = list(ab_group_set)
             idx1_ab_group: set[int] = set(a+1 for a in ab_group_set)
             mat_multi_x_idx0: list[int] = [
                 idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
-            print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
+            print(f'{(idx0+1):>5d}{len(idx1_ab_group):>5d}', f'{idx1_ab_group}', set(
                 a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
 
         QM_Bases: list[tuple[float, float]] = qm_full(
@@ -502,13 +502,14 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
 
             mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
                 int).tolist()
-            idx0_ab_group: list[int] = list(ab_group_set)
+            # idx0_ab_group: list[int] = list(ab_group_set)
             idx1_ab_group: set[int] = set(a+1 for a in ab_group_set)
             mat_multi_x_idx0: list[int] = [
                 idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
-            print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
+            print(f'{(idx0+1):>5d}{len(idx1_ab_group):>5d}', f'{idx1_ab_group}', set(
                 a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
 
+            idx0_ab_group: list[int] = list(ab_group_set)
             v: npt.NDArray[np.float64] = inSParams[idx0_ab_group]
             J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
 
@@ -851,11 +852,11 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
         for idx0, ab_group_set in enumerate(ab_group_sets):
             mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
                 int).tolist()
-            idx0_ab_group: list[int] = list(ab_group_set)
+            # idx0_ab_group: list[int] = list(ab_group_set)
             idx1_ab_group: set[int] = set(a+1 for a in ab_group_set)
             mat_multi_x_idx0: list[int] = [
                 idx0_set*x for x, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
-            print(f'{(idx0+1):>5d}{len(idx0_ab_group):>5d}', f'{idx1_ab_group}', set(
+            print(f'{(idx0+1):>5d}{len(idx1_ab_group):>5d}', f'{idx1_ab_group}', set(
                 a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
         print("  [Use this parameter to calculate the Full Spectra]")
     return (inSParams, inJCoups, inHydrogen), ab_group_sets, mat_filter_multi

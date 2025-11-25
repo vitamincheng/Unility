@@ -2,6 +2,7 @@
 from pointgroup import PointGroup
 import numpy as np
 import numpy.typing as npt
+from censo_ext.Tools.utility import IntpID
 from censo_ext.Tools.xyzfile import Geometry
 
 
@@ -35,11 +36,11 @@ def method_get_point_group(Sts: list[Geometry], idx0: int, hasHydrogen: bool) ->
     sym: npt.NDArray[np.float64]
 
     if not hasHydrogen:
-        idx0_AtomID: list[int] = [key-1 for key, value in Sts[idx0].names.items()
-                                  if value != 'H']
+        _idx0: list[IntpID] = [IntpID(key-1) for key, value in Sts[idx0].names.items()
+                               if value != 'H']
 
-        pos = np.array(Sts[idx0].coord)[idx0_AtomID]
-        sym = np.array(list(Sts[idx0].names.values()))[idx0_AtomID]
+        pos = np.array(Sts[idx0].coord)[_idx0]
+        sym = np.array(list(Sts[idx0].names.values()))[_idx0]
 
     else:
         pos = np.array([a.tolist() for a in Sts[idx0].coord])

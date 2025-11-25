@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import numpy.typing as npt
 import copy
-from censo_ext.Tools.utility import AtomID
+from censo_ext.Tools.utility import AtomID, IntpID
 
 
 class Geometry():
@@ -143,8 +143,9 @@ class Geometry():
                 del self.names[names_key]
         self.names = new_names
         self.nAtoms = len(self.names)
-        idx0_St: list[int] = [x-1 for x in idx1_Select_Names]
-        self.coord = (np.array(self.coord)[idx0_St]).tolist()
+        # idx0_St: list[int] = [x-1 for x in idx1_Select_Names]
+        self.coord = (np.array(self.coord)[
+                      [x-1 for x in idx1_Select_Names]]).tolist()
         return True
 
     def method_idx_molecules_xyz(self, fileName: Path | str) -> list[set[int]]:
@@ -496,12 +497,6 @@ class GeometryXYZs():
             self.method_save_xyz([idx1+plus_idx1])
         return True
 
-    def method_Sts_extend(self, Sts_: list[Geometry]) -> None:
-        raise NotImplementedError("Under Construct")
-
-    def method_Sts_append(self, St: Geometry) -> None:
-        raise NotImplementedError("Under Construct")
-
     def method_read_xyz(self) -> None:
         """Read XYZ file and populate the GeometryXYZs collection.
 
@@ -622,9 +617,9 @@ class GeometryXYZs():
         """
 
         if (idx1_St == []):
-            idx0_St: list = [*range(len(self))]
+            idx0_St: list[int] = [*range(len(self))]
         else:
-            idx0_St: list = [x-1 for x in idx1_St]
+            idx0_St: list[int] = [x-1 for x in idx1_St]
         for key in idx0_St:
             print(self.Sts[key], end="")
 
@@ -657,10 +652,10 @@ class GeometryXYZs():
             None
         """
 
-        for idx0, St in enumerate(self.Sts):
+        for idx1, St in enumerate(self.Sts, 1):
             if St.method_update_comment():
                 St.method_update_comment()
-            St.method_comment_new(idx0+1)
+            St.method_comment_new(idx1)
 
     def method_rewrite_comment(self) -> None:
         """

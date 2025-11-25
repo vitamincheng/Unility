@@ -8,7 +8,7 @@ from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 from censo_ext.Tools.utility import AtomID
 
 
-def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
+def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
     """ 
     Performs factor analysis on a set of geometries to identify atoms with high and low structural variability.
 
@@ -43,7 +43,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
 
     # For idxElement for the data of first xyzFile
     tmp, _ = cal_RMSD_xyz(xyzFile, 1, 1, args=argparse.Namespace(**args_x))
-    idx1_Element: list[int] = list(tmp.keys())
+    idx1_Element: list[AtomID] = list(tmp.keys())
 
     # Get variance of coord square of all xyzFile
     for idx0 in range(len(xyzFile)):
@@ -52,7 +52,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
         var: list[float] = list(coord_square.values())
         coord.append(var)
 
-    idx1_dev: dict[int, float] = dict(
+    idx1_dev: dict[AtomID, float] = dict(
         zip(idx1_Element, np.std(np.array(coord).T, axis=1).astype(float)))
     avSTD: np.float64 = np.float64(
         np.average(np.array(list(idx1_dev.values()))))
@@ -63,16 +63,16 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
     print(f" Threshold {
           args.factor:3.2f} *STD : {avSTD*args.factor:>12.8}", "\n")
     print(f" Atom        STD     Major (>STD)  or    Low (<({args.factor}STD)")
-    idx1_MajorFactor: list[int] = []
-    idx1_MinorFactor: list[int] = []
+    idx1_MajorFactor: list[AtomID] = []
+    idx1_MinorFactor: list[AtomID] = []
 
     for idx, x in idx1_dev.items():
         if (x >= avSTD):
             print(f"{int(idx):>5d} {x:>10.5f}     Major factor")
-            idx1_MajorFactor.append(int(idx))
+            idx1_MajorFactor.append(AtomID(int(idx)))
         elif (x <= avSTD*args.factor):
             print(f"{int(idx):>5d} {x:>10.5f}", " "*23, "Low factor")
-            idx1_MinorFactor.append(int(idx))
+            idx1_MinorFactor.append(AtomID(int(idx)))
         else:
             print(f"{idx:>5d} {x:>10.5f}")
 
@@ -81,7 +81,7 @@ def method_factor_analysis(args) -> tuple[list[int], dict[int, float]]:
     return idx1_MinorFactor, idx1_dev
 
 
-def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
+def method_factor_opt(args, low_factor: list[AtomID], Table_S: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
     """
     Optimizes the location of a broken bond based on factor analysis results.
 
@@ -144,7 +144,7 @@ def method_factor_opt(args, low_factor: list[int], Table_S: dict[int, float]) ->
         list(t) for t in set(tuple(x) for x in PairLowFactor)]
 
     nConfs: int = len(list(Table_S.keys()))
-    idx_STD: dict[int, float] = Table_S
+    idx_STD: dict[AtomID, float] = Table_S
 
     idx_ratio: list[list[int]] = []
     Ratio: list[float] = []
