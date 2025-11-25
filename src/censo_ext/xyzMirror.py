@@ -94,20 +94,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         xyzFile.method_read_xyz()
         Nums: int = len(xyzFile.Sts[0].coord)
         idx0_H: list[IntpID] = [IntpID(x) for x in [*range(Nums)]]
-        p_idx = 1
-        q_idx = 1
-        r_idx = 1
+        p_idx1: AtomID = AtomID(1)
+        q_idx1: AtomID = AtomID(1)
+        r_idx1: AtomID = AtomID(1)
     else:
-        p_idx: int
-        q_idx: int
-        r_idx: int
-        p_idx, q_idx, r_idx = args.atom
+        p_idx1: AtomID
+        q_idx1: AtomID
+        r_idx1: AtomID
+        p_idx1, q_idx1, r_idx1 = args.atom
 
         xyzFile: GeometryXYZs = GeometryXYZs(inFile)
         xyzFile.method_read_xyz()
 
         from censo_ext.Tools.topo import Topo
-        args_x: dict = {"file": inFile, "bond_broken": (p_idx, q_idx),
+        args_x: dict = {"file": inFile, "bond_broken": (p_idx1, q_idx1),
                         "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
         idx1_H: list[AtomID] = Sts_topo.method_broken_bond_H(
@@ -117,12 +117,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Process xyz file
     for idx0_St in range(len(xyzFile)):
 
-        dxyz: npt.NDArray[np.float64] = xyzFile.Sts[idx0_St].coord[p_idx-1].copy()
+        dxyz: npt.NDArray[np.float64] = xyzFile.Sts[idx0_St].coord[p_idx1-1].copy()
         xyzFile.Sts[idx0_St].coord -= dxyz  # type: ignore
         z_axis = (0, 0, np.sqrt(
-            np.sum(np.square(xyzFile.Sts[idx0_St].coord[q_idx-1]))))
+            np.sum(np.square(xyzFile.Sts[idx0_St].coord[q_idx1-1]))))
 
-        rotation_axis = xyzFile.Sts[idx0_St].coord[q_idx-1] + z_axis
+        rotation_axis = xyzFile.Sts[idx0_St].coord[q_idx1-1] + z_axis
 
         Normalized_RotationAxis: npt.NDArray[np.float64] = np.array([
             0, 1, 0]) if np.linalg.norm(rotation_axis) == 0 else rotation_axis / np.linalg.norm(rotation_axis)
@@ -131,8 +131,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         xyzFile.Sts[idx0_St].coord = R_pq.apply(
             xyzFile.Sts[idx0_St].coord)  # type: ignore
 
-        Angle_qr = np.angle(complex(xyzFile.Sts[idx0_St].coord[r_idx-1][0], complex(
-            xyzFile.Sts[idx0_St].coord[r_idx-1][1])))
+        Angle_qr = np.angle(complex(xyzFile.Sts[idx0_St].coord[r_idx1-1][0], complex(
+            xyzFile.Sts[idx0_St].coord[r_idx1-1][1])))
         R_qr = R.from_euler('z', -Angle_qr)
         xyzFile.Sts[idx0_St].coord = R_qr.apply(
             xyzFile.Sts[idx0_St].coord)  # type: ignore

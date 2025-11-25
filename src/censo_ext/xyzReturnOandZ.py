@@ -98,41 +98,42 @@ def idx_3atom_opt(inFile: Path) -> tuple[AtomID, AtomID, AtomID]:
     from censo_ext.Tools.factor import method_factor_analysis
     args_x: dict = {"file": inFile,
                     "factor": 0.5, "debug": False, "opt": False}
-    LowFactor: list[AtomID]
-    idx_STD: dict[AtomID, float]
-    LowFactor, idx_STD = method_factor_analysis(
+    _LowFactor: list[AtomID]
+    _Deviation: dict[AtomID, float]
+    _LowFactor, _Deviation = method_factor_analysis(
         args=argparse.Namespace(**args_x))
-    idx1_Atoms: list[AtomID] = list(idx_STD.keys())
-    STD_Atoms: list[float] = list(idx_STD.values())
 
-    idx1_Bonding: list[list[AtomID]] = []
-    for x in LowFactor:
+    _Bonding: list[list[AtomID]] = []
+    for x in _LowFactor:
         from censo_ext.Tools.topo import Topo
         args_x: dict = {"file": inFile, "bonding": x,
                         "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
-        idx1_Bonding.append(Sts_topo.method_bonding(
+        _Bonding.append(Sts_topo.method_bonding(
             args=argparse.Namespace(**args_x)))
 
-    idx1_3atom: list[list[AtomID]] = []
-    for idx0, x in enumerate(LowFactor):
+    _3AtomID: list[list[AtomID]] = []
+    for idx0, x in enumerate(_LowFactor):
         # total numbers >=3 or >2 (one of total numbers is )
-        if len(idx1_Bonding[idx0]) > 1:
+        if len(_Bonding[idx0]) > 1:
             tmp: list[AtomID] = []
             tmp.append(x)
-            for y in idx1_Bonding[idx0]:
+            for y in _Bonding[idx0]:
                 tmp.append(y)
-            idx1_3atom.append(tmp)
+            _3AtomID.append(tmp)
 
     from itertools import combinations
-    Combine3atom: list[tuple[AtomID, AtomID, AtomID]] = []
-    for x in idx1_3atom:
+    Combined_3AtomID: list[tuple[AtomID, AtomID, AtomID]] = []
+    for x in _3AtomID:
         for y in list(combinations(x, 3)):
-            Combine3atom.append(y)
+            Combined_3AtomID.append(y)
+
+    idx1_Atoms: list[AtomID] = list(_Deviation.keys())
+    STD_Atoms: list[float] = list(_Deviation.values())
 
     intp_minTotalDev: int = 0
     minTotalDev: float = 100
-    for idx0, x in enumerate(Combine3atom):
+    for idx0, x in enumerate(Combined_3AtomID):
         TotalDevAtoms: float = 0.0
         for y in x:
             TotalDevAtoms += (STD_Atoms[idx1_Atoms.index(AtomID(y))])
@@ -141,9 +142,9 @@ def idx_3atom_opt(inFile: Path) -> tuple[AtomID, AtomID, AtomID]:
             intp_minTotalDev: int = idx0
 
     print("")
-    print(f" 3 atom idx of lowest total factor {Combine3atom[intp_minTotalDev]}")  # nopep8
+    print(f" 3 atom idx of lowest total factor {Combined_3AtomID[intp_minTotalDev]}")  # nopep8
     print("")
-    return (Combine3atom[intp_minTotalDev])
+    return (Combined_3AtomID[intp_minTotalDev])
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

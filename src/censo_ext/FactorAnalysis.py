@@ -161,13 +161,12 @@ def cal_RMSD_coord(args, xyzFile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDAr
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
     x = {"remove_idx": args.remove_idx, "add_idx": args.add_idx,
          "bond_broken": args.bond_broken, "ignore_Hydrogen": args.ignore_Hydrogen, "debug": False}
-    coordSquare: list[list[float]] = []
+    list_COORDSquare: list[list[float]] = []
     for idx0 in (idx0_cal):
-        idx1_coordSquare, _ = cal_RMSD_xyz(
+        CoordSquare, _ = cal_RMSD_xyz(
             xyzFile, idx0_cal[0]+1, idx0+1, args=argparse.Namespace(**x))
-        A: list[float] = list(idx1_coordSquare.values())
-        coordSquare.append(A)
-    return np.array(coordSquare, dtype=np.float64)
+        list_COORDSquare.append(list(CoordSquare.values()))
+    return np.array(list_COORDSquare, dtype=np.float64)
 
 
 def FactorFilter(args) -> None:
@@ -190,21 +189,21 @@ def FactorFilter(args) -> None:
 
     idx1_separate: int = 1
     idx1_minor: list[list[int]] = []
-    major_idx: list[int] = []
-    minor_idx: list[int] = []
+    major_idx1: list[int] = []
+    minor_idx1: list[int] = []
 
     while (nConfs > args.thr):
         print(f" ========== Processing {idx1_separate} ==========")
-        coord_STD: npt.NDArray[np.float64] = cal_RMSD_coord(
+        Coord_STD: npt.NDArray[np.float64] = cal_RMSD_coord(
             args, xyzFile, idx1_xyz).T
-        Column_STD: npt.NDArray[np.float64] = np.std(coord_STD, axis=0)
+        Column_STD: npt.NDArray[np.float64] = np.std(Coord_STD, axis=0)
         Average_STD: np.float64 = np.float64(np.average(Column_STD))
         print(f" Average of STD       : {Average_STD:10.5f}")
         print(f" Factor of STD ranges : {args.factor:10.5f}")
         print(f" Limits of STD        : {Average_STD*args.factor: 10.5f} \n")  # nopep8
 
         counter_major, counter_minor = 0, 0
-        major_idx, minor_idx = [], []
+        major_idx1, minor_idx1 = [], []
         print(" CONF        STD  in major.xyz      idx     in minor.xyz    idx")
         import copy
         idx1_calc: list[int] = copy.deepcopy(idx1_xyz)
@@ -212,19 +211,19 @@ def FactorFilter(args) -> None:
         for idx in range(len(Column_STD)):
             if (Column_STD[idx] >= Average_STD*args.factor):
                 print(f"{idx1_calc[idx]:>5d} {Column_STD[idx]: > 10.5f}  major factor    {(counter_major+1): > 5d}")  # nopep8
-                major_idx.append(idx1_calc[idx])
+                major_idx1.append(idx1_calc[idx])
                 counter_major += 1
             else:
                 print(f"{idx1_calc[idx]:>5d} {Column_STD[idx]: > 10.5f}", " "*26, f"minor factor  {(counter_minor+1): > 5d}")  # nopep8
-                minor_idx.append(idx1_calc[idx])
+                minor_idx1.append(idx1_calc[idx])
                 idx1_xyz.remove(idx1_calc[idx])
                 counter_minor += 1
 
         print("")
-        print(f" Major idx: \n {major_idx}")
-        print(f" Minor idx: \n {minor_idx}")
+        print(f" Major idx: \n {major_idx1}")
+        print(f" Minor idx: \n {minor_idx1}")
         print(""*2)
-        idx1_minor.append(minor_idx)
+        idx1_minor.append(minor_idx1)
         idx1_separate += 1
         nConfs = len(idx1_xyz)
 
@@ -244,8 +243,8 @@ def FactorFilter(args) -> None:
 
     residueFile: Path = Path("residue.xyz")
     xyzFile.set_filename(reDir / residueFile)
-    xyzFile.method_save_xyz(major_idx)
-    print(f" {residueFile} : {major_idx}")
+    xyzFile.method_save_xyz(major_idx1)
+    print(f" {residueFile} : {major_idx1}")
 
     print(f" Coefficient of variation : {np_nMinor.std()/np_nMinor.mean()}")
 

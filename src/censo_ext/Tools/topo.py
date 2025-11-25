@@ -156,7 +156,7 @@ class Topo():
             print(f" Bonding : {idx1_p} @ Neighbors_Atoms")
         return _bonding_Atoms
 
-    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[AtomID, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]], dict]:
+    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[list[np.int64]], dict]:
         """Analyzes the molecular structure to classify it into circular and residual molecules.
 
         This method identifies circular (ring) structures and residual (non-ring) fragments
@@ -211,7 +211,7 @@ class Topo():
         circle_Atoms.sort()
 
         # use Graph Theory to collect the circle sturcutres and not repeated
-        circle_Mols: list[list[int]] = list()
+        circle_Mols: list[list[AtomID]] = list()
         for atom in circle_Atoms:
             for neighbors_atoms in neighbors[atom]:
                 start: int = atom
@@ -232,7 +232,7 @@ class Topo():
                 circle_Mols.remove(x)
 
         # 2D list to flatten to 1D list
-        flat_circle_Mols: list[int | list[int]] = []
+        flat_circle_Mols: list[int | list[AtomID]] = []
         for row in circle_Mols:
             flat_circle_Mols += row
 

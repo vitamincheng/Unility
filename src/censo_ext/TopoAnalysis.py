@@ -71,7 +71,7 @@ def cal_RMSD(xyzfile, idx_p, idx_q, bond_broken) -> float:
 
 def TopoAnalysis(args) -> None:
 
-    idx_p = args.idx
+    idx1_p = args.idx
     args.verbose = False
     neighbor, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
         args)
@@ -80,8 +80,8 @@ def TopoAnalysis(args) -> None:
         flattenCircleMols += mol
     flattenCircleMols = list(set(flattenCircleMols))
 
-    xyzSplit: dict[int, int] = get_xyzSplit(residualMols,
-                                            Bond_order, atomsCN, flattenCircleMols, residualMols_all_pairs)
+    xyzSplit: dict[int, int] = get_xyzSplit(
+        residualMols, atomsCN, flattenCircleMols, residualMols_all_pairs)
     from icecream import ic
     ic(residualMols)
     ic(circleMols)
@@ -113,11 +113,11 @@ def TopoAnalysis(args) -> None:
             # ic(node_mol, res_node_mol)
             nNums = len(xyzFile)
             for x in range(1, nNums+1):
-                if x == idx_p:
+                if x == idx1_p:
                     continue
-                res_left: float = cal_RMSD(xyzfile=xyzFile, idx_p=idx_p, idx_q=x,
+                res_left: float = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
                                            bond_broken=(node_mol, res_node_mol))
-                res_right: float = cal_RMSD(xyzfile=xyzFile, idx_p=idx_p, idx_q=x,
+                res_right: float = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
                                             bond_broken=(res_node_mol, node_mol))
                 if res_left <= limits and res_right <= limits:
                     result_circle.append(
@@ -131,11 +131,11 @@ def TopoAnalysis(args) -> None:
     for key, value in xyzSplit.items():
         nNums: int = len(xyzFile)
         for x in range(1, nNums+1):
-            if x == idx_p:
+            if x == idx1_p:
                 continue
-            res_left = cal_RMSD(xyzfile=xyzFile, idx_p=idx_p, idx_q=x,
+            res_left = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
                                 bond_broken=(key, value))
-            res_right = cal_RMSD(xyzfile=xyzFile, idx_p=idx_p, idx_q=x,
+            res_right = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
                                  bond_broken=(value, key))
             if res_left <= limits and res_right <= limits:
                 # ic(x, key, value, res_left, res_right)

@@ -75,11 +75,13 @@ def cml() -> argparse.Namespace:
 # global variable
 outFile: Path = Path("isomers.xyz")
 inFile: Path = Path("traj.xyz")
+xtbDir: Path = Path(".xtb")
+orcaDir: Path = Path(".orca")
+thermoDir: Path = Path(".thermo")
 
 
 def xtb(args: argparse.Namespace) -> None:
     print(" ========== molclus_xtb.py ==========")
-    xtbDir: Path = Path(".xtb")
     if not xtbDir.is_dir():
         xtbDir.mkdir()
     copy_file(args.file, xtbDir / inFile)
@@ -97,7 +99,6 @@ def xtb(args: argparse.Namespace) -> None:
 
 def orca(args: argparse.Namespace) -> None:
     print(" ========== molclus_orca.py ==========")
-    orcaDir: Path = Path(".orca")
     if not orcaDir.is_dir():
         orcaDir.mkdir()
     copy_file(inFile, orcaDir / inFile)
@@ -118,7 +119,6 @@ def thermo(args: argparse.Namespace) -> list[str]:
 
     import censo_ext.molclus_thermo as molclus_thermo
     print(" ========= molclus_thermo.py ==========")
-    thermoDir: Path = Path(".thermo")
     if not thermoDir.is_dir():
         thermoDir.mkdir()
     copy_file(inFile, thermoDir / inFile)

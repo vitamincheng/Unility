@@ -79,7 +79,7 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def read_data(args) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[int]], list[list[np.int64]], dict[AtomID, int], dict[AtomID, int], dict]:
+def read_data(args) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[list[np.int64]], dict[AtomID, int], dict[AtomID, int], dict]:
     from censo_ext.Tools.topo import Topo
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     Sts_topo: Topo = Topo(args.file)

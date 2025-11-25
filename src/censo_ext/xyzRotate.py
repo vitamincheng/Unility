@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 import numpy as np
 import numpy.typing as npt
-from censo_ext.Tools.utility import print_arguments
+from censo_ext.Tools.utility import IntpID, print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
 descr = """
 ________________________________________________________________________________
@@ -137,8 +137,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     from censo_ext.Tools.topo import Topo
     Sts_topo: Topo = Topo(x["file"], check=args.check)
-    idx0_broken_bond_H: list[int] = [
-        x-1 for x in Sts_topo.method_broken_bond_H(argparse.Namespace(**x))]
+    broken_bond_H: list[IntpID] = [
+        IntpID(x-1) for x in Sts_topo.method_broken_bond_H(argparse.Namespace(**x))]
 
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
@@ -159,7 +159,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
             r_pq = R.from_rotvec(2*np.pi*(nCutter/nCutters)*rotation_vector)
 
-            for idx0 in idx0_broken_bond_H:
+            for idx0 in broken_bond_H:
                 St.coord[idx0] = r_pq.apply(St.coord[idx0])
 
             St.coord += dxyz
