@@ -43,7 +43,7 @@ def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
 
     # For idxElement for the data of first xyzFile
     tmp, _ = cal_RMSD_xyz(xyzFile, 1, 1, args=argparse.Namespace(**args_x))
-    idx1_Element: list[AtomID] = list(tmp.keys())
+    _Element: list[AtomID] = list(tmp.keys())
 
     # Get variance of coord square of all xyzFile
     for idx0 in range(len(xyzFile)):
@@ -52,36 +52,36 @@ def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
         var: list[float] = list(coord_square.values())
         coord.append(var)
 
-    idx1_dev: dict[AtomID, float] = dict(
-        zip(idx1_Element, np.std(np.array(coord).T, axis=1).astype(float)))
-    avSTD: np.float64 = np.float64(
-        np.average(np.array(list(idx1_dev.values()))))
+    atomIDs_std: dict[AtomID, float] = dict(
+        zip(_Element, np.std(np.array(coord).T, axis=1).astype(float)))
+    av_std: np.float64 = np.float64(
+        np.average(np.array(list(atomIDs_std.values()))))
 
     print(" ========== Factor Analysis Processing ========== ")
     print("\n Average of STD      : ", end="")
-    print(f"{avSTD:>12.8f}")
+    print(f"{av_std:>12.8f}")
     print(f" Threshold {
-          args.factor:3.2f} *STD : {avSTD*args.factor:>12.8}", "\n")
+          args.factor:3.2f} *STD : {av_std*args.factor:>12.8}", "\n")
     print(f" Atom        STD     Major (>STD)  or    Low (<({args.factor}STD)")
-    idx1_MajorFactor: list[AtomID] = []
-    idx1_MinorFactor: list[AtomID] = []
+    _MajorFactor: list[AtomID] = []
+    _MinorFactor: list[AtomID] = []
 
-    for idx, x in idx1_dev.items():
-        if (x >= avSTD):
+    for idx, x in atomIDs_std.items():
+        if (x >= av_std):
             print(f"{int(idx):>5d} {x:>10.5f}     Major factor")
-            idx1_MajorFactor.append(AtomID(int(idx)))
-        elif (x <= avSTD*args.factor):
+            _MajorFactor.append(AtomID(int(idx)))
+        elif (x <= av_std*args.factor):
             print(f"{int(idx):>5d} {x:>10.5f}", " "*23, "Low factor")
-            idx1_MinorFactor.append(AtomID(int(idx)))
+            _MinorFactor.append(AtomID(int(idx)))
         else:
             print(f"{idx:>5d} {x:>10.5f}")
 
-    print(f"\n Major Factor List: {idx1_MajorFactor}")
+    print(f"\n Major Factor List: {_MajorFactor}")
     print(" ========== Finished ==========")
-    return idx1_MinorFactor, idx1_dev
+    return _MinorFactor, atomIDs_std
 
 
-def method_factor_opt(args, low_factor: list[AtomID], Table_S: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
+def method_factor_opt(args, _lowFactor: list[AtomID], Table_S: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
     """
     Optimizes the location of a broken bond based on factor analysis results.
 
@@ -122,29 +122,29 @@ def method_factor_opt(args, low_factor: list[AtomID], Table_S: dict[AtomID, floa
     print(" ")
     print(" ========== Optimized Broken-bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
-    bonding_LowFactor: list[npt.NDArray[np.int64]] = []
-    for idx1 in low_factor:
+    Bonding_LowFactor: list[npt.NDArray[np.int64]] = []
+    for idx1 in _lowFactor:
         args_x: dict = {"file": args.file, "bonding": idx1,
                         "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
-        bonding_LowFactor.append(
+        Bonding_LowFactor.append(
             np.array(Sts_topo.method_bonding(argparse.Namespace(**args_x))))
 
-    PairLowFactor: list[list[int]] = []
+    Pair_LowFactor: list[list[int]] = []
 
-    for idx0, idx1 in enumerate(low_factor):
-        for idy0, _ in enumerate(bonding_LowFactor[idx0]):
-            PairLowFactor.append([idx1, int(bonding_LowFactor[idx0][idy0])])
+    for idx0, idx1 in enumerate(_lowFactor):
+        for idy0, _ in enumerate(Bonding_LowFactor[idx0]):
+            Pair_LowFactor.append([idx1, int(Bonding_LowFactor[idx0][idy0])])
 
-    for x in PairLowFactor:
+    for x in Pair_LowFactor:
         if x[0] > x[1]:
             x[0], x[1] = x[1], x[0]
 
     unique_PairLowFactor: list[list[int]] = [
-        list(t) for t in set(tuple(x) for x in PairLowFactor)]
+        list(t) for t in set(tuple(x) for x in Pair_LowFactor)]
 
     nConfs: int = len(list(Table_S.keys()))
-    idx_STD: dict[AtomID, float] = Table_S
+    atomIDs_std: dict[AtomID, float] = Table_S
 
     idx_ratio: list[list[int]] = []
     Ratio: list[float] = []
@@ -153,28 +153,28 @@ def method_factor_opt(args, low_factor: list[AtomID], Table_S: dict[AtomID, floa
         args_x = {"file": args.file, "bond_broken": [
             x[0], x[1]], "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
-        idxSTD_L: list[AtomID] = Sts_topo.method_broken_bond(
+        atomIDs_L: list[AtomID] = Sts_topo.method_broken_bond(
             argparse.Namespace(**args_x))
         args_x = {"file": args.file, "bond_broken": [
             x[1], x[0]], "print": False, "debug": False}
-        idxSTD_R: list[AtomID] = Sts_topo.method_broken_bond(
+        atomIDs_R: list[AtomID] = Sts_topo.method_broken_bond(
             argparse.Namespace(**args_x))
 
         tSTD_L: float = float(0.0)  # total STD Left Data
         tSTD_R: float = float(0.0)  # Total STD Right Data
 
-        if len(idxSTD_L) < 1 or len(idxSTD_R) < 1:
+        if len(atomIDs_L) < 1 or len(atomIDs_R) < 1:
             raise ValueError("something wrong in your List_STD ")
 
-        elif len(idxSTD_L) < (nConfs-2) and len(idxSTD_R) < (nConfs-2):
+        elif len(atomIDs_L) < (nConfs-2) and len(atomIDs_R) < (nConfs-2):
 
             print(f" Index of atoms :      {x[0]:4d}   vs {x[1]:4d}")
-            print(f" Sizes of deviation :  {int(len(idxSTD_L)): 4d}   vs {int(len(idxSTD_R)): 4d}")  # nopep8
+            print(f" Sizes of deviation :  {int(len(atomIDs_L)): 4d}   vs {int(len(atomIDs_R)): 4d}")  # nopep8
 
-            for y in idxSTD_L:
-                tSTD_L += float(idx_STD[y])
-            for y in idxSTD_R:
-                tSTD_R += float(idx_STD[y])
+            for y in atomIDs_L:
+                tSTD_L += float(atomIDs_std[y])
+            for y in atomIDs_R:
+                tSTD_R += float(atomIDs_std[y])
 
             print(f" STD :           {tSTD_L:10.5f}   vs {tSTD_R: 10.5f}")  # nopep8
             print(f" STD/STD =    {(tSTD_L/tSTD_R):10.7f}")

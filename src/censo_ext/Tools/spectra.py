@@ -17,9 +17,9 @@ def numpy_thr_mean_3(x_in: npt.NDArray[np.float64]) -> float:
     """
 
     x: npt.NDArray[np.float64] = np.sort(x_in.flatten())
-    median_025 = x[int(len(x)*0.25)]
-    median_075 = x[int(len(x)*0.75)]
-    median = x[int(len(x)*0.50)]
+    median_025: float = x[int(len(x)*0.25)]
+    median_075: float = x[int(len(x)*0.75)]
+    median: float = x[int(len(x)*0.50)]
 
     return float((median_075 - median_025 + median)*3)
 

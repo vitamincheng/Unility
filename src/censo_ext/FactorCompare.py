@@ -66,9 +66,9 @@ def Factor_xyzCompare(args) -> None:
     nSts_Q: int = len(xyzFile_Q)
 
     result: list | npt.NDArray[np.float64] = []
-    for idx_P in range(nSts_P):
-        for idx_Q in range(nSts_Q):
-            result.append(cal_RMSD(xyzFile_Merge, idx_P+1, idx_Q+nSts_P+1))
+    for idx0_P in range(nSts_P):
+        for idx0_Q in range(nSts_Q):
+            result.append(cal_RMSD(xyzFile_Merge, idx0_P+1, idx0_Q+nSts_P+1))
 
     result = np.array(result)
     result = result.reshape(nSts_P, nSts_Q).T
@@ -81,22 +81,22 @@ def Factor_xyzCompare(args) -> None:
     Dir_str: Path = Path("CREST_P")
     workDir: Path = Path.cwd()
     CompareDir: Path = Path("weight_P")
-    New_cwd: Path = workDir / Dir_str
-    if not New_cwd.exists():
-        New_cwd.mkdir()
+    New_CWD: Path = workDir / Dir_str
+    if not New_CWD.exists():
+        New_CWD.mkdir()
 
     from censo_ext.Tools.utility import IsExists_DirFileName
     fileName_Dir, FileName_str = IsExists_DirFileName(args.file[0])
     FileName: Path = Path(FileName_str)
-    shutil.copyfile(workDir / fileName_Dir / FileName, New_cwd / FileName)
+    shutil.copyfile(workDir / fileName_Dir / FileName, New_CWD / FileName)
 
-    os.chdir(New_cwd)
+    os.chdir(New_CWD)
     subprocess.call(
         f"{prog} {FileName} --cregen {FileName} --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > {CompareDir}", shell=True)
     os.chdir(workDir)
-    shutil.copyfile(New_cwd / CompareDir, workDir / CompareDir)
+    shutil.copyfile(New_CWD / CompareDir, workDir / CompareDir)
 
-    Path_weight_P: Path = New_cwd / CompareDir
+    Path_weight_P: Path = New_CWD / CompareDir
     from censo_ext.Tools.utility import IsExist
     IsExist(Path_weight_P)
 
@@ -125,11 +125,11 @@ def Factor_xyzCompare(args) -> None:
 
     np_Res: npt.NDArray[np.float64] = result
     min_Res: npt.NDArray[np.float64] = np_Res.min(0)
-    idx1_Res: npt.NDArray[np.float64] = np.array([], dtype=int)
+    idx1_Res: npt.NDArray[np.int64] = np.array([], dtype=int)
 
-    for idx in range(len(np_Res[0])):
+    for idx0 in range(len(np_Res[0])):
         idx1_Res = np.append(idx1_Res, np.where(
-            np_Res.T[idx] == np_Res.min(0)[idx])[0][0]+1)
+            np_Res.T[idx0] == np_Res.min(0)[idx0])[0][0]+1)
 
     sort_Res: npt.NDArray[np.float64] = np.copy(min_Res)
     sort_Res.sort()

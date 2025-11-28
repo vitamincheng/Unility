@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import numpy.typing as npt
 from pathlib import Path
-from censo_ext.Tools.utility import delete_all_files
+from censo_ext.Tools.utility import AtomID, delete_all_files
 from censo_ext.Tools.utility import IsExist_bool, print_arguments
 
 descr = """
@@ -37,14 +37,14 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def Atom_Equivalent(file: Path | str = Path("anmrh.out")) -> list:
+def Atom_Equivalent(file: Path | str = Path("anmrh.out")) -> list[list[AtomID]]:
     file = Path(file)
     from censo_ext.Tools.anmrfile import Anmr
     inAnmr: Anmr = Anmr()
     inAnmr.method_read_anmrSJ(file)
     SParams: list = inAnmr.anmrS
     inAnmr.method_read_nucinfo()
-    AtomEqv: list = []
+    AtomEqv: list[list[AtomID]] = []
     for x in [a[1] for a in SParams]:
         AtomEqv.append(inAnmr.NeighborMangetEqvs[x])
     return AtomEqv
@@ -121,14 +121,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 idx_h_lines.append(idx0)
             # if r"h" in line:
             #    idx_h_lines.append(idx0)
-        np_idx_h_lines: npt.NDArray[np.int64] = np.array(idx_h_lines) - 1
+        idx0_h_lines: npt.NDArray[np.int64] = np.array(idx_h_lines) - 1
         np.set_printoptions(formatter={'float': '{:12.5f}'.format})
 
-        idx_Atom_Eqv: list = Atom_Equivalent("anmrh.out")
+        AtomIDs_Eqv: list[list[AtomID]] = Atom_Equivalent("anmrh.out")
 
-        for idx, x in enumerate(idx_Atom_Eqv):
+        for idx, x in enumerate(AtomIDs_Eqv):
             for idy, y in enumerate(x):
-                idx_Atom_Eqv[idx][idy] = (np_idx_h_lines + 1).tolist().index(y)
+                AtomIDs_Eqv[idx][idy] = (idx0_h_lines + 1).tolist().index(y)
 
         for dirName in (dirNames):
             fileBackup: Path = Path(f"{dirName}/NMR/orcaJ.out.backup")
@@ -142,28 +142,28 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 import shutil
                 shutil.copyfile(orcaJfile, fileBackup)
 
-            for i in range(len(idx_Atom_Eqv)-1, -1, -1):
+            for i in range(len(AtomIDs_Eqv)-1, -1, -1):
 
-                if (len(idx_Atom_Eqv[i]) != 1):
-                    print(f"{idx_Atom_Eqv[i]}=")
-                    JCoup_temp = np.mean(JCoup[(idx_Atom_Eqv[i])], axis=0)
-                    JCoup[idx_Atom_Eqv[i]] = JCoup_temp
-                    JCoup.transpose()[idx_Atom_Eqv[i]] = JCoup_temp
+                if (len(AtomIDs_Eqv[i]) != 1):
+                    print(f"{AtomIDs_Eqv[i]}=")
+                    JCoup_temp = np.mean(JCoup[(AtomIDs_Eqv[i])], axis=0)
+                    JCoup[AtomIDs_Eqv[i]] = JCoup_temp
+                    JCoup.transpose()[AtomIDs_Eqv[i]] = JCoup_temp
 
-            for i in range(len(idx_Atom_Eqv)-1, -1, -1):
-                if (len(idx_Atom_Eqv[i]) > 2):
-                    for j in range(len(idx_Atom_Eqv[i])-1, -1, -1):
-                        for k in range(len(idx_Atom_Eqv[i])-1, -1, -1):
-                            JCoup[idx_Atom_Eqv[i][j], idx_Atom_Eqv[i][k]] = 0
+            for i in range(len(AtomIDs_Eqv)-1, -1, -1):
+                if (len(AtomIDs_Eqv[i]) > 2):
+                    for j in range(len(AtomIDs_Eqv[i])-1, -1, -1):
+                        for k in range(len(AtomIDs_Eqv[i])-1, -1, -1):
+                            JCoup[AtomIDs_Eqv[i][j], AtomIDs_Eqv[i][k]] = 0
             np.set_printoptions(formatter={'float': '{:12.5f}'.format})
 
             orcaJ_File = (dirName + '/NMR/orcaJ.out')
             delete_all_files(orcaJ_File)
             with open(orcaJ_File, 'w') as outfile:
-                for i in range(0, len(np_idx_h_lines)):
-                    for j in range(i+1, len(np_idx_h_lines)):
+                for i in range(0, len(idx0_h_lines)):
+                    for j in range(i+1, len(idx0_h_lines)):
                         outfile.write(
-                            f" NUCLEUS A = H {int(np_idx_h_lines[i])} NUCLEUS B = H {int(np_idx_h_lines[j])}\n")
+                            f" NUCLEUS A = H {int(idx0_h_lines[i])} NUCLEUS B = H {int(idx0_h_lines[j])}\n")
                         outfile.write(
                             f" Total            0.000            0.000            0.000  iso= {str(JCoup[i][j]):.5f}\n")
 

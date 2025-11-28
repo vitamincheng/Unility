@@ -35,7 +35,7 @@ class Topo():
         self.__neighbors: dict[AtomID, npt.NDArray[np.int64]]
         self.__mol, self.__neighbors = ml4nmr.read_mol_neighbors(
             self.__fileName, check)
-        self._H_atom: list[AtomID] = [AtomID(idx1) for idx1,
+        self._H_atomIDs: list[AtomID] = [AtomID(idx1) for idx1,
                            i in enumerate(self.__mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
 
     def get_cn(self) -> dict[AtomID, int]:
@@ -83,12 +83,12 @@ class Topo():
         """
 
         Res: list[AtomID] = self.method_broken_bond(args)
-        NeighborsAtoms_H_atoms: dict[AtomID, AtomID] = {}  # {H:C}
-        for idx in self._H_atom:
-            NeighborsAtoms_H_atoms[idx] = AtomID(self.__neighbors[idx][0])
+        Neighbors_H_atom: dict[AtomID, AtomID] = {}  # {H:C}
+        for idx in self._H_atomIDs:
+            Neighbors_H_atom[idx] = AtomID(self.__neighbors[idx][0])
         addition: list[AtomID] = []
         for idx in Res:
-            for key, value in NeighborsAtoms_H_atoms.items():
+            for key, value in Neighbors_H_atom.items():
                 if idx == value:
                     addition.append(key)
         Res = Res + addition
@@ -111,7 +111,7 @@ class Topo():
         """
         idx1_p, idx1_q = args.bond_broken
         neighbors: dict[AtomID, npt.NDArray[np.int64]] = self.__neighbors
-        H_atoms: list[AtomID] = self._H_atom
+        H_atoms: list[AtomID] = self._H_atomIDs
         H_atoms.append(idx1_q)
         Neighbors_not_H: dict[AtomID, npt.NDArray[np.int64]] = {}
         for idx in neighbors.keys():
@@ -148,13 +148,13 @@ class Topo():
             list[int]: A list of atom indices bonded to the specified atom (excluding H atoms).
         """
         idx1_p: AtomID = args.bonding
-        _bonding_Atoms: list[AtomID] = self.__neighbors[idx1_p].tolist()
-        _bonding_Atoms = [
-            x for x in _bonding_Atoms if x not in self._H_atom]
-        _bonding_Atoms.sort()
+        _Bonding_AtomIDs: list[AtomID] = self.__neighbors[idx1_p].tolist()
+        _Bonding_AtomIDs = [
+            x for x in _Bonding_AtomIDs if x not in self._H_atomIDs]
+        _Bonding_AtomIDs.sort()
         if args.print:
             print(f" Bonding : {idx1_p} @ Neighbors_Atoms")
-        return _bonding_Atoms
+        return _Bonding_AtomIDs
 
     def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[list[np.int64]], dict]:
         """Analyzes the molecular structure to classify it into circular and residual molecules.
@@ -188,13 +188,13 @@ class Topo():
         neighbors: dict[AtomID, npt.NDArray[np.int64]
                         ] = self.__neighbors.copy()
         # neighbors is removed all H-atoms
-        H_Atoms: list[AtomID] = self._H_atom
+        H_AtomIDs: list[AtomID] = self._H_atomIDs
         for key, value in neighbors.copy().items():
-            if key in H_Atoms:
+            if key in H_AtomIDs:
                 del neighbors[key]
         for key, value in neighbors.copy().items():
             neighbors[key] = np.array(
-                [x for x in value if x not in H_Atoms])
+                [x for x in value if x not in H_AtomIDs])
 
         # Transfer neighbors to Graph
         graph_in: list[tuple[int, int]] = list()
@@ -204,15 +204,15 @@ class Topo():
         g = Graph(from_list=graph_in)
 
         # Get the node of bonding numbers 3 to 6
-        circle_Atoms: list[AtomID] = list()
+        circle_AtomIDs: list[AtomID] = list()
         # for a in [3, 4, 5, 6]:
         for a in [3,]:
-            circle_Atoms.extend(g.nodes(in_degree=a))  # type: ignore
-        circle_Atoms.sort()
+            circle_AtomIDs.extend(g.nodes(in_degree=a))  # type: ignore
+        circle_AtomIDs.sort()
 
         # use Graph Theory to collect the circle sturcutres and not repeated
         circle_Mols: list[list[AtomID]] = list()
-        for atom in circle_Atoms:
+        for atom in circle_AtomIDs:
             for neighbors_atoms in neighbors[atom]:
                 start: int = atom
                 end = neighbors_atoms

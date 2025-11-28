@@ -478,6 +478,7 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
     print("  idx len(x) {x's AB quartet} {x's all - x's AB quartet} ")
 
     if np.sum(inSParams.astype(bool)*inHydrogen) <= args.mss:
+        # use all atoms in ab_group_sets
         ab_group: list[int] = list(ab_group_sets[0])
         v: npt.NDArray[np.float64] = inSParams[ab_group]
         J: npt.NDArray[np.float64] = inJCoups[ab_group].T[ab_group]
@@ -485,7 +486,6 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
         for idx0, ab_group_set in enumerate(ab_group_sets):
             mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
                 int).tolist()
-            # idx0_ab_group: list[int] = list(ab_group_set)
             idx1_ab_group: set[int] = set(a+1 for a in ab_group_set)
             mat_multi_x_idx0: list[int] = [
                 idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
@@ -501,7 +501,6 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
 
             mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
                 int).tolist()
-            # idx0_ab_group: list[int] = list(ab_group_set)
             idx1_ab_group: set[int] = set(a+1 for a in ab_group_set)
             mat_multi_x_idx0: list[int] = [
                 idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
@@ -524,10 +523,10 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
                 # Chemical Shift, the numbers of Hydrogen in inJ
                 inJCoups_multi: list[tuple[float, int]] = []
                 delta_SParams: list[float] = []
-                for idx_m in idx0_multiplicity:
-                    delta_SParams.append(inSParams[idx_m]-inSParams[idx0])
+                for idx0_multi in idx0_multiplicity:
+                    delta_SParams.append(inSParams[idx0_multi]-inSParams[idx0])
                     inJCoups_multi.append(
-                        (inJCoups[idx0][idx_m], inHydrogen[idx_m]))
+                        (inJCoups[idx0][idx0_multi], inHydrogen[idx0_multi]))
 
                 if len(inJCoups_multi) >= 1:
                     tmp: npt.NDArray[np.float64] = np.array(
@@ -569,9 +568,9 @@ def _process_qm_carbon_spin_system(inParameter: tuple[npt.NDArray[np.float64], n
 
     inSParams, _, inHydrogen = inParameter
     accPeaks: list[list[tuple[float, float]]] = []
-    for idx0, ppm in enumerate(inSParams):
+    for intp0, ppm in enumerate(inSParams):
         dat: list = []
-        dat.append((float(ppm), float(inHydrogen[idx0])))
+        dat.append((float(ppm), float(inHydrogen[intp0])))
         accPeaks.append(dat)
 
     import json

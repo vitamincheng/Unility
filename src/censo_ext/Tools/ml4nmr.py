@@ -85,7 +85,8 @@ def read_mol_neighbors(DirFileName: Path | str, check: bool = True) -> tuple[Ato
     mol: Atoms | list[Atoms] = ase.io.read(str(DirFileName), format='xyz')
 
     # use covalent radii as thresholds for neighbor determination (what about vdW radii?)
-    cutoffs: list = [custom_radii[atom.number] for atom in mol]  # type: ignore
+    cutoffs: list[np.float64] = [custom_radii[atom.number]  # type: ignore
+                                 for atom in mol]  # type: ignore
 
     # build neighbor list and write list of neighboring atoms to the dict neighbors
     nl: NeighborList = neighborlist.build_neighbor_list(
@@ -139,15 +140,15 @@ def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conforme
     neighbors: dict[AtomID, npt.NDArray[np.int64]]
     mol, neighbors = read_mol_neighbors(DirfileName)
 
-    idx1_H_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
-    idx1_C_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "C"]  # type: ignore # nopep8
+    H_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
+    C_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "C"]  # type: ignore # nopep8
     BondOrder: dict[AtomID, int] = {}
     for idx1 in neighbors.keys():
         count: int = 0
         for idy in neighbors[idx1]:
-            if idy in idx1_H_atoms:
+            if idy in H_atoms:
                 count = count + 1
-        if idx1 in idx1_C_atoms:
+        if idx1 in C_atoms:
             BondOrder[idx1] = count
 
     return mol, neighbors, BondOrder

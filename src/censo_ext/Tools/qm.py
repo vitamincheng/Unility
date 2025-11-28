@@ -202,7 +202,7 @@ def qm_full(v: list[float], J: np_float, args: argparse.Namespace) -> list[tuple
     return list(zip(freq, intensit))
 
 
-def qm_partial(v: list[float], J: np_float, idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_partial(v: list[float], J: np_float, idx0_nspins: int, args: argparse.Namespace) -> list[tuple[float, float]]:
     """
     Calculate partial spin system spectrum for a specific spin.
 
@@ -310,7 +310,7 @@ def print_plot(inAnmr: Anmr, in_plist: list[tuple[float, float]], dpi: int,
     return np.vstack(xy_curve)
 
 
-def mpl_plot(plist: list[tuple[float, float]], limits: tuple[float, float], lw=1.0, lw_points=200_000) \
+def mpl_plot(plist: list[tuple[float, float]], limits: tuple[float, float], lw: float = 1.0, lw_points: int = 200_000) \
         -> tuple[np_float, np_float]:
     """
     Generate a plot using lorentzian lineshape for NMR spectrum.
@@ -359,7 +359,7 @@ def lorentz(linspace: np_float, freq: float, Intensity: float, lw: float) -> np_
     return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (linspace - freq) ** 2))
 
 
-def qm_base(v: list[float], J: np_float, idx0_nspins, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_base(v: list[float], J: np_float, idx0_nspins: int, args: argparse.Namespace) -> list[tuple[float, float]]:
     """
     Base quantum mechanical calculation function for spin systems.
 
@@ -389,7 +389,7 @@ def qm_base(v: list[float], J: np_float, idx0_nspins, args: argparse.Namespace) 
     return plist
 
 
-def qm_multiplet(v: float | int, nIntergals, J: list[tuple[float, int]], delta: list[float]) -> list[tuple[float, float]]:
+def qm_multiplet(v: float | int, nIntergals: int, J: list[tuple[float, int]], delta: list[float]) -> list[tuple[float, float]]:
     """
     Calculate multiplet spectrum 
 
@@ -409,7 +409,7 @@ def qm_multiplet(v: float | int, nIntergals, J: list[tuple[float, int]], delta: 
 
 class Multiplet:
 
-    def __init__(self, v: float, nIntergals: int, J: list[tuple[float, int]], delta: list[float], w=0.5):
+    def __init__(self, v: float, nIntergals: int, J: list[tuple[float, int]], delta: list[float], w: float = 0.5) -> None:
         self.v: float = v
         self.nIntergals: int = nIntergals
         self.J: list[tuple[float, int]] = J
@@ -434,7 +434,7 @@ def multiplet(signal: tuple[float, int], JCoups: list[tuple[float, int]], delta:
     return reduce_peaks(res)
 
 
-def reduce_peaks(plist_: list[tuple[float, float]], tolerance=0.02) -> list[tuple[float, float]]:
+def reduce_peaks(plist_: list[tuple[float, float]], tolerance: float = 0.02) -> list[tuple[float, float]]:
     res: list[tuple[float, float]] = []
     work: list[tuple[float, float]] = []  # an accumulator of peaks to be added
     plist: list[tuple[float, float]] = sorted(plist_)
@@ -462,7 +462,7 @@ def add_peaks(plist: list[tuple[float, float]]) -> tuple[float, float]:
     return v_total / len(plist), i_total
 
 
-def _doublet(plist: list[tuple[float, int]], JCoups, delta) -> list[tuple[float, float]]:
+def _doublet(plist: list[tuple[float, int]], JCoups: float, delta: float) -> list[tuple[float, float]]:
     # see http://www.ebyte.it/library/docs/kts/KTS_isoAB_Geometry.html
     # if c is positive, peaks must be the left of doublet is more low and the right is more high
     # if c is negative, peaks must be the left of doublet is more high and the right is more low
@@ -470,12 +470,12 @@ def _doublet(plist: list[tuple[float, int]], JCoups, delta) -> list[tuple[float,
     if (JCoups+delta) == 0:
         _k = 0
     else:
-        _k = JCoups / (JCoups+delta)
+        _k: float = JCoups / (JCoups+delta)
 
     k_small: float = 1 - _k
     k_large: float = 1 + _k
 
-    res: list = []
+    res: list[tuple[float, float]] = []
     for v, intensit in plist:
         # the left of doublet if J is positive
         res.append((v + JCoups / 2, intensit / 2 * k_small))
