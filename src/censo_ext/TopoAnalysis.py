@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+from icecream import ic
 from censo_ext.Tools.utility import AtomID, print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from censo_ext.xyzGenFlexible import get_xyzSplit, read_data
@@ -94,12 +95,13 @@ def TopoAnalysis(args) -> None:
         residualMols, atomsCN, flattenCircleMols, residualMols_all_pairs)
 
     if args.verbose:
-        from icecream import ic
+        ic(xyzSplit)
         ic(residualMols)
         ic(circleMols)
         ic(neighbor)
         ic(flattenCircleMols)
-    # ic(residualMols_all_pairs)
+    if args.verbose:
+        ic(residualMols_all_pairs)
     xyzFile: GeometryXYZs = GeometryXYZs(args.file)
     xyzFile.method_read_xyz()
     limits = args.limits
@@ -110,7 +112,8 @@ def TopoAnalysis(args) -> None:
     print("  ===== Check circle molecule =====")
     result_circle: list[tuple[int, int, int, float, float]] = []
     for resMol in residualMols:
-        # ic(resMol)
+        if args.verbose:
+            ic(resMol)
         node_mols: list[int] = [
             int(x) for x in resMol if x in flattenCircleMols]
         for node_mol in node_mols:
@@ -122,7 +125,8 @@ def TopoAnalysis(args) -> None:
                 print("  Exit and Close the program !!!")
                 exit(1)
             res_node_mol: int = list(inter_x)[0]
-            # ic(node_mol, res_node_mol)
+            if args.verbose:
+                ic(node_mol, res_node_mol)
             nNums = len(xyzFile)
             for x in range(1, nNums+1):
                 if x == idx1_p:
@@ -150,7 +154,8 @@ def TopoAnalysis(args) -> None:
             res_right = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
                                  bond_broken=(value, key))
             if res_left <= limits and res_right <= limits:
-                # ic(x, key, value, res_left, res_right)
+                if args.verbose:
+                    ic(x, key, value, res_left, res_right)
                 result_straight.append((x, key, value, res_left, res_right))
     print("   idx1   key     value      res_left      res_right")
     for x in result_straight:
