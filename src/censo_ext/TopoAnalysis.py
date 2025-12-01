@@ -56,6 +56,14 @@ def cml() -> argparse.Namespace:
         help="Provide limits of delta std in xyz file [default 0.1] ",
     )
 
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
+        action="store_true",
+        help="Verbose mode [default False] ",
+    )
+
     args: argparse.Namespace = parser.parse_args()
     return args
 
@@ -72,9 +80,11 @@ def cal_RMSD(xyzfile, idx_p, idx_q, bond_broken) -> float:
 def TopoAnalysis(args) -> None:
 
     idx1_p = args.idx
+    tmp = args.verbose
     args.verbose = False
     neighbor, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
         args)
+    args.verbose = tmp
     flattenCircleMols: list[int] = []
     for mol in circleMols:
         flattenCircleMols += mol
@@ -82,11 +92,13 @@ def TopoAnalysis(args) -> None:
 
     xyzSplit: dict[int, int] = get_xyzSplit(
         residualMols, atomsCN, flattenCircleMols, residualMols_all_pairs)
-    from icecream import ic
-    ic(residualMols)
-    ic(circleMols)
-    ic(neighbor)
-    ic(flattenCircleMols)
+
+    if args.verbose:
+        from icecream import ic
+        ic(residualMols)
+        ic(circleMols)
+        ic(neighbor)
+        ic(flattenCircleMols)
     # ic(residualMols_all_pairs)
     xyzFile: GeometryXYZs = GeometryXYZs(args.file)
     xyzFile.method_read_xyz()
