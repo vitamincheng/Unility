@@ -83,7 +83,7 @@ def read_data(args) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[Atom
     from censo_ext.Tools.topo import Topo
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     Sts_topo: Topo = Topo(args.file)
-    _, neighbor, circleMols, residualMols, residualMols_all_pairs = Sts_topo.topology()
+    neighbor, circleMols, residualMols, residualMols_all_pairs = Sts_topo.topology()
     idx_atomsCN: dict[AtomID, int] = Sts_topo.get_cn()
     if args.verbose:
         ic(neighbor, circleMols, residualMols)
@@ -112,6 +112,18 @@ def get_xyzSplit(residualMols: list[list[np.int64]], atomsCN: dict[AtomID, int],
             a for a in flexibleMols if atomsCN[AtomID(a)] == 4]
         # ic(mol, flexibleMolsCNis4, nodeMols)
         # ic(nodeMols)
+
+        if len(nodeMols) == 0:
+            nodeMols.append(flexibleMols[1])
+            temp_Mols = flexibleMols[0]
+            flexibleMols.remove(nodeMols[0])
+            # ic(nodeMols)
+            # ic(flexibleMols)
+            for key, value in residualMols_all_pairs.items():
+                for x, y in value.items():
+                    if x == temp_Mols:
+                        value[x] = 0
+            # ic(residualMols_all_pairs)
         if len(nodeMols) == 1:
             # ic(residualMols_all_pairs[nodeMols[0]])
             a = residualMols_all_pairs[nodeMols[0]].values()
@@ -139,6 +151,9 @@ def get_xyzSplit(residualMols: list[list[np.int64]], atomsCN: dict[AtomID, int],
                     # ic(out_key, out_value)
                     xyzSplit[out_key] = out_value
 
+        else:
+            print("len(nodeMols)= ", len(nodeMols))
+            raise NotImplementedError("Under Construct")
     return xyzSplit
 
 
