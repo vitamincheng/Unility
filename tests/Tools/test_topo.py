@@ -49,7 +49,7 @@ def test_topo_topology(input_Path: Path, bonding: int, len_neighbor: int, circle
     # for crest_conformers.xyz
     x = {"file": input_Path, "bonding": bonding, "print": True, "debug": False}
     args = argparse.Namespace(**x)
-    mol, neighbors, circle_Mols_R, residual_Mols_R, residual_Mols_all_pairs = Topo(
+    neighbors, circle_Mols_R, residual_Mols_R, residual_Mols_all_pairs = Topo(
         Path(args.file)).topology()
     assert len(neighbors) == len_neighbor
     assert (circle_Mols_R) == circle_Mols

@@ -110,13 +110,13 @@ class Topo():
             list[int]: A list of atom indices involved in the broken bond (excluding H atoms).
         """
         idx1_p, idx1_q = args.bond_broken
-        neighbors: dict[AtomID, npt.NDArray[np.int64]] = self.__neighbors
+        # neighbors: dict[AtomID, npt.NDArray[np.int64]] = self.__neighbors
         H_atoms: list[AtomID] = self._H_atomIDs
         H_atoms.append(idx1_q)
         Neighbors_not_H: dict[AtomID, npt.NDArray[np.int64]] = {}
-        for idx in neighbors.keys():
+        for idx in self.__neighbors.keys():
             Neighbors_not_H[idx] = np.array(
-                [x for x in neighbors[idx] if int(x) not in H_atoms])
+                [x for x in self.__neighbors[idx] if int(x) not in H_atoms])
         del Neighbors_not_H[idx1_q]
         Terminal_Atoms: list[AtomID] = [idx1_p]
         Complete_Atoms: bool = False
@@ -156,7 +156,7 @@ class Topo():
             print(f" Bonding : {idx1_p} @ Neighbors_Atoms")
         return _Bonding_AtomIDs
 
-    def topology(self) -> tuple[ml4nmr.Atoms | list[ml4nmr.Atoms], dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[list[np.int64]], dict]:
+    def topology(self) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[list[np.int64]], dict]:
         """Analyzes the molecular structure to classify it into circular and residual molecules.
 
         This method identifies circular (ring) structures and residual (non-ring) fragments
@@ -184,23 +184,22 @@ class Topo():
             - Residual fragments are connected components of non-ring atoms
         """
 
-        mol: ml4nmr.Atoms | list[ml4nmr.Atoms] = self.__mol
         neighbors: dict[AtomID, npt.NDArray[np.int64]
                         ] = self.__neighbors.copy()
+
         # neighbors is removed all H-atoms
-        H_AtomIDs: list[AtomID] = self._H_atomIDs
         for key, value in neighbors.copy().items():
-            if key in H_AtomIDs:
+            if key in self._H_atomIDs:
                 del neighbors[key]
         for key, value in neighbors.copy().items():
             neighbors[key] = np.array(
-                [x for x in value if x not in H_AtomIDs])
+                [x for x in value if x not in self._H_atomIDs])
 
         # Transfer neighbors to Graph
-        graph_in: list[tuple[int, int]] = list()
+        graph_in: list[tuple[AtomID, AtomID]] = list()
         for key, value in neighbors.items():
             for x in value:
-                graph_in.append((key, int(x)))
+                graph_in.append((key, AtomID(x)))
         g = Graph(from_list=graph_in)
 
         # Get the node of bonding numbers 3 to 6
@@ -244,8 +243,7 @@ class Topo():
         # g_straight is the Graph and delete the edge of every circle_Mol
         g = Graph(from_list=graph_in)
         for circle_Mol in circle_Mols:
-            len_circle_Mol: int = len(circle_Mol)
-            for n in range(len_circle_Mol):
+            for n in range(len(circle_Mol)):
                 start, end = circle_Mol[n-1], circle_Mol[n]
                 g.del_edge(start, end)
                 g.del_edge(end, start)
@@ -259,16 +257,16 @@ class Topo():
                 residual_Mols.append(g_component)
         residual_Mols_all_pairs = g_straight.all_pairs_shortest_paths()
 
-        return mol, neighbors, circle_Mols, residual_Mols, residual_Mols_all_pairs
+        return neighbors, circle_Mols, residual_Mols, residual_Mols_all_pairs
 
     def topology_components(self) -> list[set[int]]:
         '''
         Get the index of every components, but not include one independence atom.
         '''
         # Transfer neighbors to Graph
-        graph_in: list[tuple[int, int]] = list()
+        graph_in: list[tuple[AtomID, AtomID]] = list()
         for key, value in self.__neighbors.items():
             for x in value:
-                graph_in.append((key, int(x)))
+                graph_in.append((key, AtomID(x)))
         g = Graph(from_list=graph_in)
         return g.components()
