@@ -79,7 +79,7 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def read_data(args) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[list[np.int64]], dict[AtomID, int], dict[AtomID, int], dict]:
+def read_data(args) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[set[int]], dict[AtomID, int], dict[AtomID, int], dict]:
     from censo_ext.Tools.topo import Topo
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     Sts_topo: Topo = Topo(args.file)
@@ -95,7 +95,7 @@ def read_data(args) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[Atom
     return neighbor, circleMols, residualMols, idx_Bond_order, idx_atomsCN, residualMols_all_pairs
 
 
-def get_xyzSplit(residualMols: list[list[np.int64]], atomsCN: dict[AtomID, int], flattenCircleMols: list[int], residualMols_all_pairs) -> dict[int, int]:
+def get_xyzSplit(residualMols: list[set[int]], atomsCN: dict[AtomID, int], flattenCircleMols: list[int], residualMols_all_pairs) -> dict[int, int]:
     xyzSplit: dict[int, int] = {}
     for Mol in residualMols:
         mol: list[int] = list(map(int, Mol))
@@ -124,7 +124,8 @@ def get_xyzSplit(residualMols: list[list[np.int64]], atomsCN: dict[AtomID, int],
                     if x == temp_Mols:
                         value[x] = 0
             # ic(residualMols_all_pairs)
-        if len(nodeMols) == 1:
+
+        if len(nodeMols) == 1 or 2:
             # ic(residualMols_all_pairs[nodeMols[0]])
             a = residualMols_all_pairs[nodeMols[0]].values()
             import math

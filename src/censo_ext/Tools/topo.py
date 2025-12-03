@@ -156,7 +156,7 @@ class Topo():
             print(f" Bonding : {idx1_p} @ Neighbors_Atoms")
         return _Bonding_AtomIDs
 
-    def topology(self) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[list[np.int64]], dict]:
+    def topology(self) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[set[int]], dict]:
         """Analyzes the molecular structure to classify it into circular and residual molecules.
 
         This method identifies circular (ring) structures and residual (non-ring) fragments
@@ -199,7 +199,7 @@ class Topo():
         graph_in: list[tuple[AtomID, AtomID]] = list()
         for key, value in neighbors.items():
             for x in value:
-                graph_in.append((key, AtomID(x)))
+                graph_in.append((key, AtomID(int(x))))
         g = Graph(from_list=graph_in)
 
         # Get the node of bonding numbers 3 to 6
@@ -223,7 +223,7 @@ class Topo():
                         if set(x) == set(circle_Mol):
                             the_same = True
                     if not the_same:
-                        circle_Mols.append(x)
+                        circle_Mols.append([AtomID(int(a)) for a in x])
 
         # Remove the repeated the same Atoms by use the set function (the same of the length)
         for x in circle_Mols.copy():
@@ -251,10 +251,10 @@ class Topo():
 
         # residual_Mols is use graph : is_connected to find the connect node and append
         g_components = g_straight.components()
-        residual_Mols = []
+        residual_Mols: list[set[int]] = []
         for g_component in g_components:
             if len(g_component) != 1:
-                residual_Mols.append(g_component)
+                residual_Mols.append({int(a) for a in g_component})
         residual_Mols_all_pairs = g_straight.all_pairs_shortest_paths()
 
         return neighbors, circle_Mols, residual_Mols, residual_Mols_all_pairs

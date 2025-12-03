@@ -100,8 +100,8 @@ def TopoAnalysis(args) -> None:
         ic(circleMols)
         ic(neighbor)
         ic(flattenCircleMols)
-    if args.verbose:
         ic(residualMols_all_pairs)
+
     xyzFile: GeometryXYZs = GeometryXYZs(args.file)
     xyzFile.method_read_xyz()
     limits = args.limits
