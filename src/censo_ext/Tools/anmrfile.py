@@ -286,8 +286,6 @@ class Anmr():
         self.NeighborMangetEqvs: dict[AtomID, list[AtomID]] = {}
 
         # For the data of Average Directory
-        # self.avg_data: AD_Normal = AD_Normal(self.__Dir)
-        # self.avg_data_BOBYQA: AD_BOBYQA = AD_BOBYQA(self.__Dir)
         self.avg_Data_AD: Average_Directory = Average_Directory(self.__Dir)
 
     def get_Dir(self) -> Path:
@@ -489,21 +487,21 @@ class Anmr():
             The method prints filtering progress information to the console and
             performs in-place deletion of filtered atoms from all orcaSJ entries.
         """
-        del_atomIDs: list[AtomID] = [
+        delete_atomIDs: list[AtomID] = [
             key for key, value in self.orcaSJ[0].Element.items() if value != Active]
         atomIDs: npt.NDArray[np.int64] = np.sort(
             np.array(list(self.orcaSJ[0].Element.keys())))
-        del_sorted_intp: npt.NDArray[np.intp] = np.array(
-            atomIDs).searchsorted(del_atomIDs)
-        if len(del_atomIDs) != 0:
+        delete_sorted_intp: npt.NDArray[np.intp] = np.array(
+            atomIDs).searchsorted(delete_atomIDs)
+        if len(delete_atomIDs) != 0:
             print(" ===== Filter the Active Atom of SParams and JCoups =====")
             for _orcaSJ in self.orcaSJ:
-                for x in del_atomIDs[::-1]:
+                for x in delete_atomIDs[::-1]:
                     if x in _orcaSJ.Element:
                         del _orcaSJ.Element[x]
                     if x in _orcaSJ.SParams:
                         del _orcaSJ.SParams[x]
-                for x in del_sorted_intp[::-1]:
+                for x in delete_sorted_intp[::-1]:
                     _orcaSJ.JCoups = np.delete(_orcaSJ.JCoups, x, 0)
                     _orcaSJ.JCoups = np.delete(_orcaSJ.JCoups, x, 1)
             print(" ===== Finished the Filter of Active Atom of SParams and JCoups =====")

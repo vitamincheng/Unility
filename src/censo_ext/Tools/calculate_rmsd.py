@@ -48,7 +48,7 @@ def atom2int(atom: str) -> int:
     return NAMES_ELEMENT[atom]
 
 
-def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_atom: list[int]) -> tuple[dict[AtomID, float], float]:
+def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], AtomIDs: list[AtomID]) -> tuple[dict[AtomID, float], float]:
     """
     Calculate Root-mean-square deviation from two sets of vectors.
 
@@ -75,18 +75,18 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_atom: list
     diff: npt.NDArray[np.float64] = P - Q
     Coord_Square: dict[AtomID, float] = {}
     Total_coord_square: float = 0
-    for idx0, x in enumerate(idx1_atom):
-        one_coord_square: float = float((diff[idx0]**2).sum())
-        # ic(coord_square)
+    for index0, atomID in enumerate(AtomIDs):
+        coord_square: float = float((diff[index0]**2).sum())
+
         if __name__ == "__main__":
-            print(f"{x:>5}", end=" ")
-            print(f"{one_coord_square:>10.5f}")
-        Coord_Square[AtomID(x)] = one_coord_square
-        Total_coord_square += one_coord_square
+            print(f"{atomID:>5}", end=" ")
+            print(f"{coord_square:>10.5f}")
+        Coord_Square[AtomID(atomID)] = coord_square
+        Total_coord_square += coord_square
     return Coord_Square, float(np.sqrt(Total_coord_square / P.shape[0]))
 
 
-def kabsch_rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_Atom: list[int],
+def kabsch_rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], AtomIDs: list[AtomID],
                 translate: bool = False) -> tuple[dict[AtomID, float], float]:
     """
     Rotate matrix P unto Q using Kabsch algorithm and calculate the RMSD.
@@ -105,7 +105,7 @@ def kabsch_rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], idx1_Ato
         P = P - centroid(P)
 
     P = kabsch_rotate(P, Q)
-    A, B = rmsd(P, Q, idx1_Atom)
+    A, B = rmsd(P, Q, [AtomID(x) for x in AtomIDs])
     return A, B
 
 

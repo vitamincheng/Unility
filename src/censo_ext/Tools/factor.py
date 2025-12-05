@@ -54,34 +54,35 @@ def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
 
     atomIDs_std: dict[AtomID, float] = dict(
         zip(_Element, np.std(np.array(coord).T, axis=1).astype(float)))
-    av_std: np.float64 = np.float64(
+    average_std: np.float64 = np.float64(
         np.average(np.array(list(atomIDs_std.values()))))
 
     print(" ========== Factor Analysis Processing ========== ")
     print("\n Average of STD      : ", end="")
-    print(f"{av_std:>12.8f}")
+    print(f"{average_std:>12.8f}")
     print(f" Threshold {
-          args.factor:3.2f} *STD : {av_std*args.factor:>12.8}", "\n")
+          args.factor:3.2f} *STD : {average_std*args.factor:>12.8}", "\n")
     print(f" Atom        STD     Major (>STD)  or    Low (<({args.factor}STD)")
     _MajorFactor: list[AtomID] = []
     _MinorFactor: list[AtomID] = []
 
-    for idx, x in atomIDs_std.items():
-        if (x >= av_std):
-            print(f"{int(idx):>5d} {x:>10.5f}     Major factor")
-            _MajorFactor.append(AtomID(int(idx)))
-        elif (x <= av_std*args.factor):
-            print(f"{int(idx):>5d} {x:>10.5f}", " "*23, "Low factor")
-            _MinorFactor.append(AtomID(int(idx)))
+    for atomID, atomID_std in atomIDs_std.items():
+        if (atomID_std >= average_std):
+            print(f"{int(atomID):>5d} {atomID_std:>10.5f}     Major factor")
+            _MajorFactor.append(AtomID(int(atomID)))
+        elif (atomID_std <= average_std*args.factor):
+            print(f"{int(atomID):>5d} {atomID_std:>10.5f}",
+                  " "*23, "Low factor")
+            _MinorFactor.append(AtomID(int(atomID)))
         else:
-            print(f"{idx:>5d} {x:>10.5f}")
+            print(f"{atomID:>5d} {atomID_std:>10.5f}")
 
     print(f"\n Major Factor List: {_MajorFactor}")
     print(" ========== Finished ==========")
     return _MinorFactor, atomIDs_std
 
 
-def method_factor_opt(args, _lowFactor: list[AtomID], Table_S: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
+def method_factor_opt(args, _lowFactor: list[AtomID], table_std: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
     """
     Optimizes the location of a broken bond based on factor analysis results.
 
@@ -123,8 +124,8 @@ def method_factor_opt(args, _lowFactor: list[AtomID], Table_S: dict[AtomID, floa
     print(" ========== Optimized Broken-bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
     Bonding_LowFactor: list[npt.NDArray[np.int64]] = []
-    for idx1 in _lowFactor:
-        args_x: dict = {"file": args.file, "bonding": idx1,
+    for atomID in _lowFactor:
+        args_x: dict = {"file": args.file, "bonding": atomID,
                         "print": False, "debug": False}
         Sts_topo: Topo = Topo(args_x["file"])
         Bonding_LowFactor.append(
@@ -132,9 +133,9 @@ def method_factor_opt(args, _lowFactor: list[AtomID], Table_S: dict[AtomID, floa
 
     Pair_LowFactor: list[list[int]] = []
 
-    for idx0, idx1 in enumerate(_lowFactor):
+    for idx0, atomID in enumerate(_lowFactor):
         for idy0, _ in enumerate(Bonding_LowFactor[idx0]):
-            Pair_LowFactor.append([idx1, int(Bonding_LowFactor[idx0][idy0])])
+            Pair_LowFactor.append([atomID, int(Bonding_LowFactor[idx0][idy0])])
 
     for x in Pair_LowFactor:
         if x[0] > x[1]:
@@ -143,8 +144,8 @@ def method_factor_opt(args, _lowFactor: list[AtomID], Table_S: dict[AtomID, floa
     unique_PairLowFactor: list[list[int]] = [
         list(t) for t in set(tuple(x) for x in Pair_LowFactor)]
 
-    nConfs: int = len(list(Table_S.keys()))
-    atomIDs_std: dict[AtomID, float] = Table_S
+    nConfs: int = len(list(table_std.keys()))
+    atomIDs_std: dict[AtomID, float] = table_std
 
     idx_ratio: list[list[int]] = []
     Ratio: list[float] = []
@@ -160,8 +161,10 @@ def method_factor_opt(args, _lowFactor: list[AtomID], Table_S: dict[AtomID, floa
         atomIDs_R: list[AtomID] = Sts_topo.method_broken_bond(
             argparse.Namespace(**args_x))
 
-        tSTD_L: float = float(0.0)  # total STD Left Data
-        tSTD_R: float = float(0.0)  # Total STD Right Data
+        # total std of Left fragment of inputted data
+        tSTD_L: float = float(0.0)
+        # total std of Right fragment of inputted data
+        tSTD_R: float = float(0.0)
 
         if len(atomIDs_L) < 1 or len(atomIDs_R) < 1:
             raise ValueError("something wrong in your List_STD ")
