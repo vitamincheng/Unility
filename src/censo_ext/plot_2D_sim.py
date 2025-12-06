@@ -17,6 +17,7 @@ ________________________________________________________________________________
 | Usages    : plot_2D_sim.py <geometry> [options]
 | [options]
 | Directory : -d two input directory folder [required] 
+| Average   : -av Use the average directory of nmr [default False]
 | Proton    : -p limits of proton spectra [default from data]
 | Carbon    : -c limits of carbon spectra [default from data]
 |______________________________________________________________________________
@@ -26,7 +27,7 @@ ________________________________________________________________________________
 def cml() -> argparse.Namespace:
     """ Get args object from commandline interface. Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description="descr",
+        description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS)
     parser.add_argument(
@@ -77,12 +78,12 @@ def Load_Directory(args) \
                  tuple[float, float], tuple[float, float]]:
 
     import censo_ext.anmr as anmr
-    in_dir: tuple[Path, Path] = args.dir[0], args.dir[1]
     h_limits: tuple[float, float] = args.h_limits
     c_limits: tuple[float, float] = args.c_limits
-    directory_H, directory_C = in_dir
+    dir_H = args.dir[0]
+    dir_C = args.dir[1]
     args_x: dict = {"auto": True, "average": args.average, "bobyqa": False, "mf": 500,
-                    "dir": directory_H, "thr": None, "json": None, "thrab": 0.025,
+                    "dir": dir_H, "thr": None, "json": None, "thrab": 0.025,
                     "verbose": False, "lw": 1, "tb": 4, "mss": 10, "cutoff": 0.001,
                     "show": False, "start": None, "end": None, "out": "output.npz"}
     sys.stdout = open(os.devnull, 'w')
@@ -90,7 +91,7 @@ def Load_Directory(args) \
     sys.stdout = sys.__stdout__
 
     args_y: dict = {"auto": True, "average": args.average, "bobyqa":  False, "mf": 500,
-                    "dir": directory_C, "thr": None, "json": None, "thrab": 0.025,
+                    "dir": dir_C, "thr": None, "json": None, "thrab": 0.025,
                     "verbose": False, "lw": 1, "tb": 4, "mss": 10, "cutoff": 0.001,
                     "show": False, "start": None, "end": None, "out": "output.npz"}
     sys.stdout = open(os.devnull, 'w')
@@ -149,12 +150,12 @@ def plot_2D_slice(ax: Axes, ax_histy_float, in_dir: tuple[Path, Path], h_limits:
     ax_histy, y_lowest = ax_histy_float
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     from ase.atoms import Atoms
-    Directory_H, Directory_C = in_dir
+    Dir_H, Dir_C = in_dir
     mol: Atoms | list[Atoms]
     neighbor: dict[AtomID, npt.NDArray[np.int64]]
     bond_order: dict[AtomID, int]
     mol, neighbor, bond_order = read_mol_neighbors_bond_order(
-        Directory_H/Path("crest_conformers.xyz"))
+        Dir_H/Path("crest_conformers.xyz"))
     idx_H_atom: list[int] = [idx+1 for idx,
                              i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
     idx_C_atom: list[int] = [idx+1 for idx,
@@ -166,12 +167,12 @@ def plot_2D_slice(ax: Axes, ax_histy_float, in_dir: tuple[Path, Path], h_limits:
         neighbor[key] = np.array([x for x in value if x in idx_H_atom])
 
     tmp_c: list = list(np.genfromtxt(
-        Directory_C / Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
+        Dir_C / Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
 
     Atoms_C: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_c}
 
     tmp_h: list = list(np.genfromtxt(
-        Directory_H/Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
+        Dir_H/Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
     Atoms_H: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_h}
     ax.set_xlim(h_limits[1], h_limits[0])
     ax.set_ylim(c_limits[1], c_limits[0])
@@ -193,7 +194,7 @@ def plot_2D_slice(ax: Axes, ax_histy_float, in_dir: tuple[Path, Path], h_limits:
             for idx0, value in idx0_neighbor.items():
 
                 import censo_ext.anmr as anmr
-                x: dict = {'out': 'output.npz', 'mf': 500.0, "dir": Directory_H, 'lw': None,
+                x: dict = {'out': 'output.npz', 'mf': 500.0, "dir": Dir_H, 'lw': None,
                            'thr': None, 'thrab': 0.025, "verbose": False, 'tb': 4,
                            'cutoff': 0.001, 'start': None, 'end': None, 'show': False, 'mss': 10, 'auto': True,
                            'average': True, 'bobyqa': False, 'json': [idx0]}

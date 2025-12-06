@@ -10,7 +10,7 @@ from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import numpy as np
 import numpy.typing as npt
-from icecream import ic
+# from icecream import ic
 from pathlib import Path
 from censo_ext.Tools.utility import print_arguments
 from censo_ext.anmr import AtomID
@@ -71,7 +71,7 @@ def cml() -> argparse.Namespace:
         action="store",
         required=False,
         default=0.01,
-        help="Provide minimum of contour [default 0.01]",
+        help="Provide gamma parameter of lorentzian [default 0.01]",
     )
 
     parser.add_argument(
@@ -211,7 +211,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     min_contour: int = int(args.contour)*2**6
     int_ratio_2: int = math.ceil(math.log2(np.max(Result)/min_contour))
     init = np.arange(int_ratio_2+1)
-    lv = (np.pow(2, init)*min_contour)
+    lv = (np.power(2, init)*min_contour)
     # _plot = ax.contour(X, Y, Z, levels=lv, cmap=matplotlib.cm.Blues_r)
     _plot = ax.contour(X, Y, Z, levels=lv, cmap='seismic')  # type: ignore
     ax.set_xlim(start, end)
@@ -232,9 +232,9 @@ def Load_Directory(args) -> npt.NDArray:
     import sys
     in_dir = args.dir
     args.average = True
-    directory_H = in_dir
+    dir_H = in_dir
     args_x: dict = {"auto": True, "average": args.average, "bobyqa": False, "mf": 500,
-                    "dir": directory_H, "thr": None, "json": None, "thrab": 0.025,
+                    "dir": dir_H, "thr": None, "json": None, "thrab": 0.025,
                     "verbose": False, "lw": 1, "tb": 4, "mss": 10, "cutoff": 0.001,
                     "show": False, "start": None, "end": None, "out": "output.npz"}
     sys.stdout = open(os.devnull, 'w')
