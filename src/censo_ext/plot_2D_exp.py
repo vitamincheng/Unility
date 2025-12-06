@@ -10,6 +10,7 @@ import nmrglue as ng
 import argparse
 import numpy as np
 import numpy.typing as npt
+from icecream import ic
 
 from censo_ext.Tools.utility import print_arguments
 
@@ -17,11 +18,6 @@ descr = """
 ________________________________________________________________________________
 | For Plot 2D sepctra in experiments using nmrglue module
 | Usage: plot_2D_exp.py <geometry> [options]                  
-| [Options]
-| Input    : -i the pdata path(under 2rr folder) [required] 
-|          : -F1 F1 shift, usually is Carbon   [default 0.0] 
-|          : -F2 F2 shift, usually is Hydrogen [default 0.0]
-| Hidden   : --hidden show the plot [default False] 
 |______________________________________________________________________________
 """
 
@@ -68,26 +64,49 @@ def cml() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "--hidden",
-        dest="hidden",
+        "-t",
+        "--thr",
+        dest="thr",
         action="store",
-        type=bool,
+        type=float,
         required=False,
-        default=False,
-        help="Show the plot [default False]",
+        default=1.0,
+        help="threshold of x , y axis [default 1.0]",
+    )
+    parser.add_argument(
+        "-c",
+        "--contour",
+        dest="contour",
+        action="store",
+        type=float,
+        required=False,
+        default=1.0,
+        help="threshold of contour [default 1.0]",
+    )
+
+    parser.add_argument(
+        "--verbose",
+        dest="verbose",
+        action="store_true",
+        help="verbose mode [default False]",
     )
     args: argparse.Namespace = parser.parse_args()
     return args
 
 
-def read_from_bruker(fileName, DeltaF1, DeltaF2):
+def read_from_bruker(fileName: str, DeltaF1: float, DeltaF2: float) -> tuple[dict, npt.NDArray]:
+
+    dic: dict
+    data_bruker: npt.NDArray
+    udic: dict
+    data: npt.NDArray
 
     dic, data_bruker = ng.bruker.read_pdata(fileName)
     udic = ng.bruker.guess_udic(dic, data_bruker)
 
-    # ic(udic)
     udic[0]["car"] = udic[0]["car"] - DeltaF1*udic[0]['obs']
     udic[1]["car"] = udic[1]["car"] - DeltaF2*udic[1]['obs']
+
     data_bruker = data_bruker.astype(np.complex128)
     C = ng.convert.converter()
     C.from_bruker(dic, data_bruker, udic)
@@ -111,13 +130,12 @@ def read_from_bruker(fileName, DeltaF1, DeltaF2):
 def read_udic(udic, data) -> tuple[unit_conversion, unit_conversion]:
     uc_1h: unit_conversion = ng.pipe.make_uc(udic, data, dim=1)
     uc_13c: unit_conversion = ng.pipe.make_uc(udic, data, dim=0)
-    # ppm_1h = uc_1h.ppm_scale()
-    # ppm_13c = uc_13c.ppm_scale()
     return uc_1h, uc_13c
 
 
-def plot_2D_Basic(udic, data, uc_1h, uc_13c) -> tuple[Axes, Axes]:
+def plot_2D_Basic(udic: dict, data: npt.NDArray, uc_1h: unit_conversion, uc_13c: unit_conversion, contour_maxima_thr: float) -> tuple[Axes, Axes]:
     # create the figure
+
     ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
     ppm_13c_0, ppm_13c_1 = uc_13c.ppm_limits()
     fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
@@ -142,7 +160,8 @@ def plot_2D_Basic(udic, data, uc_1h, uc_13c) -> tuple[Axes, Axes]:
     ax_histx.plot(uc_1h.ppm_scale(), x_axis_data, color='k', linewidth=1)
     ax_histy.plot(-y_axis_data, uc_13c.ppm_scale(), color='k', linewidth=1)
 
-    contour_thr = numpy_thr(data, 10.0)
+    # contour_thr = numpy_thr(data, 10.0)
+    contour_thr = contour_maxima_thr
 
     import matplotlib
     # type: ignore  # contour map (colors to use for contours)
@@ -171,18 +190,18 @@ def plot_2D_Basic(udic, data, uc_1h, uc_13c) -> tuple[Axes, Axes]:
     return ax, ax_histy
 
 
-def cal_contour_peak(data, contour_thr_factor: float = 2) -> list:
+def cal_contour_peak(data: npt.NDArray, contour_thr_factor: float = 1) -> tuple[list, float]:
 
     from skimage.morphology import extrema
-    contour_maxima_thr = numpy_thr(
-        data, 3.0) * contour_thr_factor + np.max(data)*0.01
+    contour_maxima_thr: float = numpy_thr(
+        data, contour_thr_factor) + np.max(data)*0.01
     h_maxima = extrema.h_maxima(data, contour_maxima_thr)
     max_peaks: list = []
     for idy, y in enumerate(h_maxima):
         for idx, x in enumerate(y):
             if x == 1:
                 max_peaks.append([idx, idy])
-    return max_peaks
+    return max_peaks, contour_maxima_thr
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
@@ -206,15 +225,22 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     y_axis_data = np.sum(data, axis=1)
 
     from censo_ext.Tools.spectra import numpy_thr
-    y_thr: float = numpy_thr(y_axis_data, 3)
-    x_thr: float = numpy_thr(x_axis_data, 3)
+    y_thr: float = numpy_thr(y_axis_data, args.thr)
+    x_thr: float = numpy_thr(x_axis_data, args.thr)
 
     ax: Axes | None = None
-    if not args.hidden:
-        ax, ax_histy = plot_2D_Basic(udic, data, uc_1h, uc_13c)
-    max_peaks: list = cal_contour_peak(data, contour_thr_factor=1)
+
+    max_peaks, contour_maxima_thr = cal_contour_peak(data, args.contour)
+
+    if args.verbose:
+        ic(max_peaks)
+
+    ax, ax_histy = plot_2D_Basic(
+        udic, data, uc_1h, uc_13c, contour_maxima_thr)
+
     max_peaks = [a for a in list(
         max_peaks) if x_axis_data[a[0]] > x_thr and y_axis_data[a[1]] > y_thr]
+
     y_peaks: list = sorted(set([a[1] for a in list(max_peaks)]))
     x_global_maximum: float = x_axis_data.max()
     y_lowest = (-y_axis_data).min()
@@ -222,13 +248,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     for y_idx in y_peaks:
         xslice: npt.NDArray = data[y_idx, :]
         maximum: float = xslice.max()
-        # xright: float = uc_1h.ppm(xslice.size)
 
-        if not args.hidden and ax:
+        if ax:
             ax.plot(uc_1h.ppm_scale(), -xslice/x_global_maximum *
                     5*4 + uc_13c.ppm(y_idx), linewidth=1)
-            # ax.text(xright, uc_13c.ppm(y_idx), f"{uc_13c.ppm(
-            #    y_idx):12.3f}", ha="right", va="center", fontsize=6)
             ax_histy.text(y_lowest, uc_13c.ppm(y_idx), f"{uc_13c.ppm(y_idx):12.3f}", ha="right", va="center", fontsize=6)  # type: ignore # nopep8
 
             for x in [x1 for x1, y1 in max_peaks if y1 == y_idx]:
@@ -244,8 +267,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     from censo_ext.Tools.utility import save_figure
     save_figure()
-    if not args.hidden:
-        plt.show()
+    plt.show()
 
 
 if __name__ == "__main__":
