@@ -80,8 +80,8 @@ def cal_RMSD(xyzfile, idx_p, idx_q, bond_broken) -> float:
 
 def TopoAnalysis(args) -> None:
 
-    idx1_p = args.idx
-    tmp = args.verbose
+    idx1_p: int = args.idx
+    tmp: bool = args.verbose
     args.verbose = False
     neighbor, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
         args)
@@ -127,8 +127,8 @@ def TopoAnalysis(args) -> None:
             res_node_mol: int = list(inter_x)[0]
             if args.verbose:
                 ic(node_mol, res_node_mol)
-            nNums = len(xyzFile)
-            for x in range(1, nNums+1):
+
+            for x in range(1, len(xyzFile)+1):
                 if x == idx1_p:
                     continue
                 res_left: float = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
@@ -145,8 +145,7 @@ def TopoAnalysis(args) -> None:
     print("  ===== Check straight molecule =====")
     result_straight: list[tuple[int, int, int, float, float]] = []
     for key, value in xyzSplit.items():
-        nNums: int = len(xyzFile)
-        for x in range(1, nNums+1):
+        for x in range(1, len(xyzFile)+1):
             if x == idx1_p:
                 continue
             res_left = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,

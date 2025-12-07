@@ -243,7 +243,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         peaks.method_save()
 
 
-def draw_axis(args, y_heighest, y_lowest, args_start, args_end, fig, ax) -> None:
+def draw_axis(args: argparse.Namespace, y_heighest: float, y_lowest: float, args_start: float, args_end: float, fig: Figure, ax: Axes) -> None:
     plt.xlim(args_end, args_start)
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
@@ -263,19 +263,19 @@ def draw_axis(args, y_heighest, y_lowest, args_start, args_end, fig, ax) -> None
     fig.text(0.5, 0.04, "$\\delta$ / ppm", ha="center", fontsize=12)
 
 
-def draw_spectra(intensit, uc) -> None:
+def draw_spectra(intensit: npt.NDArray[np.float64], uc: unit_conversion) -> None:
     plt.plot(uc.ppm_scale(), intensit, 'b', linewidth=1)
 
 
-def draw_threshold(thres, args_start, args_end, ax) -> None:
+def draw_threshold(thres: float, args_start: float, args_end: float, ax: Axes) -> None:
     plt.hlines(thres, args_end, args_start, linestyles="--")  # type: ignore # nopep8
     ax.text(args_start, thres*1.02, f"thr = {thres:>10.3f}",
             ha="center", va="center")
 
 
-def draw_preview(intensit, uc, args_start, args_end, ax, ng_1r_peaks) -> None:
+def draw_preview(intensit: npt.NDArray[np.float64], uc: unit_conversion, args_start: float, args_end: float, ax: Axes, ng_1r_peaks) -> None:
     idx_cID: float = 0
-    # peak_list: list = []
+
     for idx_peaks, cID, LW, VOL in ng_1r_peaks:
         if idx_cID < cID:
             idx_cID = cID
@@ -292,8 +292,9 @@ def draw_preview(intensit, uc, args_start, args_end, ax, ng_1r_peaks) -> None:
                     ha="center", va="center")
 
 
-def draw_Integral(intensit, ax, peaks):
-    Data = peaks.method_integrate(intensit)
+def draw_Integral(intensit: npt.NDArray[np.float64], ax: Axes, peaks: Peaks_npz) -> None:
+    Data: list[tuple[int, npt.NDArray[np.float64],
+                     npt.NDArray[np.float64]]] = peaks.method_integrate(intensit)
     for cID, peak_int, peak_scale in Data:
         ax.plot(peak_scale, peak_int.cumsum() /
                 100./4 + peak_int.max()*0.8, 'g-')
@@ -301,7 +302,7 @@ def draw_Integral(intensit, ax, peaks):
                 fontsize=8)
 
 
-def process_auto_mode(args, intensit, y_heighest, thres, thres_baseline, uc, peaks, ng_1r_peaks):
+def process_auto_mode(args: argparse.Namespace, intensit, y_heighest, thres, thres_baseline, uc, peaks, ng_1r_peaks):
 
     AD_normal: AD_Normal = AD_Normal()
     if not AD_normal.Exist():
@@ -330,27 +331,27 @@ def process_auto_mode(args, intensit, y_heighest, thres, thres_baseline, uc, pea
                 unique_group.append(item)
         nGroups: int = len(unique_group)
 
-    peak_list: list = []
+    peaks_list: list[tuple[int, float, float, float]] = []
     last_peaks: int = 0
     while True:
 
-        peak_list = extract_peak(intensit, uc, ng_1r_peaks)
+        peaks_list = extract_peak(intensit, uc, ng_1r_peaks)
 
         print("threshold : ", thres)
         print("Excepted  : ", nGroups)
-        print("Real Num  : ", len(peak_list))
+        print("Real Num  : ", len(peaks_list))
 
-        merge_overlap_peaks(peak_list)
+        merge_overlap_peaks(peaks_list)
 
-        for x in peak_list:
+        for x in peaks_list:
             print(x)
         print("")
-        peaks.method_load_Data(peak_list)
+        peaks.method_load_Data(peaks_list)
 
-        if args.basic is True or nGroups == len(peak_list) or len(peak_list) < last_peaks:
+        if args.basic is True or nGroups == len(peaks_list) or len(peaks_list) < last_peaks:
             break
-        elif len(peak_list) > last_peaks:
-            last_peaks = len(peak_list)
+        elif len(peaks_list) > last_peaks:
+            last_peaks = len(peaks_list)
         else:  # find the smallest of len(peak_list)
             if thres > y_heighest*0.7:
                 break

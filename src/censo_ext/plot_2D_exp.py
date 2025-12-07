@@ -190,13 +190,13 @@ def plot_2D_Basic(udic: dict, data: npt.NDArray, uc_1h: unit_conversion, uc_13c:
     return ax, ax_histy
 
 
-def cal_contour_peak(data: npt.NDArray, contour_thr_factor: float = 1) -> tuple[list, float]:
+def cal_contour_peak(data: npt.NDArray, contour_thr_factor: float = 1) -> tuple[list[list[int]], float]:
 
     from skimage.morphology import extrema
     contour_maxima_thr: float = numpy_thr(
         data, contour_thr_factor) + np.max(data)*0.01
     h_maxima = extrema.h_maxima(data, contour_maxima_thr)
-    max_peaks: list = []
+    max_peaks: list[list[int]] = []
     for idy, y in enumerate(h_maxima):
         for idx, x in enumerate(y):
             if x == 1:
@@ -238,12 +238,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     ax, ax_histy = plot_2D_Basic(
         udic, data, uc_1h, uc_13c, contour_maxima_thr)
 
-    max_peaks = [a for a in list(
+    max_peaks: list[list[int]] = [a for a in list(
         max_peaks) if x_axis_data[a[0]] > x_thr and y_axis_data[a[1]] > y_thr]
 
     y_peaks: list = sorted(set([a[1] for a in list(max_peaks)]))
     x_global_maximum: float = x_axis_data.max()
-    y_lowest = (-y_axis_data).min()
+    y_lowest: float = (-y_axis_data).min()
 
     for y_idx in y_peaks:
         xslice: npt.NDArray = data[y_idx, :]

@@ -3,6 +3,7 @@ from enum import Enum
 from pathlib import Path
 from icecream import ic
 from matplotlib.axes import Axes
+from matplotlib.backend_bases import KeyEvent, MouseEvent
 from matplotlib.figure import Figure
 import nmrglue as ng
 import matplotlib.pyplot as plt
@@ -207,7 +208,7 @@ class diagram:
             ax.set_xlim(_x)
             ax.set_ylim(_y)
 
-    def on_key_press(self, event) -> None:
+    def on_key_press(self, event: KeyEvent) -> None:
         """Callback function for key press events."""
         if event.key == 'q':
             print("Quitting the application.")
@@ -355,14 +356,14 @@ class diagram:
             for n, peak in enumerate(peaks, 1):
                 self._peaks[n] = peak
 
-    def on_button_release(self, event) -> None:
+    def on_button_release(self, event: MouseEvent) -> None:
         from matplotlib.backend_bases import MouseButton
         toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
         if self._key == "t" and toolbar_mode == "zoom rect":
             for x in self._ax_dict.values():
                 x.set_navigate_mode("ZOOM")
 
-        elif event.inaxes in self._ax_dict.values() and self._key == "t" and event.button == MouseButton.LEFT:
+        elif event.ydata is not None and event.inaxes in self._ax_dict.values() and self._key == "t" and event.button == MouseButton.LEFT:
             if event.inaxes == self._ax_dict[DEPT._90]:
                 self._thr[DEPT._90] = event.ydata
             elif event.inaxes == self._ax_dict[DEPT._135] and event.ydata >= 0:
@@ -374,7 +375,7 @@ class diagram:
             self.draw_status()
             self._fig.canvas.draw_idle()
 
-    def on_button_press(self, event) -> None:
+    def on_button_press(self, event: MouseEvent) -> None:
         from matplotlib.backend_bases import MouseButton
         toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
         if self._key == "t" and toolbar_mode == "zoom rect":
@@ -382,8 +383,11 @@ class diagram:
             for x in self._ax_dict.values():
                 x.set_navigate_mode("ZOOM")
             self._fig.canvas.draw_idle()
-        elif event.inaxes in self._ax_dict.values() and self._key == "t" and event.button == MouseButton.LEFT:
-            self._button_xy: tuple[float, float] = event.xdata, event.ydata
+        elif event.inaxes is not None and event.inaxes in self._ax_dict.values() and self._key == "t" and event.button == MouseButton.LEFT:
+
+            if event.xdata is not None and event.ydata is not None:
+                self._button_xy: tuple[float, float] = event.xdata, event.ydata
+
             self._ax_selected: Axes = event.inaxes
             start, end = event.inaxes.get_xlim()
 
@@ -395,7 +399,7 @@ class diagram:
             event.inaxes.hlines(self._button_xy[1], end, start, colors='k', linestyles="dashed", linewidth=1)  # type: ignore # nopep8
             self._fig.canvas.draw_idle()
 
-        elif event.inaxes is self._ax_dict[DEPT._13C] and self._key == "d" and event.button == MouseButton.LEFT:
+        elif event.xdata is not None and event.inaxes is self._ax_dict[DEPT._13C] and self._key == "d" and event.button == MouseButton.LEFT:
             x = event.xdata
             xmin, xmax = self._ax_dict[DEPT._13C].get_xlim()
             xscale: float = abs(xmax-xmin)*0.02
@@ -415,10 +419,10 @@ class diagram:
             self.draw_carbon_number()
             self._fig.canvas.draw_idle()
 
-    def on_mouse_motion(self, event) -> None:
+    def on_mouse_motion(self, event: MouseEvent) -> None:
         from matplotlib.backend_bases import MouseButton
 
-        if event.inaxes is self._ax_dict.values() and event.button is MouseButton.LEFT:
+        if event.inaxes is not None and event.inaxes is self._ax_dict.values() and event.button is MouseButton.LEFT:
             toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
 
             if self._key == "t" and toolbar_mode == "zoom rect":
@@ -428,7 +432,7 @@ class diagram:
                     x.set_navigate_mode("ZOOM")
                 self._fig.canvas.draw_idle()
 
-            if self._key == "t" and toolbar_mode != "zoom rect":
+            if self._key == "t" and toolbar_mode != "zoom rect" and event.ydata is not None:
                 if event.inaxes == self._ax_dict[DEPT._90]:
                     self._thr[DEPT._90] = event.ydata
                 elif event.inaxes == self._ax_dict[DEPT._135] and event.ydata >= 0:
@@ -467,13 +471,13 @@ class diagram:
     def connect(self) -> None:
         """Connect all event handlers."""
         self._cID_key: int = self._fig.canvas.mpl_connect(
-            'key_press_event', self.on_key_press)
+            'key_press_event', self.on_key_press)  # type: ignore
         self._cID_button_press: int = self._fig.canvas.mpl_connect(
-            'button_press_event', self.on_button_press)
+            'button_press_event', self.on_button_press)  # type: ignore
         self._cID_button_motion: int = self._fig.canvas.mpl_connect(
-            'motion_notify_event', self.on_mouse_motion)
+            'motion_notify_event', self.on_mouse_motion)  # type: ignore
         self._cID_button_release: int = self._fig.canvas.mpl_connect(
-            'button_release_event', self.on_button_release)
+            'button_release_event', self.on_button_release)  # type: ignore
 
     def disconnect(self) -> None:
         self._fig.canvas.mpl_disconnect(self._cID_key)

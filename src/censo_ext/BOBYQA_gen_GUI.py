@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+from matplotlib.backend_bases import KeyEvent, MouseEvent
 import numpy as np
 import numpy.typing as npt
 import matplotlib.pyplot as plt
@@ -97,7 +98,7 @@ def cml() -> argparse.Namespace:
 class diagram:
     """A class for creating and managing a spectrum diagram with interactive editing capabilities."""
 
-    def __init__(self, args, intensit: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]],
+    def __init__(self, args: argparse.Namespace, intensit: tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]],
                  uc: tuple[unit_conversion, unit_conversion], peaks_npz) -> None:
         """Initialize the diagram with spectrum data and plotting setup.
 
@@ -140,7 +141,7 @@ class diagram:
         self.method_load_orcaS()
         self.x_boundary(args, uc)
 
-    def x_boundary(self, args, uc) -> None:
+    def x_boundary(self, args: argparse.Namespace, uc: tuple[unit_conversion, unit_conversion]) -> None:
         if args.start is not None and args.end is not None and args.start < args.end:
             self._start: float = args.start
             self._end: float = args.end
@@ -151,7 +152,6 @@ class diagram:
             )[1] < uc[0].ppm_limits()[1] else uc[0].ppm_limits()[1]
 
     def method_load_orcaS(self) -> None:
-
         if (self._AD_orcaS.Exist()):
             self._AD_orcaS.method_load_files()
             if isinstance(self._AD_orcaS.ChemicalShifts, dict):
@@ -164,7 +164,7 @@ class diagram:
                 print("  Exit and Close the program !!!")
                 exit(0)
 
-    def on_key_press(self, event) -> None:
+    def on_key_press(self, event: KeyEvent) -> None:
         """Callback function for key press events."""
         if event.key == 'q':
             print("Quitting the application.")
@@ -190,7 +190,7 @@ class diagram:
         elif event.key == 'f':
             self._redraw_full()
 
-    def _execute_action(self):
+    def _execute_action(self) -> None:
         """Execute the current action based on key mode."""
 
         self._bottom_status_select_int = list(
@@ -279,7 +279,7 @@ class diagram:
             self.draw_title()
             self._fig.canvas.draw_idle()
 
-    def _redraw_full(self):
+    def _redraw_full(self) -> None:
         """Redraw the full spectrum."""
 
         xmin, xmax, ymin, ymax = plt.axis()
@@ -295,13 +295,19 @@ class diagram:
         self.draw_scatter_numbers()
         self._fig.canvas.draw_idle()
 
-    def on_button_release(self, event) -> None:
+    def on_button_release(self, event: MouseEvent) -> None:
         """Handle button release events."""
         if event.inaxes is self._ax_selected and self._button_xy is not None:
-            release_x = event.xdata
-            release_y = event.ydata
-            distance = np.sqrt((release_x-self._button_xy[0]) **
-                               2 + (release_y-self._button_xy[1])**2)
+
+            if event.xdata is None or event.ydata is None:
+                release_x: float = self._button_xy[0]
+                release_y: float = self._button_xy[1]
+            else:
+                release_x: float = float(event.xdata)
+                release_y: float = float(event.ydata)
+
+            distance: np.float64 = np.sqrt((release_x-self._button_xy[0]) **
+                                           2 + (release_y-self._button_xy[1])**2)
             tolerance = 0.01
 
             if self._key == 'e':
@@ -338,7 +344,7 @@ class diagram:
             self.draw_status()
             self._fig.canvas.draw_idle()
 
-    def on_button_press(self, event) -> None:
+    def on_button_press(self, event: MouseEvent) -> None:
         """Handle button press events."""
         from matplotlib.backend_bases import MouseButton
 
@@ -348,10 +354,10 @@ class diagram:
             self._ax_top.set_navigate_mode("ZOOM")
 
         elif (event.inaxes == self._ax_bottom) and event.button == MouseButton.LEFT:
-            self._button_xy = event.xdata, event.ydata
+            self._button_xy = event.xdata, event.ydata  # type: ignore
             self._ax_selected = event.inaxes
 
-    def on_mouse_motion(self, event) -> None:
+    def on_mouse_motion(self, event: MouseEvent) -> None:
         """Handle mouse motion events."""
         from matplotlib.backend_bases import MouseButton
 
@@ -384,13 +390,13 @@ class diagram:
     def connect(self) -> None:
         """Connect all event handlers."""
         self._cID_key = self._fig.canvas.mpl_connect(
-            'key_press_event', self.on_key_press)
+            'key_press_event', self.on_key_press)  # type: ignore
         self._cID_button_press = self._fig.canvas.mpl_connect(
-            'button_press_event', self.on_button_press)
+            'button_press_event', self.on_button_press)  # type: ignore
         self._cID_button_motion = self._fig.canvas.mpl_connect(
-            'motion_notify_event', self.on_mouse_motion)
+            'motion_notify_event', self.on_mouse_motion)  # type: ignore
         self._cID_button_release = self._fig.canvas.mpl_connect(
-            'button_release_event', self.on_button_release)
+            'button_release_event', self.on_button_release)  # type: ignore
 
     def disconnect(self) -> None:
         """Disconnect all event handlers."""

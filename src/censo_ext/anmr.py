@@ -731,12 +731,12 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
                 # if only one negative Jcoups in one column, adde the largest of positive JCoups of the column
                 for idx0, x in enumerate(mat_filter_ab_quartet):
                     a = inJCoups[idx0][x.astype(bool)]
-                    nPositives: npt.NDArray[np.intp] = np.argwhere(a > 0)
-                    nNegatives: npt.NDArray[np.intp] = np.argwhere(a < 0)
-                    if len(nPositives) == 0 and len(nNegatives) >= 1:
-                        b: np.intp = np.argmax(inJCoups[idx0])
-                        mat_filter_ab_quartet[idx0][b] = 1
-                        mat_filter_ab_quartet[b][idx0] = 1
+                    intp_positives: npt.NDArray[np.intp] = np.argwhere(a > 0)
+                    intp_negatives: npt.NDArray[np.intp] = np.argwhere(a < 0)
+                    if len(intp_positives) == 0 and len(intp_negatives) >= 1:
+                        intp_max: np.intp = np.argmax(inJCoups[idx0])
+                        mat_filter_ab_quartet[idx0][intp_max] = 1
+                        mat_filter_ab_quartet[intp_max][idx0] = 1
 
             if args.verbose:
                 ic(mat_filter_ab_quartet)

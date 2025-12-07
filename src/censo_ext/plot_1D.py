@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from nmrglue.fileio.fileiobase import unit_conversion
 from censo_ext.Tools.utility import print_arguments
 from icecream import ic
 import nmrglue as ng
@@ -202,7 +203,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         dic, data = ng.pipe.read(pipe_fid_filename)
 
     if args.file is not None:
-        dic, data = ng.jcampdx.read(args.file)
+        dic, data = ng.jcampdx.read(args.file)  # type: ignore
         dic = ng.jcampdx.guess_udic(dic, data)
         C = ng.convert.converter()
         C.from_universal(dic, data)
@@ -210,8 +211,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
         dic, data = ng.pipe.read(pipe_fid_filename)
 
-    data = data.real*args.phase  # type: ignore
-    uc = ng.pipe.make_uc(dic, data)  # type: ignore
+    data: npt.NDArray = data.real*args.phase  # type: ignore
+    uc: unit_conversion = ng.pipe.make_uc(dic, data)  # type: ignore
 
     # end ---------+--------- start
     # args.end                args.start
@@ -259,14 +260,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Automatically Intergate the peaks if use the original data of fid file
     if args.auto:
         peak_list: list = []
-        sorted_cID_peaks = np.sort(new_peaks, order='cID')
+        sorted_cID_peaks: npt.NDArray = np.sort(new_peaks, order='cID')
 
         for cID in set(sorted_cID_peaks['cID']):
-            args_cID = (np.argwhere(sorted_cID_peaks['cID'] == cID))
-            l_Axis = sorted_cID_peaks[args_cID.min()]['X_AXIS']
-            r_Axis = sorted_cID_peaks[args_cID.max()]['X_AXIS']
-            l_LW = sorted_cID_peaks[args_cID.min()]['X_LW']
-            r_LW = sorted_cID_peaks[args_cID.max()]['X_LW']
+            intp_cID: npt.NDArray[np.intp] = (
+                np.argwhere(sorted_cID_peaks['cID'] == cID))
+            l_Axis = sorted_cID_peaks[intp_cID.min()]['X_AXIS']
+            r_Axis = sorted_cID_peaks[intp_cID.max()]['X_AXIS']
+            l_LW = sorted_cID_peaks[intp_cID.min()]['X_LW']
+            r_LW = sorted_cID_peaks[intp_cID.max()]['X_LW']
             if l_LW <= 1.0:
                 l_LW = 1
             if r_LW <= 1.0:
@@ -318,7 +320,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             start, end = -99999, 99999
             for x in sorted(args.merge):
                 if x in np_peaks['cID']:
-                    args_x = np.argwhere(np_peaks['cID'] == x)
+                    args_x: npt.NDArray[np.intp] = np.argwhere(
+                        np_peaks['cID'] == x)
                     # ic(args_x)
                     # ic(np_peaks[args_x[0]]['Start'])
                     if start < np_peaks[args_x[0]]['Start']:

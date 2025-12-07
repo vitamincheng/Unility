@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # import matplotlib
 # matplotlib.use('qt5agg')  # nopep8
+from matplotlib.backend_bases import KeyEvent, MouseEvent
 import matplotlib.pyplot as plt
 import numpy.typing as npt
 import numpy as np
@@ -176,7 +177,7 @@ class diagram:
         self.draw_title()
         self._key: str = ""
 
-    def on_key_press(self, event):
+    def on_key_press(self, event: KeyEvent):
         """Callback function for key press events."""
         if event.key == 'q':
             print("Quitting the application.")
@@ -206,7 +207,7 @@ class diagram:
         elif event.key == 'i':
             self._toggle_integral_display()
 
-    def _execute_action(self):
+    def _execute_action(self) -> None:
         """Execute the current action based on key mode."""
         xmin, xmax, ymin, ymax = plt.axis()
         self._status_int = list(map(int, set(self._status_int)))
@@ -314,13 +315,17 @@ class diagram:
         self.draw_title()
         self._fig.canvas.draw_idle()
 
-    def on_button_release(self, event) -> None:
+    def on_button_release(self, event: MouseEvent) -> None:
         """Handle button release events."""
         toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
         if event.inaxes == self._ax and self._button_xy is not None:
 
-            release_xy = event.xdata, event.ydata
-            distance = np.sqrt(
+            if event.xdata is None or event.ydata is None:
+                release_xy = self._button_xy[0], self._button_xy[1]
+            else:
+                release_xy = event.xdata, event.ydata
+
+            distance: np.float64 = np.sqrt(
                 np.sum((np.array(release_xy)-np.array(self._button_xy))**2))
             tolerance = 0.01
             x_distance = np.abs(release_xy[0]-self._button_xy[0])
@@ -357,7 +362,7 @@ class diagram:
             self.draw_status_int()
             self._fig.canvas.draw_idle()
 
-    def on_button_press(self, event) -> None:
+    def on_button_press(self, event: MouseEvent) -> None:
         """Handle button press events."""
         from matplotlib.backend_bases import MouseButton
         toolbar_mode = self._fig.canvas.manager.toolbar.mode  # type: ignore
@@ -368,9 +373,12 @@ class diagram:
             self._ax.set_navigate_mode("ZOOM")
             self._fig.canvas.draw_idle()
         elif event.inaxes == self._ax and event.button == MouseButton.LEFT:
-            self._button_xy = event.xdata, event.ydata
+            if event.xdata is None or event.ydata is None:
+                self._button_xy = 0, 0
+            else:
+                self._button_xy = event.xdata, event.ydata
 
-    def on_mouse_motion(self, event) -> None:
+    def on_mouse_motion(self, event: MouseEvent) -> None:
         """Handle mouse motion events."""
         from matplotlib.backend_bases import MouseButton
         if event.button is MouseButton.LEFT and event.inaxes == self._ax:
@@ -396,13 +404,13 @@ class diagram:
     def connect(self) -> None:
         """Connect all event handlers."""
         self._cID_key = self._fig.canvas.mpl_connect(
-            'key_press_event', self.on_key_press)
+            'key_press_event', self.on_key_press)  # type: ignore
         self._cID_button_press = self._fig.canvas.mpl_connect(
-            'button_press_event', self.on_button_press)
+            'button_press_event', self.on_button_press)  # type: ignore
         self._cID_button_motion = self._fig.canvas.mpl_connect(
-            'motion_notify_event', self.on_mouse_motion)
+            'motion_notify_event', self.on_mouse_motion)  # type: ignore
         self._cID_button_release = self._fig.canvas.mpl_connect(
-            'button_release_event', self.on_button_release)
+            'button_release_event', self.on_button_release)  # type: ignore
 
     def disconnect(self) -> None:
         """Disconnect all event handlers."""
@@ -602,27 +610,27 @@ def process_auto_mode(args: argparse.Namespace, intensit: npt.NDArray, y_heighes
                 unique_group.append(item)
         nGroups: int = len(unique_group)
 
-    peak_list: list[tuple[int, float, float, float]] = []
+    peaks_list: list[tuple[int, float, float, float]] = []
     last_peaks: int = 0
     while True:
-        peak_list = extract_peaks(intensit, uc, ng_1r_peaks)
+        peaks_list = extract_peaks(intensit, uc, ng_1r_peaks)
 
         print("threshold : ", thres)
         print("Excepted  : ", nGroups)
-        print("Real Num  : ", len(peak_list))
+        print("Real Num  : ", len(peaks_list))
 
-        merge_overlap_peaks(peak_list)
+        merge_overlap_peaks(peaks_list)
 
         print("     cID        Start          End             Area")
-        for x in peak_list:
+        for x in peaks_list:
             print(f"{x[0]:8d} {x[1]:12.4f} {x[2]:12.4f} {x[3]:16.4e}")
         print("")
-        peaks_npz.method_load_Data(peak_list)
+        peaks_npz.method_load_Data(peaks_list)
 
-        if args.basic is True or nGroups == len(peak_list) or len(peak_list) < last_peaks:
+        if args.basic is True or nGroups == len(peaks_list) or len(peaks_list) < last_peaks:
             break
-        elif len(peak_list) > last_peaks:
-            last_peaks = len(peak_list)
+        elif len(peaks_list) > last_peaks:
+            last_peaks = len(peaks_list)
         else:  # find the smallest of len(peak_list)
             if thres > y_heighest*0.7:
                 break
@@ -636,24 +644,24 @@ def process_auto_mode(args: argparse.Namespace, intensit: npt.NDArray, y_heighes
     peaks_npz.method_print()
 
 
-def merge_overlap_peaks(peak_list) -> None:
-    ppm_end: list[np.float64] = np.array(peak_list).T[2].tolist()
-    ppm_start: list[np.float64] = np.array(peak_list).T[1].tolist()
+def merge_overlap_peaks(peaks_list: list[tuple[int, float, float, float]]) -> None:
+    ppm_end: list[np.float64] = np.array(peaks_list).T[2].tolist()
+    ppm_start: list[np.float64] = np.array(peaks_list).T[1].tolist()
     ppm_end.pop(0)
     ppm_end.append(999)  # type: ignore
     ppm_args: npt.NDArray[np.intp] = np.argwhere(
         np.array(ppm_end)-np.array(ppm_start) < 0)
     for x in (ppm_args + 1):
         index = x[0]
-        ppm_center = (peak_list[index-1]
-                      [1] + peak_list[index][2])/2
-        new_cID, start, end, Area = peak_list[index-1]
-        peak_list[index-1] = (new_cID, ppm_center, end, Area)
-        new_cID, start, end, Area = peak_list[index]
-        peak_list[index] = (new_cID, start, ppm_center, Area)
+        ppm_center = (peaks_list[index-1]
+                      [1] + peaks_list[index][2])/2
+        new_cID, start, end, Area = peaks_list[index-1]
+        peaks_list[index-1] = (new_cID, ppm_center, end, Area)
+        new_cID, start, end, Area = peaks_list[index]
+        peaks_list[index] = (new_cID, start, ppm_center, Area)
 
 
-def extract_peaks(intensit, uc, ng_1r_peaks) -> list[tuple[int, float, float, float]]:
+def extract_peaks(intensit: npt.NDArray[np.float64], uc: unit_conversion, ng_1r_peaks) -> list[tuple[int, float, float, float]]:
     peak_list: list[tuple[int, float, float, float]] = []
     sorted_cID_peaks: npt.NDArray = np.sort(
         ng_1r_peaks, order='cID')

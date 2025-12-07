@@ -86,7 +86,7 @@ peaks_fileName = "plot_1D_DEPT.peaks"
 fid_fileName = ".1d_pipe.fid"
 
 
-def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> dict[int, float]:
+def Channel(args: argparse.Namespace, path: dict[Path, Path], channel: Path, thr: float, phase: float = 1.0) -> dict[int, float]:
     dic, data = ng.bruker.read_pdata(str(path[channel]))
     udic = ng.bruker.guess_udic(dic, data)
 
@@ -126,7 +126,7 @@ def Channel(args, path: dict, channel: Path, thr: float, phase: float = 1.0) -> 
     return Result
 
 
-def Compare_two_dict(CH1: dict, CH2: dict, StAtoms: dict, Label: int) -> None:
+def Compare_two_dict(CH1: dict[int, float], CH2: dict[int, float], StAtoms: dict[int, int], Label: int) -> None:
     from censo_ext.Tools.spectra import find_nearest
     for x in CH2.values():
         nearest_peak, idx0 = find_nearest(list(CH1.values()), x)
@@ -137,6 +137,13 @@ def Compare_two_dict(CH1: dict, CH2: dict, StAtoms: dict, Label: int) -> None:
             print("  Exit and Close the program !!!")
             ic()
             exit(0)
+
+
+def print_outcome(StAtoms, uc_1h, peaks) -> None:
+    print("#   ID             ppm    nHydrogens")
+    for n, peak in enumerate(peaks):
+        ppm = uc_1h.ppm(peak)
+        print(f"{n+1:6d} {ppm:>15.5f}        {StAtoms[n+1]:>3d}")
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
@@ -172,29 +179,29 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     path[ch3] = directory / ch3 / Path("pdata/1")
 
     channel: Path = ch1
-    Result_ch1: dict = Channel(args, path, channel, thr[channel])
+    Result_ch1: dict[int, float] = Channel(args, path, channel, thr[channel])
     StAtoms: dict[int, int] = {key: -1 for key, value in Result_ch1.items()}
 
     channel: Path = ch2
-    Result_ch2: dict = Channel(args, path, channel, thr[channel])
+    Result_ch2: dict[int, float] = Channel(args, path, channel, thr[channel])
     print("DEPT90             ppm")
-    for idx1, ppm in Result_ch2.items():
-        print(f"{idx1:6d} {ppm:>15.5f}")
+    for idx1, ch2_ppm in Result_ch2.items():
+        print(f"{idx1:6d} {ch2_ppm:>15.5f}")
 
     channel: Path = ch3
-    Result_ch3: dict = Channel(args, path, channel, thr[channel])
+    Result_ch3: dict[int, float] = Channel(args, path, channel, thr[channel])
     Compare_two_dict(Result_ch1, Result_ch3, StAtoms, Label=3)
     Compare_two_dict(Result_ch1, Result_ch2, StAtoms, Label=1)
     print("DEPT135(up)        ppm")
-    for idx1, ppm in Result_ch3.items():
-        print(f"{idx1:6d} {ppm:>15.5f}")
+    for idx1, ch3_ppm in Result_ch3.items():
+        print(f"{idx1:6d} {ch3_ppm:>15.5f}")
 
     channel: Path = ch3
-    Result_ch3_180: dict = Channel(args, path, channel, thr_ch3_180, phase=-1.0)  # nopep8
+    Result_ch3_180: dict[int, float] = Channel(args, path, channel, thr_ch3_180, phase=-1.0)  # nopep8
     Compare_two_dict(Result_ch1, Result_ch3_180, StAtoms, Label=2)
     print("DEPT135(down)      ppm")
-    for idx1, ppm in Result_ch3_180.items():
-        print(f"{idx1:6d} {ppm:>15.5f}")
+    for idx1, ch3_180_ppm in Result_ch3_180.items():
+        print(f"{idx1:6d} {ch3_180_ppm:>15.5f}")
     for key, value in StAtoms.items():
         if value == -1:
             StAtoms[key] = 0
@@ -216,9 +223,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # args.end                args.start
     # ppm_1h_0                ppm_1h_1
 
-    ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
-    ppm: npt.NDArray[np.float64] = np.linspace(
-        ppm_1h_0, ppm_1h_1, data.shape[0])
+    # ppm_1h_0, ppm_1h_1 = uc_1h.ppm_limits()
+    # ppm: npt.NDArray[np.float64] = np.linspace(
+    #    ppm_1h_0, ppm_1h_1, data.shape[0])
+
     if not args.start or not args.end:
         args.end, args.start = uc_1h.ppm_limits()
 
@@ -243,13 +251,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         sys.stdout = sys.__stdout__
 
     delete_all_files(fid_fileName)
-
-
-def print_outcome(StAtoms, uc_1h, peaks):
-    print("#   ID             ppm    nHydrogens")
-    for n, peak in enumerate(peaks):
-        ppm = uc_1h.ppm(peak)
-        print(f"{n+1:6d} {ppm:>15.5f}        {StAtoms[n+1]:>3d}")
 
 
 if __name__ == "__main__":

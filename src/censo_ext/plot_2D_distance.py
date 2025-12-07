@@ -12,7 +12,7 @@ import numpy as np
 import numpy.typing as npt
 # from icecream import ic
 from pathlib import Path
-from censo_ext.Tools.utility import print_arguments
+from censo_ext.Tools.utility import IntpID, print_arguments
 from censo_ext.anmr import AtomID
 from matplotlib.figure import Figure
 descr = """
@@ -137,13 +137,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     H_Atoms: list[AtomID] = [key for key,
                              value in Element.items() if value == "H"]
     nShapes: int = len(H_Atoms)
-    idx0_Atoms: list = list(np.array(H_Atoms)-1)
+    intp_Atoms: list[IntpID] = list(np.array(H_Atoms)-1)
     Distances: npt.NDArray[np.float64] = np.zeros(
         (nShapes, nShapes), dtype=np.float64)
     Result: npt.NDArray[np.float64] = np.zeros(
         (nShapes, nShapes), dtype=np.float64)
     for idx0, St in enumerate(xyzFile.Sts):
-        St_local = np.array(St.coord)[idx0_Atoms]
+        St_local = np.array(St.coord)[intp_Atoms]
         from scipy.spatial.distance import cdist
         Distances = cdist(St_local, St_local)  # type: ignore
         np.seterr(divide='ignore')
@@ -152,7 +152,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     diag_indices = np.diag_indices_from(Result)
     Result[diag_indices] = 0
-    data_x = Load_Directory(args)
+    data_x: npt.NDArray[np.float64] = Load_Directory(args)
 
     if args.start is None or args.end is None:
         start = np.min(data_x.T[0])
@@ -162,14 +162,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         end = float(args.end)
 
     # Create a grid of x and y values
-    x: npt.NDArray = np.linspace(start, end, args.pts)
-    y: npt.NDArray = np.linspace(start, end, args.pts)
+    x: npt.NDArray[np.float64] = np.linspace(
+        start, end, args.pts).astype(np.float64)
+    y: npt.NDArray[np.float64] = np.linspace(
+        start, end, args.pts).astype(np.float64)
     X, Y = np.meshgrid(x, y)
-    Z: npt.NDArray
+    Z: npt.NDArray[np.float64]
 
     # Define Lorentzian parameters
-    gamma_x = args.gamma
-    gamma_y = args.gamma
+    gamma_x: float = args.gamma
+    gamma_y: float = args.gamma
 
     # Calculate the 2D Lorentzian
     for idx0, x in enumerate(Result):
@@ -210,8 +212,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     import math
     min_contour: int = int(args.contour)*2**6
     int_ratio_2: int = math.ceil(math.log2(np.max(Result)/min_contour))
-    init = np.arange(int_ratio_2+1)
-    lv = (np.power(2, init)*min_contour)
+    init: npt.NDArray[np.int64] = np.arange(int_ratio_2+1).astype(np.int64)
+    lv: npt.NDArray[np.float64] = (
+        np.power(2, init)*min_contour).astype(np.float64)
     # _plot = ax.contour(X, Y, Z, levels=lv, cmap=matplotlib.cm.Blues_r)
     _plot = ax.contour(X, Y, Z, levels=lv, cmap='seismic')  # type: ignore
     ax.set_xlim(start, end)
@@ -226,13 +229,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     plt.show()
 
 
-def Load_Directory(args) -> npt.NDArray:
+def Load_Directory(args: argparse.Namespace) -> npt.NDArray[np.float64]:
     import censo_ext.anmr as anmr
     import os
     import sys
-    in_dir = args.dir
+    dir_H: str = args.dir
     args.average = True
-    dir_H = in_dir
     args_x: dict = {"auto": True, "average": args.average, "bobyqa": False, "mf": 500,
                     "dir": dir_H, "thr": None, "json": None, "thrab": 0.025,
                     "verbose": False, "lw": 1, "tb": 4, "mss": 10, "cutoff": 0.001,
@@ -242,7 +244,7 @@ def Load_Directory(args) -> npt.NDArray:
     return data_x
 
 
-def lorentzian_2d(x: npt.NDArray, y: npt.NDArray, amplitude: float, center_x: float, center_y: float, gamma_x: float, gamma_y: float, rotation_angle=0) -> npt.NDArray[np.float64]:
+def lorentzian_2d(x: npt.NDArray[np.float64], y: npt.NDArray[np.float64], amplitude: float, center_x: float, center_y: float, gamma_x: float, gamma_y: float, rotation_angle=0) -> npt.NDArray[np.float64]:
     """
     Calculates a 2D Lorentzian function.
 
@@ -260,9 +262,9 @@ def lorentzian_2d(x: npt.NDArray, y: npt.NDArray, amplitude: float, center_x: fl
         numpy.ndarray: The 2D Lorentzian values.
     """
     # Translate and rotate coordinates
-    xp: npt.NDArray = (x - center_x) * np.cos(rotation_angle) - \
+    xp: npt.NDArray[np.float64] = (x - center_x) * np.cos(rotation_angle) - \
         (y - center_y) * np.sin(rotation_angle)
-    yp: npt.NDArray = (x - center_x) * np.sin(rotation_angle) + \
+    yp: npt.NDArray[np.float64] = (x - center_x) * np.sin(rotation_angle) + \
         (y - center_y) * np.cos(rotation_angle)
 
     # Calculate the Lorentzian
