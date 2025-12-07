@@ -303,7 +303,7 @@ class Peaks_npz():
             print("  Exit and Close the program !!!")
             exit(1)
 
-    def method_integrate(self, intensit) -> list[tuple[int, npt.NDArray, npt.NDArray]]:
+    def method_integrate(self, intensit: npt.NDArray[np.float64]) -> list[tuple[int, npt.NDArray[np.float64], npt.NDArray[np.float64]]]:
         """Integrate peak data within the specified ppm ranges.
 
         This method extracts intensity and chemical shift (ppm) data for each peak
@@ -329,8 +329,9 @@ class Peaks_npz():
                 min, max = max, min
 
             # extract the peak
-            peak_int: npt.NDArray = intensit[min:max + 1]
-            peak_scale: npt.NDArray = self.__uc.ppm_scale()[min:max + 1]
+            peak_int: npt.NDArray[np.float64] = intensit[min:max + 1]
+            peak_scale: npt.NDArray[np.float64] = self.__uc.ppm_scale()[
+                min:max + 1]
             out_Data.append((cID, peak_int, peak_scale))
         return out_Data
 

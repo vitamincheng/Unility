@@ -243,7 +243,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         peaks.method_save()
 
 
-def draw_axis(args, y_heighest, y_lowest, args_start, args_end, fig, ax):
+def draw_axis(args, y_heighest, y_lowest, args_start, args_end, fig, ax) -> None:
     plt.xlim(args_end, args_start)
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
@@ -263,17 +263,17 @@ def draw_axis(args, y_heighest, y_lowest, args_start, args_end, fig, ax):
     fig.text(0.5, 0.04, "$\\delta$ / ppm", ha="center", fontsize=12)
 
 
-def draw_spectra(intensit, uc):
+def draw_spectra(intensit, uc) -> None:
     plt.plot(uc.ppm_scale(), intensit, 'b', linewidth=1)
 
 
-def draw_threshold(thres, args_start, args_end, ax):
+def draw_threshold(thres, args_start, args_end, ax) -> None:
     plt.hlines(thres, args_end, args_start, linestyles="--")  # type: ignore # nopep8
     ax.text(args_start, thres*1.02, f"thr = {thres:>10.3f}",
             ha="center", va="center")
 
 
-def draw_preview(intensit, uc, args_start, args_end, ax, ng_1r_peaks):
+def draw_preview(intensit, uc, args_start, args_end, ax, ng_1r_peaks) -> None:
     idx_cID: float = 0
     # peak_list: list = []
     for idx_peaks, cID, LW, VOL in ng_1r_peaks:
@@ -365,7 +365,7 @@ def process_auto_mode(args, intensit, y_heighest, thres, thres_baseline, uc, pea
     return thres, ng_1r_peaks
 
 
-def merge_overlap_peaks(peak_list):
+def merge_overlap_peaks(peak_list) -> None:
     ppm_end: list[np.float64] = np.array(peak_list).T[2].tolist()
     ppm_start: list[np.float64] = np.array(peak_list).T[1].tolist()
     ppm_end.pop(0)
@@ -382,8 +382,8 @@ def merge_overlap_peaks(peak_list):
         peak_list[index] = (new_cID, start, ppm_center, Area)
 
 
-def extract_peak(intensit, uc, ng_1r_peaks):
-    peak_list = []
+def extract_peak(intensit, uc, ng_1r_peaks) -> list[tuple[int, float, float, float]]:
+    peak_list: list[tuple[int, float, float, float]] = []
     sorted_cID_peaks: npt.NDArray = np.sort(
         ng_1r_peaks, order='cID')
     new_cID: list[int] = []

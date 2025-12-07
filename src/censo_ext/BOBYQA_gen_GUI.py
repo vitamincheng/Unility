@@ -415,7 +415,8 @@ class diagram:
 
     def draw_scatter_numbers(self) -> None:
         """Draw integral curves on the plot."""
-        Data = self._peaks_npz.method_integrate(self._intensit_top)
+        Data: list[tuple[int, npt.NDArray[np.float64], npt.NDArray[np.float64]]
+                   ] = self._peaks_npz.method_integrate(self._intensit_top)
         for cID, peak_int, peak_scale in Data:
             self._ax_top.text(peak_scale[0], 0.5 * peak_int.sum() / 100./4 + peak_int.max()*0.8, str(cID),
                               fontsize=8)

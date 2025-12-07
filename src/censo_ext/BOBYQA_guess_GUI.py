@@ -434,11 +434,12 @@ class diagram:
 
     def draw_integral(self) -> None:
         """Draw integral curves on the plot."""
-        Data = self._peaks_npz.method_integrate(self._intensit)
-        for cID, peak_int, peak_scale in Data:
-            self._ax.plot(peak_scale, peak_int.cumsum() /
-                          100./5 + peak_int.max()*0.8, 'g-')
-            self._ax.text(peak_scale[0], 0.5 * peak_int.sum() / 100./4 + peak_int.max()*0.8, str(cID),
+        Data: list[tuple[int, npt.NDArray[np.float64], npt.NDArray[np.float64]]] = self._peaks_npz.method_integrate(
+            self._intensit)
+        for cID, peak_intensit, peak_scale in Data:
+            self._ax.plot(peak_scale, peak_intensit.cumsum() /
+                          100./5 + peak_intensit.max()*0.8, 'g-')
+            self._ax.text(peak_scale[0], 0.5 * peak_intensit.sum() / 100./4 + peak_intensit.max()*0.8, str(cID),
                           fontsize=8)
         a: npt.NDArray[np.float64] = self._peaks_npz.get_cIDs_center_peaks()
         for ppm in a[1]:
@@ -572,7 +573,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     plt.show()
 
 
-def process_auto_mode(args, intensit, y_heighest, thres, thres_baseline, uc, peaks_npz, ng_1r_peaks):
+def process_auto_mode(args: argparse.Namespace, intensit: npt.NDArray, y_heighest: float, thres: float, thres_baseline: float, uc: unit_conversion, peaks_npz: Peaks_npz, ng_1r_peaks: npt.NDArray) -> None:
     AD_normal: AD_Normal = AD_Normal()
 
     if not AD_normal.Exist():
@@ -595,13 +596,13 @@ def process_auto_mode(args, intensit, y_heighest, thres, thres_baseline, uc, pea
                                                 value in inAnmr.NeighborChemEqvs.items() if key in idx1_orcaS}
         Groups: list[list[int]] = list(
             sorted(value) for value in ChemEqvs.values())
-        unique_group: list = []
+        unique_group: list[list[int]] = []
         for item in Groups:
             if item not in unique_group:
                 unique_group.append(item)
         nGroups: int = len(unique_group)
 
-    peak_list: list = []
+    peak_list: list[tuple[int, float, float, float]] = []
     last_peaks: int = 0
     while True:
         peak_list = extract_peaks(intensit, uc, ng_1r_peaks)
@@ -635,7 +636,7 @@ def process_auto_mode(args, intensit, y_heighest, thres, thres_baseline, uc, pea
     peaks_npz.method_print()
 
 
-def merge_overlap_peaks(peak_list):
+def merge_overlap_peaks(peak_list) -> None:
     ppm_end: list[np.float64] = np.array(peak_list).T[2].tolist()
     ppm_start: list[np.float64] = np.array(peak_list).T[1].tolist()
     ppm_end.pop(0)
@@ -652,8 +653,8 @@ def merge_overlap_peaks(peak_list):
         peak_list[index] = (new_cID, start, ppm_center, Area)
 
 
-def extract_peaks(intensit, uc, ng_1r_peaks):
-    peak_list: list = []
+def extract_peaks(intensit, uc, ng_1r_peaks) -> list[tuple[int, float, float, float]]:
+    peak_list: list[tuple[int, float, float, float]] = []
     sorted_cID_peaks: npt.NDArray = np.sort(
         ng_1r_peaks, order='cID')
     new_cID: list[int] = []

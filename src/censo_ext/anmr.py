@@ -646,7 +646,7 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
         while (True):
 
             # the numbers of args.mss is low, all nucleus will be computated as AB quartet
-            if args.verbose is True:
+            if args.verbose:
                 ic(inSParams*inHydrogen)
                 ic(inSParams)
                 ic(inHydrogen)

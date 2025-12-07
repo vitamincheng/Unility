@@ -74,8 +74,9 @@ class Anmrrc():
         self.acid_atoms_NoShow: list[int] = []
         # the 4 line of .anmrrc
         # [atomic number] [calculated shielding valule of the reference molecule] [experimental shift] [active or not]
-        self.anmrrc: list[list[float]] = []
         # the active element if self.anmrrc that last number is 1 not 0
+        self.anmrrc: list[list[float]] = []
+        # the Active element is str : "H" or "C"
         self.Active: list[str] = []
         self.third_line: str = lines[2].rstrip()
 
@@ -91,7 +92,7 @@ class Anmrrc():
                     self.acid_atoms_NoShow.append(int(line))
                 else:
                     raise ValueError(
-                        " Your .anmrrc file about 'XH acid atoms' haves omething wrong !!!")
+                        " Your .anmrrc file about 'XH acid atoms' haves something wrong !!!")
 
         match = re.search(
             "mf= (.*) lw= (.*) J= (.*) S= (.*) T= (.*)", lines[1])
@@ -112,6 +113,7 @@ class Anmrrc():
             if line[3] == 1:
                 self.Active.append(self.Nums_element[int(line[0])])
 
+        # read the .anmrrc_linear the linear regression data
         self.linear: tuple[float, float] = self.get_anmrrc_linear()
 
     def __repr__(self) -> str:
@@ -171,15 +173,18 @@ class Anmrrc():
         """
         DirFile = Path(DirFile)
         from censo_ext.Tools.Parameter import ELEMENT_NAMES
+        # Element Names is str as "N" or "O" from 7 or 8
         acid_atoms_NoShow: list[str] = [ELEMENT_NAMES[i]
                                         for i in self.acid_atoms_NoShow]
         from censo_ext.Tools.ml4nmr import read_mol_neighbors
         mol, neighbors = read_mol_neighbors(DirFile)
+
+        # find the atomID of molecule if is "N" or "O"
         acid_atoms_NoShowRemove: list[AtomID] = []
         for idx1, x in enumerate(mol, 1):
-            for y in acid_atoms_NoShow:
-                if x.symbol == y:  # type: ignore
-                    acid_atoms_NoShowRemove.append(AtomID(idx1))
+            if x.symbol in acid_atoms_NoShow:  # type: ignore
+                acid_atoms_NoShowRemove.append(AtomID(idx1))
+
         NoShow_Remove: npt.NDArray[np.int64] = np.array(
             [], dtype=np.int64)
         for x in acid_atoms_NoShowRemove:
@@ -417,7 +422,7 @@ class Anmr():
             # for Normal of weight of anmr_enso
             weight: npt.NDArray[np.float64] = self.enso['BW']
             switch: npt.NDArray[np.int64] = self.enso['ONOFF']
-            idx1_CONF: npt.NDArray[np.int64] = self.enso['CONF'].astype(
+            idx1_CONFs: npt.NDArray[np.int64] = self.enso['CONF'].astype(
                 np.int64)
 
             if np.sum(switch) == 0:
@@ -428,21 +433,23 @@ class Anmr():
             weight = weight*switch
             weight = weight / np.sum(weight)
             normal_idx1_weight: dict[np.int64, np.float64] = dict(
-                zip(np.atleast_1d(idx1_CONF), np.atleast_1d(weight)))
+                zip(np.atleast_1d(idx1_CONFs), np.atleast_1d(weight)))
 
             Active_orcaSJ: list[IntpID] = []
             for intp0, x in enumerate(self.orcaSJ):
-                if x.CONFSerialNums in idx1_CONF:
+                if x.CONFSerialNums in idx1_CONFs:
                     Active_orcaSJ.append(IntpID(intp0))
 
             # orcaSParams and orcaJCoups using weighting to calculate and
             # save to Average_orcaSJ
             self.avg_orcaSJ: OrcaSJ = OrcaSJ()
-            self.avg_orcaSJ.Element = self.orcaSJ[0].Element
+            import copy
+            self.avg_orcaSJ.Element = copy.deepcopy(self.orcaSJ[0].Element)
 
             # inital condition, let the chemical shift of average of orcaS is set to 0.0
-            for ids in self.orcaSJ[0].SParams.keys():
-                self.avg_orcaSJ.SParams[ids] = 0.0
+            self.avg_orcaSJ.SParams = copy.deepcopy(self.orcaSJ[0].SParams)
+            for key, _ in self.avg_orcaSJ.SParams.items():
+                self.avg_orcaSJ.SParams[key] = 0.0
 
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
                 atomID: list[AtomID] = list(map(AtomID, x.SParams.keys()))
@@ -450,12 +457,12 @@ class Anmr():
                 for zip_atomID, weight_ppm in zip(atomID, np.array(ppm) * normal_idx1_weight[x.CONFSerialNums]):
                     self.avg_orcaSJ.SParams[zip_atomID] += weight_ppm.item()
 
+            # inital condition, let the JCoups of average of orcaSJ is set to 0.0 for every cell
             nShapes: int = np.shape(self.orcaSJ[0].JCoups[0])[0]
             self.avg_orcaSJ.JCoups = np.zeros((nShapes, nShapes))
 
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
-                y = x.JCoups
-                self.avg_orcaSJ.JCoups += np.array(y) * \
+                self.avg_orcaSJ.JCoups += np.array(x.JCoups) * \
                     normal_idx1_weight[x.CONFSerialNums]
 
             print("        Conf    Percentage(%)")
@@ -487,6 +494,7 @@ class Anmr():
             The method prints filtering progress information to the console and
             performs in-place deletion of filtered atoms from all orcaSJ entries.
         """
+        # Active Element - only for one element, "H" or "C"
         delete_atomIDs: list[AtomID] = [
             key for key, value in self.orcaSJ[0].Element.items() if value != Active]
         atomIDs: npt.NDArray[np.int64] = np.sort(
@@ -576,24 +584,26 @@ class Anmr():
                         for y in AtomIDsKeep:
                             JCoups: list[float] = []
                             average: float = 0
+                            intp_y = list(AtomIDsKeep).index(y)
+
                             for z in self.NeighborMangetEqvs[ids]:
-                                JCoups.append(orcaSJ.JCoups[list(
-                                    AtomIDsKeep).index(y)][list(AtomIDsKeep).index(z)])
+                                intp_z = list(AtomIDsKeep).index(z)
+                                JCoups.append(orcaSJ.JCoups[intp_y][intp_z])
                                 average: float = sum(JCoups)/len(JCoups)
 
                             for z in self.NeighborMangetEqvs[ids]:
-                                orcaSJ.JCoups[list(AtomIDsKeep).index(
-                                    y)][list(AtomIDsKeep).index(z)] = average
-                                orcaSJ.JCoups[list(AtomIDsKeep).index(
-                                    z)][list(AtomIDsKeep).index(y)] = average
+                                # intp_y=list(AtomIDsKeep).index(y)
+                                intp_z = list(AtomIDsKeep).index(z)
+                                orcaSJ.JCoups[intp_y][intp_z] = average
+                                orcaSJ.JCoups[intp_z][intp_y] = average
 
                     if (self.nMagnetEqvs[ids] > 2):
-                        for k in (self.NeighborMangetEqvs[ids]):
-                            for ll in (self.NeighborMangetEqvs[ids]):
-                                orcaSJ.JCoups[list(AtomIDsKeep).index(
-                                    k)][list(AtomIDsKeep).index(ll)] = 0
-                                orcaSJ.JCoups[list(AtomIDsKeep).index(
-                                    ll)][list(AtomIDsKeep).index(k)] = 0
+                        for k, m in np.nditer([self.NeighborMangetEqvs[ids], self.NeighborMangetEqvs[ids]]):
+                            intp_k = list(AtomIDsKeep).index(k)
+                            intp_m = list(AtomIDsKeep).index(m)
+                            orcaSJ.JCoups[intp_k][intp_m] = 0
+                            orcaSJ.JCoups[intp_m][intp_k] = 0
+
                 for idx0, ids in enumerate(orcaSJ.JCoups):
                     orcaSJ.JCoups[idx0][idx0] = 0
 
@@ -1062,6 +1072,7 @@ class Anmr():
             for idy1 in self.NeighborChemEqvs[idx1]:
                 print(f" {idy1:d}", end="")
             print("")
+
         for idx1 in self.nChemEqvs.keys():
             print(f"   {idx1:9d}   {self.nMagnetEqvs[idx1]:9d}")
             for idy1 in self.NeighborMangetEqvs[idx1]:

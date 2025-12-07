@@ -120,7 +120,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         inAnmr: Anmr = Anmr()
         inAnmr.method_read_nucinfo()
         inAnmr.method_read_anmrrc()
-        Anmrrc_Active = inAnmr.get_Anmrrc_Active()
+        Anmrrc_Active: list[str] = inAnmr.get_Anmrrc_Active()
 
         if args.start and args.end and not args.index:
             pass
