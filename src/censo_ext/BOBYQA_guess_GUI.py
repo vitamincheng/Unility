@@ -22,8 +22,8 @@ _______________________________________________________________________________
 | File      : -i input dat/npz file [default 1r.npz]
 | Auto      : --atuo Automated mode and read dat/npz file [default False]
 | Basic     : --basic Only one time for threshold under automated mode [default False]
+| Threshold : -t -thr threshold of peaks [default 1.0]
 | Manual    : -m --manual Manual mode and read the peaks.npz [default False]
-| threshold : -t -thr threshold of peaks [default 1.0]
 | Delete    : --delete Delete specific cID peaks
 | Merge     : --merge Merge cID peaks to one peak
 | Cut       : --cut Cut cID peak to two peaks by lowest point

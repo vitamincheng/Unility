@@ -251,7 +251,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 OrcaS.T[1] == x)
             OrcaS_BOBYQA.T[1][intp] = Wait_Check_Reals[idx]
 
-            if OrcaS_BOBYQA.T[2][intp] != 0:
+            if OrcaS_BOBYQA.T[2][intp].all() != 0:
                 print("repeated value ")
                 exit(0)
             else:
