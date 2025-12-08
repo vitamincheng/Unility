@@ -15,7 +15,7 @@ ________________________________________________________________________________
 | For Plot 1D sepctra in experiments using nmrglue module
 | Usage: plot_1D_DEPT.py <geometry> [options]
 | [Options]
-| Input    : -i the pdata path(under 1r folder) [required]
+| Dir      : -d Directory of path of 13C /DEPT_135 and DEPT_90 [default None]
 |          : -start start point of chemical shift [default from data]
 |          : -end   end point of chemical shift [default from data]
 | Save     : --save saved the report of carbon [default false]
@@ -41,13 +41,13 @@ def cml() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-i",
-        "--input",
-        dest="path",
+        "-d",
+        "--dir",
+        dest="dir",
         action="store",
         type=str,
         required=False,
-        help="Provide the path of your pdata (under 1r folder) ",
+        help="Provide the the parent's path of your 13C / DEPT_90 / DEPT_135 including the pdata",
     )
 
     parser.add_argument(
@@ -164,11 +164,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     import platform
     _system = platform.system()
     if _system == "Linux":
-        directory: Path = Path(
-            "/home/vitamin/Simulation/38.Ergocalciferol(Vitamin_D2)/00.Spectra/bmse000510/nmr/set01")
+        if args.dir is None:
+            directory: Path = Path(
+                "/home/vitamin/Simulation/38.Ergocalciferol(Vitamin_D2)/00.Spectra/bmse000510/nmr/set01")
+        else:
+            directory: Path = Path(args.dir)
     elif _system == "Darwin":
-        directory: Path = Path(
-            "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01")
+        if args.dir is None:
+            directory: Path = Path(
+                "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01")
+        else:
+            directory: Path = Path(args.dir)
     else:
         print("  Only for ubuntu or Darwin system ...")
         print("  Exit and Close the program !!!")

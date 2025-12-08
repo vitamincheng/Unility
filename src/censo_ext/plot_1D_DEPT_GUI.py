@@ -503,17 +503,24 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     import platform
     _system: str = platform.system()
     if _system == "Linux":
-        directory: Path = Path(
-            "/home/vitamin/Simulation/38.Ergocalciferol(Vitamin_D2)/00.Spectra/bmse000510/nmr/set01")
+        if args.dir is None:
+            directory: Path = Path(
+                "/home/vitamin/Simulation/38.Ergocalciferol(Vitamin_D2)/00.Spectra/bmse000510/nmr/set01")
+        else:
+            directory: Path = Path(args.dir)
     elif _system == "Darwin":
-        directory: Path = Path(
-            "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01")
+        if args.dir is None:
+            directory: Path = Path(
+                "/Users/chengwen-cheng/Desktop/Simulation/bmse000510/nmr/set01")
+        else:
+            directory: Path = Path(args.dir)
     else:
         print("  Only for ubuntu or Darwin system ...")
         print("  Exit and Close the program !!!")
         exit(0)
 
     # plot and indicate all peaks
+
     digrams: diagram = diagram(directory, args)
     digrams.connect()
     plt.ioff()
