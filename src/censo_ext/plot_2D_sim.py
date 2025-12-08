@@ -152,39 +152,40 @@ def plot_2D_slice(ax: Axes, ax_histy_float, in_dir: tuple[Path, Path], h_limits:
     from ase.atoms import Atoms
     Dir_H, Dir_C = in_dir
     mol: Atoms | list[Atoms]
-    neighbor: dict[AtomID, npt.NDArray[np.int64]]
+    neighbors: dict[AtomID, npt.NDArray[np.int64]]
     bond_order: dict[AtomID, int]
-    mol, neighbor, bond_order = read_mol_neighbors_bond_order(
+    mol, neighbors, bond_order = read_mol_neighbors_bond_order(
         Dir_H/Path("crest_conformers.xyz"))
-    idx_H_atom: list[int] = [idx+1 for idx,
+
+    atomIDs_H: list[AtomID] = [idx+1 for idx,
                              i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8
-    idx_C_atom: list[int] = [idx+1 for idx,
+    atomIDs_C: list[AtomID] = [idx+1 for idx,
                              i in enumerate(mol) if i.symbol == "C"]  # type: ignore # nopep8
 
-    neighbor: dict[AtomID, npt.NDArray[np.int64]] = {key: value for key,
-                                                     value in neighbor.items() if key in idx_C_atom}
-    for key, value in neighbor.items():
-        neighbor[key] = np.array([x for x in value if x in idx_H_atom])
+    neighbors = {key: value for key,
+                 value in neighbors.items() if key in atomIDs_C}
+    for key, value in neighbors.items():
+        neighbors[key] = np.array([x for x in value if x in atomIDs_H])
 
     tmp_c: list = list(np.genfromtxt(
         Dir_C / Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
-
-    Atoms_C: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_c}
+    SParams_C: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_c}
 
     tmp_h: list = list(np.genfromtxt(
         Dir_H/Path("Average/NMR/orcaS.out"), usecols=[0, 1]))
-    Atoms_H: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_h}
+    SParams_H: dict[AtomID, float] = {AtomID(int(x)): y for x, y in tmp_h}
+
     ax.set_xlim(h_limits[1], h_limits[0])
     ax.set_ylim(c_limits[1], c_limits[0])
     x_lowest, x_highest = h_limits
     x_lowest = abs(x_lowest-x_highest)*0.03 + x_lowest
 
-    for idx_C, C_ppm in Atoms_C.items():
+    for atomID_C, ppm_C in SParams_C.items():
 
         idx0_neighbor: dict = {}
-        for idx_neighbor_Atoms_H in neighbor[idx_C]:
-            for idx, value in enumerate(Atoms_H.keys()):
-                if idx_neighbor_Atoms_H == value:
+        for idx_neighbors_Atoms_H in neighbors[atomID_C]:
+            for idx, value in enumerate(SParams_H.keys()):
+                if idx_neighbors_Atoms_H == value:
                     if value in idx0_neighbor:
                         idx0_neighbor[idx] = (idx0_neighbor[idx], value)
                     else:
@@ -203,53 +204,53 @@ def plot_2D_slice(ax: Axes, ax_histy_float, in_dir: tuple[Path, Path], h_limits:
                     args=argparse.Namespace(**x))
                 sys.stdout = sys.__stdout__
                 maximum: np.float64 = np.max(np_dat)
-                ax.plot(np_dat[0], -np_dat[1]/maximum*5 + C_ppm, linewidth=1)
-                ax_histy.text(y_lowest, C_ppm, f"{C_ppm:12.2f}",
+                ax.plot(np_dat[0], -np_dat[1]/maximum*5 + ppm_C, linewidth=1)
+                ax_histy.text(y_lowest, ppm_C, f"{ppm_C:12.2f}",
                               ha="right", va="center", fontsize=6)
                 if len(idx0_neighbor.values()) == 1:
                     text: Text = ax.text(
-                        x_lowest, C_ppm, f"({idx_C}C,", ha="right", va="center", fontsize=8)
+                        x_lowest, ppm_C, f"({atomID_C}C,", ha="right", va="center", fontsize=8)
                     text = ax.annotate(f" {tuple(idx0_neighbor.values())[0]}H)",
                                        xycoords=text, xy=(1.00, 0.5), ha="left", va="center", color="blue", fontsize=8)
                 else:
                     text = ax.text(
-                        x_lowest, C_ppm, f"({idx_C}C,", ha="right", va="center", fontsize=8)
+                        x_lowest, ppm_C, f"({atomID_C}C,", ha="right", va="center", fontsize=8)
                     text = ax.annotate(f" {tuple(idx0_neighbor.values())}H)",
                                        xycoords=text, xy=(1.00, 0.5), ha="left", va="center", color="blue", fontsize=8)
 
     plt.subplots_adjust(hspace=0.5, wspace=0.5)
     plt.show()
-    return bond_order, neighbor, Atoms_H, Atoms_C
+    return bond_order, neighbors, SParams_H, SParams_C
 
 
-def print_report(bond_order: dict[AtomID, int], neighbor: dict[AtomID, npt.NDArray], Atoms_H: dict[AtomID, float], Atoms_C: dict[AtomID, float]) -> None:
+def print_report(bond_order: dict[AtomID, int], neighbors: dict[AtomID, npt.NDArray[np.int64]], SParams_H: dict[AtomID, float], SParams_C: dict[AtomID, float]) -> None:
 
     print("   #C   Bond_Order   13C(HSQC)      1H(HSQC)        #H ")
-    for idxAtom_C, C_ppm in Atoms_C.items():
-        if bond_order[idxAtom_C] == 0:
-            print(f"{idxAtom_C:>5d}     C   {C_ppm:>15.4f}", end="")
+    for atomID, ppm_C in SParams_C.items():
+        if bond_order[atomID] == 0:
+            print(f"{atomID:>5d}     C   {ppm_C:>15.4f}", end="")
         else:
-            print(f"{idxAtom_C:>5d}     CH{bond_order[idxAtom_C]:>1d} {C_ppm:>15.4f}", end="")  # nopep8
+            print(f"{atomID:>5d}     CH{bond_order[atomID]:>1d} {ppm_C:>15.4f}", end="")  # nopep8
 
-        idx1_neighbor: list[AtomID] = []
-        for idx1_neighbor_Atoms_H in neighbor[idxAtom_C]:
-            for idx, value in enumerate(Atoms_H.keys()):
+        idx1_neighbors: list[AtomID] = []
+        for idx1_neighbor_Atoms_H in neighbors[atomID]:
+            for idx, value in enumerate(SParams_H.keys()):
                 if idx1_neighbor_Atoms_H == value:
-                    idx1_neighbor.append(value)
+                    idx1_neighbors.append(value)
 
-        if len(idx1_neighbor) == 0:
+        if len(idx1_neighbors) == 0:
             print("")
-        elif len(idx1_neighbor) == 1:
-            for _, x in enumerate(idx1_neighbor):
-                print(f"{Atoms_H[x]:>15.4f} {int(x):>10d}", end="")
+        elif len(idx1_neighbors) == 1:
+            for _, x in enumerate(idx1_neighbors):
+                print(f"{SParams_H[x]:>15.4f} {int(x):>10d}", end="")
                 print("")
         else:
-            for idx, x in enumerate(idx1_neighbor):
+            for idx, x in enumerate(idx1_neighbors):
                 if idx == 0:
-                    print(f"{Atoms_H[x]:>15.4f} {int(x):>10d}", end="")
+                    print(f"{SParams_H[x]:>15.4f} {int(x):>10d}", end="")
                 else:
                     print("\n", " "*27,
-                          f"{Atoms_H[x]:>15.4f} {int(x):>10d}", end="")
+                          f"{SParams_H[x]:>15.4f} {int(x):>10d}", end="")
             print("")
     return
 
@@ -263,9 +264,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     data_xy, h_limits, c_limits = Load_Directory(args)
     ax, ax_histy_float = draw_2D_basic(data_xy)
-    bond_order, neighbor, idxAtoms_H, idxAtoms_C = plot_2D_slice(
+    bond_order, neighbors, SParams_H, SParams_C = plot_2D_slice(
         ax, ax_histy_float, in_dir, h_limits, c_limits)
-    print_report(bond_order, neighbor, idxAtoms_H, idxAtoms_C)
+    print_report(bond_order, neighbors, SParams_H, SParams_C)
 
 
 if __name__ == "__main__":

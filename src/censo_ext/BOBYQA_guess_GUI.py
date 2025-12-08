@@ -22,7 +22,7 @@ _______________________________________________________________________________
 | File      : -i input dat/npz file [default 1r.npz]
 | Auto      : --atuo Automated mode and read dat/npz file [default False]
 | Basic     : --basic Only one time for threshold under automated mode [default False]
-| Threshold : -t -thr threshold of peaks [default 1.0]
+| Threshold : -t --thr threshold of peaks [default 1.0]
 | Manual    : -m --manual Manual mode and read the peaks.npz [default False]
 | Delete    : --delete Delete specific cID peaks
 | Merge     : --merge Merge cID peaks to one peak
@@ -509,78 +509,6 @@ class diagram:
         self._fig.text(0.5, 0.04, "$\\delta$ / ppm", ha="center", fontsize=12)
 
 
-def main(args: argparse.Namespace = argparse.Namespace()) -> None:
-
-    if args == argparse.Namespace():
-        args = cml()
-    print_arguments()
-
-    plt.rcParams['keymap.save'].remove('s')
-    plt.rcParams['keymap.fullscreen'].remove('f')
-    plt.rcParams['keymap.back'].remove('c')
-    plt.rcParams['toolbar'] = 'toolbar2'
-    plt.ion()
-
-    if args.auto and args.manual:
-        print("  For both args.auto and args.manual only for one mode")
-        print("  Exit and Close the program !!!")
-        exit(0)
-
-    if not IsExist_bool(args.file):
-        return
-
-    # Load the data from dat/npz file
-    censo: CensoDat = CensoDat(args.file)
-    in_Data = censo.get_Dat().T
-    ppm: npt.NDArray[np.float64] = in_Data[0]
-    intensit: npt.NDArray[np.float64] = in_Data[1]
-
-    # Calculate the threshold
-    y_heighest: float = float(np.max(intensit))
-    from censo_ext.Tools.spectra import numpy_thr_mean_3
-    thres: float = numpy_thr_mean_3(intensit)*args.thr + y_heighest * 0.01
-    thres_baseline: float = thres
-    uc: unit_conversion = unit_conversion(ppm)
-
-    peaks_npz: Peaks_npz = Peaks_npz(uc)
-    ng_1r_peaks: npt.NDArray = ng.peakpick.pick(
-        data=intensit, pthres=thres, algorithm="downward")
-
-    diagrams: diagram = diagram(args,
-                                peaks_npz, intensit, uc, thres, ng_1r_peaks)
-
-    # Automatically Integate the peaks
-    if args.auto:
-        process_auto_mode(args, intensit, y_heighest, thres,
-                          thres_baseline, uc, peaks_npz, ng_1r_peaks)
-
-    # Integrate the peaks if manually fixed the peaks.npz file
-    if args.manual:
-        peaks_npz.method_read_file()
-        print("  ========== Before ==========")
-        peaks_npz.method_print()
-
-    # Draw the intergral lines and cID of peaks
-    # Plot the integration lines, limits and cID of peaks
-    if args.auto or args.manual:
-        diagrams.draw_integral()
-
-    # add markers for peak positions. It is only for preview.
-    if not args.auto and not args.manual:
-        diagrams.draw_preivew()
-
-    # draw the threshold line and text and for adjust threshold for next time
-    if args.auto:
-        diagrams.draw_threshold()
-
-    diagrams.draw_curve()
-    diagrams.draw_x_axis()
-    diagrams.connect()
-
-    plt.ioff()
-    plt.show()
-
-
 def process_auto_mode(args: argparse.Namespace, intensit: npt.NDArray, y_heighest: float, thres: float, thres_baseline: float, uc: unit_conversion, peaks_npz: Peaks_npz, ng_1r_peaks: npt.NDArray) -> None:
     AD_normal: AD_Normal = AD_Normal()
 
@@ -701,6 +629,78 @@ def extract_peaks(intensit: npt.NDArray[np.float64], uc: unit_conversion, ng_1r_
             peak_list.append(
                 (int(cID), l_peak, r_peak, float(peak.sum())))
     return peak_list
+
+
+def main(args: argparse.Namespace = argparse.Namespace()) -> None:
+
+    if args == argparse.Namespace():
+        args = cml()
+    print_arguments()
+
+    plt.rcParams['keymap.save'].remove('s')
+    plt.rcParams['keymap.fullscreen'].remove('f')
+    plt.rcParams['keymap.back'].remove('c')
+    plt.rcParams['toolbar'] = 'toolbar2'
+    plt.ion()
+
+    if args.auto and args.manual:
+        print("  For both args.auto and args.manual only for one mode")
+        print("  Exit and Close the program !!!")
+        exit(0)
+
+    if not IsExist_bool(args.file):
+        return
+
+    # Load the data from dat/npz file
+    censo: CensoDat = CensoDat(args.file)
+    in_Data = censo.get_Dat().T
+    ppm: npt.NDArray[np.float64] = in_Data[0]
+    intensit: npt.NDArray[np.float64] = in_Data[1]
+
+    # Calculate the threshold
+    y_heighest: float = float(np.max(intensit))
+    from censo_ext.Tools.spectra import numpy_thr_mean_3
+    thres: float = numpy_thr_mean_3(intensit)*args.thr + y_heighest * 0.01
+    thres_baseline: float = thres
+    uc: unit_conversion = unit_conversion(ppm)
+
+    peaks_npz: Peaks_npz = Peaks_npz(uc)
+    ng_1r_peaks: npt.NDArray = ng.peakpick.pick(
+        data=intensit, pthres=thres, algorithm="downward")
+
+    diagrams: diagram = diagram(args,
+                                peaks_npz, intensit, uc, thres, ng_1r_peaks)
+
+    # Automatically Integate the peaks
+    if args.auto:
+        process_auto_mode(args, intensit, y_heighest, thres,
+                          thres_baseline, uc, peaks_npz, ng_1r_peaks)
+
+    # Integrate the peaks if manually fixed the peaks.npz file
+    if args.manual:
+        peaks_npz.method_read_file()
+        print("  ========== Before ==========")
+        peaks_npz.method_print()
+
+    # Draw the intergral lines and cID of peaks
+    # Plot the integration lines, limits and cID of peaks
+    if args.auto or args.manual:
+        diagrams.draw_integral()
+
+    # add markers for peak positions. It is only for preview.
+    if not args.auto and not args.manual:
+        diagrams.draw_preivew()
+
+    # draw the threshold line and text and for adjust threshold for next time
+    if args.auto:
+        diagrams.draw_threshold()
+
+    diagrams.draw_curve()
+    diagrams.draw_x_axis()
+    diagrams.connect()
+
+    plt.ioff()
+    plt.show()
 
 
 if __name__ == "__main__":

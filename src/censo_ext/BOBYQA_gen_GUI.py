@@ -18,8 +18,8 @@ _______________________________________________________________________________
 | Usages    : BOBYQA_gen_GUI.py <geometry> [options]
 | [options]
 | File      : -i input dat/npz file [default 1r.npz and output.npz]
-| Dir       : -d the location directory [default .]
-| Delete    : -d --delete Delete specific cID peaks [default None]
+| Dir       : -d --dir the location directory [default .]
+| Delete    : --delete Delete specific cID peaks [default None]
 | Start     : -s --start Start ppm of Chemical Shift [default from Data]
 | End       : -e --end End ppm of Chemical Shift [default from Data]
 |______________________________________________________________________________

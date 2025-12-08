@@ -190,7 +190,7 @@ def plot_2D_Basic(udic: dict, data: npt.NDArray, uc_1h: unit_conversion, uc_13c:
     return ax, ax_histy
 
 
-def cal_contour_peak(data: npt.NDArray, contour_thr_factor: float = 1) -> tuple[list[list[int]], float]:
+def cal_contour_peak(data: npt.NDArray[np.float64], contour_thr_factor: float = 1) -> tuple[list[list[int]], float]:
 
     from skimage.morphology import extrema
     contour_maxima_thr: float = numpy_thr(
@@ -202,6 +202,15 @@ def cal_contour_peak(data: npt.NDArray, contour_thr_factor: float = 1) -> tuple[
             if x == 1:
                 max_peaks.append([idx, idy])
     return max_peaks, contour_maxima_thr
+
+
+def print_report(data: npt.NDArray[np.float64], uc_1h: unit_conversion, uc_13c: unit_conversion, max_peaks: list[list[int]]) -> None:
+    print("#          13C             1H       ")
+    for x, y in max_peaks:
+        xslice = data[y, :]
+        maximum = xslice.max()
+        if data[y][x] >= maximum * 0.5:
+            print(f"{uc_13c.ppm(y):>15.4f} {uc_1h.ppm(x):>15.4f}")
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
@@ -229,7 +238,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     x_thr: float = numpy_thr(x_axis_data, args.thr)
 
     ax: Axes | None = None
-
     max_peaks, contour_maxima_thr = cal_contour_peak(data, args.contour)
 
     if args.verbose:
@@ -257,13 +265,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             for x in [x1 for x1, y1 in max_peaks if y1 == y_idx]:
                 if data[y_idx][x] >= maximum * 0.5:
                     ax.scatter(uc_1h.ppm(x), uc_13c.ppm(y_idx), marker="o", color="r", s=100, alpha=0.5)  # type: ignore # nopep8
+    pass
 
-    print("#          13C             1H       ")
-    for x, y in max_peaks:
-        xslice = data[y, :]
-        maximum = xslice.max()
-        if data[y][x] >= maximum * 0.5:
-            print(f"{uc_13c.ppm(y):>15.4f} {uc_1h.ppm(x):>15.4f}")
+    print_report(data, uc_1h, uc_13c, max_peaks)
 
     from censo_ext.Tools.utility import save_figure
     save_figure()

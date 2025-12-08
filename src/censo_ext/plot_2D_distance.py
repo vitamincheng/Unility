@@ -112,8 +112,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     print_arguments()
 
-    inFile = Path(args.file)
-    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+    xyzFile: GeometryXYZs = GeometryXYZs(Path(args.file))
     xyzFile.method_read_xyz()
 
     from censo_ext.Tools.anmrfile import Anmr
@@ -128,16 +127,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     args.mf = 500
     inSParams: dict[AtomID, float] = inAnmr.avg_orcaSJ.ChemicalShifts.copy()
     inAnmr.avg_orcaSJ.method_teardown_ChemicalShifts()
-    Element: dict[AtomID, str] = inAnmr.avg_orcaSJ.Element.copy()
-    idx0_Element: list[AtomID] = [x for x in Element.keys()]
+    Elements_str: dict[AtomID, str] = inAnmr.avg_orcaSJ.Element.copy()
+    Elements: list[AtomID] = [x for x in Elements_str.keys()]
 
     inAnmr.method_read_enso()
     # ic(inAnmr.enso['ONOFF'])
     # ic(inAnmr.enso['BW'])
-    H_Atoms: list[AtomID] = [key for key,
-                             value in Element.items() if value == "H"]
-    nShapes: int = len(H_Atoms)
-    intp_Atoms: list[IntpID] = list(np.array(H_Atoms)-1)
+    atomIDs_H: list[AtomID] = [key for key,
+                               value in Elements_str.items() if value == "H"]
+    nShapes: int = len(atomIDs_H)
+    intp_Atoms: list[IntpID] = list(np.array(atomIDs_H)-1)
     Distances: npt.NDArray[np.float64] = np.zeros(
         (nShapes, nShapes), dtype=np.float64)
     Result: npt.NDArray[np.float64] = np.zeros(
@@ -170,21 +169,31 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     Z: npt.NDArray[np.float64]
 
     # Define Lorentzian parameters
+    # Calculate the 2D Lorentzian
     gamma_x: float = args.gamma
     gamma_y: float = args.gamma
 
-    # Calculate the 2D Lorentzian
     for idx0, x in enumerate(Result):
         for idy0, amp in enumerate(x):
             amplitude: float = amp
             try:
-                Z += lorentzian_2d(X, Y, amplitude, inSParams[idx0_Element[idx0]], inSParams[idx0_Element[idy0]],  # type: ignore
+                Z += lorentzian_2d(X, Y, amplitude, inSParams[Elements[idx0]], inSParams[Elements[idy0]],  # type: ignore
                                    gamma_x, gamma_y)
             except NameError:
-                Z = lorentzian_2d(X, Y, amplitude, inSParams[idx0_Element[idx0]], inSParams[idx0_Element[idy0]],
+                Z = lorentzian_2d(X, Y, amplitude, inSParams[Elements[idx0]], inSParams[Elements[idy0]],
                                   gamma_x, gamma_y)
 
     # Plotting the result
+    plot_diagram(args.contour, Result, data_x,
+                 start, end, X, Y, Z)  # type: ignore
+
+    # plt.colorbar(_plot, ax=ax, label='Intensity')
+    plt.show()
+
+
+def plot_diagram(contour: float, Result: npt.NDArray[np.float64], data_x: npt.NDArray[np.float64],
+                 start: float, end: float, X: npt.NDArray[np.float64], Y: npt.NDArray[np.float64],
+                 Z: npt.NDArray[np.float64]) -> None:
     fig: Figure = plt.figure(figsize=(11.7, 8.3), dpi=100)
     gs: GridSpec = fig.add_gridspec(2, 2,  width_ratios=(1, 19), height_ratios=(1, 9),
                                     left=0.03, right=0.97, bottom=0.03, top=0.97,
@@ -210,7 +219,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     fig.suptitle(r"$10^{6}$ / $r^{6}$", fontsize=12, x=0.10, y=0.98)
 
     import math
-    min_contour: int = int(args.contour)*2**6
+    min_contour: int = int(contour)*2**6
     int_ratio_2: int = math.ceil(math.log2(np.max(Result)/min_contour))
     init: npt.NDArray[np.int64] = np.arange(int_ratio_2+1).astype(np.int64)
     lv: npt.NDArray[np.float64] = (
@@ -224,9 +233,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     ax.invert_xaxis()
     ax.invert_yaxis()
     ax.clabel(_plot, fontsize=6)
-
-    # plt.colorbar(_plot, ax=ax, label='Intensity')
-    plt.show()
 
 
 def Load_Directory(args: argparse.Namespace) -> npt.NDArray[np.float64]:

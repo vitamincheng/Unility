@@ -243,8 +243,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         peaks.method_save()
 
 
-def draw_axis(args: argparse.Namespace, y_heighest: float, y_lowest: float, args_start: float, args_end: float, fig: Figure, ax: Axes) -> None:
-    plt.xlim(args_end, args_start)
+def draw_axis(args: argparse.Namespace, y_heighest: float, y_lowest: float, start: float, end: float, fig: Figure, ax: Axes) -> None:
+    plt.xlim(end, start)
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
     ax.spines["left"].set_visible(False)
@@ -267,9 +267,9 @@ def draw_spectra(intensit: npt.NDArray[np.float64], uc: unit_conversion) -> None
     plt.plot(uc.ppm_scale(), intensit, 'b', linewidth=1)
 
 
-def draw_threshold(thres: float, args_start: float, args_end: float, ax: Axes) -> None:
-    plt.hlines(thres, args_end, args_start, linestyles="--")  # type: ignore # nopep8
-    ax.text(args_start, thres*1.02, f"thr = {thres:>10.3f}",
+def draw_threshold(thres: float, start: float, end: float, ax: Axes) -> None:
+    plt.hlines(thres, end, start, linestyles="--")  # type: ignore # nopep8
+    ax.text(start, thres*1.02, f"thr = {thres:>10.3f}",
             ha="center", va="center")
 
 
