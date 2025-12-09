@@ -222,7 +222,7 @@ def normalize_peaklist(peaklist: list[tuple[float, float]], nIntegrals: int) -> 
     return list(zip(freq, intensit))
 
 
-def setup_anmr(args: argparse.Namespace) -> Anmr:
+def setup_anmr(_dir: Path, _verbose: bool) -> Anmr:
     """Set up and return an Anmr object by reading required files.
 
     This function creates an Anmr object and reads the necessary configuration
@@ -243,13 +243,13 @@ def setup_anmr(args: argparse.Namespace) -> Anmr:
     # Create an Anmr object and read required files
     # Import necessary modules for processing
     from censo_ext.Tools.anmrfile import Anmr
-    inAnmr: Anmr = Anmr(Dir=args.dir, verbose=args.verbose)
+    inAnmr: Anmr = Anmr(Dir=_dir, verbose=_verbose)
     inAnmr.method_read_anmrrc()
     inAnmr.method_read_nucinfo()
     return inAnmr
 
 
-def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
+def process_average_data(inAnmr: Anmr, _average: bool, _bobyqa: bool, _dir: Path) -> None:
     """Process average ORCA SJ data based on existing files or generate new ones.
 
     This function checks if average ORCA SJ data exists and loads it if requested.
@@ -267,16 +267,16 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
     Example:
         >>> process_average_data(anmr_obj, args)
     """
-    if args.average:
-        inAnmr.avg_Data_AD = AD_Normal(Dir=args.dir)
+    if _average:
+        inAnmr.avg_Data_AD = AD_Normal(Dir=_dir)
         inAnmr.get_avg_orcaSJ_Exist()
         if not inAnmr.method_BOBYQA_load_avg_orcaSJ():
             print("  Something wrong in your Average orcaSJ data !!!")
             print("  Exit and Close the program !!!")
             exit(1)
 
-    elif args.bobyqa and not args.average:
-        inAnmr.avg_Data_AD = AD_BOBYQA(Dir=args.dir)
+    elif _bobyqa and not _average:
+        inAnmr.avg_Data_AD = AD_BOBYQA(Dir=_dir)
         inAnmr.get_avg_orcaSJ_Exist()
         if not inAnmr.method_BOBYQA_load_avg_orcaSJ():
             print("  Something wrong in your Average orcaSJ data !!!")
@@ -295,7 +295,7 @@ def process_average_data(inAnmr: Anmr, args: argparse.Namespace) -> None:
                 exit(0)
         inAnmr.method_update_equiv_orcaSJ()
         inAnmr.method_avg_orcaSJ()
-        inAnmr.avg_Data_AD = AD_Normal(Dir=args.dir)
+        inAnmr.avg_Data_AD = AD_Normal(Dir=_dir)
         inAnmr.method_save_avg_orcaSJ()
 
 
@@ -905,10 +905,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> npt.NDArray[np.floa
     print_arguments()
 
     # Setup
-    inAnmr: Anmr = setup_anmr(args=args)
+    inAnmr: Anmr = setup_anmr(_dir=args.dir, _verbose=args.verbose)
 
     # Handle average data loading if specified
-    process_average_data(inAnmr=inAnmr, args=args)
+    process_average_data(inAnmr=inAnmr, _dir=args.dir,
+                         _average=args.average, _bobyqa=args.bobyqa)
 
     # preprocessing_spin_system
     inParameter: tuple[npt.NDArray[np.float64],

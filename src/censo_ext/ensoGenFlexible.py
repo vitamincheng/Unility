@@ -142,7 +142,7 @@ def ensoGen(args: argparse.Namespace, thermo_list: list[str]) -> None:
     xyzFile.method_read_xyz()
     outAnmr: Anmr = Anmr()
     outAnmr.method_create_enso(
-        xyzFile.method_ensoGenFlexible(args, thermo_list))
+        xyzFile.method_ensoGenFlexible(args.temp, thermo_list))
     outAnmr.method_save_enso()
     print(" Saved the anmr_enso.new in your working directory ")
     print(" ========== End ==========")

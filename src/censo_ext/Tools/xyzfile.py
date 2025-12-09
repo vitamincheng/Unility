@@ -603,7 +603,7 @@ class GeometryXYZs():
                 line = f.readline()
         self.method_comment_keep()
 
-    def method_save_xyz(self, idx1_list: list[int]) -> None:
+    def method_save_xyz(self, idx1: list[int]) -> None:
         """Save selected Geometry instances to an XYZ file.
 
         Args:
@@ -624,10 +624,11 @@ class GeometryXYZs():
         original_stdout = sys.stdout
         with open(self.__filename, "w") as f:
             sys.stdout = f
-            self.method_print(idx1_list)
+            self.method_print(idx1)
         sys.stdout = original_stdout
 
-    def method_save_xyz_append(self, idx1_list: list) -> None:  # append to old xyz file
+    # append to old xyz file
+    def method_save_xyz_append(self, idx1: list[int]) -> None:
         """Append selected Geometry instances to an existing XYZ file.
 
         Args:
@@ -639,7 +640,7 @@ class GeometryXYZs():
         original_stdout = sys.stdout
         with open(self.__filename, "a") as f:
             sys.stdout = f
-            self.method_print(idx1_list)
+            self.method_print(idx1)
         sys.stdout = original_stdout
 
     def method_print(self, idx1_St: list[int]) -> None:
@@ -734,7 +735,7 @@ class GeometryXYZs():
                 energy.append(St.get_comment_energy())
         return energy
 
-    def method_ensoGenFlexible(self, args, thermo_list) -> npt.NDArray:
+    def method_ensoGenFlexible(self, _temp: float, thermo: list[str]) -> npt.NDArray:
         """Generate thermodynamic data for all Geometry instances.
 
         This method calculates various thermodynamic properties for a set of geometries
@@ -771,7 +772,7 @@ class GeometryXYZs():
         #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
 
         # Column 8 is Total Gibbs Free Energy (Eh) = Energy + mRRHO
-        TEMP: float = args.temp
+        TEMP: float = _temp
         enso: npt.NDArray = np.zeros((len(self.Sts),), dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
                                                               ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')])
         enso['ONOFF'] = 1
@@ -779,7 +780,7 @@ class GeometryXYZs():
         enso['Gsolv'] = 0.00000000
         enso['NMR'] = np.arange(1, len(self.Sts)+1)
         enso['CONF'] = np.arange(1, len(self.Sts)+1)
-        enso['mRRHO'] = np.array(thermo_list)
+        enso['mRRHO'] = np.array(thermo)
         enso['Energy'] = np.array(
             [a.comment_energy for a in self.Sts], dtype=[('Energy', 'f8')])
         Total: npt.NDArray = np.array(
