@@ -1,5 +1,5 @@
 
-import argparse
+# import argparse
 import pytest
 from censo_ext.Tools.factor import method_factor_analysis, method_factor_opt
 from pathlib import Path
@@ -7,25 +7,26 @@ from pathlib import Path
 from censo_ext.Tools.utility import AtomID
 
 
-def test_factor_analysis_miss_args():
+def test_factor_analysis_miss_args() -> None:
     fileName: Path = Path("tests/data/crest_conformers000.xyz")
-    x: dict = {"file": fileName, "print": False,
-               "replace": False, "factor": 0.5}
-    args = argparse.Namespace(**x)
+    # x: dict = {"file": fileName, "print": False,
+    #           "replace": False, "factor": 0.5}
+    # args = argparse.Namespace(**x)
 
     with pytest.raises(SystemExit) as e:
-        method_factor_analysis(args)
+        method_factor_analysis(inFile=fileName, _factor=0.5)
     assert e.type is SystemExit
     assert e.value.code == 0
 
 
-def test_factor_analysis():
+def test_factor_analysis() -> None:
     fileName: Path = Path("tests/data/crest_conformers.xyz")
-    outFile: Path = Path("tests/compare/output_xyzReturnOandZ.xyz")
-    x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False, "replace": False,
-               "out": outFile, "factor": 0.50}
-    args = argparse.Namespace(**x)
-    idx1_minor_factor, Table_S = method_factor_analysis(args)
+    # outFile: Path = Path("tests/compare/output_xyzReturnOandZ.xyz")
+    # x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False, "replace": False,
+    #           "out": outFile, "factor": 0.50}
+    # args = argparse.Namespace(**x)
+    idx1_minor_factor, Table_S = method_factor_analysis(
+        inFile=fileName, _factor=0.50)
     assert idx1_minor_factor == [1, 2, 7, 8, 15, 19, 21,
                                  23, 24, 27, 30, 33, 35, 37, 40, 44, 45, 50, 52, 55]
     assert len(Table_S) == 29
@@ -33,10 +34,11 @@ def test_factor_analysis():
     assert Table_S[AtomID(61)] == pytest.approx(3.8871420948650774)
 
     fileName: Path = Path("tests/data/crest_conformers1.xyz")
-    x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False, "replace": False,
-               "out": outFile, "factor": 0.50}
-    args = argparse.Namespace(**x)
-    idx1_minor_factor, Table_S = method_factor_analysis(args)
+    # x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False, "replace": False,
+    #           "out": outFile, "factor": 0.50}
+    # args = argparse.Namespace(**x)
+    idx1_minor_factor, Table_S = method_factor_analysis(
+        inFile=fileName, _factor=0.50)
     assert idx1_minor_factor == []
     assert len(Table_S) == 29
     assert Table_S[AtomID(1)] == 0.0
@@ -45,14 +47,15 @@ def test_factor_analysis():
 
 def test_factor_opt():
     fileName: Path = Path("tests/data/crest_conformers.xyz")
-    outFile: Path = Path("tests/compare/output_xyzReturnOandZ.xyz")
-    x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False,
-               "replace": False, "out": outFile, "factor": 0.50}
-    args = argparse.Namespace(**x)
-    idx1_minor_factor, Table_S = method_factor_analysis(args)
+    # outFile: Path = Path("tests/compare/output_xyzReturnOandZ.xyz")
+    # x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False,
+    #           "replace": False, "out": outFile, "factor": 0.50}
+    # args = argparse.Namespace(**x)
+    idx1_minor_factor, Table_S = method_factor_analysis(
+        inFile=fileName, _factor=0.50)
 
     a0, a1, a2 = method_factor_opt(
-        args, idx1_minor_factor, Table_S)  # type: ignore
+        inFile=fileName, _lowFactor=idx1_minor_factor, table_std=Table_S)  # type: ignore
     assert a0
     assert a1 == [52, 55]
     assert a2 == pytest.approx(0.9863091021443952)

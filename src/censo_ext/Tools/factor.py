@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from pathlib import Path
 from typing import Literal
 from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
@@ -8,7 +9,8 @@ from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 from censo_ext.Tools.utility import AtomID
 
 
-def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
+# def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
+def method_factor_analysis(inFile: Path | str, _factor) -> tuple[list[AtomID], dict[AtomID, float]]:
     """ 
     Performs factor analysis on a set of geometries to identify atoms with high and low structural variability.
 
@@ -35,7 +37,7 @@ def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
         >>> print(f"Standard deviations: {std_dict}")
     """
 
-    xyzFile: GeometryXYZs = GeometryXYZs(args.file)
+    xyzFile: GeometryXYZs = GeometryXYZs(Path(inFile))
     xyzFile.method_read_xyz()
     args_x: dict = {"remove_idx": None, "add_idx": None,
                     "bond_broken": None, "ignore_Hydrogen": True}
@@ -61,8 +63,8 @@ def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
     print("\n Average of STD      : ", end="")
     print(f"{average_std:>12.8f}")
     print(f" Threshold {
-          args.factor:3.2f} *STD : {average_std*args.factor:>12.8}", "\n")
-    print(f" Atom        STD     Major (>STD)  or    Low (<({args.factor}STD)")
+          _factor:3.2f} *STD : {average_std*_factor:>12.8}", "\n")
+    print(f" Atom        STD     Major (>STD)  or    Low (<({_factor}STD)")
     _MajorFactor: list[AtomID] = []
     _MinorFactor: list[AtomID] = []
 
@@ -70,7 +72,7 @@ def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
         if (atomID_std >= average_std):
             print(f"{int(atomID):>5d} {atomID_std:>10.5f}     Major factor")
             _MajorFactor.append(AtomID(int(atomID)))
-        elif (atomID_std <= average_std*args.factor):
+        elif (atomID_std <= average_std*_factor):
             print(f"{int(atomID):>5d} {atomID_std:>10.5f}",
                   " "*23, "Low factor")
             _MinorFactor.append(AtomID(int(atomID)))
@@ -82,7 +84,8 @@ def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
     return _MinorFactor, atomIDs_std
 
 
-def method_factor_opt(args, _lowFactor: list[AtomID], table_std: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
+# def method_factor_opt(args, _lowFactor: list[AtomID], table_std: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
+def method_factor_opt(inFile: Path, _lowFactor: list[AtomID], table_std: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
     """
     Optimizes the location of a broken bond based on factor analysis results.
 
@@ -125,9 +128,8 @@ def method_factor_opt(args, _lowFactor: list[AtomID], table_std: dict[AtomID, fl
     from censo_ext.Tools.topo import Topo
     Bonding_LowFactor: list[npt.NDArray[np.int64]] = []
     for atomID in _lowFactor:
-        Sts_topo: Topo = Topo(args.file)
         Bonding_LowFactor.append(
-            np.array(Sts_topo.method_bonding(_bonding=atomID, _print=False)))
+            np.array(Topo(inFile).method_bonding(_bonding=atomID, _print=False)))
 
     Pair_LowFactor: list[list[int]] = []
 
@@ -149,9 +151,9 @@ def method_factor_opt(args, _lowFactor: list[AtomID], table_std: dict[AtomID, fl
     Ratio: list[float] = []
     for x in unique_PairLowFactor:
 
-        atomIDs_L: list[AtomID] = Topo(args.file).method_broken_bond(
+        atomIDs_L: list[AtomID] = Topo(inFile).method_broken_bond(
             _bond_broken=(x[0], x[1]), _print=False)
-        atomIDs_R: list[AtomID] = Topo(args.file).method_broken_bond(
+        atomIDs_R: list[AtomID] = Topo(inFile).method_broken_bond(
             _bond_broken=(x[1], x[0]), _print=False)
 
         # total std of Left fragment of inputted data

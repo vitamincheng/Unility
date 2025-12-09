@@ -493,7 +493,7 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
                 a+1 for a in mat_multi_x_idx0).difference(idx1_ab_group))
 
         QM_Bases: list[tuple[float, float]] = qm_full(
-            v=list(v), J=J, args=args)
+            v=list(v), J=J, _verbose=args.verbose, _cutoff=args.cutoff)
         accPeaks.append(QM_Bases)
 
     else:
@@ -512,7 +512,7 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
             J: npt.NDArray[np.float64] = inJCoups[idx0_ab_group].T[idx0_ab_group]
 
             QM_Bases: list[tuple[float, float]] = qm_base(v=list(
-                v), J=J, idx0_nspins=idx0_ab_group.index(idx0), args=args)
+                v), J=J, idx0_nspins=idx0_ab_group.index(idx0), _cutoff=args.cutoff, _verbose=args.verbose)
 
             QM_Multiplet: list[tuple[float, float]] = []
             # for QM_base in QM_Bases:

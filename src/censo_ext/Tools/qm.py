@@ -145,7 +145,7 @@ def qm_parameter(v: list[float], J: np_float) -> tuple[cplex, np_uint]:
     return H, T
 
 
-def qm_full(v: list[float], J: np_float, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_full(v: list[float], J: np_float, _cutoff: float, _verbose: bool) -> list[tuple[float, float]]:
     """
     Calculate full spin system spectrum using quantum mechanical approach.
 
@@ -172,7 +172,7 @@ def qm_full(v: list[float], J: np_float, args: argparse.Namespace) -> list[tuple
     V: cplex | np_float
 
     E, V = np.linalg.eigh(H)
-    if args.verbose:
+    if _verbose:
         ic(H)
         ic(T)
         ic(E, V)
@@ -190,8 +190,8 @@ def qm_full(v: list[float], J: np_float, args: argparse.Namespace) -> list[tuple
     iv: np_float = combo.reshape(2, I_np.shape[0] ** 2).T
 
     # an arbitrary cutoff where peaks below this intensity are filtered out of the solution
-    peaklist: np_float = iv[iv[:, 1] >= args.cutoff]
-    if args.verbose:
+    peaklist: np_float = iv[iv[:, 1] >= _cutoff]
+    if _verbose:
         ic(I_upper)
         ic(E_matrix)
         np.savetxt("E_matrix.out", E_matrix, fmt="%7.2f")
@@ -202,7 +202,7 @@ def qm_full(v: list[float], J: np_float, args: argparse.Namespace) -> list[tuple
     return list(zip(freq, intensit))
 
 
-def qm_partial(v: list[float], J: np_float, idx0_nspins: int, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_partial(v: list[float], J: np_float, idx0_nspins: int, _cutoff: float, _verbose: bool) -> list[tuple[float, float]]:
     """
     Calculate partial spin system spectrum for a specific spin.
 
@@ -236,7 +236,7 @@ def qm_partial(v: list[float], J: np_float, idx0_nspins: int, args: argparse.Nam
     E, V = np.linalg.eigh(H)
 
     V = V.real
-    if args.verbose:
+    if _verbose:
         ic(F)
         ic(E, V)
 
@@ -244,7 +244,7 @@ def qm_partial(v: list[float], J: np_float, idx0_nspins: int, args: argparse.Nam
     I_np: np_float = np.square(V.T.dot(T.dot(V)))
     IF: np_float = np.square(V.T.dot(F.dot(V)))
     I_upper: np_float = np.triu(I_np*IF)
-    if args.verbose:
+    if _verbose:
         ic(I_np)
         ic(IF)
         ic(I_np*IF)
@@ -255,9 +255,9 @@ def qm_partial(v: list[float], J: np_float, idx0_nspins: int, args: argparse.Nam
 
     combo: np_float = np.stack([E_upper, I_upper])
     iv: np_float = combo.reshape(2, I_np.shape[0] ** 2).T
-    thr: np_float = np.max(iv[:, 1])*args.cutoff
+    thr = np.max(iv[:, 1]) * _cutoff
     peaklist: np_float = iv[iv[:, 1] >= thr]
-    if args.verbose:
+    if _verbose:
         ic(E_matrix)
         ic(iv)
         ic(peaklist)
@@ -359,7 +359,7 @@ def lorentz(linspace: np_float, freq: float, Intensity: float, lw: float) -> np_
     return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (linspace - freq) ** 2))
 
 
-def qm_base(v: list[float], J: np_float, idx0_nspins: int, args: argparse.Namespace) -> list[tuple[float, float]]:
+def qm_base(v: list[float], J: np_float, idx0_nspins: int, _cutoff: float, _verbose: bool) -> list[tuple[float, float]]:
     """
     Base quantum mechanical calculation function for spin systems.
 
@@ -378,10 +378,11 @@ def qm_base(v: list[float], J: np_float, idx0_nspins: int, args: argparse.Namesp
         list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
     """
     plist: list[tuple[float, float]] = []
-    if args.verbose:
+    if _verbose:
         ic(v, J)
     if len(v) > 1:
-        plist = qm_partial(v=v, J=J, idx0_nspins=idx0_nspins, args=args)
+        plist = qm_partial(v=v, J=J, idx0_nspins=idx0_nspins,
+                           _cutoff=_cutoff, _verbose=_verbose)
     elif len(v) == 1:
         plist = [(np.fabs(v[0]), float(1.0))]
     else:

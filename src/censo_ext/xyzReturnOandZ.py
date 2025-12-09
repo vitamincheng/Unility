@@ -96,16 +96,15 @@ def cml() -> argparse.Namespace:
 
 def idx_3atom_opt(inFile: Path) -> tuple[AtomID, AtomID, AtomID]:
     from censo_ext.Tools.factor import method_factor_analysis
-    args_x: dict = {"file": inFile, "factor": 0.5, "opt": False}
+    # args_x: dict = {"file": inFile, "factor": 0.5, "opt": False}
     _LowFactor: list[AtomID]
     _Deviation: dict[AtomID, float]
     _LowFactor, _Deviation = method_factor_analysis(
-        args=argparse.Namespace(**args_x))
+        inFile=inFile, _factor=0.50)
 
     _Bonding: list[list[AtomID]] = []
     for x in _LowFactor:
         from censo_ext.Tools.topo import Topo
-        # Sts_topo: Topo = Topo(inFile)
         _Bonding.append(Topo(inFile).method_bonding(_bonding=x, _print=False))
 
     _3AtomID: list[list[AtomID]] = []
