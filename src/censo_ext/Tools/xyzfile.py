@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import numpy.typing as npt
 import copy
-from censo_ext.Tools.utility import AtomID
+from censo_ext.Tools.utility import AtomID, IntpID, delete_all_files
 
 
 class Geometry():
@@ -31,13 +31,13 @@ class Geometry():
         inertia(npt.NDArray[np.float64]): Moment of inertia tensor.
 
     Example:
-        >>> geometry = Geometry(names={1: 'C', 2: 'H'}, 
+        >>> geometry = Geometry(names={1: 'C', 2: 'H'},
         ...                     coord=[np.array([0, 0, 0]), np.array([1, 1, 1])],
         ...                     extras=[['charge1'], ['charge2']])
     """
 
     def __init__(self, names: dict[AtomID, str], coord: list[npt.NDArray[np.float64]], extras: list[list[str]], comment: str = "", energy: float = 0, nClusters: int = 0) -> None:
-        """ 
+        """
         Initialize a Geometry object with atom names, coordinates, and metadata.
 
         Args:
@@ -80,7 +80,7 @@ class Geometry():
         return geometry
 
     def __repr__(self) -> str:
-        """ 
+        """
         Generate a string representation of the Geometry object in XYZ format.
 
         Returns:
@@ -224,12 +224,12 @@ class Geometry():
         """
         Update atomic masses based on element names.
 
-        This method iterates through the atomic names stored in `self.names` and 
-        retrieves the corresponding atomic weights from the `NAMES_WEIGHTS` 
+        This method iterates through the atomic names stored in `self.names` and
+        retrieves the corresponding atomic weights from the `NAMES_WEIGHTS`
         parameter dictionary. The weights are then appended to the `self.mass` array.
 
         Note:
-            The element names in `self.names` should be in lowercase for proper 
+            The element names in `self.names` should be in lowercase for proper
             matching with the keys in `NAMES_WEIGHTS`.
 
         Example:
@@ -240,7 +240,7 @@ class Geometry():
             [12.011 1.008]
 
         Raises:
-            KeyError: If an element name in `self.names` is not found in 
+            KeyError: If an element name in `self.names` is not found in
                       `NAMES_WEIGHTS`.
         """
 
@@ -279,9 +279,9 @@ class Geometry():
         """
         Parse and extract energy and cluster information from the comment field.
 
-        This method processes the comment line of an XYZ file to extract energy and 
-        cluster information. It handles various formats of comment strings that may 
-        contain energy values and cluster counts, and updates the object's 
+        This method processes the comment line of an XYZ file to extract energy and
+        cluster information. It handles various formats of comment strings that may
+        contain energy values and cluster counts, and updates the object's
         comment_energy and comment_nClusters attributes accordingly.
 
         The method expects comment strings in formats like:
@@ -290,7 +290,7 @@ class Geometry():
         - "-76.432 #Cluster: 3"
         - "Eh -76.432 #Cluster: 3"
 
-        If no valid energy or cluster information is found, default values of 0 
+        If no valid energy or cluster information is found, default values of 0
         are set for both attributes.
 
         Note:
@@ -359,6 +359,39 @@ class GeometryXYZs():
     def method_xyzExtract(self, idx1: list[int]) -> None:
         idx0: list[int] = [x for x in idx1]
         self.Sts = [self.Sts[x] for x in idx0]
+
+    def Method_xyzRotate(self, _check: bool, idx1_p: int, idx1_q: int, _cuts: int = 3, _nspec: int = 1) -> None:
+
+        from scipy.spatial.transform import Rotation as R
+        _tmpFile = Path(".tempFile")
+        self.set_filename(_tmpFile)
+        self.method_save_xyz([])
+        nCutters: int = _cuts
+        nSpec: int = _nspec
+
+        if nSpec >= nCutters or nSpec <= 0:
+            print("  Specific number of cut' number is error !!!")
+            print("  Exit and Close the program !!!")
+            exit(1)
+        from censo_ext.Tools.topo import Topo
+        broken_bond_H: list[IntpID] = [
+            IntpID(x-1) for x in Topo(_tmpFile, check=_check).method_broken_bond_H(_bond_broken=(idx1_q, idx1_p), _print=False)]
+
+        for St in self.Sts:
+            dxyz: npt.NDArray[np.float64] = St.coord[idx1_p-1].copy()
+            inital: list[npt.NDArray[np.float64]] = St.coord.copy()
+            for nCutter in range(nCutters):
+                St.coord = inital.copy()
+                St.coord -= dxyz  # type: ignore
+                rotation_axis: npt.NDArray[np.float64] = St.coord[idx1_q-1]
+                rotation_vector: npt.NDArray[np.float64] = rotation_axis / \
+                    np.linalg.norm(rotation_axis)
+                r_pq = R.from_rotvec(
+                    2*np.pi*(nCutter/nCutters)*rotation_vector)
+                for idx0 in broken_bond_H:
+                    St.coord[idx0] = r_pq.apply(St.coord[idx0])
+                St.coord += dxyz
+        delete_all_files(_tmpFile)
 
     def method_translate_cut_xyzs(self, delta: npt.NDArray[np.float64], cut: int) -> GeometryXYZs:
         """

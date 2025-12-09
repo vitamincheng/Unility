@@ -1,10 +1,7 @@
 #!/usr/bin/env python
-from scipy.spatial.transform import Rotation as R
 import argparse
 from pathlib import Path
-import numpy as np
-import numpy.typing as npt
-from censo_ext.Tools.utility import IntpID, print_arguments
+from censo_ext.Tools.utility import print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
 descr = """
 ________________________________________________________________________________
@@ -111,9 +108,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print_arguments()
 
     from censo_ext.Tools.utility import IsExist
-    inFile = Path(args.file)
+    inFile: Path = Path(args.file)
     outFile = Path(args.out)
     IsExist(inFile)
+    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
 
     if not args.cuts or not args.atoms:
         print("  Please input your atoms that you want to split ")
@@ -125,51 +123,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         delete_all_files(outFile)
 
     idx1_p, idx1_q = args.atoms
-    nCutters: int = args.cuts
-    nSpec = args.spec
-    if nSpec >= nCutters or nSpec <= 0:
+
+    if args.spec >= args.cuts or args.spec <= 0:
         print("  Specific number of cut' number is error !!!")
         print("  Exit and Close the program !!!")
         exit(1)
 
-    x: dict = {"file": inFile, "bond_broken": [idx1_q, idx1_p],
-               "print": False, "debug": False}
-
-    from censo_ext.Tools.topo import Topo
-    Sts_topo: Topo = Topo(x["file"], check=args.check)
-    broken_bond_H: list[IntpID] = [
-        IntpID(x-1) for x in Sts_topo.method_broken_bond_H(argparse.Namespace(**x))]
-
-    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
-
-    for idx1_St, St in enumerate(xyzFile.Sts, 1):
-
-        dxyz: npt.NDArray[np.float64] = St.coord[idx1_p-1].copy()
-        inital: list[npt.NDArray[np.float64]] = St.coord.copy()
-
-        for nCutter in range(nCutters):
-
-            St.coord = inital.copy()
-            St.coord -= dxyz  # type: ignore
-
-            rotation_axis: npt.NDArray[np.float64] = St.coord[idx1_q-1]
-            rotation_vector: npt.NDArray[np.float64] = rotation_axis / \
-                np.linalg.norm(rotation_axis)
-
-            r_pq = R.from_rotvec(2*np.pi*(nCutter/nCutters)*rotation_vector)
-
-            for idx0 in broken_bond_H:
-                St.coord[idx0] = r_pq.apply(St.coord[idx0])
-
-            St.coord += dxyz
-
-            if nCutter == nSpec:
-                if args.print:
-                    xyzFile.method_print([idx1_St])
-                else:
-                    xyzFile.set_filename(outFile)
-                    xyzFile.method_save_xyz_append([idx1_St])
+    xyzFile.Method_xyzRotate(_check=args.check, idx1_p=idx1_p,
+                             idx1_q=idx1_q, _cuts=args.cuts, _nspec=args.spec)
+    xyzFile.set_filename(outFile)
+    xyzFile.method_save_xyz([])
 
     if not args.print:
         print(f"    Save to the file : {outFile}")
