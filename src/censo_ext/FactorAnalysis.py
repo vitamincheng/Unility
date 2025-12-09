@@ -159,12 +159,10 @@ def cal_RMSD_coord(args, xyzFile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDAr
     # start from 0 to num-1
     idx0_cal: list[int] = [x-1 for x in idx1_cal]
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
-    x = {"remove_idx": args.remove_idx, "add_idx": args.add_idx,
-         "bond_broken": args.bond_broken, "ignore_Hydrogen": args.ignore_Hydrogen}
     list_COORDSquare: list[list[float]] = []
     for idx0 in (idx0_cal):
-        CoordSquare, _ = cal_RMSD_xyz(
-            xyzFile, idx0_cal[0]+1, idx0+1, args=argparse.Namespace(**x))
+        CoordSquare, _ = cal_RMSD_xyz(xyzFile=xyzFile, idx1_q=idx0_cal[0]+1, idx1_p=idx0+1,
+                                      _remove_idx=args.remove_idx, _add_idx=args.add_idx, _bond_broken=args.bond_broken, _ignore_Hydrogen=args.ignore_Hydrogen)
         list_COORDSquare.append(list(CoordSquare.values()))
     return np.array(list_COORDSquare, dtype=np.float64)
 

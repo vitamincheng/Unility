@@ -2,7 +2,6 @@
 from pathlib import Path
 from typing import Literal
 from censo_ext.Tools.xyzfile import GeometryXYZs
-import argparse
 import numpy as np
 import numpy.typing as npt
 from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
@@ -39,18 +38,17 @@ def method_factor_analysis(inFile: Path | str, _factor) -> tuple[list[AtomID], d
 
     xyzFile: GeometryXYZs = GeometryXYZs(Path(inFile))
     xyzFile.method_read_xyz()
-    args_x: dict = {"remove_idx": None, "add_idx": None,
-                    "bond_broken": None, "ignore_Hydrogen": True}
     coord: list[list[float]] = []
 
     # For idxElement for the data of first xyzFile
-    tmp, _ = cal_RMSD_xyz(xyzFile, 1, 1, args=argparse.Namespace(**args_x))
+    tmp, _ = cal_RMSD_xyz(xyzFile, 1, 1, _remove_idx=None,
+                          _add_idx=None, _bond_broken=None, _ignore_Hydrogen=True)
     _Element: list[AtomID] = list(tmp.keys())
 
     # Get variance of coord square of all xyzFile
     for idx0 in range(len(xyzFile)):
         coord_square, _ = cal_RMSD_xyz(
-            xyzFile, 1, idx0+1, args=argparse.Namespace(**args_x))
+            xyzFile, 1, idx0+1, _remove_idx=None, _add_idx=None, _bond_broken=None, _ignore_Hydrogen=True)
         var: list[float] = list(coord_square.values())
         coord.append(var)
 

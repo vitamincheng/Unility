@@ -1,4 +1,3 @@
-import argparse
 from pathlib import Path
 import pytest
 import numpy as np
@@ -22,16 +21,18 @@ def test_calculate_rmsd_all():
     xyzFile: GeometryXYZs = GeometryXYZs(
         Path("tests/data/crest_conformers.xyz"))
     xyzFile.method_read_xyz()
-    x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
-               "ignore_Hydrogen": False}
+    # x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
+    #           "ignore_Hydrogen": False}
     idx_atom1 = cal_RMSD_xyz(
-        xyzFile, 1, 2, args=argparse.Namespace(**x))
+        # xyzFile, 1, 2, )
+        xyzFile, 1, 2, _remove_idx=None, _add_idx=None, _bond_broken=None, _ignore_Hydrogen=False)
     assert len(idx_atom1[0]) == 73
     assert idx_atom1[1] == pytest.approx(1.7608313888081009)
 
-    x = {"remove_idx": None, "add_idx": None, "bond_broken": [
-        52, 55], "ignore_Hydrogen": True}
-    idx_atom1 = cal_RMSD_xyz(xyzFile, 1, 2, args=argparse.Namespace(**x))
+    # $x = {"remove_idx": None, "add_idx": None, "bond_broken": [
+    #   52, 55], "ignore_Hydrogen": True}
+    idx_atom1 = cal_RMSD_xyz(
+        xyzFile, 1, 2, _remove_idx=None, _add_idx=None, _bond_broken=(52, 55), _ignore_Hydrogen=True)
     assert len(idx_atom1[0]) == 24
     assert idx_atom1[0][AtomID(1)] == pytest.approx(0.0022804570676915915)
     assert idx_atom1[0][AtomID(24)] == pytest.approx(0.02272775019255817)
@@ -41,9 +42,10 @@ def test_calculate_rmsd_all():
     xyzFile = GeometryXYZs(
         Path("tests/data/isomers.xyz"))
     xyzFile.method_read_xyz()
-    x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
-               "ignore_Hydrogen": False}
-    idx_atom1 = cal_RMSD_xyz(xyzFile, 1, 2, args=argparse.Namespace(**x))
+    # x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
+    #           "ignore_Hydrogen": False}
+    idx_atom1 = cal_RMSD_xyz(xyzFile, 1, 2, _remove_idx=None,
+                             _add_idx=None, _bond_broken=None, _ignore_Hydrogen=False)
 
     assert len(idx_atom1[0]) == 17
     assert idx_atom1[0][AtomID(1)] == pytest.approx(0.052818544187445145)
@@ -51,22 +53,22 @@ def test_calculate_rmsd_all():
     assert idx_atom1[1] == pytest.approx(0.9657626138106812)
 
 
-def test_calculate_atom2str():
+def test_calculate_atom2str() -> None:
     assert atom2str(1) == "H"
     assert atom2str(8) == "O"
     assert atom2str(6) == "C"
 
 
-def test_calculate_atom2int():
+def test_calculate_atom2int() -> None:
     assert atom2int("C") == 6
     assert atom2int("O") == 8
     assert atom2int("N") == 7
 
 
-def test_calculate_rmsd():
+def test_calculate_rmsd() -> None:
     P = np.array([[0, 0], [3, 4]])
     Q = np.array([[2, 3], [4, 5]])
-    idx_atom = [0, 1]
+    idx_atom = [AtomID(0), AtomID(1)]
     expected_square: dict[int, float] = {0: 13.0, 1: 2.0}
     expected_rmsd: float = 2.7386127875
     square, rmsd_value = rmsd(P, Q, idx_atom)
@@ -74,7 +76,7 @@ def test_calculate_rmsd():
     assert np.isclose(rmsd_value, expected_rmsd)
 
 
-def test_calculate_kabsch_rotate():
+def test_calculate_kabsch_rotate() -> None:
     P = np.array([[0, 0], [3, 4]])
     Q = np.array([[2, 3], [4, 5]])
     U = kabsch(P, Q)
@@ -82,7 +84,7 @@ def test_calculate_kabsch_rotate():
     assert np.allclose(Res, np.dot(P, U))
 
 
-def test_calculate_kabsch():
+def test_calculate_kabsch() -> None:
     P = np.array([[0, 0], [3, 4]])
     Q = np.array([[2, 3], [4, 5]])
     expected_U = np.array([
@@ -100,7 +102,7 @@ def test_calculate_centroid():
     assert np.allclose(c, expected_c)
 
 
-def test_calculate_get_Coordinates():
+def test_calculate_get_Coordinates() -> None:
     xyzFile = GeometryXYZs("tests/data/isomers.xyz")
     xyzFile.method_read_xyz()
     element, V = get_Coordinates(xyzFile, 0)
@@ -111,7 +113,7 @@ def test_calculate_get_Coordinates():
     # assert np.allclose(V, expected_V)
 
 
-def test_calculate_cal_RMSD_xyz():
+def test_calculate_cal_RMSD_xyz() -> None:
     xyzFile = GeometryXYZs("tests/data/isomers.xyz")
     xyzFile.method_read_xyz()
     idx_p = 1
@@ -119,9 +121,9 @@ def test_calculate_cal_RMSD_xyz():
     # expected_square: dict[int, float] = {0: 5.0}
     # expected_rmsd: float = np.sqrt(5.0 / 3)
 
-    x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
-               "ignore_Hydrogen": False}
+    # x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
+    #           "ignore_Hydrogen": False}
     square, rmsd_value = cal_RMSD_xyz(
-        xyzFile, idx_p, idx_q, args=argparse.Namespace(**x))
+        xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=None, _bond_broken=None, _ignore_Hydrogen=False)
     assert len(square) == 17
     assert np.isclose(rmsd_value, 0.9657626138106813)
