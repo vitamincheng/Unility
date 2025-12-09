@@ -20,8 +20,6 @@ def test_ensoGenFlexible_single_xyz() -> None:
     inFile: Path = Path("tests/data/06.EthylAcetate/traj.xyz")
     x: dict = {"file": inFile, "manual": False, "temp": 298.15}
     ensoGenFlexible.main(argparse.Namespace(**x))
-    # compare = Path("tests/compare/molManipulate.xyz")
-    # assert filecmp.cmp(args.out, compare)
     delete_all_files("anmr_enso.new")
 
 
@@ -31,6 +29,4 @@ def test_ensoGenFlexible_multi_xyzs() -> None:
         "tests/data/06.EthylAcetate/03.Censo/crest_conformers.xyz")
     x: dict = {"file": inFile, "manual": False, "temp": 298.15}
     ensoGenFlexible.main(argparse.Namespace(**x))
-    # compare = Path("tests/compare/molManipulate.xyz")
-    # assert filecmp.cmp(args.out, compare)
     delete_all_files("anmr_enso.new")

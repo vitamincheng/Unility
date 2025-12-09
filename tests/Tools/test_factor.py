@@ -1,5 +1,4 @@
 
-# import argparse
 import pytest
 from censo_ext.Tools.factor import method_factor_analysis, method_factor_opt
 from pathlib import Path
@@ -9,9 +8,6 @@ from censo_ext.Tools.utility import AtomID
 
 def test_factor_analysis_miss_args() -> None:
     fileName: Path = Path("tests/data/crest_conformers000.xyz")
-    # x: dict = {"file": fileName, "print": False,
-    #           "replace": False, "factor": 0.5}
-    # args = argparse.Namespace(**x)
 
     with pytest.raises(SystemExit) as e:
         method_factor_analysis(inFile=fileName, _factor=0.5)
@@ -21,10 +17,6 @@ def test_factor_analysis_miss_args() -> None:
 
 def test_factor_analysis() -> None:
     fileName: Path = Path("tests/data/crest_conformers.xyz")
-    # outFile: Path = Path("tests/compare/output_xyzReturnOandZ.xyz")
-    # x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False, "replace": False,
-    #           "out": outFile, "factor": 0.50}
-    # args = argparse.Namespace(**x)
     idx1_minor_factor, Table_S = method_factor_analysis(
         inFile=fileName, _factor=0.50)
     assert idx1_minor_factor == [1, 2, 7, 8, 15, 19, 21,
@@ -34,9 +26,6 @@ def test_factor_analysis() -> None:
     assert Table_S[AtomID(61)] == pytest.approx(3.8871420948650774)
 
     fileName: Path = Path("tests/data/crest_conformers1.xyz")
-    # x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False, "replace": False,
-    #           "out": outFile, "factor": 0.50}
-    # args = argparse.Namespace(**x)
     idx1_minor_factor, Table_S = method_factor_analysis(
         inFile=fileName, _factor=0.50)
     assert idx1_minor_factor == []
@@ -45,12 +34,8 @@ def test_factor_analysis() -> None:
     assert Table_S[AtomID(61)] == 0.0
 
 
-def test_factor_opt():
+def test_factor_opt() -> None:
     fileName: Path = Path("tests/data/crest_conformers.xyz")
-    # outFile: Path = Path("tests/compare/output_xyzReturnOandZ.xyz")
-    # x: dict = {"file": fileName, "atom": [30, 45, 47], "print": False,
-    #           "replace": False, "out": outFile, "factor": 0.50}
-    # args = argparse.Namespace(**x)
     idx1_minor_factor, Table_S = method_factor_analysis(
         inFile=fileName, _factor=0.50)
 

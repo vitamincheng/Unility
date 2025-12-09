@@ -9,7 +9,7 @@ inFile: Path = Path("tests/data/crest_conformers.xyz")
 outFile: Path = Path("tests/compare/output.xyz")
 
 
-def test_xyzTranslate_move():
+def test_xyzTranslate_move() -> None:
     x: dict = {"file": inFile,
                "move": [5, 0, 0], "out": outFile, "cuts": None}
     args = argparse.Namespace(**x)
@@ -19,7 +19,7 @@ def test_xyzTranslate_move():
     os.remove(args.out)
 
 
-def test_xyzTranslate_cut():
+def test_xyzTranslate_cut() -> None:
     x: dict = {"file": inFile,
                "move": [5, 0, 0], "out": outFile, "cuts": 10}
     args = argparse.Namespace(**x)
@@ -29,7 +29,7 @@ def test_xyzTranslate_cut():
     os.remove(args.out)
 
 
-def test_xyzTranslate_cut_move():
+def test_xyzTranslate_cut_move() -> None:
     x: dict = {"file": inFile,
                "move": [5, 0, 0], "out": outFile, "cuts": 3}
     args = argparse.Namespace(**x)
@@ -46,7 +46,7 @@ def test_xyzTranslate_cut_move():
     os.remove(args.out)
 
 
-def test_xyzTranslate_miss_args():
+def test_xyzTranslate_miss_args() -> None:
     x: dict = {}
     with pytest.raises(SystemExit) as e:
         xyzTranslate.main(argparse.Namespace(**x))
@@ -54,7 +54,7 @@ def test_xyzTranslate_miss_args():
     assert e.value.code == 2  # for argparse error
 
 
-def test_xyzTranslate_without_move():
+def test_xyzTranslate_without_move() -> None:
     x: dict = {"file": inFile, "out": outFile, "cut": 10}
     with pytest.raises(SystemExit) as e:
         xyzTranslate.main(argparse.Namespace(**x))
@@ -62,7 +62,7 @@ def test_xyzTranslate_without_move():
     assert e.value.code == 1    # try and exception
 
 
-def test_xyzTranslate_miss_file():
+def test_xyzTranslate_miss_file() -> None:
     x: dict = {"file": Path("tests/data/crest_conformers000.xyz"),
                "out": outFile, "cut": 10}
     with pytest.raises(SystemExit) as e:
