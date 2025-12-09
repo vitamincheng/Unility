@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import argparse
 import numpy as np
 import numpy.typing as npt
 import censo_ext.Tools.ml4nmr as ml4nmr
@@ -62,7 +61,7 @@ class Topo():
             idx_cn[key] = len(value)
         return idx_cn
 
-    def method_broken_bond_H(self, args: argparse.Namespace) -> list[AtomID]:
+    def method_broken_bond_H(self, _bond_broken: tuple[int, int], _print: bool) -> list[AtomID]:
         """ 
         Identifies terminal atoms involved in a broken bond, including hydrogen atoms.
 
@@ -82,7 +81,8 @@ class Topo():
             [5, 6, 7, 10, 11]
         """
 
-        Res: list[AtomID] = self.method_broken_bond(args)
+        Res: list[AtomID] = self.method_broken_bond(
+            _bond_broken=_bond_broken, _print=_print)
         Neighbors_H_atom: dict[AtomID, AtomID] = {}  # {H:C}
         for idx in self._H_atomIDs:
             Neighbors_H_atom[idx] = AtomID(self.__neighbors[idx][0])
@@ -93,11 +93,11 @@ class Topo():
                     addition.append(key)
         Res = Res + addition
         Res.sort()
-        if args.print:
+        if _print:
             print(f" Terminal_Atoms_int (include H) : {Res}")
         return Res
 
-    def method_broken_bond(self, args: argparse.Namespace) -> list[AtomID]:
+    def method_broken_bond(self, _bond_broken: tuple[int, int], _print: bool) -> list[AtomID]:
         """
         Identifies terminal atoms involved in a broken bond, excluding hydrogen atoms.
 
@@ -109,16 +109,16 @@ class Topo():
         Returns:
             list[int]: A list of atom indices involved in the broken bond (excluding H atoms).
         """
-        idx1_p, idx1_q = args.bond_broken
+        idx1_p, idx1_q = _bond_broken
         # neighbors: dict[AtomID, npt.NDArray[np.int64]] = self.__neighbors
         H_atoms: list[AtomID] = self._H_atomIDs
-        H_atoms.append(idx1_q)
+        H_atoms.append(AtomID(idx1_q))
         Neighbors_not_H: dict[AtomID, npt.NDArray[np.int64]] = {}
         for idx in self.__neighbors.keys():
             Neighbors_not_H[idx] = np.array(
                 [x for x in self.__neighbors[idx] if int(x) not in H_atoms])
-        del Neighbors_not_H[idx1_q]
-        Terminal_Atoms: list[AtomID] = [idx1_p]
+        del Neighbors_not_H[AtomID(idx1_q)]
+        Terminal_Atoms: list[AtomID] = [AtomID(idx1_p)]
         Complete_Atoms: bool = False
         while (not Complete_Atoms):
             Is_Terminal_Atoms: bool = True
@@ -132,11 +132,12 @@ class Topo():
                         Complete_Atoms, Is_Terminal_Atoms = False, False
             if Is_Terminal_Atoms:
                 Complete_Atoms = True
-        if args.print:
+        if _print:
             print(f" Terminal_Atoms (not H) : {Terminal_Atoms}")
         return Terminal_Atoms
 
-    def method_bonding(self, args: argparse.Namespace) -> list[AtomID]:
+    def method_bonding(self, _bonding: AtomID, _print: bool) -> list[AtomID]:
+        # def method_bonding(self, args: argparse.Namespace) -> list[AtomID]:
         """ 
         Retrieves the bonding partners for a specified atom, excluding hydrogen atoms.
 
@@ -147,12 +148,12 @@ class Topo():
         Returns:
             list[int]: A list of atom indices bonded to the specified atom (excluding H atoms).
         """
-        idx1_p: AtomID = args.bonding
+        idx1_p: AtomID = _bonding
         _Bonding_AtomIDs: list[AtomID] = self.__neighbors[idx1_p].tolist()
         _Bonding_AtomIDs = [
             x for x in _Bonding_AtomIDs if x not in self._H_atomIDs]
         _Bonding_AtomIDs.sort()
-        if args.print:
+        if _print:
             print(f" Bonding : {idx1_p} @ Neighbors_Atoms")
         return _Bonding_AtomIDs
 

@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 import pytest
 from censo_ext.Tools.topo import Topo
+from censo_ext.Tools.utility import AtomID
 
 FileName_Full: Path = Path("tests/data/crest_conformers.xyz")
 FileName_Small: Path = Path("tests/data/isomers.xyz")
@@ -35,10 +36,11 @@ def test_topo_get_cn(input_Path: str, bonding: int, CN_Dict: dict):
                                     (FileName_Small, 3, [2, 6])])
 def test_topo_Bonding(input_Path: Path, bonding: int, Neighbors_Atoms: list):
     # for crest_conformers.xyz
-    x = {"file": input_Path,
-         "bonding": bonding, "print": True, "debug": False}
-    args = argparse.Namespace(**x)
-    assert Topo(args.file).method_bonding(args) == Neighbors_Atoms
+    # x = {"file": input_Path,
+    #     "bonding": bonding, "print": True, "debug": False}
+    # args = argparse.Namespace(**x)
+    assert Topo(input_Path).method_bonding(
+        _bonding=AtomID(bonding), _print=True) == Neighbors_Atoms
 
 
 @pytest.mark.parametrize(argnames="input_Path,bonding,len_neighbor,circle_Mols,residual_Mols",
@@ -61,20 +63,22 @@ def test_topo_topology(input_Path: Path, bonding: int, len_neighbor: int, circle
                                                                18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
                                                                33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 45, 46, 47, 48]),
                                     (FileName_Small, [3, 2], [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])])
-def test_topo_Broken_bond_H(input_Path: Path, bond_broken: list, broken_Atoms_H: list):
+def test_topo_Broken_bond_H(input_Path: Path, bond_broken: list[int], broken_Atoms_H: list):
     # for crest_conformers.xyz
-    x = {"file": input_Path, "bond_broken": bond_broken,
-         "print": True, "debug": False}
-    args = argparse.Namespace(**x)
-    assert Topo(args.file).method_broken_bond_H(args) == broken_Atoms_H
+    # x = {"file": input_Path, "bond_broken": bond_broken,
+    #     "print": True, "debug": False}
+    # args = argparse.Namespace(**x)
+    assert Topo(input_Path).method_broken_bond_H(
+        _bond_broken=bond_broken, _print=True) == broken_Atoms_H  # type: ignore
 
 
 @pytest.mark.parametrize(argnames="input_Path,bond_broken,broken_Atoms",
                          argvalues=[(FileName_Full, [52, 55], [1, 2, 3, 6, 7, 8, 13, 15, 16, 19, 21,
                                                                23, 24, 27, 30, 33, 35, 37, 40, 44, 45, 50, 51, 52]),
                                     (FileName_Small, [3, 2], [1, 3, 6, 9, 10, 17])])
-def test_topo_Broken_bond(input_Path: Path, bond_broken: list, broken_Atoms: list):
-    x = {"file": input_Path,
-         "bond_broken": bond_broken, "print": True, "debug": False}
-    args = argparse.Namespace(**x)
-    assert Topo(args.file).method_broken_bond(args) == broken_Atoms
+def test_topo_Broken_bond(input_Path: Path, bond_broken: list[int], broken_Atoms: list):
+    # x = {"file": input_Path,
+    #     "bond_broken": bond_broken, "print": True, "debug": False}
+    # args = argparse.Namespace(**x)
+    assert Topo(input_Path).method_broken_bond(
+        _bond_broken=bond_broken, _print=True) == broken_Atoms   # type: ignore

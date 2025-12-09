@@ -125,11 +125,9 @@ def method_factor_opt(args, _lowFactor: list[AtomID], table_std: dict[AtomID, fl
     from censo_ext.Tools.topo import Topo
     Bonding_LowFactor: list[npt.NDArray[np.int64]] = []
     for atomID in _lowFactor:
-        args_x: dict = {"file": args.file, "bonding": atomID,
-                        "print": False, "debug": False}
-        Sts_topo: Topo = Topo(args_x["file"])
+        Sts_topo: Topo = Topo(args.file)
         Bonding_LowFactor.append(
-            np.array(Sts_topo.method_bonding(argparse.Namespace(**args_x))))
+            np.array(Sts_topo.method_bonding(_bonding=atomID, _print=False)))
 
     Pair_LowFactor: list[list[int]] = []
 
@@ -151,15 +149,10 @@ def method_factor_opt(args, _lowFactor: list[AtomID], table_std: dict[AtomID, fl
     Ratio: list[float] = []
     for x in unique_PairLowFactor:
 
-        args_x = {"file": args.file, "bond_broken": [
-            x[0], x[1]], "print": False, "debug": False}
-        Sts_topo: Topo = Topo(args_x["file"])
-        atomIDs_L: list[AtomID] = Sts_topo.method_broken_bond(
-            argparse.Namespace(**args_x))
-        args_x = {"file": args.file, "bond_broken": [
-            x[1], x[0]], "print": False, "debug": False}
-        atomIDs_R: list[AtomID] = Sts_topo.method_broken_bond(
-            argparse.Namespace(**args_x))
+        atomIDs_L: list[AtomID] = Topo(args.file).method_broken_bond(
+            _bond_broken=(x[0], x[1]), _print=False)
+        atomIDs_R: list[AtomID] = Topo(args.file).method_broken_bond(
+            _bond_broken=(x[1], x[0]), _print=False)
 
         # total std of Left fragment of inputted data
         tSTD_L: float = float(0.0)
