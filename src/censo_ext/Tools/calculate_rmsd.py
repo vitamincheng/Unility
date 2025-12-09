@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import argparse
 __doc__ = """
 Calculate Root-mean-square deviation (RMSD) between structure A and B, in XYZ
 or PDB format, using transformation and rotation.
@@ -83,6 +82,7 @@ def rmsd(P: npt.NDArray[np.float64], Q: npt.NDArray[np.float64], AtomIDs: list[A
             print(f"{coord_square:>10.5f}")
         Coord_Square[AtomID(atomID)] = coord_square
         Total_coord_square += coord_square
+    # print(Coord_Square.keys())
     return Coord_Square, float(np.sqrt(Total_coord_square / P.shape[0]))
 
 
@@ -192,7 +192,7 @@ def get_Coordinates(xyzFile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
         idx0(int): Index of the structure in xyzfile (zero-based indexing).
 
     Returns:
-        tuple[npt.NDArray[npt.NDArray[np.int64]],npt.NDArray[np.float64]]: 
+        tuple[npt.NDArray[npt.NDArray[np.int64]],npt.NDArray[np.float64]]:
         A tuple containing:
         - element: Array of atom types as integers
         - V: Array of atomic coordinates as floats
@@ -216,12 +216,13 @@ def get_Coordinates(xyzFile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
     return Atomic_Number, V
 
 
-def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse.Namespace) -> tuple[dict[AtomID, float], float]:
+def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, _remove_idx: list[int] | npt.NDArray | None,
+                 _add_idx: list[int] | npt.NDArray | None, _bond_broken: tuple[int, int] | None, _ignore_Hydrogen: bool) -> tuple[dict[AtomID, float], float]:
     """
     Read xyz file and calculate RMSD between two structures.
 
     This function reads two structures from an XYZ file, processes them according
-    to the provided arguments (such as ignoring hydrogen atoms, removing or adding 
+    to the provided arguments (such as ignoring hydrogen atoms, removing or adding
     specific atom indices, breaking bonds), and calculates the RMSD using the Kabsch algorithm.
 
     Args:
@@ -268,7 +269,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
     q_view: None | npt.NDArray[np.int64] = None
 
     # Handle hydrogen removal
-    if args.ignore_Hydrogen:
+    if _ignore_Hydrogen:
         assert type(p_all_atoms[0]) is not str
         assert type(q_all_atoms[0]) is not str
 
@@ -278,16 +279,13 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
         idx1_Atom = np.append(idx1_Atom, p_view + 1)
 
     # Handle bond breaking
-    if args.bond_broken:
-        if args.ignore_Hydrogen:
+    if _bond_broken:
+        if _ignore_Hydrogen:
             xyzFile.set_filename(xyz_tmp)
             xyzFile.method_save_xyz([idx0_p])
-            args_x: dict = {"file": xyz_tmp, "bond_broken": [*args.bond_broken],
-                            "print": False, "debug": False}
             from censo_ext.Tools.topo import Topo
-            Sts_topo = Topo(args_x["file"])
-            idx1_Atom = np.array(Sts_topo.method_broken_bond(
-                argparse.Namespace(**args_x)))
+            idx1_Atom = np.array(Topo(xyz_tmp).method_broken_bond(
+                _bond_broken=[*_bond_broken], _print=False))  # type: ignore # nopep8
             idx0_Atom = idx1_Atom-1
             p_view, q_view = idx0_Atom, idx0_Atom
 
@@ -299,26 +297,26 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
         pass
 
     # Handle index removal
-    if args.remove_idx:
-        if not args.ignore_Hydrogen:
+    if _remove_idx:
+        if not _ignore_Hydrogen:
             idx1_Atom = np.arange(1, len(p_all_atoms)+1)
 
-        idx1_Atom = np.setdiff1d(idx1_Atom, args.remove_idx)
+        idx1_Atom = np.setdiff1d(idx1_Atom, _remove_idx)
 
-        args.remove_idx = np.array(args.remove_idx)-1
+        _remove_idx = np.array(_remove_idx)-1
         idx0_Atom = idx1_Atom-1
 
         p_view, q_view = idx0_Atom, idx0_Atom
 
     # Handle index addition
-    elif args.add_idx:
-        if args.ignore_Hydrogen:
-            idx1_Atom = np.union1d(idx1_Atom, args.add_idx)
+    elif _add_idx:
+        if _ignore_Hydrogen:
+            idx1_Atom = np.union1d(idx1_Atom, _add_idx)
         else:
-            idx1_Atom = args.add_idx
-        args.add_idx = idx1_Atom - 1
+            idx1_Atom = np.array(_add_idx)
+        _add_idx = idx1_Atom - 1
 
-        p_view, q_view = args.add_idx, args.add_idx
+        p_view, q_view = _add_idx, _add_idx
 
     # Set local view
     if p_view is None:
@@ -340,7 +338,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
     q_coord -= q_cent
 
     # Final index handling
-    if (args.add_idx is None) and (args.remove_idx is None) and (not args.ignore_Hydrogen):
+    if (_add_idx is None) and (_remove_idx is None) and (not _ignore_Hydrogen):
         idx1_Atom = np.arange(1, len(p_all_atoms)+1)
 
     CoordSquare, res_rmsd = kabsch_rmsd(p_coord, q_coord, list(idx1_Atom))
@@ -358,3 +356,27 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, args: argparse
         raise ValueError("The value of coord_square is error")
     else:
         return CoordSquare, res_rmsd
+
+
+def main() -> None:
+
+    xyzFile = GeometryXYZs("tests/data/crest_conformers.xyz")
+    xyzFile.method_read_xyz()
+    idx_p = 1
+    idx_q = 4
+
+    _, rmsd_value = cal_RMSD_xyz(
+        xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=None, _bond_broken=(55, 57), _ignore_Hydrogen=True)
+    print(rmsd_value)
+    _, rmsd_value = cal_RMSD_xyz(
+        xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=[57], _bond_broken=(55, 57), _ignore_Hydrogen=True)
+    print(rmsd_value)
+    _, rmsd_value = cal_RMSD_xyz(
+        xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=None, _bond_broken=(57, 55), _ignore_Hydrogen=True)
+    print(rmsd_value)
+    _, rmsd_value = cal_RMSD_xyz(
+        xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=[55], _bond_broken=(57, 55), _ignore_Hydrogen=True)
+    print(rmsd_value)
+
+    if __name__ == "__main__":
+        main()
