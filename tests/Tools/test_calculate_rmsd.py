@@ -23,14 +23,14 @@ def test_calculate_rmsd_all():
         Path("tests/data/crest_conformers.xyz"))
     xyzFile.method_read_xyz()
     x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
-               "ignore_Hydrogen": False, "debug": False}
+               "ignore_Hydrogen": False}
     idx_atom1 = cal_RMSD_xyz(
         xyzFile, 1, 2, args=argparse.Namespace(**x))
     assert len(idx_atom1[0]) == 73
     assert idx_atom1[1] == pytest.approx(1.7608313888081009)
 
     x = {"remove_idx": None, "add_idx": None, "bond_broken": [
-        52, 55], "ignore_Hydrogen": True, "debug": False}
+        52, 55], "ignore_Hydrogen": True}
     idx_atom1 = cal_RMSD_xyz(xyzFile, 1, 2, args=argparse.Namespace(**x))
     assert len(idx_atom1[0]) == 24
     assert idx_atom1[0][AtomID(1)] == pytest.approx(0.0022804570676915915)
@@ -42,7 +42,7 @@ def test_calculate_rmsd_all():
         Path("tests/data/isomers.xyz"))
     xyzFile.method_read_xyz()
     x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
-               "ignore_Hydrogen": False, "debug": False}
+               "ignore_Hydrogen": False}
     idx_atom1 = cal_RMSD_xyz(xyzFile, 1, 2, args=argparse.Namespace(**x))
 
     assert len(idx_atom1[0]) == 17
@@ -120,7 +120,7 @@ def test_calculate_cal_RMSD_xyz():
     # expected_rmsd: float = np.sqrt(5.0 / 3)
 
     x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
-               "ignore_Hydrogen": False, "debug": False}
+               "ignore_Hydrogen": False}
     square, rmsd_value = cal_RMSD_xyz(
         xyzFile, idx_p, idx_q, args=argparse.Namespace(**x))
     assert len(square) == 17

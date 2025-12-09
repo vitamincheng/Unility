@@ -10,7 +10,7 @@ FileName_Small: Path = Path("tests/data/isomers.xyz")
 
 def test_topo_FileName_miss_args():
     x = {"file": Path("test.xyz"),
-         "bonding": 20, "print": True, "debug": False}
+         "bonding": 20, "print": True}
     args = argparse.Namespace(**x)
 
     with pytest.raises(SystemExit) as e:
@@ -24,9 +24,9 @@ def test_topo_FileName_miss_args():
                                                          37: 4, 38: 1, 39: 1, 40: 4, 41: 1, 42: 1, 43: 1, 44: 4, 45: 4, 46: 1, 47: 1, 48: 1, 49: 1, 50: 4, 51: 3, 52: 3, 53: 1, 54: 1, 55: 4, 56: 4, 57: 4, 58: 1, 59: 1, 60: 4, 61: 4, 62: 1, 63: 1, 64: 1, 65: 1, 66: 1, 67: 1, 68: 1, 69: 1, 70: 1, 71: 1, 72: 1, 73: 1}),
                                     (FileName_Small, 3, {1: 4, 2: 4, 3: 4, 4: 1, 5: 1, 6: 3, 7: 1, 8: 1,
                                                          9: 4, 10: 4, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1, 16: 1, 17: 1})])
-def test_topo_get_cn(input_Path: str, bonding: int, CN_Dict: dict):
+def test_topo_get_cn(input_Path: str, bonding: int, CN_Dict: dict) -> None:
     x = {"file": input_Path,
-         "bonding": bonding, "print": True, "debug": False}
+         "bonding": bonding, "print": True}
     args = argparse.Namespace(**x)
     assert Topo(args.file).get_cn() == CN_Dict
 
@@ -35,10 +35,6 @@ def test_topo_get_cn(input_Path: str, bonding: int, CN_Dict: dict):
                          argvalues=[(FileName_Full, 51, [44, 52]),
                                     (FileName_Small, 3, [2, 6])])
 def test_topo_Bonding(input_Path: Path, bonding: int, Neighbors_Atoms: list):
-    # for crest_conformers.xyz
-    # x = {"file": input_Path,
-    #     "bonding": bonding, "print": True, "debug": False}
-    # args = argparse.Namespace(**x)
     assert Topo(input_Path).method_bonding(
         _bonding=AtomID(bonding), _print=True) == Neighbors_Atoms
 
@@ -49,7 +45,7 @@ def test_topo_Bonding(input_Path: Path, bonding: int, Neighbors_Atoms: list):
                                     (FileName_Small, 3, 7, [[6, 3, 2, 1, 10, 9]], [{6, 17}],)])
 def test_topo_topology(input_Path: Path, bonding: int, len_neighbor: int, circle_Mols: list, residual_Mols: list):
     # for crest_conformers.xyz
-    x = {"file": input_Path, "bonding": bonding, "print": True, "debug": False}
+    x = {"file": input_Path, "bonding": bonding, "print": True, "": False}
     args = argparse.Namespace(**x)
     neighbors, circle_Mols_R, residual_Mols_R, residual_Mols_all_pairs = Topo(
         Path(args.file)).topology()
@@ -66,7 +62,7 @@ def test_topo_topology(input_Path: Path, bonding: int, len_neighbor: int, circle
 def test_topo_Broken_bond_H(input_Path: Path, bond_broken: list[int], broken_Atoms_H: list):
     # for crest_conformers.xyz
     # x = {"file": input_Path, "bond_broken": bond_broken,
-    #     "print": True, "debug": False}
+    #     "print": True, "": False}
     # args = argparse.Namespace(**x)
     assert Topo(input_Path).method_broken_bond_H(
         _bond_broken=bond_broken, _print=True) == broken_Atoms_H  # type: ignore
@@ -77,8 +73,5 @@ def test_topo_Broken_bond_H(input_Path: Path, bond_broken: list[int], broken_Ato
                                                                23, 24, 27, 30, 33, 35, 37, 40, 44, 45, 50, 51, 52]),
                                     (FileName_Small, [3, 2], [1, 3, 6, 9, 10, 17])])
 def test_topo_Broken_bond(input_Path: Path, bond_broken: list[int], broken_Atoms: list):
-    # x = {"file": input_Path,
-    #     "bond_broken": bond_broken, "print": True, "debug": False}
-    # args = argparse.Namespace(**x)
     assert Topo(input_Path).method_broken_bond(
         _bond_broken=bond_broken, _print=True) == broken_Atoms   # type: ignore

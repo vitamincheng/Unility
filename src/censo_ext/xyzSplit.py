@@ -116,11 +116,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     idx1_p, idx1_q = args.atoms
     nCutters: int = args.cuts
 
-    # x: dict = {"file": inFile, "bond_broken": [idx1_q, idx1_p],
-    #           "print": False, "debug": False}
-
     from censo_ext.Tools.topo import Topo
-    # Sts_topo: Topo = Topo(x["file"])
     broken_bond_H: list[IntpID] = [
         IntpID(x-1) for x in Topo(inFile).method_broken_bond_H(_bond_broken=(idx1_q, idx1_p), _print=False)]
 

@@ -96,8 +96,7 @@ def cml() -> argparse.Namespace:
 
 def idx_3atom_opt(inFile: Path) -> tuple[AtomID, AtomID, AtomID]:
     from censo_ext.Tools.factor import method_factor_analysis
-    args_x: dict = {"file": inFile,
-                    "factor": 0.5, "debug": False, "opt": False}
+    args_x: dict = {"file": inFile, "factor": 0.5, "opt": False}
     _LowFactor: list[AtomID]
     _Deviation: dict[AtomID, float]
     _LowFactor, _Deviation = method_factor_analysis(

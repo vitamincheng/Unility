@@ -107,9 +107,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         xyzFile.method_read_xyz()
 
         from censo_ext.Tools.topo import Topo
-        # args_x: dict = {"file": inFile, "bond_broken": (p_idx1, q_idx1),
-        #                "print": False, "debug": False}
-        # Sts_topo: Topo = Topo(args_x["file"])
         idx1_H: list[AtomID] = Topo(inFile).method_broken_bond_H(
             _bond_broken=(p_idx1, q_idx1), _print=False)
         idx0_H: list[IntpID] = [IntpID(x-1) for x in idx1_H]

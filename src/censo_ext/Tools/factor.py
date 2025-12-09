@@ -38,7 +38,7 @@ def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
     xyzFile: GeometryXYZs = GeometryXYZs(args.file)
     xyzFile.method_read_xyz()
     args_x: dict = {"remove_idx": None, "add_idx": None,
-                    "bond_broken": None, "ignore_Hydrogen": True, "debug": False, }
+                    "bond_broken": None, "ignore_Hydrogen": True}
     coord: list[list[float]] = []
 
     # For idxElement for the data of first xyzFile

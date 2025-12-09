@@ -160,7 +160,7 @@ def cal_RMSD_coord(args, xyzFile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDAr
     idx0_cal: list[int] = [x-1 for x in idx1_cal]
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
     x = {"remove_idx": args.remove_idx, "add_idx": args.add_idx,
-         "bond_broken": args.bond_broken, "ignore_Hydrogen": args.ignore_Hydrogen, "debug": False}
+         "bond_broken": args.bond_broken, "ignore_Hydrogen": args.ignore_Hydrogen}
     list_COORDSquare: list[list[float]] = []
     for idx0 in (idx0_cal):
         CoordSquare, _ = cal_RMSD_xyz(
