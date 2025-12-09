@@ -356,27 +356,3 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, _remove_idx: l
         raise ValueError("The value of coord_square is error")
     else:
         return CoordSquare, res_rmsd
-
-
-def main() -> None:
-
-    xyzFile = GeometryXYZs("tests/data/crest_conformers.xyz")
-    xyzFile.method_read_xyz()
-    idx_p = 1
-    idx_q = 4
-
-    _, rmsd_value = cal_RMSD_xyz(
-        xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=None, _bond_broken=(55, 57), _ignore_Hydrogen=True)
-    print(rmsd_value)
-    _, rmsd_value = cal_RMSD_xyz(
-        xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=[57], _bond_broken=(55, 57), _ignore_Hydrogen=True)
-    print(rmsd_value)
-    _, rmsd_value = cal_RMSD_xyz(
-        xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=None, _bond_broken=(57, 55), _ignore_Hydrogen=True)
-    print(rmsd_value)
-    _, rmsd_value = cal_RMSD_xyz(
-        xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=[55], _bond_broken=(57, 55), _ignore_Hydrogen=True)
-    print(rmsd_value)
-
-    if __name__ == "__main__":
-        main()

@@ -10,7 +10,6 @@ from censo_ext.Tools.calculate_rmsd import atom2str, atom2int, rmsd, kabsch_rota
 def test_calculate_rmsd_miss_args():
 
     xyzFile: GeometryXYZs = GeometryXYZs()
-
     with pytest.raises(FileNotFoundError) as e:
         xyzFile.method_read_xyz()
     assert str(e.value) == ". was not found or is a directory"
@@ -21,16 +20,11 @@ def test_calculate_rmsd_all():
     xyzFile: GeometryXYZs = GeometryXYZs(
         Path("tests/data/crest_conformers.xyz"))
     xyzFile.method_read_xyz()
-    # x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
-    #           "ignore_Hydrogen": False}
     idx_atom1 = cal_RMSD_xyz(
-        # xyzFile, 1, 2, )
         xyzFile, 1, 2, _remove_idx=None, _add_idx=None, _bond_broken=None, _ignore_Hydrogen=False)
     assert len(idx_atom1[0]) == 73
     assert idx_atom1[1] == pytest.approx(1.7608313888081009)
 
-    # $x = {"remove_idx": None, "add_idx": None, "bond_broken": [
-    #   52, 55], "ignore_Hydrogen": True}
     idx_atom1 = cal_RMSD_xyz(
         xyzFile, 1, 2, _remove_idx=None, _add_idx=None, _bond_broken=(52, 55), _ignore_Hydrogen=True)
     assert len(idx_atom1[0]) == 24
@@ -42,11 +36,8 @@ def test_calculate_rmsd_all():
     xyzFile = GeometryXYZs(
         Path("tests/data/isomers.xyz"))
     xyzFile.method_read_xyz()
-    # x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
-    #           "ignore_Hydrogen": False}
     idx_atom1 = cal_RMSD_xyz(xyzFile, 1, 2, _remove_idx=None,
                              _add_idx=None, _bond_broken=None, _ignore_Hydrogen=False)
-
     assert len(idx_atom1[0]) == 17
     assert idx_atom1[0][AtomID(1)] == pytest.approx(0.052818544187445145)
     assert idx_atom1[0][AtomID(17)] == pytest.approx(0.5847626056423644)
@@ -109,8 +100,6 @@ def test_calculate_get_Coordinates() -> None:
     assert len(element) == 17
     assert V[0][0] == pytest.approx(1.8513508441)
     assert V[0][2] == pytest.approx(-0.0716885123)
-    # assert element == expected_element
-    # assert np.allclose(V, expected_V)
 
 
 def test_calculate_cal_RMSD_xyz() -> None:
@@ -118,11 +107,7 @@ def test_calculate_cal_RMSD_xyz() -> None:
     xyzFile.method_read_xyz()
     idx_p = 1
     idx_q = 2
-    # expected_square: dict[int, float] = {0: 5.0}
-    # expected_rmsd: float = np.sqrt(5.0 / 3)
 
-    # x: dict = {"remove_idx": None, "add_idx": None, "bond_broken": None,
-    #           "ignore_Hydrogen": False}
     square, rmsd_value = cal_RMSD_xyz(
         xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=None, _bond_broken=None, _ignore_Hydrogen=False)
     assert len(square) == 17
