@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+from pathlib import Path
 from icecream import ic
 from censo_ext.Tools.utility import AtomID, print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
@@ -69,21 +70,24 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def cal_RMSD(xyzfile, idx_p, idx_q, bond_broken) -> float:
+def cal_RMSD(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, bond_broken: tuple[int, int]) -> float:
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
+
     _, RMSD = cal_RMSD_xyz(
-        xyzfile, idx_p, idx_q, _remove_idx=None, _add_idx=None, _bond_broken=bond_broken, _ignore_Hydrogen=True)
+        xyzfile, idx_p, idx_q, _remove_idx=None, _add_idx=[bond_broken[1]], _bond_broken=bond_broken, _ignore_Hydrogen=True)
+    # _, RMSD = cal_RMSD_xyz(
+    #    xyzfile, idx_p, idx_q, _remove_idx=None, _add_idx=None, _bond_broken=bond_broken, _ignore_Hydrogen=True)
     return RMSD
 
 
-def TopoAnalysis(args) -> None:
+def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float) -> tuple[list[tuple[int, int, int, float, float]], list[tuple[int, int, int, float, float]]]:
 
-    idx1_p: int = args.idx
-    tmp: bool = args.verbose
-    args.verbose = False
+    idx1_p: int = _index
+    tmp: bool = _verbose
     neighbor, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
-        args)
-    args.verbose = tmp
+        _file=_file, _verbose=False)
+    _verbose = tmp
+
     flattenCircleMols: list[int] = []
     for mol in circleMols:
         flattenCircleMols += mol
@@ -92,7 +96,7 @@ def TopoAnalysis(args) -> None:
     xyzSplit: dict[int, int] = get_xyzSplit(
         residualMols, atomsCN, flattenCircleMols, residualMols_all_pairs)
 
-    if args.verbose:
+    if _verbose:
         ic(xyzSplit)
         ic(residualMols)
         ic(circleMols)
@@ -100,22 +104,20 @@ def TopoAnalysis(args) -> None:
         ic(flattenCircleMols)
         ic(residualMols_all_pairs)
 
-    xyzFile: GeometryXYZs = GeometryXYZs(args.file)
+    xyzFile: GeometryXYZs = GeometryXYZs(_file)
     xyzFile.method_read_xyz()
-    limits = args.limits
+    limits = _limits
     print("  ===== Parameter of limits =====")
     print(f"  the delta limits of standard deviation = {limits}")
 
     # Check circleMols factor
-    print("  ===== Check circle molecule =====")
     result_circle: list[tuple[int, int, int, float, float]] = []
     for resMol in residualMols:
-        if args.verbose:
+        if _verbose:
             ic(resMol)
         node_mols: list[int] = [
             int(x) for x in resMol if x in flattenCircleMols]
         for node_mol in node_mols:
-            # ic(node_mol)
             inter_x: set[int] = set.intersection(
                 set(map(int, neighbor[AtomID(int(node_mol))])), resMol)
             if (len(inter_x)) != 1:
@@ -123,7 +125,7 @@ def TopoAnalysis(args) -> None:
                 print("  Exit and Close the program !!!")
                 exit(1)
             res_node_mol: int = list(inter_x)[0]
-            if args.verbose:
+            if _verbose:
                 ic(node_mol, res_node_mol)
 
             for x in range(1, len(xyzFile)+1):
@@ -136,11 +138,7 @@ def TopoAnalysis(args) -> None:
                 if res_left <= limits and res_right <= limits:
                     result_circle.append(
                         (x, node_mol, res_node_mol, res_left, res_right))
-    print("   idx1  node  res_node      res_left      res_right")
-    for x in result_circle:
-        print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
     # Check straight chain
-    print("  ===== Check straight molecule =====")
     result_straight: list[tuple[int, int, int, float, float]] = []
     for key, value in xyzSplit.items():
         for x in range(1, len(xyzFile)+1):
@@ -151,9 +149,21 @@ def TopoAnalysis(args) -> None:
             res_right = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
                                  bond_broken=(value, key))
             if res_left <= limits and res_right <= limits:
-                if args.verbose:
+                if _verbose:
                     ic(x, key, value, res_left, res_right)
                 result_straight.append((x, key, value, res_left, res_right))
+
+    return result_circle, result_straight
+
+
+def print_report(result_circle: list[tuple[int, int, int, float, float]], result_straight: list[tuple[int, int, int, float, float]]) -> None:
+
+    print("  ===== Check circle molecule =====")
+    print("   idx1  node  res_node      res_left      res_right")
+    for x in result_circle:
+        print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
+
+    print("  ===== Check straight molecule =====")
     print("   idx1   key     value      res_left      res_right")
     for x in result_straight:
         print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
@@ -164,7 +174,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml()
     print_arguments()
 
-    TopoAnalysis(args)
+    result_circle, result_straight = TopoAnalysis(_file=args.file, _index=args.idx,
+                                                  _verbose=args.verbose, _limits=args.limits)
+    print_report(result_circle, result_straight)
 
 
 if __name__ == "__main__":
