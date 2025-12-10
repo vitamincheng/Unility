@@ -169,6 +169,61 @@ def print_report(result_circle: list[tuple[int, int, int, float, float]], result
         print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
 
 
+def save_files(_index: int, _file: Path, result_circle: list[tuple[int, int, int, float, float]], result_straight: list[tuple[int, int, int, float, float]]) -> None:
+
+    _file = Path(_file)
+
+    if len(result_circle) >= 1:
+        print("  ===== Save circle molecule =====")
+        # print(result_circle)
+        circleDir: Path = Path("Circle")
+        if circleDir.is_dir():
+            import shutil
+            shutil.rmtree(circleDir, ignore_errors=True)
+        circleDir.mkdir()
+
+        pairs = {(x[1], x[2]) for x in result_circle}
+        for x in pairs:
+            index1: list[int] = [_index]
+            for y in result_circle:
+                if x == (y[1], y[2]):
+                    # print(y[0])
+                    index1.append(y[0])
+            print(index1)
+            inFile: Path = Path(_file)
+            outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
+            xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+            xyzFile.method_read_xyz()
+            xyzFile.set_filename(circleDir / outFile)
+            xyzFile.method_save_xyz(index1)
+
+    if len(result_straight) >= 1:
+        print("  ===== Save straight molecule =====")
+        # print(result_straight)
+        straightDir: Path = Path("Straight")
+        if straightDir.is_dir():
+            import shutil
+            shutil.rmtree(straightDir, ignore_errors=True)
+        straightDir.mkdir()
+
+        pairs = {(x[1], x[2]) for x in result_straight}
+        for x in pairs:
+            index1: list[int] = [_index]
+            for y in result_straight:
+                if x == (y[1], y[2]):
+                    # print(y[0])
+                    index1.append(y[0])
+            print(index1)
+            inFile: Path = Path(_file)
+            outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
+            xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+            xyzFile.method_read_xyz()
+            xyzFile.set_filename(straightDir / outFile)
+            xyzFile.method_save_xyz(index1)
+
+    print("  ===== Finished to save the files =====")
+
+
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args == argparse.Namespace():
         args = cml()
@@ -176,7 +231,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     result_circle, result_straight = TopoAnalysis(_file=args.file, _index=args.idx,
                                                   _verbose=args.verbose, _limits=args.limits)
-    print_report(result_circle, result_straight)
+    print_report(result_circle=result_circle, result_straight=result_straight)
+    save_files(_index=args.idx, _file=args.file, result_circle=result_circle,
+               result_straight=result_straight)
 
 
 if __name__ == "__main__":
