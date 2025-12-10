@@ -404,7 +404,7 @@ def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFil
     # Convert bond order values to hydrogen counts (add 1 to each value)
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     *_, bond_order = read_mol_neighbors_bond_order(
-        inAnmr.get_Dir() / inFile)
+        inAnmr.get_Dir() / inFile, _check=False)
     inHydrogen: list[int] = [(value+1)
                              for value in bond_order.values()]
 

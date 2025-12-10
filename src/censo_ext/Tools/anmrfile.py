@@ -177,7 +177,7 @@ class Anmrrc():
         acid_atoms_NoShow: list[str] = [ELEMENT_NAMES[i]
                                         for i in self.acid_atoms_NoShow]
         from censo_ext.Tools.ml4nmr import read_mol_neighbors
-        mol, neighbors = read_mol_neighbors(DirFile)
+        mol, neighbors = read_mol_neighbors(DirFile, check=False)
 
         # find the atomID of molecule if is "N" or "O"
         acid_atoms_NoShowRemove: list[AtomID] = []
@@ -637,6 +637,7 @@ class Anmr():
 
             Acid_atoms_NoShow_RemoveH: list[AtomID] = self.__AnmrParams.get_acid_atoms_NoShow_RemoveH(
                 self.__Dir / Ref_FileName)
+            print("="*80)
 
             # Delete orcaSJ SParams in acid_atoms_NoShow
             IntpID_Delete: list[IntpID] = []
