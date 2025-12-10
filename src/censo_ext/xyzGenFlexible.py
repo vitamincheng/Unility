@@ -79,17 +79,17 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def read_data(args) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[set[int]], dict[AtomID, int], dict[AtomID, int], dict]:
+def read_data(_file: Path, _verbose: bool) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[set[int]], dict[AtomID, int], dict[AtomID, int], dict]:
     from censo_ext.Tools.topo import Topo
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
-    Sts_topo: Topo = Topo(args.file)
+    Sts_topo: Topo = Topo(_file)
     neighbor, circleMols, residualMols, residualMols_all_pairs = Sts_topo.topology()
     idx_atomsCN: dict[AtomID, int] = Sts_topo.get_cn()
-    if args.verbose:
+    if _verbose:
         ic(neighbor, circleMols, residualMols)
         ic(idx_atomsCN)
-    *_, idx_Bond_order = read_mol_neighbors_bond_order(args.file)
-    if args.verbose:
+    *_, idx_Bond_order = read_mol_neighbors_bond_order(_file)
+    if _verbose:
         ic(idx_Bond_order)
         ic(residualMols)
     return neighbor, circleMols, residualMols, idx_Bond_order, idx_atomsCN, residualMols_all_pairs
@@ -222,7 +222,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print_arguments()
 
     _, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
-        args)
+        _file=args.file, _verbose=args.verbose)
 
     if args.verbose:
         ic(circleMols)

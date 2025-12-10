@@ -256,7 +256,7 @@ class Topo():
         for g_component in g_components:
             if len(g_component) != 1:
                 residual_Mols.append({int(a) for a in g_component})
-        residual_Mols_all_pairs = g_straight.all_pairs_shortest_paths()
+        residual_Mols_all_pairs: dict = g_straight.all_pairs_shortest_paths()
 
         return neighbors, circle_Mols, residual_Mols, residual_Mols_all_pairs
 
