@@ -68,31 +68,38 @@ def cml() -> argparse.Namespace:
         help="Verbose mode [default False] ",
     )
 
+    parser.add_argument(
+        "-c",
+        "--check",
+        dest="check",
+        action="store_true",
+        help="Check mode of chemical structures [default False] ",
+    )
+
     args: argparse.Namespace = parser.parse_args()
     return args
 
 
-def cal_RMSD(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, bond_broken: tuple[int, int]) -> float:
+def cal_RMSD(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, bond_broken: tuple[int, int], check: bool) -> float:
 
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
     _, RMSD = cal_RMSD_xyz(
-        xyzfile, idx_p, idx_q, _remove_idx=None, _add_idx=[bond_broken[1]], _bond_broken=bond_broken, _ignore_Hydrogen=True)
+        xyzfile, idx_p, idx_q, _remove_idx=None, _add_idx=[bond_broken[1]], _bond_broken=bond_broken, _ignore_Hydrogen=True, _check=check)
     return RMSD
 
 
-def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float) -> tuple[list[cell_reports], list[cell_reports]]:
+def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float, _check: bool) -> tuple[list[cell_reports], list[cell_reports]]:
 
     idx1_p: int = _index
     tmp: bool = _verbose
     neighbor, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
-        _file=_file, _verbose=False)
+        _file=_file, _verbose=False, _check=_check)
     _verbose = tmp
 
     flattenCircleMols: list[int] = []
     for mol in circleMols:
         flattenCircleMols += mol
     flattenCircleMols = list(set(flattenCircleMols))
-
     xyzSplit: dict[int, int] = get_xyzSplit(
         residualMols, atomsCN, flattenCircleMols, residualMols_all_pairs)
 
@@ -132,12 +139,13 @@ def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float) -> tu
                 if x == idx1_p:
                     continue
                 res_left: float = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
-                                           bond_broken=(node_mol, res_node_mol))
+                                           bond_broken=(node_mol, res_node_mol), check=_check)
                 res_right: float = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
-                                            bond_broken=(res_node_mol, node_mol))
+                                            bond_broken=(res_node_mol, node_mol), check=_check)
                 if res_left <= limits and res_right <= limits:
                     result_circle.append(
                         (x, node_mol, res_node_mol, res_left, res_right))
+
     # Check straight chain
     result_straight: list[cell_reports] = []
     for key, value in xyzSplit.items():
@@ -145,9 +153,9 @@ def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float) -> tu
             if x == idx1_p:
                 continue
             res_left = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
-                                bond_broken=(key, value))
+                                bond_broken=(key, value), check=_check)
             res_right = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
-                                 bond_broken=(value, key))
+                                 bond_broken=(value, key), check=_check)
             if res_left <= limits and res_right <= limits:
                 if _verbose:
                     ic(x, key, value, res_left, res_right)
@@ -228,7 +236,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print_arguments()
 
     result_circle, result_straight = TopoAnalysis(_file=args.file, _index=args.idx,
-                                                  _verbose=args.verbose, _limits=args.limits)
+                                                  _verbose=args.verbose, _limits=args.limits, _check=args.check)
     print_report(result_circle=result_circle, result_straight=result_straight)
     save_files(_index=args.idx, _file=args.file, result_circle=result_circle,
                result_straight=result_straight)

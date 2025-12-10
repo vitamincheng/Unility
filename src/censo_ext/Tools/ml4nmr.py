@@ -107,7 +107,7 @@ def read_mol_neighbors(DirFileName: Path | str, check: bool = True) -> tuple[Ato
     return mol, neighbors
 
 
-def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conformers.xyz")) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]], dict[AtomID, int]]:
+def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conformers.xyz"), _check: bool = True) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]], dict[AtomID, int]]:
     """Read molecule and calculate bond orders for carbon atoms.
 
     This function reads molecular coordinates from an XYZ file and determines
@@ -138,7 +138,7 @@ def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conforme
     DirfileName = Path(DirfileName)
     mol: Atoms | list[Atoms]
     neighbors: dict[AtomID, npt.NDArray[np.int64]]
-    mol, neighbors = read_mol_neighbors(DirfileName)
+    mol, neighbors = read_mol_neighbors(DirFileName=DirfileName, check=_check)
 
     H_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
     C_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "C"]  # type: ignore # nopep8
