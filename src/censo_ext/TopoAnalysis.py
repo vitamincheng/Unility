@@ -5,6 +5,8 @@ from icecream import ic
 from censo_ext.Tools.utility import AtomID, print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from censo_ext.xyzGenFlexible import get_xyzSplit, read_data
+type cell_reports = tuple[int, int, int, float, float]
+
 descr = """
 ________________________________________________________________________________
 | Usages   : TopoAnalysis.py <geometry> [options]
@@ -71,16 +73,14 @@ def cml() -> argparse.Namespace:
 
 
 def cal_RMSD(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, bond_broken: tuple[int, int]) -> float:
-    from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 
+    from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
     _, RMSD = cal_RMSD_xyz(
         xyzfile, idx_p, idx_q, _remove_idx=None, _add_idx=[bond_broken[1]], _bond_broken=bond_broken, _ignore_Hydrogen=True)
-    # _, RMSD = cal_RMSD_xyz(
-    #    xyzfile, idx_p, idx_q, _remove_idx=None, _add_idx=None, _bond_broken=bond_broken, _ignore_Hydrogen=True)
     return RMSD
 
 
-def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float) -> tuple[list[tuple[int, int, int, float, float]], list[tuple[int, int, int, float, float]]]:
+def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float) -> tuple[list[cell_reports], list[cell_reports]]:
 
     idx1_p: int = _index
     tmp: bool = _verbose
@@ -111,7 +111,7 @@ def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float) -> tu
     print(f"  the delta limits of standard deviation = {limits}")
 
     # Check circleMols factor
-    result_circle: list[tuple[int, int, int, float, float]] = []
+    result_circle: list[cell_reports] = []
     for resMol in residualMols:
         if _verbose:
             ic(resMol)
@@ -139,7 +139,7 @@ def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float) -> tu
                     result_circle.append(
                         (x, node_mol, res_node_mol, res_left, res_right))
     # Check straight chain
-    result_straight: list[tuple[int, int, int, float, float]] = []
+    result_straight: list[cell_reports] = []
     for key, value in xyzSplit.items():
         for x in range(1, len(xyzFile)+1):
             if x == idx1_p:
@@ -156,7 +156,7 @@ def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float) -> tu
     return result_circle, result_straight
 
 
-def print_report(result_circle: list[tuple[int, int, int, float, float]], result_straight: list[tuple[int, int, int, float, float]]) -> None:
+def print_report(result_circle: list[cell_reports], result_straight: list[cell_reports]) -> None:
 
     print("  ===== Check circle molecule =====")
     print("   idx1  node  res_node      res_left      res_right")
@@ -169,7 +169,7 @@ def print_report(result_circle: list[tuple[int, int, int, float, float]], result
         print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
 
 
-def save_files(_index: int, _file: Path, result_circle: list[tuple[int, int, int, float, float]], result_straight: list[tuple[int, int, int, float, float]]) -> None:
+def save_files(_index: int, _file: Path, result_circle: list[cell_reports], result_straight: list[cell_reports]) -> None:
 
     _file = Path(_file)
 
@@ -182,12 +182,11 @@ def save_files(_index: int, _file: Path, result_circle: list[tuple[int, int, int
             shutil.rmtree(circleDir, ignore_errors=True)
         circleDir.mkdir()
 
-        pairs = {(x[1], x[2]) for x in result_circle}
+        pairs: set[tuple[int, int]] = {(x[1], x[2]) for x in result_circle}
         for x in pairs:
             index1: list[int] = [_index]
             for y in result_circle:
                 if x == (y[1], y[2]):
-                    # print(y[0])
                     index1.append(y[0])
             print(index1)
             inFile: Path = Path(_file)
@@ -211,7 +210,6 @@ def save_files(_index: int, _file: Path, result_circle: list[tuple[int, int, int
             index1: list[int] = [_index]
             for y in result_straight:
                 if x == (y[1], y[2]):
-                    # print(y[0])
                     index1.append(y[0])
             print(index1)
             inFile: Path = Path(_file)
