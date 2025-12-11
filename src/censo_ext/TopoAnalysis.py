@@ -113,6 +113,11 @@ def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float, _chec
 
     xyzFile: GeometryXYZs = GeometryXYZs(_file)
     xyzFile.method_read_xyz()
+
+    if len(xyzFile) < idx1_p:
+        print(f" Error: Index {idx1_p} is out of range in your xyz file.")
+        exit(0)
+
     limits = _limits
     print("  ===== Parameter of limits =====")
     print(f"  the delta limits of standard deviation = {limits}")
