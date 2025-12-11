@@ -161,7 +161,7 @@ class Geometry():
 
         from censo_ext.Tools.topo import Topo
         molecules: list[set[int]] = []
-        molecules = Topo(fileName).topology_components()
+        molecules = Topo(fileName, check=False).topology_components()
         idx1_Atoms: set = {*range(1, self.nAtoms+1)}
         for x in molecules:
             idx1_Atoms = idx1_Atoms.difference(x)
