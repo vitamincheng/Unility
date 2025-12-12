@@ -17,7 +17,7 @@ def test_topo_FileName_miss_args() -> None:
     with pytest.raises(SystemExit) as e:
         xyzFile = GeometryXYZs(args.file)
         xyzFile.method_read_xyz()
-        Topo(xyzFile)
+        _topo = Topo(xyzFile)
     assert e.type is SystemExit
     assert e.value.code == 0
 
@@ -30,7 +30,8 @@ def test_topo_FileName_miss_args() -> None:
 def test_topo_get_cn(input_Path: str, CN_Dict: dict) -> None:
     xyzFile = GeometryXYZs(input_Path)
     xyzFile.method_read_xyz()
-    assert Topo(xyzFile).get_cn() == CN_Dict
+    _topo = Topo(xyzFile)
+    assert _topo.get_cn() == CN_Dict
 
 
 @pytest.mark.parametrize(argnames="input_Path,bonding,Neighbors_Atoms",
@@ -39,7 +40,8 @@ def test_topo_get_cn(input_Path: str, CN_Dict: dict) -> None:
 def test_topo_Bonding(input_Path: Path, bonding: int, Neighbors_Atoms: list[int]) -> None:
     xyzFile = GeometryXYZs(input_Path)
     xyzFile.method_read_xyz()
-    assert Topo(xyzFile).method_bonding(
+    _topo = Topo(xyzFile)
+    assert _topo.method_bonding(
         _bonding=AtomID(bonding), _print=True) == Neighbors_Atoms
 
 
@@ -51,8 +53,8 @@ def test_topo_topology(input_Path: Path, bonding: int, len_neighbor: int, circle
     # for crest_conformers.xyz
     xyzFile = GeometryXYZs(input_Path)
     xyzFile.method_read_xyz()
-    neighbors, circle_Mols_R, residual_Mols_R, residual_Mols_all_pairs = Topo(
-        xyzFile).topology()
+    _topo = Topo(xyzFile)
+    neighbors, circle_Mols_R, residual_Mols_R, residual_Mols_all_pairs = _topo.topology()
     assert len(neighbors) == len_neighbor
     assert (circle_Mols_R) == circle_Mols
     assert residual_Mols_R == residual_Mols
@@ -66,7 +68,8 @@ def test_topo_topology(input_Path: Path, bonding: int, len_neighbor: int, circle
 def test_topo_Broken_bond_H(input_Path: Path, bond_broken: list[int], broken_Atoms_H: list):
     xyzFile = GeometryXYZs(input_Path)
     xyzFile.method_read_xyz()
-    assert Topo(xyzFile).method_broken_bond_H(
+    _topo = Topo(xyzFile)
+    assert _topo.method_broken_bond_H(
         _bond_broken=bond_broken, _print=True) == broken_Atoms_H  # type: ignore
 
 
@@ -77,5 +80,6 @@ def test_topo_Broken_bond_H(input_Path: Path, bond_broken: list[int], broken_Ato
 def test_topo_Broken_bond(input_Path: Path, bond_broken: list[int], broken_Atoms: list):
     xyzFile = GeometryXYZs(input_Path)
     xyzFile.method_read_xyz()
-    assert Topo(xyzFile).method_broken_bond(
+    _topo = Topo(xyzFile)
+    assert _topo.method_broken_bond(
         _bond_broken=bond_broken, _print=True) == broken_Atoms   # type: ignore

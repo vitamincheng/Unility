@@ -284,8 +284,8 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, _remove_idx: l
             xyzFile.set_filename(xyz_tmp)
             xyzFile.method_save_xyz([idx0_p])
             from censo_ext.Tools.topo import Topo
-            idx1_Atom = np.array(Topo(xyzFile, check=_check).method_broken_bond(
-                _bond_broken=[*_bond_broken], _print=False))  # type: ignore # nopep8
+            _topo = Topo(xyzFile, check=_check)
+            idx1_Atom = np.array(_topo.method_broken_bond(_bond_broken=[*_bond_broken], _print=False))  # type: ignore # nopep8
             idx0_Atom = idx1_Atom-1
             p_view, q_view = idx0_Atom, idx0_Atom
 
