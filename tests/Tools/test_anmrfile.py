@@ -39,23 +39,25 @@ def test_anmrfile_anmrrc_missing_folder_file():
     assert e.value.code == 0
     assert file.get_Dir() == Path("tests/data/34.Ergocalciferol/05.Hydrogen-missing")
     with pytest.raises(AttributeError):
-        assert file.get_Anmr_Active()
+        assert file.get_Anmrrc_Active()
 
 
 def test_anmrfile_anmrrc() -> None:
     # For Hydrogen
-    file: Anmr = Anmr("tests/data/34.Ergocalciferol/04.Hydrogen")
+    Dir_source: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen")
+    source: Path = Path(".anmrrc")
+    file: Anmr = Anmr(Dir_source)
     file.method_read_anmrrc()
     filename: Path = Path("tests/compare/.anmrrc")
+
     with open(filename, "w") as f:
         sys.stdout = f
         file.method_print_anmrrc()
     sys.stdout = sys.__stdout__
 
-    source: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen/.anmrrc")
-    assert filecmp.cmp(filename, source)
+    assert filecmp.cmp(filename, Dir_source / source)
     os.remove(filename)
-    assert file.get_Dir() == Path("tests/data/34.Ergocalciferol/04.Hydrogen")
+    assert file.get_Dir() == Dir_source
     assert file.get_Anmrrc_Active() == ['H']
 
     # For Carbon
@@ -67,10 +69,11 @@ def test_anmrfile_anmrrc() -> None:
         file.method_print_anmrrc()
     sys.stdout = sys.__stdout__
 
-    source: Path = Path("tests/data/34.Ergocalciferol/07.Carbon/.anmrrc")
-    assert filecmp.cmp(filename, source)
+    Dir_source: Path = Path("tests/data/34.Ergocalciferol/07.Carbon")
+    source: Path = Path(".anmrrc")
+    assert filecmp.cmp(filename, Dir_source / source)
     os.remove(filename)
-    assert file.get_Dir() == Path("tests/data/34.Ergocalciferol/07.Carbon")
+    assert file.get_Dir() == Dir_source
     assert file.get_Anmrrc_Active() == ['C']
 
 
