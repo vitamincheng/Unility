@@ -356,6 +356,9 @@ class GeometryXYZs():
     def set_filename(self, fileName: Path | str) -> None:
         self.__filename = Path(fileName)
 
+    def get_fileName(self) -> Path:
+        return self.__filename
+
     def method_xyzExtract(self, idx1: list[int]) -> None:
         idx0: list[int] = [x for x in idx1]
         self.Sts = [self.Sts[x] for x in idx0]

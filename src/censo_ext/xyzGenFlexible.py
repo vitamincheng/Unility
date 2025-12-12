@@ -97,7 +97,9 @@ def read_data(_file: Path, _verbose: bool, _check: bool) -> tuple[dict[AtomID, n
     if _verbose:
         ic(neighbor, circleMols, residualMols)
         ic(idx_atomsCN)
-    *_, idx_Bond_order = read_mol_neighbors_bond_order(_file, _check)
+        xyzFile: GeometryXYZs = GeometryXYZs(_file)
+        xyzFile.method_read_xyz()
+    *_, idx_Bond_order = read_mol_neighbors_bond_order(xyzFile=xyzFile, _check=_check)
     if _verbose:
         ic(idx_Bond_order)
         ic(residualMols)

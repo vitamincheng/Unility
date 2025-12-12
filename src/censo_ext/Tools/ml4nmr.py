@@ -9,8 +9,10 @@ from ase.atoms import Atoms
 from ase.neighborlist import NeighborList
 import numpy as np
 import numpy.typing as npt
-from censo_ext.Tools.utility import AtomID, IsExist
+from censo_ext.Tools.utility import AtomID
 from ase.data import covalent_radii
+from censo_ext.TopoAnalysis import GeometryXYZs
+
 custom_radii: npt.NDArray[np.float64] = covalent_radii.copy()
 custom_radii[3] -= 0.15   # reduce radius of Li
 custom_radii[6] -= 0.05   # reduce radius of C
@@ -45,7 +47,7 @@ covalent_rad_2009: npt.NDArray[np.float64] = np.array([
 covalent_rad_d3 = 4.0 / 3.0 * covalent_rad_2009
 
 
-def read_mol_neighbors(DirFileName: Path | str, check: bool = True) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]]]:
+def read_mol_neighbors(xyzFile: GeometryXYZs, check: bool = True) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]]]:
     """Read molecule from .xyz file and return atoms object with neighbor list.
 
     Args:
@@ -77,12 +79,19 @@ def read_mol_neighbors(DirFileName: Path | str, check: bool = True) -> tuple[Ato
     structure for the intended use case.
     """
 
-    # read the .xyz coordinates from the molecular structures
-    import ase.io
     from ase import neighborlist
-    DirFileName = Path(DirFileName)
-    IsExist(DirFileName)
-    mol: Atoms | list[Atoms] = ase.io.read(str(DirFileName), format='xyz')
+    from ase import Atom
+    from ase import Atoms
+    if len(xyzFile) == 0:
+        print(f"{xyzFile.get_fileName()} is empty file !!!")
+        print("  Exit and Close the program !!!")
+        exit(0)
+
+    # loading the data to mol object
+    mol: Atoms = Atoms()
+    for idx0, x in enumerate(xyzFile.Sts[0].coord):
+        mol.append(
+            Atom(xyzFile.Sts[0].names[AtomID(idx0+1)], x))
 
     # use covalent radii as thresholds for neighbor determination (what about vdW radii?)
     cutoffs: list[np.float64] = [custom_radii[atom.number]  # type: ignore
@@ -99,15 +108,16 @@ def read_mol_neighbors(DirFileName: Path | str, check: bool = True) -> tuple[Ato
         neighbors[AtomID(idx0+1)] = indices+int(1)
 
         # exit if an H atom has not exactly 1 neighbor
-        if check is True and mol.get_atomic_numbers()[idx0] == 1 and len(neighbors[idx0+1]) != 1:  # type: ignore # nopep8
-            print(f"  ERROR: H atom {idx0+1} don't just have one bond !!! File in: {DirFileName}")  # nopep8
-            print("  Exit and close the program !!!")
-            exit(1)
+        if check is True:
+            if mol.get_atomic_numbers()[idx0] == 1 and len(neighbors[idx0+1]) != 1:  # type: ignore # nopep8
+                print(f"  ERROR: H atom {idx0+1} don't just have one bond !!! File in: {xyzFile}")  # nopep8
+                print("  Exit and close the program !!!")
+                exit(1)
 
     return mol, neighbors
 
 
-def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conformers.xyz"), _check: bool = True) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]], dict[AtomID, int]]:
+def read_mol_neighbors_bond_order(xyzFile: GeometryXYZs, _check: bool = True) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]], dict[AtomID, int]]:
     """Read molecule and calculate bond orders for carbon atoms.
 
     This function reads molecular coordinates from an XYZ file and determines
@@ -135,10 +145,9 @@ def read_mol_neighbors_bond_order(DirfileName: Path | str = Path("crest_conforme
     """
 
     # read the .xyz coordinates from the molecular structures
-    DirfileName = Path(DirfileName)
     mol: Atoms | list[Atoms]
     neighbors: dict[AtomID, npt.NDArray[np.int64]]
-    mol, neighbors = read_mol_neighbors(DirFileName=DirfileName, check=_check)
+    mol, neighbors = read_mol_neighbors(xyzFile=xyzFile, check=_check)
 
     H_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
     C_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "C"]  # type: ignore # nopep8

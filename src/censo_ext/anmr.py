@@ -8,6 +8,7 @@ from pathlib import Path
 
 from censo_ext.Tools.anmrfile import AD_BOBYQA, AD_Normal, Anmr
 from censo_ext.Tools.utility import print_arguments, AtomID
+from censo_ext.Tools.xyzfile import GeometryXYZs
 
 descr = """
 ________________________________________________________________________________
@@ -403,8 +404,10 @@ def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFil
     # For C/CH/CH2/CH3 from 0 1 2 3 to 1 2 3 4 for Carbon spectra
     # Convert bond order values to hydrogen counts (add 1 to each value)
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
+    xyzFile: GeometryXYZs = GeometryXYZs(inAnmr.get_Dir() / inFile)
+    xyzFile.method_read_xyz()
     *_, bond_order = read_mol_neighbors_bond_order(
-        inAnmr.get_Dir() / inFile, _check=False)
+        xyzFile=xyzFile, _check=False)
     inHydrogen: list[int] = [(value+1)
                              for value in bond_order.values()]
 

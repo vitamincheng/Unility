@@ -6,6 +6,7 @@ from graph import Graph
 from ase.atoms import Atoms
 from pathlib import Path
 from censo_ext.Tools.utility import AtomID
+from censo_ext.Tools.xyzfile import GeometryXYZs
 
 
 class Topo():
@@ -32,8 +33,11 @@ class Topo():
         self.__fileName: Path = Path(file)
         self.__mol: Atoms | list[Atoms]
         self.__neighbors: dict[AtomID, npt.NDArray[np.int64]]
+
+        self.__xyzFile: GeometryXYZs = GeometryXYZs(self.__fileName)
+        self.__xyzFile.method_read_xyz()
         self.__mol, self.__neighbors = ml4nmr.read_mol_neighbors(
-            self.__fileName, check)
+            self.__xyzFile, check)
         self._H_atomIDs: list[AtomID] = [AtomID(idx1) for idx1,
                            i in enumerate(self.__mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
 
@@ -111,7 +115,7 @@ class Topo():
         """
         idx1_p, idx1_q = _bond_broken
         # neighbors: dict[AtomID, npt.NDArray[np.int64]] = self.__neighbors
-        H_atoms: list[AtomID] = self._H_atomIDs
+        H_atoms: list[AtomID] = self._H_atomIDs.copy()
         H_atoms.append(AtomID(idx1_q))
         Neighbors_not_H: dict[AtomID, npt.NDArray[np.int64]] = {}
         for idx in self.__neighbors.keys():

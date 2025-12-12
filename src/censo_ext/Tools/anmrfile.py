@@ -8,6 +8,7 @@ import numpy.typing as npt
 from icecream import ic
 from pathlib import Path
 from censo_ext.Tools.utility import IntpID, IsExist, IsExist_bool, AtomID
+from censo_ext.Tools.xyzfile import GeometryXYZs
 # from dataclasses import dataclass
 
 
@@ -177,7 +178,9 @@ class Anmrrc():
         acid_atoms_NoShow: list[str] = [ELEMENT_NAMES[i]
                                         for i in self.acid_atoms_NoShow]
         from censo_ext.Tools.ml4nmr import read_mol_neighbors
-        mol, neighbors = read_mol_neighbors(DirFile, check=False)
+        xyzFile: GeometryXYZs = GeometryXYZs(DirFile)
+        xyzFile.method_read_xyz()
+        mol, neighbors = read_mol_neighbors(xyzFile=xyzFile, check=False)
 
         # find the atomID of molecule if is "N" or "O"
         acid_atoms_NoShowRemove: list[AtomID] = []

@@ -11,6 +11,8 @@ import numpy.typing as npt
 import os
 import sys
 from pathlib import Path
+
+from censo_ext.Tools.xyzfile import GeometryXYZs
 descr = """
 ________________________________________________________________________________
 | For plot_2D_Sim.py
@@ -154,8 +156,11 @@ def plot_2D_slice(ax: Axes, ax_histy_float, in_dir: tuple[Path, Path], h_limits:
     mol: Atoms | list[Atoms]
     neighbors: dict[AtomID, npt.NDArray[np.int64]]
     bond_order: dict[AtomID, int]
+
+    xyzFile: GeometryXYZs = GeometryXYZs(Dir_H/Path("crest_conformers.xyz"))
+    xyzFile.method_read_xyz()
     mol, neighbors, bond_order = read_mol_neighbors_bond_order(
-        Dir_H/Path("crest_conformers.xyz"))
+        xyzFile=xyzFile)
 
     atomIDs_H: list[AtomID] = [idx+1 for idx,
                              i in enumerate(mol) if i.symbol == "H"]  # type: ignore # nopep8

@@ -4,6 +4,7 @@ import argparse
 import numpy as np
 import numpy.typing as npt
 from censo_ext.Tools.utility import print_arguments
+from censo_ext.Tools.xyzfile import GeometryXYZs
 descr = """
 ________________________________________________________________________________
 |                                          [08.18.2024] vitamin.cheng@gmail.com
@@ -121,8 +122,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args.extra:
         import censo_ext.Tools.ml4nmr as ml4nmr
+        xyzFile: GeometryXYZs = GeometryXYZs(args.extra)
+        xyzFile.method_read_xyz()
         mol, neighbors, bond_order = ml4nmr.read_mol_neighbors_bond_order(
-            args.extra)
+            xyzFile=xyzFile)
         List_nProton: list[int] = [x for x in bond_order.values()]
 
     List_ppm: list[float] = [ppm[3] for ppm in inAnmr.anmrS]
