@@ -175,6 +175,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
 
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(single_xyz_name, xcontrol_inp)
+    print(thermo)
 
     return thermo
 
