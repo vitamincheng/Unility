@@ -125,9 +125,11 @@ def method_factor_opt(inFile: Path, _lowFactor: list[AtomID], table_std: dict[At
     print(" ========== Optimized Broken-bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
     Bonding_LowFactor: list[npt.NDArray[np.int64]] = []
+    _Topo: Topo = Topo(inFile, check=False)
+
     for atomID in _lowFactor:
         Bonding_LowFactor.append(
-            np.array(Topo(inFile).method_bonding(_bonding=atomID, _print=False)))
+            np.array(_Topo.method_bonding(_bonding=atomID, _print=False)))
 
     Pair_LowFactor: list[list[int]] = []
 
@@ -149,9 +151,9 @@ def method_factor_opt(inFile: Path, _lowFactor: list[AtomID], table_std: dict[At
     Ratio: list[float] = []
     for x in unique_PairLowFactor:
 
-        atomIDs_L: list[AtomID] = Topo(inFile).method_broken_bond(
+        atomIDs_L: list[AtomID] = _Topo.method_broken_bond(
             _bond_broken=(x[0], x[1]), _print=False)
-        atomIDs_R: list[AtomID] = Topo(inFile).method_broken_bond(
+        atomIDs_R: list[AtomID] = _Topo.method_broken_bond(
             _bond_broken=(x[1], x[0]), _print=False)
 
         # total std of Left fragment of inputted data

@@ -105,7 +105,8 @@ def idx_3atom_opt(inFile: Path) -> tuple[AtomID, AtomID, AtomID]:
     _Bonding: list[list[AtomID]] = []
     for x in _LowFactor:
         from censo_ext.Tools.topo import Topo
-        _Bonding.append(Topo(inFile).method_bonding(_bonding=x, _print=False))
+        _Bonding.append(Topo(inFile, check=False).method_bonding(
+            _bonding=x, _print=False))
 
     _3AtomID: list[list[AtomID]] = []
     for idx0, x in enumerate(_LowFactor):

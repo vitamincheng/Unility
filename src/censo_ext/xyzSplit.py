@@ -118,7 +118,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     from censo_ext.Tools.topo import Topo
     broken_bond_H: list[IntpID] = [
-        IntpID(x-1) for x in Topo(inFile).method_broken_bond_H(_bond_broken=(idx1_q, idx1_p), _print=False)]
+        IntpID(x-1) for x in Topo(inFile, check=True).method_broken_bond_H(_bond_broken=(idx1_q, idx1_p), _print=False)]
 
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
