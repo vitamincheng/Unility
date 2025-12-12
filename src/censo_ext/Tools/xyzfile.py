@@ -148,7 +148,7 @@ class Geometry():
                       [x-1 for x in idx1_Select_Names]]).tolist()
         return True
 
-    def method_idx_molecules_xyz(self, fileName: Path | str) -> list[set[int]]:
+    def method_idx_molecules_xyz(self, xyzFile: GeometryXYZs) -> list[set[int]]:
         """
         Identify molecular clusters from a topology file.
 
@@ -161,7 +161,7 @@ class Geometry():
 
         from censo_ext.Tools.topo import Topo
         molecules: list[set[int]] = []
-        molecules = Topo(fileName, check=False).topology_components()
+        molecules = Topo(xyzFile, check=False).topology_components()
         idx1_Atoms: set = {*range(1, self.nAtoms+1)}
         for x in molecules:
             idx1_Atoms = idx1_Atoms.difference(x)
@@ -366,9 +366,9 @@ class GeometryXYZs():
     def Method_xyzRotate(self, _check: bool, idx1_p: int, idx1_q: int, _cuts: int = 3, _nspec: int = 1) -> None:
 
         from scipy.spatial.transform import Rotation as R
-        _tmpFile = Path(".tempFile")
-        self.set_filename(_tmpFile)
-        self.method_save_xyz([])
+        # _tmpFile = Path(".tempFile")
+        # self.set_filename(_tmpFile)
+        # self.method_save_xyz([])
         nCutters: int = _cuts
         nSpec: int = _nspec
 
@@ -378,7 +378,7 @@ class GeometryXYZs():
             exit(1)
         from censo_ext.Tools.topo import Topo
         broken_bond_H: list[IntpID] = [
-            IntpID(x-1) for x in Topo(_tmpFile, check=_check).method_broken_bond_H(_bond_broken=(idx1_q, idx1_p), _print=False)]
+            IntpID(x-1) for x in Topo(self, check=_check).method_broken_bond_H(_bond_broken=(idx1_q, idx1_p), _print=False)]
 
         for St in self.Sts:
             dxyz: npt.NDArray[np.float64] = St.coord[idx1_p-1].copy()
@@ -394,7 +394,7 @@ class GeometryXYZs():
                 for idx0 in broken_bond_H:
                     St.coord[idx0] = r_pq.apply(St.coord[idx0])
                 St.coord += dxyz
-        delete_all_files(_tmpFile)
+        # delete_all_files(_tmpFile)
 
     def method_translate_cut_xyzs(self, delta: npt.NDArray[np.float64], cut: int) -> GeometryXYZs:
         """
@@ -511,13 +511,15 @@ class GeometryXYZs():
             SystemExit: If molecule separation fails, the program exits with error message.
         """
 
-        fileName: Path = Path("~temp.xyz")
-        self.set_filename(fileName)
+        # fileName: Path = Path("~temp.xyz")
+        # self.set_filename(fileName)
         self.method_save_xyz([idx1])
+        # list_idx: list[set[int]] = self.Sts[idx1 -
+        #                                    1].method_idx_molecules_xyz(fileName)
         list_idx: list[set[int]] = self.Sts[idx1 -
-                                            1].method_idx_molecules_xyz(fileName)
+                                            1].method_idx_molecules_xyz(self)
         from censo_ext.Tools.utility import delete_all_files
-        delete_all_files(fileName)
+        # delete_all_files(fileName)
         for x in list_idx:
             self.Sts.append(copy.deepcopy(self.Sts[idx1-1]))
         for idx, x in enumerate(list_idx):

@@ -9,7 +9,7 @@ from censo_ext.Tools.utility import AtomID
 
 
 # def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
-def method_factor_analysis(inFile: Path | str, _factor) -> tuple[list[AtomID], dict[AtomID, float]]:
+def method_factor_analysis(xyzFile: GeometryXYZs, _factor) -> tuple[list[AtomID], dict[AtomID, float]]:
     """ 
     Performs factor analysis on a set of geometries to identify atoms with high and low structural variability.
 
@@ -36,8 +36,8 @@ def method_factor_analysis(inFile: Path | str, _factor) -> tuple[list[AtomID], d
         >>> print(f"Standard deviations: {std_dict}")
     """
 
-    xyzFile: GeometryXYZs = GeometryXYZs(Path(inFile))
-    xyzFile.method_read_xyz()
+    # xyzFile: GeometryXYZs = GeometryXYZs(Path(inFile))
+    # xyzFile.method_read_xyz()
     coord: list[list[float]] = []
 
     # For idxElement for the data of first xyzFile
@@ -83,7 +83,7 @@ def method_factor_analysis(inFile: Path | str, _factor) -> tuple[list[AtomID], d
 
 
 # def method_factor_opt(args, _lowFactor: list[AtomID], table_std: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
-def method_factor_opt(inFile: Path, _lowFactor: list[AtomID], table_std: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
+def method_factor_opt(xyzFile: GeometryXYZs, _lowFactor: list[AtomID], table_std: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
     """
     Optimizes the location of a broken bond based on factor analysis results.
 
@@ -125,7 +125,7 @@ def method_factor_opt(inFile: Path, _lowFactor: list[AtomID], table_std: dict[At
     print(" ========== Optimized Broken-bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
     Bonding_LowFactor: list[npt.NDArray[np.int64]] = []
-    _Topo: Topo = Topo(inFile, check=False)
+    _Topo: Topo = Topo(xyzFile, check=False)
 
     for atomID in _lowFactor:
         Bonding_LowFactor.append(

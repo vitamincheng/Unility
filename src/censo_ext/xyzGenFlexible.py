@@ -86,20 +86,20 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def read_data(_file: Path, _verbose: bool, _check: bool) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[set[int]], dict[AtomID, int], dict[AtomID, int], dict]:
+def read_data(_xyzFile: GeometryXYZs, _verbose: bool, _check: bool) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[set[int]], dict[AtomID, int], dict[AtomID, int], dict]:
     from censo_ext.Tools.topo import Topo
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
 
-    Sts_topo: Topo = Topo(_file, check=_check)
+    Sts_topo: Topo = Topo(xyzFile=_xyzFile, check=_check)
 
     neighbor, circleMols, residualMols, residualMols_all_pairs = Sts_topo.topology()
     idx_atomsCN: dict[AtomID, int] = Sts_topo.get_cn()
     if _verbose:
         ic(neighbor, circleMols, residualMols)
         ic(idx_atomsCN)
-        xyzFile: GeometryXYZs = GeometryXYZs(_file)
-        xyzFile.method_read_xyz()
-    *_, idx_Bond_order = read_mol_neighbors_bond_order(xyzFile=xyzFile, _check=_check)
+        # xyzFile: GeometryXYZs = GeometryXYZs(_file)
+        # xyzFile.method_read_xyz()
+    *_, idx_Bond_order = read_mol_neighbors_bond_order(xyzFile=_xyzFile, _check=_check)
     if _verbose:
         ic(idx_Bond_order)
         ic(residualMols)
@@ -232,8 +232,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml()
     print_arguments()
 
+    xyzFile = GeometryXYZs(args.file)
+    xyzFile.method_read_xyz()
     _, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
-        _file=args.file, _verbose=args.verbose, _check=args.check)
+        _xyzFile=xyzFile, _verbose=args.verbose, _check=args.check)
 
     if args.verbose:
         ic(circleMols)

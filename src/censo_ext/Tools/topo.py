@@ -16,7 +16,7 @@ class Topo():
     determine bonding information, and classify molecular topology into circular and residual molecules.
     """
 
-    def __init__(self, file: Path | str, check: bool = True) -> None:
+    def __init__(self, xyzFile: GeometryXYZs, check: bool = True) -> None:
         """ 
         Initializes a new instance of the Topo class with the provided file path.
 
@@ -30,12 +30,9 @@ class Topo():
             idx1_Hydrogen_atom (list[int]): A list of indices for hydrogen atoms in the molecule (1-indexed).
         """
 
-        self.__fileName: Path = Path(file)
         self.__mol: Atoms | list[Atoms]
         self.__neighbors: dict[AtomID, npt.NDArray[np.int64]]
-
-        self.__xyzFile: GeometryXYZs = GeometryXYZs(self.__fileName)
-        self.__xyzFile.method_read_xyz()
+        self.__xyzFile: GeometryXYZs = xyzFile
         self.__mol, self.__neighbors = ml4nmr.read_mol_neighbors(
             self.__xyzFile, check)
         self._H_atomIDs: list[AtomID] = [AtomID(idx1) for idx1,

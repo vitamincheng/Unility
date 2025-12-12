@@ -257,6 +257,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml()
     print_arguments()
 
+    xyzFile: GeometryXYZs = GeometryXYZs(args.file)
+    xyzFile.method_read_xyz()
     if args.Analysis:
         if not args.factor:
             args.factor = 0.50
@@ -264,10 +266,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         deviation: dict[AtomID, float]
         from censo_ext.Tools.factor import method_factor_analysis, method_factor_opt
         idx1_minor, deviation = method_factor_analysis(
-            inFile=args.file, _factor=args.factor)
+            xyzFile=xyzFile, _factor=args.factor)
         if args.opt:
             method_factor_opt(
-                inFile=args.file, _lowFactor=idx1_minor, table_std=deviation)
+                xyzFile=xyzFile, _lowFactor=idx1_minor, table_std=deviation)
 
     if args.Filter:
         if not args.factor:

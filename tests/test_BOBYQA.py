@@ -7,6 +7,8 @@ import censo_ext.anmr as anmr
 import filecmp
 import platform
 from censo_ext.Tools.utility import delete_all_files
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
 
 _system: str = platform.system()
 DirName: Path = Path("tests/data/31.Cyclohexanone/03.Censo_for_Hydrogen_(revTPSS)")  # nopep8

@@ -20,6 +20,7 @@ def test_xyzGenflexible_miss_args():
 
 
 def test_xyzGenFlexible_args():
+
     x: dict = {"file": inFile, "manual": False, "verbose": False,
                "out": outFile, "cuts": 3, "check": True}
     args = argparse.Namespace(**x)

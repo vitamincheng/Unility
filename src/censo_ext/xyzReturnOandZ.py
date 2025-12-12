@@ -94,18 +94,18 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def idx_3atom_opt(inFile: Path) -> tuple[AtomID, AtomID, AtomID]:
+def idx_3atom_opt(xyzFile: GeometryXYZs) -> tuple[AtomID, AtomID, AtomID]:
     from censo_ext.Tools.factor import method_factor_analysis
     # args_x: dict = {"file": inFile, "factor": 0.5, "opt": False}
     _LowFactor: list[AtomID]
     _Deviation: dict[AtomID, float]
     _LowFactor, _Deviation = method_factor_analysis(
-        inFile=inFile, _factor=0.50)
+        xyzFile, _factor=0.50)
 
     _Bonding: list[list[AtomID]] = []
     for x in _LowFactor:
         from censo_ext.Tools.topo import Topo
-        _Bonding.append(Topo(inFile, check=False).method_bonding(
+        _Bonding.append(Topo(xyzFile, check=False).method_bonding(
             _bonding=x, _print=False))
 
     _3AtomID: list[list[AtomID]] = []
@@ -160,15 +160,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     p_idx1: AtomID
     q_idx1: AtomID
     r_idx1: AtomID
+    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+    xyzFile.method_read_xyz()
     if not args.atom and args.auto:
         print("\n Automated to set the 3 atoms to return origin and lay on XZ plane")
         print(" First FactorAnalysis.py will executive and second continue the RetrunOandZ.py ")
-        p_idx1, q_idx1, r_idx1 = idx_3atom_opt(inFile)
+        p_idx1, q_idx1, r_idx1 = idx_3atom_opt(xyzFile)
     else:
         p_idx1, q_idx1, r_idx1 = args.atom
-
-    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
-    xyzFile.method_read_xyz()
 
     # Process xyz file
     for idx0_St in range(len(xyzFile)):
