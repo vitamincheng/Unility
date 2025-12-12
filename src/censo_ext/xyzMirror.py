@@ -143,6 +143,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(f"    Saved to {fileName}")
     xyzFile.set_filename(fileName)
     xyzFile.method_save_xyz([])
+    from censo_ext.Tools.topo import Topo
+    _topo = Topo(xyzFile, check=True)
 
 
 if __name__ == "__main__":

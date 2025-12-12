@@ -83,12 +83,14 @@ def read_xyz_file(file: str | Path) -> GeometryXYZs:
         raise FileNotFoundError(f"{file}")
 
 
-def write_xyz_file(outfile: GeometryXYZs, file: str | Path) -> None:
+def write_xyz_file(outFile: GeometryXYZs, file: str | Path) -> None:
     """Write XYZ data to a file."""
     file = Path(file)
     try:
-        outfile.set_filename(file)
-        outfile.method_save_xyz([])
+        outFile.set_filename(file)
+        outFile.method_save_xyz([])
+        from censo_ext.Tools.topo import Topo
+        _topo = Topo(outFile, check=True)
     except Exception as e:
         print(f"Failed to write file {file}: {e}")
         raise FileNotFoundError(f"{file}")

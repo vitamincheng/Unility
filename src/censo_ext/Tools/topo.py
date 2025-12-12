@@ -4,7 +4,6 @@ import numpy.typing as npt
 import censo_ext.Tools.ml4nmr as ml4nmr
 from graph import Graph
 from ase.atoms import Atoms
-from pathlib import Path
 from censo_ext.Tools.utility import AtomID
 from censo_ext.Tools.xyzfile import GeometryXYZs
 

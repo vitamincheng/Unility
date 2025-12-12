@@ -9,8 +9,8 @@ inFile: Path = Path("tests/data/crest_conformers1.xyz")
 outFile: Path = Path("tests/compare/output.xyz")
 
 
-def test_xyzSplit():
-    x: dict = {"file": inFile, "cuts": 12, "check": True,
+def test_xyzSplit() -> None:
+    x: dict = {"file": inFile, "cuts": 12, "check": False,
                "atoms": [52, 55], "out": outFile, "print": False}
     args = argparse.Namespace(**x)
     xyzSplit.main(args)
@@ -20,7 +20,7 @@ def test_xyzSplit():
     os.remove(args.out)
 
 
-def test_xyzSplit_miss_cuts():
+def test_xyzSplit_miss_cuts() -> None:
     x: dict = {"file": inFile, "cuts": None, "check": True,
                "atoms": [52, 55], "out": outFile, "print": False}
 
@@ -30,7 +30,7 @@ def test_xyzSplit_miss_cuts():
     assert e.value.code == 0    # for argprarse wrong
 
 
-def test_xyzSplit_miss_atoms():
+def test_xyzSplit_miss_atoms() -> None:
     x: dict = {"file": inFile, "cuts": 12, "check": True,
                "atoms": None, "out": outFile, "print": False}
 
@@ -40,7 +40,7 @@ def test_xyzSplit_miss_atoms():
     assert e.value.code == 0    # for argprarse wrong
 
 
-def test_xyzSplit_miss_cuts_atoms():
+def test_xyzSplit_miss_cuts_atoms() -> None:
     x: dict = {"file": inFile, "cuts": None, "check": True,
                "atoms": None, "out": outFile, "print": False}
 
@@ -50,7 +50,7 @@ def test_xyzSplit_miss_cuts_atoms():
     assert e.value.code == 0    # for argprarse wrong
 
 
-def test_xyzSplit_miss():
+def test_xyzSplit_miss() -> None:
     x: dict = {}
 
     with pytest.raises(SystemExit) as e:

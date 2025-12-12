@@ -80,20 +80,20 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def cal_RMSD(xyzfile: GeometryXYZs, idx_p: int, idx_q: int, bond_broken: tuple[int, int], check: bool) -> float:
+def cal_RMSD(_xyzFile: GeometryXYZs, idx_p: int, idx_q: int, bond_broken: tuple[int, int], check: bool) -> float:
 
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
     _, RMSD = cal_RMSD_xyz(
-        xyzfile, idx_p, idx_q, _remove_idx=None, _add_idx=[bond_broken[1]], _bond_broken=bond_broken, _ignore_Hydrogen=True, _check=check)
+        _xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=[bond_broken[1]], _bond_broken=bond_broken, _ignore_Hydrogen=True, _check=check)
     return RMSD
 
 
-def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float, _check: bool) -> tuple[list[cell_reports], list[cell_reports]]:
+def TopoAnalysis(_xyzFile: GeometryXYZs, _index: int, _verbose: bool, _limits: float, _check: bool) -> tuple[list[cell_reports], list[cell_reports]]:
 
     idx1_p: int = _index
     tmp: bool = _verbose
     neighbor, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
-        _file=_file, _verbose=False, _check=_check)
+        _xyzFile=_xyzFile, _verbose=False, _check=_check)
     _verbose = tmp
 
     flattenCircleMols: list[int] = []
@@ -111,16 +111,13 @@ def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float, _chec
         ic(flattenCircleMols)
         ic(residualMols_all_pairs)
 
-    xyzFile: GeometryXYZs = GeometryXYZs(_file)
-    xyzFile.method_read_xyz()
-
-    if len(xyzFile) < idx1_p:
-        print(f" Error: Index {idx1_p} is out of range in your xyz file.")
+    if len(_xyzFile) < idx1_p:
+        print(
+            f" Error: Index {idx1_p} is out of range in your xyz file{_xyzFile.get_fileName()}.")
         exit(0)
 
-    limits = _limits
     print("  ===== Parameter of limits =====")
-    print(f"  the delta limits of standard deviation = {limits}")
+    print(f"  the delta limits of standard deviation = {_limits}")
 
     # Check circleMols factor
     result_circle: list[cell_reports] = []
@@ -140,53 +137,51 @@ def TopoAnalysis(_file: Path, _index: int, _verbose: bool, _limits: float, _chec
             if _verbose:
                 ic(node_mol, res_node_mol)
 
-            for x in range(1, len(xyzFile)+1):
+            for x in range(1, len(_xyzFile)+1):
                 if x == idx1_p:
                     continue
-                res_left: float = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
+                std_left: float = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
                                            bond_broken=(node_mol, res_node_mol), check=_check)
-                res_right: float = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
+                std_right: float = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
                                             bond_broken=(res_node_mol, node_mol), check=_check)
-                if res_left <= limits and res_right <= limits:
+                if std_left <= _limits and std_right <= _limits:
                     result_circle.append(
-                        (x, node_mol, res_node_mol, res_left, res_right))
+                        (x, node_mol, res_node_mol, std_left, std_right))
 
     # Check straight chain
     result_straight: list[cell_reports] = []
     for key, value in xyzSplit.items():
-        for x in range(1, len(xyzFile)+1):
+        for x in range(1, len(_xyzFile)+1):
             if x == idx1_p:
                 continue
-            res_left = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
+            std_left = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
                                 bond_broken=(key, value), check=_check)
-            res_right = cal_RMSD(xyzfile=xyzFile, idx_p=idx1_p, idx_q=x,
+            std_right = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
                                  bond_broken=(value, key), check=_check)
-            if res_left <= limits and res_right <= limits:
+            if std_left <= _limits and std_right <= _limits:
                 if _verbose:
-                    ic(x, key, value, res_left, res_right)
-                result_straight.append((x, key, value, res_left, res_right))
+                    ic(x, key, value, std_left, std_right)
+                result_straight.append((x, key, value, std_left, std_right))
 
     return result_circle, result_straight
 
 
-def print_report(result_circle: list[cell_reports], result_straight: list[cell_reports]) -> None:
+def print_report(_circle: list[cell_reports], _straight: list[cell_reports]) -> None:
 
     print("  ===== Check circle molecule =====")
     print("   idx1  node  res_node      res_left      res_right")
-    for x in result_circle:
+    for x in _circle:
         print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
 
     print("  ===== Check straight molecule =====")
     print("   idx1   key     value      res_left      res_right")
-    for x in result_straight:
+    for x in _straight:
         print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
 
 
-def save_files(_index: int, _file: Path, result_circle: list[cell_reports], result_straight: list[cell_reports]) -> None:
+def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight: list[cell_reports]) -> None:
 
-    _file = Path(_file)
-
-    if len(result_circle) >= 1:
+    if len(_circle) >= 1:
         print("  ===== Save circle molecule =====")
         # print(result_circle)
         circleDir: Path = Path("Circle")
@@ -195,42 +190,35 @@ def save_files(_index: int, _file: Path, result_circle: list[cell_reports], resu
             shutil.rmtree(circleDir, ignore_errors=True)
         circleDir.mkdir()
 
-        pairs: set[tuple[int, int]] = {(x[1], x[2]) for x in result_circle}
+        pairs: set[tuple[int, int]] = {(x[1], x[2]) for x in _circle}
         for x in pairs:
             index1: list[int] = [_index]
-            for y in result_circle:
+            for y in _circle:
                 if x == (y[1], y[2]):
                     index1.append(y[0])
             print(index1)
-            inFile: Path = Path(_file)
             outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
-            xyzFile: GeometryXYZs = GeometryXYZs(inFile)
-            xyzFile.method_read_xyz()
-            xyzFile.set_filename(circleDir / outFile)
-            xyzFile.method_save_xyz(index1)
+            _xyzFile.set_filename(circleDir / outFile)
+            _xyzFile.method_save_xyz(index1)
 
-    if len(result_straight) >= 1:
+    if len(_straight) >= 1:
         print("  ===== Save straight molecule =====")
-        # print(result_straight)
         straightDir: Path = Path("Straight")
         if straightDir.is_dir():
             import shutil
             shutil.rmtree(straightDir, ignore_errors=True)
         straightDir.mkdir()
 
-        pairs = {(x[1], x[2]) for x in result_straight}
+        pairs = {(x[1], x[2]) for x in _straight}
         for x in pairs:
             index1: list[int] = [_index]
-            for y in result_straight:
+            for y in _straight:
                 if x == (y[1], y[2]):
                     index1.append(y[0])
             print(index1)
-            inFile: Path = Path(_file)
             outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
-            xyzFile: GeometryXYZs = GeometryXYZs(inFile)
-            xyzFile.method_read_xyz()
-            xyzFile.set_filename(straightDir / outFile)
-            xyzFile.method_save_xyz(index1)
+            _xyzFile.set_filename(straightDir / outFile)
+            _xyzFile.method_save_xyz(index1)
 
     print("  ===== Finished to save the files =====")
 
@@ -240,11 +228,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml()
     print_arguments()
 
-    result_circle, result_straight = TopoAnalysis(_file=args.file, _index=args.idx,
-                                                  _verbose=args.verbose, _limits=args.limits, _check=args.check)
-    print_report(result_circle=result_circle, result_straight=result_straight)
-    save_files(_index=args.idx, _file=args.file, result_circle=result_circle,
-               result_straight=result_straight)
+    _xyzFile: GeometryXYZs = GeometryXYZs(args.file)
+    _xyzFile.method_read_xyz()
+
+    _Circle, _Straight = TopoAnalysis(_xyzFile=_xyzFile, _index=args.idx,
+                                      _verbose=args.verbose, _limits=args.limits, _check=args.check)
+    print_report(_circle=_Circle, _straight=_Straight)
+    save_files(_index=args.idx, _xyzFile=_xyzFile, _circle=_Circle,
+               _straight=_Straight)
 
 
 if __name__ == "__main__":

@@ -216,7 +216,7 @@ def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> 
             ic(key, value)
         import censo_ext.xyzSplit as xyzSplit
         args_x: dict = {"file": splitIn, "atoms": [key, value], "cuts": args.cuts,
-                        "print": False, "out": splitOut}
+                        "print": False, "out": splitOut, "check": args.check}
         # sys.stdout = open(os.devnull, 'w')
         xyzSplit.main(argparse.Namespace(**args_x))
         # sys.stdout = sys.__stdout__

@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import numpy.typing as npt
 import copy
-from censo_ext.Tools.utility import AtomID, IntpID, delete_all_files
+from censo_ext.Tools.utility import AtomID, IntpID
 
 
 class Geometry():
@@ -511,15 +511,9 @@ class GeometryXYZs():
             SystemExit: If molecule separation fails, the program exits with error message.
         """
 
-        # fileName: Path = Path("~temp.xyz")
-        # self.set_filename(fileName)
         self.method_save_xyz([idx1])
-        # list_idx: list[set[int]] = self.Sts[idx1 -
-        #                                    1].method_idx_molecules_xyz(fileName)
         list_idx: list[set[int]] = self.Sts[idx1 -
                                             1].method_idx_molecules_xyz(self)
-        from censo_ext.Tools.utility import delete_all_files
-        # delete_all_files(fileName)
         for x in list_idx:
             self.Sts.append(copy.deepcopy(self.Sts[idx1-1]))
         for idx, x in enumerate(list_idx):
