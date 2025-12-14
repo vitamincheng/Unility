@@ -70,7 +70,7 @@ def cml() -> argparse.Namespace:
         dest="cuts",
         action="store",
         type=int,
-        default=1,
+        default=3,
         required=False,
         help="Number of cuts to make in 360 degrees around the rotation axis [default 3]",
     )
