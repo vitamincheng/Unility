@@ -199,6 +199,7 @@ def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports],
             print(index1)
             outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
             _xyzFile.set_filename(circleDir / outFile)
+            _xyzFile.method_xyzReturnOandZ_auto()
             _xyzFile.method_save_xyz(index1)
 
     if len(_straight) >= 1:
@@ -218,6 +219,7 @@ def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports],
             print(index1)
             outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
             _xyzFile.set_filename(straightDir / outFile)
+            _xyzFile.method_xyzReturnOandZ_auto()
             _xyzFile.method_save_xyz(index1)
 
     print("  ===== Finished to save the files =====")
