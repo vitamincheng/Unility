@@ -199,10 +199,7 @@ def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> 
                    if key in idx_xyzSplit}
         xyzSplitDict = x
 
-    inFile = Path(args.file)
-    outFile = Path(args.out)
-
-    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+    xyzFile: GeometryXYZs = GeometryXYZs(args.file)
     xyzFile.method_read_xyz()
     splitIn: Path = Path(".in.xyz")
     splitOut: Path = Path(".out.xyz")
@@ -222,8 +219,8 @@ def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> 
         # sys.stdout = sys.__stdout__
         move_file(splitOut, splitIn)
 
-    move_file(splitIn, outFile)
-    print(f" The data is saved to {outFile} !!!")
+    move_file(splitIn, args.out)
+    print(f" The data is saved to {args.out} !!!")
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

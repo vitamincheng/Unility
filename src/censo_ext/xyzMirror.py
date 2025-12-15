@@ -113,29 +113,26 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         idx0_H: list[IntpID] = [IntpID(x-1) for x in idx1_H]
 
     # Process xyz file
-    for idx0_St in range(len(xyzFile)):
+    for St in xyzFile.Sts:
 
-        dxyz: npt.NDArray[np.float64] = xyzFile.Sts[idx0_St].coord[p_idx1-1].copy()
-        xyzFile.Sts[idx0_St].coord -= dxyz  # type: ignore
-        z_axis = (0, 0, np.sqrt(
-            np.sum(np.square(xyzFile.Sts[idx0_St].coord[q_idx1-1]))))
+        dxyz: npt.NDArray[np.float64] = St.coord[p_idx1-1].copy()
+        St.coord -= dxyz  # type: ignore
+        z_axis = (0, 0, np.sqrt(np.sum(np.square(St.coord[q_idx1-1]))))
 
-        rotation_axis = xyzFile.Sts[idx0_St].coord[q_idx1-1] + z_axis
+        rotation_axis = St.coord[q_idx1-1] + z_axis
 
         Normalized_RotationAxis: npt.NDArray[np.float64] = np.array([
             0, 1, 0]) if np.linalg.norm(rotation_axis) == 0 else rotation_axis / np.linalg.norm(rotation_axis)
 
         R_pq = R.from_rotvec(np.pi*Normalized_RotationAxis)
-        xyzFile.Sts[idx0_St].coord = R_pq.apply(
-            xyzFile.Sts[idx0_St].coord)  # type: ignore
+        St.coord = R_pq.apply(St.coord)  # type: ignore
 
-        Angle_qr = np.angle(complex(xyzFile.Sts[idx0_St].coord[r_idx1-1][0], complex(
-            xyzFile.Sts[idx0_St].coord[r_idx1-1][1])))
+        Angle_qr = np.angle(complex(St.coord[r_idx1-1][0], complex(
+            St.coord[r_idx1-1][1])))
         R_qr = R.from_euler('z', -Angle_qr)
-        xyzFile.Sts[idx0_St].coord = R_qr.apply(
-            xyzFile.Sts[idx0_St].coord)  # type: ignore
+        St.coord = R_qr.apply(St.coord)  # type: ignore
 
-        for idx0, x in enumerate(xyzFile.Sts[idx0_St].coord):
+        for idx0, x in enumerate(St.coord):
             if idx0 in idx0_H:
                 x[1] = -x[1]
 
