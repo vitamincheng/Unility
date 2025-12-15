@@ -363,7 +363,32 @@ class GeometryXYZs():
         idx0: list[int] = [x for x in idx1]
         self.Sts = [self.Sts[x] for x in idx0]
 
-    def Method_xyzRotate(self, _check: bool, idx1_p: int, idx1_q: int, _cuts: int = 3, _nspec: int = 1) -> None:
+    def method_xyzReturnOandZ_auto(self) -> None:
+        from scipy.spatial.transform import Rotation as R
+        from censo_ext.Tools.factor import idx_3atom_opt
+        import os
+        sys.stdout = open(os.devnull, 'w')
+        p_idx1, q_idx1, r_idx1 = idx_3atom_opt(self)
+        sys.stdout = sys.__stdout__
+
+        # Process xyz file
+        for idx0_St in range(len(self)):
+            St: Geometry = self.Sts[idx0_St]
+            dxyz: npt.NDArray[np.float64] = St.coord[p_idx1-1].copy()
+            St.coord -= dxyz  # type: ignore
+            z_axis = (0, 0, np.sqrt(
+                np.sum(np.square(St.coord[q_idx1-1]))))
+            rotation_axis = St.coord[q_idx1-1] + z_axis
+            Normalized_RotationAxis: npt.NDArray[np.float64] = np.array([
+                0, 1, 0]) if np.linalg.norm(rotation_axis) == 0 else rotation_axis / np.linalg.norm(rotation_axis)
+            R_pq = R.from_rotvec(np.pi*Normalized_RotationAxis)
+            St.coord = R_pq.apply(St.coord)  # type: ignore
+            Angle_qr = np.angle(complex(St.coord[r_idx1-1][0], complex(
+                St.coord[r_idx1-1][1])))
+            R_qr = R.from_euler('z', -Angle_qr)
+            St.coord = R_qr.apply(St.coord)  # type: ignore
+
+    def method_xyzRotate(self, _check: bool, idx1_p: int, idx1_q: int, _cuts: int = 3, _nspec: int = 1) -> None:
 
         from scipy.spatial.transform import Rotation as R
         # _tmpFile = Path(".tempFile")

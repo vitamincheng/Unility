@@ -130,7 +130,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         exit(1)
 
     xyzFile.method_read_xyz()
-    xyzFile.Method_xyzRotate(_check=args.check, idx1_p=idx1_p,
+    xyzFile.method_xyzRotate(_check=args.check, idx1_p=idx1_p,
                              idx1_q=idx1_q, _cuts=args.cuts, _nspec=args.spec)
     xyzFile.set_filename(outFile)
     xyzFile.method_save_xyz([])
