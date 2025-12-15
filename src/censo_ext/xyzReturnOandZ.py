@@ -122,9 +122,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         p_idx1, q_idx1, r_idx1 = args.atom
 
     # Process xyz file
-    for idx0_St in range(len(xyzFile)):
-
-        St = xyzFile.Sts[idx0_St]
+    for St in xyzFile.Sts:
 
         dxyz: npt.NDArray[np.float64] = St.coord[p_idx1-1].copy()
         St.coord -= dxyz  # type: ignore

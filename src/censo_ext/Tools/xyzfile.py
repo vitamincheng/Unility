@@ -372,8 +372,7 @@ class GeometryXYZs():
         sys.stdout = sys.__stdout__
 
         # Process xyz file
-        for idx0_St in range(len(self)):
-            St: Geometry = self.Sts[idx0_St]
+        for St in self.Sts:
             dxyz: npt.NDArray[np.float64] = St.coord[p_idx1-1].copy()
             St.coord -= dxyz  # type: ignore
             z_axis = (0, 0, np.sqrt(
@@ -391,9 +390,6 @@ class GeometryXYZs():
     def method_xyzRotate(self, _check: bool, idx1_p: int, idx1_q: int, _cuts: int = 3, _nspec: int = 1) -> None:
 
         from scipy.spatial.transform import Rotation as R
-        # _tmpFile = Path(".tempFile")
-        # self.set_filename(_tmpFile)
-        # self.method_save_xyz([])
         nCutters: int = _cuts
         nSpec: int = _nspec
 
@@ -419,7 +415,6 @@ class GeometryXYZs():
                 for idx0 in broken_bond_H:
                     St.coord[idx0] = r_pq.apply(St.coord[idx0])
                 St.coord += dxyz
-        # delete_all_files(_tmpFile)
 
     def method_translate_cut_xyzs(self, delta: npt.NDArray[np.float64], cut: int) -> GeometryXYZs:
         """
