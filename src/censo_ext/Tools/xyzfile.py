@@ -404,17 +404,17 @@ class GeometryXYZs():
         for St in self.Sts:
             dxyz: npt.NDArray[np.float64] = St.coord[idx1_p-1].copy()
             inital: list[npt.NDArray[np.float64]] = St.coord.copy()
-            for nCutter in range(nCutters):
-                St.coord = inital.copy()
-                St.coord -= dxyz  # type: ignore
-                rotation_axis: npt.NDArray[np.float64] = St.coord[idx1_q-1]
-                rotation_vector: npt.NDArray[np.float64] = rotation_axis / \
-                    np.linalg.norm(rotation_axis)
-                r_pq = R.from_rotvec(
-                    2*np.pi*(nCutter/nCutters)*rotation_vector)
-                for idx0 in broken_bond_H:
-                    St.coord[idx0] = r_pq.apply(St.coord[idx0])
-                St.coord += dxyz
+            # for nCutter in range(nCutters):
+            St.coord = inital.copy()
+            St.coord -= dxyz  # type: ignore
+            rotation_axis: npt.NDArray[np.float64] = St.coord[idx1_q-1]
+            rotation_vector: npt.NDArray[np.float64] = rotation_axis / \
+                np.linalg.norm(rotation_axis)
+            r_pq = R.from_rotvec(
+                2*np.pi*(nSpec/nCutters)*rotation_vector)
+            for idx0 in broken_bond_H:
+                St.coord[idx0] = r_pq.apply(St.coord[idx0])
+            St.coord += dxyz
 
     def method_translate_cut_xyzs(self, delta: npt.NDArray[np.float64], cut: int) -> GeometryXYZs:
         """
