@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from pathlib import Path
 from typing import Literal
 from censo_ext.Tools.xyzfile import GeometryXYZs
 import numpy as np
@@ -8,7 +7,6 @@ from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 from censo_ext.Tools.utility import AtomID
 
 
-# def method_factor_analysis(args) -> tuple[list[AtomID], dict[AtomID, float]]:
 def method_factor_analysis(xyzFile: GeometryXYZs, _factor) -> tuple[list[AtomID], dict[AtomID, float]]:
     """ 
     Performs factor analysis on a set of geometries to identify atoms with high and low structural variability.
@@ -197,3 +195,52 @@ def method_factor_opt(xyzFile: GeometryXYZs, _lowFactor: list[AtomID], table_std
         return False
     print(" ========== Finished ========== ")
     return True, idx_ratio[Ratio.index(max(Ratio))], max(Ratio)
+
+
+def idx_3atom_opt(xyzFile: GeometryXYZs) -> tuple[AtomID, AtomID, AtomID]:
+    from censo_ext.Tools.factor import method_factor_analysis
+    # args_x: dict = {"file": inFile, "factor": 0.5, "opt": False}
+    _LowFactor: list[AtomID]
+    _Deviation: dict[AtomID, float]
+    _LowFactor, _Deviation = method_factor_analysis(
+        xyzFile, _factor=0.50)
+
+    _Bonding: list[list[AtomID]] = []
+    for x in _LowFactor:
+        from censo_ext.Tools.topo import Topo
+        _topo = Topo(xyzFile, check=False)
+        _Bonding.append(_topo.method_bonding(_bonding=x, _print=False))
+
+    _3AtomID: list[list[AtomID]] = []
+    for idx0, x in enumerate(_LowFactor):
+        # total numbers >=3 or >2 (one of total numbers is )
+        if len(_Bonding[idx0]) > 1:
+            tmp: list[AtomID] = []
+            tmp.append(x)
+            for y in _Bonding[idx0]:
+                tmp.append(y)
+            _3AtomID.append(tmp)
+
+    from itertools import combinations
+    Combined_3AtomID: list[tuple[AtomID, AtomID, AtomID]] = []
+    for x in _3AtomID:
+        for y in list(combinations(x, 3)):
+            Combined_3AtomID.append(y)
+
+    idx1_Atoms: list[AtomID] = list(_Deviation.keys())
+    STD_Atoms: list[float] = list(_Deviation.values())
+
+    intp_minTotalDev: int = 0
+    minTotalDev: float = 100
+    for idx0, x in enumerate(Combined_3AtomID):
+        TotalDevAtoms: float = 0.0
+        for y in x:
+            TotalDevAtoms += (STD_Atoms[idx1_Atoms.index(AtomID(y))])
+        if minTotalDev > TotalDevAtoms:
+            minTotalDev = TotalDevAtoms
+            intp_minTotalDev: int = idx0
+
+    print("")
+    print(f" 3 atom idx of lowest total factor {Combined_3AtomID[intp_minTotalDev]}")  # nopep8
+    print("")
+    return (Combined_3AtomID[intp_minTotalDev])
