@@ -76,6 +76,13 @@ def cml() -> argparse.Namespace:
         help="Check mode of chemical structures [default False] ",
     )
 
+    parser.add_argument(
+        "--auto",
+        dest="auto",
+        action="store_true",
+        help="Auto mode of xyzReturnOandZ of chemical structures [default False] ",
+    )
+
     args: argparse.Namespace = parser.parse_args()
     return args
 
@@ -179,7 +186,7 @@ def print_report(_circle: list[cell_reports], _straight: list[cell_reports]) -> 
         print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
 
 
-def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight: list[cell_reports]) -> None:
+def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight: list[cell_reports], _auto: bool) -> None:
 
     if len(_circle) >= 1:
         print("  ===== Save circle molecule =====")
@@ -199,7 +206,8 @@ def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports],
             print(index1)
             outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
             _xyzFile.set_filename(circleDir / outFile)
-            _xyzFile.method_xyzReturnOandZ_auto()
+            if _auto:
+                _xyzFile.method_xyzReturnOandZ_auto()
             _xyzFile.method_save_xyz(index1)
 
     if len(_straight) >= 1:
@@ -219,7 +227,8 @@ def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports],
             print(index1)
             outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
             _xyzFile.set_filename(straightDir / outFile)
-            _xyzFile.method_xyzReturnOandZ_auto()
+            if _auto:
+                _xyzFile.method_xyzReturnOandZ_auto()
             _xyzFile.method_save_xyz(index1)
 
     print("  ===== Finished to save the files =====")
@@ -237,7 +246,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                                       _verbose=args.verbose, _limits=args.limits, _check=args.check)
     print_report(_circle=_Circle, _straight=_Straight)
     save_files(_index=args.idx, _xyzFile=_xyzFile, _circle=_Circle,
-               _straight=_Straight)
+               _straight=_Straight, _auto=args.auto)
 
 
 if __name__ == "__main__":
