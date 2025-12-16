@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from censo_ext.Tools.Parameter import Eh
+from censo_ext.Tools.spectra import Boltzmann_Weighting
 from censo_ext.Tools.xyzfile import GeometryXYZs
 import argparse
 import subprocess
@@ -197,11 +198,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     for idx0, x in enumerate(intp_Energy.copy()):
         if np_Energy[x] >= args.thr:
             intp_Energy = np.delete(intp_Energy, idx0)
-    zip_energy: zip[tuple[npt.NDArray[np.intp], npt.NDArray[np.float64]]] = zip(
-        intp_Energy+1, np_Energy[intp_Energy])
-    print("  index1           Energy (kcal/mol)")
-    for x, y in zip_energy:
-        print(f"{x:8d}           {y:17.10f}")
+
+    BW: npt.NDArray[np.float64] = Boltzmann_Weighting(
+        np_Energy[intp_Energy], TEMP=298.15)
+
+    zip_energy: zip[tuple[npt.NDArray[np.intp], npt.NDArray[np.float64], npt.NDArray[np.float64]]] = zip(
+        intp_Energy+1, np_Energy[intp_Energy], BW)
+
+    print("  index1           Energy (kcal/mol)             BW")
+    for x, y, z in zip_energy:
+        print(f"{x:8d}           {y:17.10f}       {z:8.4f}")
     xyzFile.method_save_xyz((intp_Energy+1).tolist())
 
     subprocess.call(
