@@ -112,6 +112,15 @@ def cml() -> argparse.Namespace:
         action="store_true",
         help="to Check the molbar is the same with first xyz structure [default False]",
     )
+    parser.add_argument(
+        "--temp",
+        dest="temp",
+        action="store",
+        required=False,
+        type=float,
+        default=298.15,
+        help="the temperature [default 298.15 K]",
+    )
 
     args: argparse.Namespace = parser.parse_args()
     return args
@@ -208,7 +217,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         if intp_energy_lines:
             xyzFile.Sts[idx1 -
                         1]._comment_energy = float(lines[intp_energy_lines].split()[3])
-            Energy.append(float(lines[intp_energy_lines].split()[3])*Eh)
+            Energy.append(float(lines[intp_energy_lines].split()[3]))
 
     # save singe point energy of xtb
     xyzFile.method_rewrite_comment()
@@ -219,20 +228,22 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("")
     print("  ===== Boltzmann Distribution =====")
     print(f"  threshold energy = {args.thr} (kcal/mol)")
+    print(f"  Temperature      = {args.temp} (K)")
     print("")
     print("  Boltzmann Weighting Table")
 
     import numpy as np
     import numpy.typing as npt
     np_Energy = np.array(Energy)*Eh
-    np_Energy = (np_Energy-np_Energy.min())
+    np_Energy = np_Energy - np_Energy.min()
     intp_Energy: npt.NDArray[np.intp] = np.argsort(np_Energy)
+
     for idx0, x in enumerate(intp_Energy.copy()):
         if np_Energy[x] >= args.thr:
             intp_Energy = np.delete(intp_Energy, idx0)
 
     BW: npt.NDArray[np.float64] = Boltzmann_Weighting(
-        np_Energy[intp_Energy], TEMP=298.15)
+        np_Energy[intp_Energy], TEMP=args.temp)
 
     zip_energy: zip[tuple[npt.NDArray[np.intp], npt.NDArray[np.float64], npt.NDArray[np.float64]]] = zip(
         intp_Energy+1, np_Energy[intp_Energy], BW)

@@ -1,0 +1,138 @@
+#!/usr/bin/env python
+# from censo_ext.Tools.ml4nmr import read_mol_neighbors
+from censo_ext.Tools.Parameter import Eh
+from censo_ext.Tools.spectra import Boltzmann_Weighting
+from censo_ext.Tools.utility import print_arguments
+import argparse
+
+from censo_ext.Tools.xyzfile import GeometryXYZs
+descr = """
+    ________________________________________________________________________________
+    | For Generation of xyz molecule
+    | Usages   : xyz.py <geometry> [options]
+    | [options]
+    |______________________________________________________________________________
+    """
+
+
+def cml() -> argparse.Namespace:
+    """ Get args object from commandline interface. Needs argparse module."""
+    parser = argparse.ArgumentParser(
+        description="descr",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        usage=argparse.SUPPRESS)
+    parser.add_argument(
+        "-i",
+        "--input",
+        dest="file",
+        action="store",
+        required=False,
+        default="traj.xyz",
+        help="Provide one input xyz file [default traj.xyz]",
+    )
+    parser.add_argument(
+        "-o",
+        "--out",
+        dest="out",
+        action="store",
+        required=False,
+        default="isomers.xyz",
+        help="Provide one input xyz file [default isomers.xyz]",
+    )
+    parser.add_argument(
+        "-t",
+        "--thr",
+        dest="thr",
+        action="store",
+        required=False,
+        type=float,
+        default=100,
+        help="the threshold of electron energy [default 100 (Kcal/mol)]",
+    )
+    parser.add_argument(
+        "--temp",
+        dest="temp",
+        action="store",
+        required=False,
+        type=float,
+        default=298.15,
+        help="the temperature [default 298.15 K]",
+    )
+    args: argparse.Namespace = parser.parse_args()
+    return args
+
+
+def main(args: argparse.Namespace = argparse.Namespace()) -> None:
+    if args == argparse.Namespace():
+        args = cml()
+    print_arguments()
+
+    xyzFile: GeometryXYZs = GeometryXYZs(args.file)
+    xyzFile.method_read_xyz()
+    xyzFile.method_compute_COM()
+    xyzFile.method_compute_Inertia()
+    import numpy as np
+    import numpy.typing as npt
+    list_inertia: list | npt.NDArray = []
+    for St in xyzFile.Sts:
+        list_inertia.append(St.inertia)
+
+    _inertia = np.array(list_inertia)
+
+    idx0_remove: list = []
+    for index0, x in enumerate(_inertia):
+        std = _inertia[index0].copy()
+        for idx0, x in enumerate(_inertia):
+            _inertia[idx0] = x - std
+        idx0_diff: list = []
+        for idx0, x in enumerate(_inertia):
+            diff = (np.sum(np.square(x)))
+            if diff <= 1.0:
+                idx0_diff.append(idx0)
+        if len(idx0_diff) != 1:
+            idx0_diff = [x for x in idx0_diff if x > index0]
+            if len(idx0_diff) >= 1:
+                idx0_remove.append(idx0_diff)
+
+    idx0_remove = [int(x) for x in list(np.array(idx0_remove).flat)]
+    idx0_index = [* range(len(_inertia))]
+    idx0_index = [x for x in idx0_index if x not in idx0_remove]
+
+    xyzFile.method_xyzExtract(idx0_index)
+    Energy = [St._comment_energy for St in np.array(xyzFile.Sts)]
+
+    # print the Boltzmann weighting
+    print("")
+    print("  ===== Boltzmann Distribution =====")
+    print(f"  threshold energy = {args.thr} (kcal/mol)")
+    print(f"  Temperature      = {args.temp} (K)")
+    print("")
+    print("  Boltzmann Weighting Table")
+
+    import numpy as np
+    import numpy.typing as npt
+    np_Energy = np.array(Energy)*Eh
+    np_Energy = np_Energy - np_Energy.min()
+    intp_Energy: npt.NDArray[np.intp] = np.argsort(np_Energy)
+    for idx0, x in enumerate(intp_Energy.copy()):
+        if np_Energy[x] >= args.thr:
+            intp_Energy = np.delete(intp_Energy, idx0)
+
+    BW: npt.NDArray[np.float64] = Boltzmann_Weighting(
+        np_Energy[intp_Energy], TEMP=args.temp)
+
+    zip_energy: zip[tuple[npt.NDArray[np.intp], npt.NDArray[np.float64], npt.NDArray[np.float64]]] = zip(
+        intp_Energy+1, np_Energy[intp_Energy], BW)
+
+    print("  index1           Energy (kcal/mol)             BW")
+    for x, y, z in zip_energy:
+        print(f"{x:8d}           {y:17.10f}       {z:8.4f}")
+
+    xyzFile.set_filename(args.out)
+    xyzFile.method_rewrite_comment()
+    xyzFile.method_comment_new()
+    xyzFile.method_save_xyz((intp_Energy+1).tolist())
+
+
+if __name__ == "__main__":
+    main()

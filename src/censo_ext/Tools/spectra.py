@@ -61,11 +61,13 @@ def find_nearest(x_in: list[float] | npt.NDArray[np.float64], value) -> tuple[fl
 
 def Boltzmann_Weighting(electron_Energy: npt.NDArray[np.float64], TEMP: float) -> npt.NDArray[np.float64]:
 
-    from censo_ext.Tools.Parameter import Eh, FACTOR
+    # the unit of electron_Energy is kcal/mol
+    # the unit of TEMP is K
+    from censo_ext.Tools.Parameter import FACTOR
 
     # Gibbs_min is lowest energy of Gibbs Free Energy
     Gibbs_min: np.float64 = electron_Energy.min()
-    Gibbs: npt.NDArray[np.float64] = np.array(electron_Energy-Gibbs_min)*Eh
+    Gibbs: npt.NDArray[np.float64] = np.array(electron_Energy-Gibbs_min)
 
     # Qi (each CONFS)
     Qi: npt.NDArray[np.float64] = np.array(np.exp(-Gibbs/(TEMP*FACTOR)))
