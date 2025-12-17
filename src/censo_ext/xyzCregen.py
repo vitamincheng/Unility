@@ -50,6 +50,15 @@ def cml() -> argparse.Namespace:
         help="the threshold of electron energy [default 100 (Kcal/mol)]",
     )
     parser.add_argument(
+        "--rthr",
+        dest="rthr",
+        action="store",
+        required=False,
+        type=float,
+        default=0.1,
+        help="the threshold of interia [default 1.0 (amu/A^2)]",
+    )
+    parser.add_argument(
         "--temp",
         dest="temp",
         action="store",
@@ -87,14 +96,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         idx0_diff: list = []
         for idx0, x in enumerate(_inertia):
             diff = (np.sum(np.square(x)))
-            if diff <= 1.0:
+            if diff <= args.rthr:
                 idx0_diff.append(idx0)
         if len(idx0_diff) != 1:
             idx0_diff = [x for x in idx0_diff if x > index0]
             if len(idx0_diff) >= 1:
                 idx0_remove.append(idx0_diff)
-
-    idx0_remove = [int(x) for x in list(np.array(idx0_remove).flat)]
+    import itertools
+    idx0_remove = list(itertools.chain.from_iterable(idx0_remove))
     idx0_index = [* range(len(_inertia))]
     idx0_index = [x for x in idx0_index if x not in idx0_remove]
 
