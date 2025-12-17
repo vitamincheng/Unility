@@ -30,6 +30,6 @@ dependencies = [
     "cachier",
     "pyqt5",
     "numba",
-    "scikit-image"
+    "scikit-image",
     "molbar"
 ]
