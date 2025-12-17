@@ -106,12 +106,11 @@ def cml() -> argparse.Namespace:
         default=100,
         help="to set the threshold of the electron energy of molecules (Kcal/mol) [default 100]",
     )
-
     parser.add_argument(
-        "--opt",
-        dest="opt",
+        "--check",
+        dest="check",
         action="store_true",
-        help="Optimize energy [default False]",
+        help="to Check the molbar is the same with first xyz structure [default False]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -128,12 +127,38 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     single_traj_Name = Path(".solo.xyz")
     temp_isomer_Name = Path(".isomers.xyz")
     xtb_cmd: str = ""
+
+    # default to read the file
     inFile = Path(args.file)
     outFile = Path(args.out)
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
 
-    # Default to xtb command
+    # Check the molbar
+    if args.check:
+        print("  ===== Check the molbar =====")
+        from molbar.barcode import get_molbars_from_coordinates
+        inCoords: list = [x.coord for x in xyzFile.Sts]
+        inNames: list = [x.names for x in xyzFile.Sts]
+        molbars = get_molbars_from_coordinates(inCoords, inNames)
+
+        std = molbars[0]
+        print(len(molbars))
+        for idx0, molbar in enumerate(molbars):
+            if std != molbar:
+                print(f"Index {idx0+1} in your xyz file have different molbar")
+                for idx1, bar in enumerate(molbars):
+                    print("")
+                    print(f"Index of {idx1+1} : ")
+                    print(f"{bar}")
+                exit(1)
+
+        print("  In your xyz file have the same molbar")
+        print(f"{molbars[0]}")
+        print("")
+
+    # Default to xtb command: singel point energy
+    print("  ===== single point energy of xtb =====")
     from censo_ext.Tools.utility import prog_IsExist
     prog = "xtb"
     prog_IsExist(prog)
@@ -185,11 +210,18 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                         1].comment_energy = float(lines[intp_energy_lines].split()[3])
             Energy.append(float(lines[intp_energy_lines].split()[3])*Eh)
 
-    # print("singe point")
+    # save singe point energy of xtb
     xyzFile.method_rewrite_comment()
     xyzFile.method_comment_new()
     xyzFile.set_filename(outFile)
-    # print(Energy)
+
+    # print the Boltzmann weighting
+    print("")
+    print("  ===== Boltzmann Distribution =====")
+    print(f"  threshold energy = {args.thr} (kcal/mol)")
+    print("")
+    print("  Boltzmann Weighting Table")
+
     import numpy as np
     import numpy.typing as npt
     np_Energy = np.array(Energy)*Eh

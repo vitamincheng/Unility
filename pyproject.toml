@@ -31,4 +31,5 @@ dependencies = [
     "pyqt5",
     "numba",
     "scikit-image"
+    "molbar"
 ]
