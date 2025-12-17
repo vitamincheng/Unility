@@ -185,7 +185,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     get_energy = idy0
             if get_energy:
                 xyzFile.Sts[idx1 -
-                            1].comment_energy = float(lines[get_energy].split()[3])
+                            1]._comment_energy = float(lines[get_energy].split()[3])
 
     if args.opt:
         # print("opt")

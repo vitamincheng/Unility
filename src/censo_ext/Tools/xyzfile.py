@@ -54,7 +54,7 @@ class Geometry():
         # coordinates of every atom
         self.nAtoms: int = len(names)                       # numbers of atom
         self.comment: str = comment                         # Energy =   Eh   #Cluster  :i         # nopep8
-        self.comment_energy: float = energy                 # Energy (Eh)
+        self._comment_energy: float = energy                 # Energy (Eh)
         self.comment_nClusters: int = nClusters             # index of Clusters
         self.mass: npt.NDArray[np.float64]
         self.extras: list[list[str]] = extras
@@ -104,7 +104,7 @@ class Geometry():
             float: Energy value in Eh units.
         """
 
-        return self.comment_energy
+        return self._comment_energy
 
     def method_translate_xyz(self, delta: npt.NDArray[np.float64]) -> Geometry:
         """
@@ -172,7 +172,7 @@ class Geometry():
                 molecules.append(x)
             return molecules
 
-    def method_computeCOM(self) -> npt.NDArray[np.float64]:
+    def method_computeCOM(self) -> None:
         """Calculate the center of mass (COM) of the molecule.
 
         This method computes the center of mass coordinates using the atomic masses
@@ -191,12 +191,13 @@ class Geometry():
 
         self.method_update_masses()
         if hasattr(self, 'com') and self.com.size == 3:
-            return self.com
+            pass
+            # return self.com
         else:
             self.com = np.dot(self.mass, self.coord) / np.sum(self.mass)
-            return self.com
+            # return self.com
 
-    def method_computeInertia(self) -> npt.NDArray[np.float64]:
+    def method_computeInertia(self) -> None:
         """Calculate the moment of inertia tensor.
 
         The moment of inertia tensor is computed using the standard formula:
@@ -216,9 +217,28 @@ class Geometry():
                 around different axes.
         """
 
-        data = self.coord - self.method_computeCOM()
+        if hasattr(self, 'com') and self.com.size != 0:
+            pass
+        else:
+            self.method_computeCOM()
 
-        return -np.einsum("ax,a,ay->xy", data, self.mass, data)
+        _coord = self.coord - self.com
+        moi = np.zeros((3, 3), dtype=np.float64)
+        for i in range(self.nAtoms):
+            at_mass = self.mass[i]
+            for p in range(3):
+                for q in range(3):
+                    if (p == q):
+                        r = (p+1) % 3
+                        s = (p+2) % 3
+                        moi[p][p] += at_mass * \
+                            (_coord[i][r]**2 + _coord[i][s]**2)
+                    else:
+                        moi[p][q] += -at_mass * \
+                            _coord[i][p] * _coord[i][q]
+        value, vectors = np.linalg.eig(moi)
+        _args = np.argmax(np.abs(vectors), axis=0)
+        self.inertia = value[_args]
 
     def method_update_masses(self) -> None:
         """
@@ -243,12 +263,14 @@ class Geometry():
             KeyError: If an element name in `self.names` is not found in
                       `NAMES_WEIGHTS`.
         """
-
-        self.mass = np.array([])
-        for value in self.names.values():
-            from censo_ext.Tools.Parameter import NAMES_WEIGHTS
-            self.mass = np.append(
-                self.mass, NAMES_WEIGHTS[value.lower()], axis=None)
+        if hasattr(self, 'mass') and self.mass.size != 0:
+            pass
+        else:
+            self.mass = np.array([])
+            for value in self.names.values():
+                from censo_ext.Tools.Parameter import NAMES_WEIGHTS
+                self.mass = np.append(
+                    self.mass, NAMES_WEIGHTS[value.lower()], axis=None)
 
     def method_rewrite_comment(self) -> None:
         """
@@ -272,7 +294,7 @@ class Geometry():
         """
 
         self.comment = " Energy = "+" "*7 + \
-            f"{self.comment_energy:.10f} Eh"+" "*8 + \
+            f"{self._comment_energy:.10f} Eh"+" "*8 + \
             f"#Cluster:     {self.comment_nClusters}"
 
     def method_update_comment(self) -> None:
@@ -299,13 +321,12 @@ class Geometry():
         Raises:
             ValueError: If the comment line cannot be parsed and contains invalid data.
         """
-
         comments: list[str] = self.comment.replace("a.u.", "").replace("Eh", "").replace("Energy=", "").replace("Energy =", "").replace(
             "Energy  =", "").replace("energy:", "").replace("Energy:", "").split()
         if comments == []:
             print(" Your xyz file have not any about Energy and Cluster !!!")
             print(" We will set Energy = 0 in your xyz file")
-            self.comment_energy, self.comment_nClusters = 0, 0
+            self._comment_energy, self.comment_nClusters = 0, 0
             self.method_rewrite_comment()
             return
 
@@ -313,11 +334,11 @@ class Geometry():
         if function_is_float(comments[0]):
             if len(comments) >= 3:
                 if comments[1] == "#Cluster:" and function_is_float(comments[2]):
-                    self.comment_energy, self.comment_nClusters = float(comments[0]), int(comments[2])  # nopep8
+                    self._comment_energy, self.comment_nClusters = float(comments[0]), int(comments[2])  # nopep8
                 else:
-                    self.comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
+                    self._comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
             else:
-                self.comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
+                self._comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
         else:
             print(f"{comments} Something wrong in your xyz file !!! ")
             print("  Exit and Close the program !!!")
@@ -358,6 +379,14 @@ class GeometryXYZs():
 
     def get_fileName(self) -> Path:
         return self.__filename
+
+    def method_compute_COM(self) -> None:
+        for St in self.Sts:
+            St.method_computeCOM()
+
+    def method_compute_Inertia(self) -> None:
+        for St in self.Sts:
+            St.method_computeInertia()
 
     def method_xyzExtract(self, idx1: list[int]) -> None:
         idx0: list[int] = [x for x in idx1]
@@ -801,7 +830,7 @@ class GeometryXYZs():
         enso['CONF'] = np.arange(1, len(self.Sts)+1)
         enso['mRRHO'] = np.array(thermo)
         enso['Energy'] = np.array(
-            [a.comment_energy for a in self.Sts], dtype=[('Energy', 'f8')])
+            [a._comment_energy for a in self.Sts], dtype=[('Energy', 'f8')])
         Total: npt.NDArray = np.array(
             enso['Energy']+enso['mRRHO'], dtype=[('Total', 'f8')])
         enso = rfn.merge_arrays((enso, Total), flatten=True)

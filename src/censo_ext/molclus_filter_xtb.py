@@ -207,7 +207,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 intp_energy_lines = idy0
         if intp_energy_lines:
             xyzFile.Sts[idx1 -
-                        1].comment_energy = float(lines[intp_energy_lines].split()[3])
+                        1]._comment_energy = float(lines[intp_energy_lines].split()[3])
             Energy.append(float(lines[intp_energy_lines].split()[3])*Eh)
 
     # save singe point energy of xtb

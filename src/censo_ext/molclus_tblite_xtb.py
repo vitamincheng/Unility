@@ -180,11 +180,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 optimizer.send((energy, gradient / angstrom))
 
                 trajectory.append((energy, gradient, coordinates))
-            xyzFile.Sts[idx1-1].comment_energy = trajectory[-1][0]
+            xyzFile.Sts[idx1-1]._comment_energy = trajectory[-1][0]
             xyzFile.Sts[idx1-1].coord = list(trajectory[-1][2])
 
         else:
-            xyzFile.Sts[idx1-1].comment_energy = results["energy"]
+            xyzFile.Sts[idx1-1]._comment_energy = results["energy"]
 
     xyzFile.method_rewrite_comment()
     xyzFile.method_comment_new()

@@ -170,7 +170,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 f"mv -f {template_Name}.xyz {idx1_str}.xyz", shell=True)
         else:
             if get_energy:
-                xyzFile.Sts[idx1 - 1].comment_energy = float(orca_lines[get_energy].split()[4])  # nopep8
+                xyzFile.Sts[idx1 - 1]._comment_energy = float(orca_lines[get_energy].split()[4])  # nopep8
 
         subprocess.call(f"mv -f {template_Name}.out {idx1_str}.out", shell=True)  # nopep8
         subprocess.call(f"mv -f {template_Name}.gbw {idx1_str}.gbw", shell=True)  # nopep8
