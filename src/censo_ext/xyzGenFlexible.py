@@ -110,7 +110,6 @@ def get_xyzSplit(residualMols: list[set[int]], atomsCN: dict[AtomID, int], flatt
         if len(flexibleMols) == 1:
             continue
         mol = nodeMols+flexibleMols
-        # ic(flexibleMols, nodeMols)
 
         flexibleMolsCNis4: list = [
             a for a in flexibleMols if atomsCN[AtomID(a)] == 4]
@@ -118,40 +117,57 @@ def get_xyzSplit(residualMols: list[set[int]], atomsCN: dict[AtomID, int], flatt
         # ic(nodeMols)
 
         if len(nodeMols) == 0:
-            nodeMols.append(flexibleMols[1])
-            temp_Mols = flexibleMols[0]
-            flexibleMols.remove(nodeMols[0])
+
+            max_distnce: int = 0
+            atomIDs: int = 0
+            for x in residualMols_all_pairs.values():
+                for key, distance in x.items():
+                    if distance > max_distnce:
+                        max_distnce = distance
+                        atomIDs = key
+
+            # Neighbor_atomIDs = [
+            #    key for key, value in residualMols_all_pairs[atomIDs].items() if value == 1]
+
+            nodeMols.append(atomIDs)
+            # temp_Mols = Neighbor_atomIDs[0]
+            flexibleMols.remove(atomIDs)
             # ic(nodeMols)
             # ic(flexibleMols)
-            for key, value in residualMols_all_pairs.items():
-                for x, y in value.items():
-                    if x == temp_Mols:
-                        value[x] = 0
+            # for key, value in residualMols_all_pairs.items():
+            #    for x, y in value.items():
+            #        if x == temp_Mols:
+            #            value[x] = 0
             # ic(residualMols_all_pairs)
+
+        # ic(flexibleMols, nodeMols)
 
         if len(nodeMols) == 1 or 2:
             # ic(residualMols_all_pairs[nodeMols[0]])
+            # ic(flexibleMolsCNis4)
             a = residualMols_all_pairs[nodeMols[0]].values()
             import math
             b = [x for x in a if not math.isinf(x)]
             for x in range(0, max(b)-1):
-                # print(x, x+1)
+                # ic(x, x+1)
                 out_key: int = 0
                 out_value: int = 0
                 if x == 0:
-                    # print("key: ", nodeMols[0])
+                    # ic("key: ", nodeMols[0])
                     out_key = nodeMols[0]
                 for key, distance in residualMols_all_pairs[nodeMols[0]].items():
                     if distance == x:
                         if len([c for c in residualMols_all_pairs[key].values() if c == 1]) != 1:
-                            # print("key: ", key)
+                            # ic("key: ", key)
                             out_key = key
                     if distance == x+1:
                         if len([c for c in residualMols_all_pairs[key].values() if c == 1]) != 1:
-                            # print("value: ", key)
+                            # ic("value: ", key)
                             out_value = key
                 if out_key not in flexibleMolsCNis4 and out_value not in flexibleMolsCNis4:
                     pass
+                # if out_key == 0 or out_value == 0:
+                #    pass
                 else:
                     # ic(out_key, out_value)
                     xyzSplit[out_key] = out_value

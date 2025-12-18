@@ -167,20 +167,26 @@ def TopoAnalysis(_xyzFile: GeometryXYZs, _index: int, _verbose: bool, _limits: f
 
 def print_report(_circle: list[cell_reports], _straight: list[cell_reports]) -> None:
 
-    print("  ===== Check circle molecule =====")
-    print("   idx1  node  res_node      res_left      res_right")
-    for x in _circle:
-        print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
+    if len(_circle) != 0:
+        print("")
+        print("  ===== Check circle molecule =====")
+        print("   idx1  node  res_node      res_left      res_right")
+        for x in _circle:
+            print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
 
-    print("  ===== Check straight molecule =====")
-    print("   idx1   key     value      res_left      res_right")
-    for x in _straight:
-        print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
+    if len(_straight) != 0:
+        print("")
+        print("  ===== Check straight molecule =====")
+        print("   idx1   key     value      res_left      res_right")
+        for x in _straight:
+            print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
+        print("  [key,value] [fixed,rotation]")
 
 
 def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight: list[cell_reports], _auto: bool) -> None:
 
     if len(_circle) >= 1:
+        print("")
         print("  ===== Save circle molecule =====")
         # print(result_circle)
         circleDir: Path = Path("Circle")
@@ -203,6 +209,7 @@ def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports],
             _xyzFile.method_save_xyz(index1)
 
     if len(_straight) >= 1:
+        print("")
         print("  ===== Save straight molecule =====")
         straightDir: Path = Path("Straight")
         if straightDir.is_dir():
