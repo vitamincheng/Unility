@@ -102,7 +102,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     from censo_ext.Tools.utility import IsExist
     inFile = Path(args.file)
-    outFile = Path(args.out)
+    if args.replace:
+        outFile: Path = inFile
+    else:
+        outFile = Path(args.out)
+
     IsExist(args.file)
 
     if not args.atom and not args.auto:

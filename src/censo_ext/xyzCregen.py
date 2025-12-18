@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # from censo_ext.Tools.ml4nmr import read_mol_neighbors
+from censo_ext import xyzReturnOandZ
 from censo_ext.Tools.Parameter import Eh
 from censo_ext.Tools.spectra import Boltzmann_Weighting
 from censo_ext.Tools.utility import print_arguments
@@ -50,13 +51,14 @@ def cml() -> argparse.Namespace:
         help="the threshold of electron energy [default 100 (Kcal/mol)]",
     )
     parser.add_argument(
+        "-rthr",
         "--rthr",
         dest="rthr",
         action="store",
         required=False,
         type=float,
         default=0.1,
-        help="the threshold of interia [default 1.0 (amu/A^2)]",
+        help="the threshold of interia [default 0.1 (amu/A^2)]",
     )
     parser.add_argument(
         "--temp",
@@ -76,6 +78,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml()
     print_arguments()
 
+    x: dict = {"file": args.file, "auto": True,
+               "atom": None, "print": False, "replace": True, "out": None}
+    x_args = argparse.Namespace(**x)
+    xyzReturnOandZ.main(x_args)
+
     xyzFile: GeometryXYZs = GeometryXYZs(args.file)
     xyzFile.method_read_xyz()
     xyzFile.method_compute_COM()
@@ -85,27 +92,37 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     list_inertia: list | npt.NDArray = []
     for St in xyzFile.Sts:
         list_inertia.append(St.inertia)
-
     _inertia = np.array(list_inertia)
 
-    idx0_remove: list = []
+    idx0_St_remove: list = []
     for index0, x in enumerate(_inertia):
         std = _inertia[index0].copy()
+
         for idx0, x in enumerate(_inertia):
             _inertia[idx0] = x - std
-        idx0_diff: list = []
+
+        idx0_diff: list[int] = []
         for idx0, x in enumerate(_inertia):
-            diff = (np.sum(np.square(x)))
-            if diff <= args.rthr:
+            # print(index0, idx0)
+            The_Same_St = xyzFile.method_compare_the_same_core(
+                index0, idx0)
+            if np.sum(np.square(x)) <= args.rthr and The_Same_St:
                 idx0_diff.append(idx0)
+                # print(index0, idx0, end="")
+                # print(" ===")
+        # print(idx0_diff)
         if len(idx0_diff) != 1:
             idx0_diff = [x for x in idx0_diff if x > index0]
             if len(idx0_diff) >= 1:
-                idx0_remove.append(idx0_diff)
+                idx0_St_remove.append(idx0_diff)
+        # print(idx0_St_remove)
+        # print("")
+
     import itertools
-    idx0_remove = list(itertools.chain.from_iterable(idx0_remove))
+    idx0_St_remove = list(itertools.chain.from_iterable(idx0_St_remove))
+
     idx0_index = [* range(len(_inertia))]
-    idx0_index = [x for x in idx0_index if x not in idx0_remove]
+    idx0_index = [x for x in idx0_index if x not in idx0_St_remove]
 
     xyzFile.method_xyzExtract(idx0_index)
     Energy = [St._comment_energy for St in np.array(xyzFile.Sts)]
@@ -123,9 +140,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     np_Energy = np.array(Energy)*Eh
     np_Energy = np_Energy - np_Energy.min()
     intp_Energy: npt.NDArray[np.intp] = np.argsort(np_Energy)
-    for idx0, x in enumerate(intp_Energy.copy()):
-        if np_Energy[x] >= args.thr:
-            intp_Energy = np.delete(intp_Energy, idx0)
+    intp_remove_Energy = np.argwhere(np_Energy[intp_Energy] > args.thr)
+    intp_Energy = np.delete(intp_Energy, intp_remove_Energy)
 
     BW: npt.NDArray[np.float64] = Boltzmann_Weighting(
         np_Energy[intp_Energy], TEMP=args.temp)

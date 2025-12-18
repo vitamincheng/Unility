@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import numpy.typing as npt
 import copy
-from censo_ext.Tools.utility import AtomID, IntpID
+from censo_ext.Tools.utility import AtomID, IntpID, cosine_similarity_3D
 
 
 class Geometry():
@@ -387,6 +387,35 @@ class GeometryXYZs():
     def method_compute_Inertia(self) -> None:
         for St in self.Sts:
             St.method_computeInertia()
+
+    def method_compare_the_same_core(self, idx0_p: int, idx0_q: int) -> bool:
+
+        if self.Sts[idx0_p].names == self.Sts[idx0_q].names:
+            coord_p = self.Sts[idx0_p].coord - self.Sts[idx0_p].com
+            coord_q = self.Sts[idx0_q].coord - self.Sts[idx0_q].com
+            Elements = self.Sts[idx0_p].names.values()
+            Elements_not_H = [idx0 for idx0,
+                              x in enumerate(Elements) if x != "H"]
+            # print(Elements_not_H)
+            # print(coord_p[Elements_not_H])
+            # print(coord_q[Elements_not_H])
+            cosine = cosine_similarity_3D(
+                coord_p[Elements_not_H], coord_q[Elements_not_H])
+
+            # print([1.0]*len(cosine))
+            # print(np.abs(np.array(cosine)))
+            # print(np.allclose(np.abs(np.array(cosine)),
+            #      [1.0]*len(cosine), atol=0.01))
+            if np.allclose(np.abs(np.array(cosine)),
+                           [1.0]*len(cosine), atol=0.01):
+                # print("The structures are the same")
+                return True
+            else:
+                # print("The structures is not the same")
+                return False
+        else:
+            print("  Something wrong in your xyz files")
+            return False
 
     def method_xyzExtract(self, idx1: list[int]) -> None:
         idx0: list[int] = [x for x in idx1]
