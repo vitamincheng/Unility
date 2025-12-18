@@ -21,7 +21,7 @@ def test_xyzRotate_miss_args():
 
 def test_xyzRotate_3_1():
     x: dict = {"file": inFile, "atoms": [52, 55], "cuts": 3, "spec": 1,
-               "print": False, "check": False,
+               "print": False,
                "out": Path("tests/compare/output_xyzReturnOandZ.xyz")}
     args = argparse.Namespace(**x)
     xyzRotate.main(args)
@@ -33,7 +33,7 @@ def test_xyzRotate_3_1():
 
 def test_xyzRotate_3_2():
     x: dict = {"file": inFile, "atoms": [52, 55], "cuts": 3, "spec": 2,
-               "print": False, "check": False,
+               "print": False,
                "out": Path("tests/compare/output_xyzReturnOandZ.xyz")}
     args = argparse.Namespace(**x)
     xyzRotate.main(args)

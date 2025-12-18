@@ -90,12 +90,6 @@ def cml() -> argparse.Namespace:
         action="store_true",
         help="Print output to screen [default False]",
     )
-    parser.add_argument(
-        "--check",
-        dest="check",
-        action="store_true",
-        help="Check hydrogen atom is only one bond [default False]",
-    )
 
     args: argparse.Namespace = parser.parse_args()
     return args
@@ -130,12 +124,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         exit(1)
 
     xyzFile.method_read_xyz()
-    xyzFile.method_xyzRotate(_check=args.check, idx1_p=idx1_p,
+    xyzFile.method_xyzRotate(idx1_p=idx1_p,
                              idx1_q=idx1_q, _cuts=args.cuts, _nspec=args.spec)
     xyzFile.set_filename(outFile)
     xyzFile.method_save_xyz([])
     from censo_ext.Tools.topo import Topo
-    _topo = Topo(xyzFile, check=args.check)
+    _topo = Topo(xyzFile)
 
     if not args.print:
         print(f"    Save to the file : {outFile}")

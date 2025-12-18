@@ -180,7 +180,7 @@ class Anmrrc():
         from censo_ext.Tools.ml4nmr import read_mol_neighbors
         xyzFile: GeometryXYZs = GeometryXYZs(DirFile)
         xyzFile.method_read_xyz()
-        mol, neighbors = read_mol_neighbors(xyzFile=xyzFile, check=False)
+        mol, neighbors = read_mol_neighbors(xyzFile=xyzFile)
 
         # find the atomID of molecule if is "N" or "O"
         acid_atoms_NoShowRemove: list[AtomID] = []

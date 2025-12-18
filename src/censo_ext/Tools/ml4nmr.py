@@ -4,7 +4,6 @@
 ########## GLOBAL DECLARATIONS ##########
 
 # use slightly modified covalent radii from ase for neighbor recognition
-from pathlib import Path
 from ase.atoms import Atoms
 from ase.neighborlist import NeighborList
 import numpy as np
@@ -47,7 +46,7 @@ covalent_rad_2009: npt.NDArray[np.float64] = np.array([
 covalent_rad_d3 = 4.0 / 3.0 * covalent_rad_2009
 
 
-def read_mol_neighbors(xyzFile: GeometryXYZs, check: bool = True) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]]]:
+def read_mol_neighbors(xyzFile: GeometryXYZs) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]]]:
     """Read molecule from .xyz file and return atoms object with neighbor list.
 
     Args:
@@ -108,16 +107,16 @@ def read_mol_neighbors(xyzFile: GeometryXYZs, check: bool = True) -> tuple[Atoms
         neighbors[AtomID(idx0+1)] = indices+int(1)
 
         # exit if an H atom has not exactly 1 neighbor
-        if check is True:
-            if mol.get_atomic_numbers()[idx0] == 1 and len(neighbors[idx0+1]) != 1:  # type: ignore # nopep8
-                print(f"  ERROR: H atom {idx0+1} don't just have one bond !!! File in: {xyzFile}")  # nopep8
-                print("  Exit and close the program !!!")
-                exit(1)
+        # if check is True:
+        #    if mol.get_atomic_numbers()[idx0] == 1 and len(neighbors[idx0+1]) != 1:  # type: ignore # nopep8
+        #        print(f"  ERROR: H atom {idx0+1} don't just have one bond !!! File in: {xyzFile}")  # nopep8
+        #        print("  Exit and close the program !!!")
+        #        exit(1)
 
     return mol, neighbors
 
 
-def read_mol_neighbors_bond_order(xyzFile: GeometryXYZs, _check: bool = True) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]], dict[AtomID, int]]:
+def read_mol_neighbors_bond_order(xyzFile: GeometryXYZs) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]], dict[AtomID, int]]:
     """Read molecule and calculate bond orders for carbon atoms.
 
     This function reads molecular coordinates from an XYZ file and determines
@@ -147,7 +146,7 @@ def read_mol_neighbors_bond_order(xyzFile: GeometryXYZs, _check: bool = True) ->
     # read the .xyz coordinates from the molecular structures
     mol: Atoms | list[Atoms]
     neighbors: dict[AtomID, npt.NDArray[np.int64]]
-    mol, neighbors = read_mol_neighbors(xyzFile=xyzFile, check=_check)
+    mol, neighbors = read_mol_neighbors(xyzFile=xyzFile)
 
     H_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
     C_atoms: list[AtomID] = [idx1 for idx1, i in enumerate(mol, 1) if i.symbol == "C"]  # type: ignore # nopep8

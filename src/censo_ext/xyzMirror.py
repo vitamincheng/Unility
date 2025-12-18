@@ -106,7 +106,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         xyzFile: GeometryXYZs = GeometryXYZs(inFile)
         xyzFile.method_read_xyz()
         from censo_ext.Tools.topo import Topo
-        _topo: Topo = Topo(xyzFile, check=True)
+        _topo: Topo = Topo(xyzFile)
 
         idx1_H: list[AtomID] = _topo.method_broken_bond_H(
             _bond_broken=(p_idx1, q_idx1), _print=False)
@@ -141,7 +141,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xyzFile.set_filename(fileName)
     xyzFile.method_save_xyz([])
     from censo_ext.Tools.topo import Topo
-    _topo = Topo(xyzFile, check=True)
+    _topo = Topo(xyzFile)
 
 
 if __name__ == "__main__":

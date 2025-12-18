@@ -69,14 +69,6 @@ def cml() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-c",
-        "--check",
-        dest="check",
-        action="store_true",
-        help="Check mode of chemical structures [default False] ",
-    )
-
-    parser.add_argument(
         "--auto",
         dest="auto",
         action="store_true",
@@ -87,20 +79,20 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def cal_RMSD(_xyzFile: GeometryXYZs, idx_p: int, idx_q: int, bond_broken: tuple[int, int], check: bool) -> float:
+def cal_RMSD(_xyzFile: GeometryXYZs, idx_p: int, idx_q: int, bond_broken: tuple[int, int]) -> float:
 
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
     _, RMSD = cal_RMSD_xyz(
-        _xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=[bond_broken[1]], _bond_broken=bond_broken, _ignore_Hydrogen=True, _check=check)
+        _xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=[bond_broken[1]], _bond_broken=bond_broken, _ignore_Hydrogen=True)
     return RMSD
 
 
-def TopoAnalysis(_xyzFile: GeometryXYZs, _index: int, _verbose: bool, _limits: float, _check: bool) -> tuple[list[cell_reports], list[cell_reports]]:
+def TopoAnalysis(_xyzFile: GeometryXYZs, _index: int, _verbose: bool, _limits: float) -> tuple[list[cell_reports], list[cell_reports]]:
 
     idx1_p: int = _index
     tmp: bool = _verbose
     neighbor, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
-        _xyzFile=_xyzFile, _verbose=False, _check=_check)
+        _xyzFile=_xyzFile, _verbose=False)
     _verbose = tmp
 
     flattenCircleMols: list[int] = []
@@ -148,9 +140,9 @@ def TopoAnalysis(_xyzFile: GeometryXYZs, _index: int, _verbose: bool, _limits: f
                 if x == idx1_p:
                     continue
                 std_left: float = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
-                                           bond_broken=(node_mol, res_node_mol), check=_check)
+                                           bond_broken=(node_mol, res_node_mol))
                 std_right: float = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
-                                            bond_broken=(res_node_mol, node_mol), check=_check)
+                                            bond_broken=(res_node_mol, node_mol))
                 if std_left <= _limits and std_right <= _limits:
                     result_circle.append(
                         (x, node_mol, res_node_mol, std_left, std_right))
@@ -162,9 +154,9 @@ def TopoAnalysis(_xyzFile: GeometryXYZs, _index: int, _verbose: bool, _limits: f
             if x == idx1_p:
                 continue
             std_left = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
-                                bond_broken=(key, value), check=_check)
+                                bond_broken=(key, value))
             std_right = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
-                                 bond_broken=(value, key), check=_check)
+                                 bond_broken=(value, key))
             if std_left <= _limits and std_right <= _limits:
                 if _verbose:
                     ic(x, key, value, std_left, std_right)
@@ -243,7 +235,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     _xyzFile.method_read_xyz()
 
     _Circle, _Straight = TopoAnalysis(_xyzFile=_xyzFile, _index=args.idx,
-                                      _verbose=args.verbose, _limits=args.limits, _check=args.check)
+                                      _verbose=args.verbose, _limits=args.limits)
     print_report(_circle=_Circle, _straight=_Straight)
     save_files(_index=args.idx, _xyzFile=_xyzFile, _circle=_Circle,
                _straight=_Straight, _auto=args.auto)

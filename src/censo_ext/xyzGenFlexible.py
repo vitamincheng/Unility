@@ -65,13 +65,6 @@ def cml() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "--check",
-        dest="check",
-        action="store_true",
-        help="Check mode of chemical structures [default False]",
-    )
-
-    parser.add_argument(
         "-c",
         "--nCuts",
         dest="cuts",
@@ -86,11 +79,11 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def read_data(_xyzFile: GeometryXYZs, _verbose: bool, _check: bool) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[set[int]], dict[AtomID, int], dict[AtomID, int], dict]:
+def read_data(_xyzFile: GeometryXYZs, _verbose: bool) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[set[int]], dict[AtomID, int], dict[AtomID, int], dict]:
     from censo_ext.Tools.topo import Topo
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
 
-    Sts_topo: Topo = Topo(xyzFile=_xyzFile, check=_check)
+    Sts_topo: Topo = Topo(xyzFile=_xyzFile)
 
     neighbor, circleMols, residualMols, residualMols_all_pairs = Sts_topo.topology()
     idx_atomsCN: dict[AtomID, int] = Sts_topo.get_cn()
@@ -99,7 +92,7 @@ def read_data(_xyzFile: GeometryXYZs, _verbose: bool, _check: bool) -> tuple[dic
         ic(idx_atomsCN)
         # xyzFile: GeometryXYZs = GeometryXYZs(_file)
         # xyzFile.method_read_xyz()
-    *_, idx_Bond_order = read_mol_neighbors_bond_order(xyzFile=_xyzFile, _check=_check)
+    *_, idx_Bond_order = read_mol_neighbors_bond_order(xyzFile=_xyzFile)
     if _verbose:
         ic(idx_Bond_order)
         ic(residualMols)
@@ -213,7 +206,7 @@ def gen_GeometryXYZs(xyzSplitDict: dict[int, int], args: argparse.Namespace) -> 
             ic(key, value)
         import censo_ext.xyzSplit as xyzSplit
         args_x: dict = {"file": splitIn, "atoms": [key, value], "cuts": args.cuts,
-                        "print": False, "out": splitOut, "check": args.check}
+                        "print": False, "out": splitOut}
         # sys.stdout = open(os.devnull, 'w')
         xyzSplit.main(argparse.Namespace(**args_x))
         # sys.stdout = sys.__stdout__
@@ -232,7 +225,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xyzFile = GeometryXYZs(args.file)
     xyzFile.method_read_xyz()
     _, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
-        _xyzFile=xyzFile, _verbose=args.verbose, _check=args.check)
+        _xyzFile=xyzFile, _verbose=args.verbose)
 
     if args.verbose:
         ic(circleMols)

@@ -125,7 +125,7 @@ def method_factor_opt(xyzFile: GeometryXYZs, _lowFactor: list[AtomID], table_std
     print(" ========== Optimized Broken-bond Location Process ==========")
     from censo_ext.Tools.topo import Topo
     Bonding_LowFactor: list[npt.NDArray[np.int64]] = []
-    _topo: Topo = Topo(xyzFile, check=False)
+    _topo: Topo = Topo(xyzFile)
 
     for atomID in _lowFactor:
         Bonding_LowFactor.append(
@@ -216,7 +216,7 @@ def idx_3atom_opt(xyzFile: GeometryXYZs) -> tuple[AtomID, AtomID, AtomID]:
     _Bonding: list[list[AtomID]] = []
     for x in _LowFactor:
         from censo_ext.Tools.topo import Topo
-        _topo = Topo(xyzFile, check=False)
+        _topo = Topo(xyzFile)
         _Bonding.append(_topo.method_bonding(_bonding=x, _print=False))
 
     _3AtomID: list[list[AtomID]] = []

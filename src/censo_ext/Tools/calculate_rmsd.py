@@ -217,7 +217,7 @@ def get_Coordinates(xyzFile, idx0) -> tuple[npt.NDArray[np.int64], npt.NDArray[n
 
 
 def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, _remove_idx: list[int] | npt.NDArray | None,
-                 _add_idx: list[int] | npt.NDArray | None, _bond_broken: tuple[int, int] | None, _ignore_Hydrogen: bool, _check: bool = True) -> tuple[dict[AtomID, float], float]:
+                 _add_idx: list[int] | npt.NDArray | None, _bond_broken: tuple[int, int] | None, _ignore_Hydrogen: bool) -> tuple[dict[AtomID, float], float]:
     """
     Read xyz file and calculate RMSD between two structures.
 
@@ -284,7 +284,7 @@ def cal_RMSD_xyz(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, _remove_idx: l
             xyzFile.set_filename(xyz_tmp)
             xyzFile.method_save_xyz([idx0_p])
             from censo_ext.Tools.topo import Topo
-            _topo = Topo(xyzFile, check=_check)
+            _topo = Topo(xyzFile)
             idx1_Atom = np.array(_topo.method_broken_bond(_bond_broken=[*_bond_broken], _print=False))  # type: ignore # nopep8
             idx0_Atom = idx1_Atom-1
             p_view, q_view = idx0_Atom, idx0_Atom

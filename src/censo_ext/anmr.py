@@ -406,8 +406,7 @@ def _preprocess_carbon_spin_system(inAnmr: Anmr, args: argparse.Namespace, inFil
     from censo_ext.Tools.ml4nmr import read_mol_neighbors_bond_order
     xyzFile: GeometryXYZs = GeometryXYZs(inAnmr.get_Dir() / inFile)
     xyzFile.method_read_xyz()
-    *_, bond_order = read_mol_neighbors_bond_order(
-        xyzFile=xyzFile, _check=False)
+    *_, bond_order = read_mol_neighbors_bond_order(xyzFile=xyzFile)
     inHydrogen: list[int] = [(value+1)
                              for value in bond_order.values()]
 

@@ -161,7 +161,7 @@ class Geometry():
 
         from censo_ext.Tools.topo import Topo
         molecules: list[set[int]] = []
-        molecules = Topo(xyzFile, check=False).topology_components()
+        molecules = Topo(xyzFile).topology_components()
         idx1_Atoms: set = {*range(1, self.nAtoms+1)}
         for x in molecules:
             idx1_Atoms = idx1_Atoms.difference(x)
@@ -445,7 +445,7 @@ class GeometryXYZs():
             R_qr = R.from_euler('z', -Angle_qr)
             St.coord = R_qr.apply(St.coord)  # type: ignore
 
-    def method_xyzRotate(self, _check: bool, idx1_p: int, idx1_q: int, _cuts: int = 3, _nspec: int = 1) -> None:
+    def method_xyzRotate(self, idx1_p: int, idx1_q: int, _cuts: int = 3, _nspec: int = 1) -> None:
 
         from scipy.spatial.transform import Rotation as R
         nCutters: int = _cuts
@@ -457,7 +457,7 @@ class GeometryXYZs():
             exit(1)
         from censo_ext.Tools.topo import Topo
         broken_bond_H: list[IntpID] = [
-            IntpID(x-1) for x in Topo(self, check=_check).method_broken_bond_H(_bond_broken=(idx1_q, idx1_p), _print=False)]
+            IntpID(x-1) for x in Topo(self).method_broken_bond_H(_bond_broken=(idx1_q, idx1_p), _print=False)]
 
         for St in self.Sts:
             dxyz: npt.NDArray[np.float64] = St.coord[idx1_p-1].copy()

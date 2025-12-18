@@ -90,7 +90,7 @@ def write_xyz_file(outFile: GeometryXYZs, file: str | Path) -> None:
         outFile.set_filename(file)
         outFile.method_save_xyz([])
         from censo_ext.Tools.topo import Topo
-        _topo = Topo(outFile, check=True)
+        _topo = Topo(outFile)
     except Exception as e:
         print(f"Failed to write file {file}: {e}")
         raise FileNotFoundError(f"{file}")
