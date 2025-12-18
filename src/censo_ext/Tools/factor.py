@@ -60,7 +60,8 @@ def method_factor_analysis(xyzFile: GeometryXYZs, _factor) -> tuple[list[AtomID]
     print(f"{average_std:>12.8f}")
     print(f" Threshold {
           _factor:3.2f} *STD : {average_std*_factor:>12.8}", "\n")
-    print(f" Atom        STD     Major (>STD)  or    Low (<({_factor}STD)")
+    print(
+        f" Atom        STD     Major ( >STD)  or    Low ( <{_factor:>5.5f} STD)")
     _MajorFactor: list[AtomID] = []
     _MinorFactor: list[AtomID] = []
 
@@ -77,6 +78,7 @@ def method_factor_analysis(xyzFile: GeometryXYZs, _factor) -> tuple[list[AtomID]
 
     print(f"\n Major Factor List: {_MajorFactor}")
     print(" ========== Finished ==========")
+
     return _MinorFactor, atomIDs_std
 
 
@@ -202,8 +204,14 @@ def idx_3atom_opt(xyzFile: GeometryXYZs) -> tuple[AtomID, AtomID, AtomID]:
     # args_x: dict = {"file": inFile, "factor": 0.5, "opt": False}
     _LowFactor: list[AtomID]
     _Deviation: dict[AtomID, float]
-    _LowFactor, _Deviation = method_factor_analysis(
-        xyzFile, _factor=0.50)
+    _factor = 0.50
+    while (True):
+        _LowFactor, _Deviation = method_factor_analysis(
+            xyzFile, _factor=_factor)
+        if len(_LowFactor) >= 1:
+            break
+        else:
+            _factor = _factor * 1.1
 
     _Bonding: list[list[AtomID]] = []
     for x in _LowFactor:
@@ -238,8 +246,7 @@ def idx_3atom_opt(xyzFile: GeometryXYZs) -> tuple[AtomID, AtomID, AtomID]:
             TotalDevAtoms += (STD_Atoms[idx1_Atoms.index(AtomID(y))])
         if minTotalDev > TotalDevAtoms:
             minTotalDev = TotalDevAtoms
-            intp_minTotalDev: int = idx0
-
+            intp_minTotalDev = idx0
     print("")
     print(f" 3 atom idx of lowest total factor {Combined_3AtomID[intp_minTotalDev]}")  # nopep8
     print("")
