@@ -84,6 +84,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     xyzFile: GeometryXYZs = GeometryXYZs(args.file)
     xyzFile.method_read_xyz()
+    nSts_origin = len(xyzFile.Sts)
     xyzFile.method_compute_COM()
     xyzFile.method_compute_Inertia()
     import numpy as np
@@ -102,10 +103,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         idx0_diff: list[int] = []
         for idx0, x in enumerate(_inertia):
+
             # print(index0, idx0)
             The_Same_St = xyzFile.method_compare_the_same_core(
                 index0, idx0)
-            if np.sum(np.square(x)) <= args.rthr and The_Same_St:
+            if np.sum(np.square(np.array(x))) <= args.rthr and The_Same_St:
                 idx0_diff.append(idx0)
                 # print(index0, idx0, end="")
                 # print(" ===")
@@ -120,19 +122,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     import itertools
     idx0_St_remove = list(itertools.chain.from_iterable(idx0_St_remove))
 
-    idx0_index = [* range(len(_inertia))]
+    idx0_index: list[int] = [* range(len(_inertia))]
     idx0_index = [x for x in idx0_index if x not in idx0_St_remove]
 
     xyzFile.method_xyzExtract(idx0_index)
-    Energy = [St._comment_energy for St in np.array(xyzFile.Sts)]
-
-    # print the Boltzmann weighting
-    print("")
-    print("  ===== Boltzmann Distribution =====")
-    print(f"  threshold energy = {args.ewin} (kcal/mol)")
-    print(f"  Temperature      = {args.temp} (K)")
-    print("")
-    print("  Boltzmann Weighting Table")
+    Energy: list[float] = [St._comment_energy for St in np.array(xyzFile.Sts)]
 
     import numpy as np
     import numpy.typing as npt
@@ -147,11 +141,25 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         np_Energy[intp_Energy], TEMP=args.temp)
 
     zip_energy: zip[tuple[npt.NDArray[np.intp], npt.NDArray[np.float64], npt.NDArray[np.float64]]] = zip(
-        intp_Energy+1, np_Energy[intp_Energy], BW)
+        intp_Energy+1, np.array(np_Energy[intp_Energy]), BW)
 
+    # print the parameter of the Boltzmann weighting
+    print("")
+    print("  ===== Boltzmann Distribution =====")
+    print(f"  threshold energy              = {args.ewin} (kcal/mol)")
+    print(f"  threshold of inertia          = {args.rthr} (amu/A^2)")
+    print(f"  Temperature                   = {args.temp} (K)")
+    print(f"  The numbers of Start Clusters = {nSts_origin} ")
+    print(f"  The numbers of Final Clusters = {len(intp_Energy)} ")
+    print(f"  Saved File Name               = {args.out} ")
+
+    print("")
+    print("  ===== Boltzmann Weighting Table =====")
     print("  index1           Energy (kcal/mol)             BW")
     for x, y, z in zip_energy:
         print(f"{x:8d}           {y:17.10f}       {z:8.4f}")
+    print("  ===== Finished =====")
+    print("")
 
     xyzFile.set_filename(args.out)
     xyzFile.method_rewrite_comment()
