@@ -28,8 +28,8 @@ def cml() -> argparse.Namespace:
         dest="file",
         action="store",
         required=False,
-        default="traj.xyz",
-        help="Provide one input xyz file [default traj.xyz]",
+        default="isomers.xyz",
+        help="Provide one input xyz file [default isomers.xyz]",
     )
     parser.add_argument(
         "-o",
@@ -37,18 +37,17 @@ def cml() -> argparse.Namespace:
         dest="out",
         action="store",
         required=False,
-        default="isomers.xyz",
-        help="Provide one input xyz file [default isomers.xyz]",
+        default="clusters.xyz",
+        help="Provide one input xyz file [default clusters.xyz]",
     )
     parser.add_argument(
-        "-t",
-        "--thr",
-        dest="thr",
+        "--ewin",
+        dest="ewin",
         action="store",
         required=False,
         type=float,
         default=100,
-        help="the threshold of electron energy [default 100 (Kcal/mol)]",
+        help="the electron energy threshold [default 100 (Kcal/mol)]",
     )
     parser.add_argument(
         "-rthr",
@@ -130,7 +129,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # print the Boltzmann weighting
     print("")
     print("  ===== Boltzmann Distribution =====")
-    print(f"  threshold energy = {args.thr} (kcal/mol)")
+    print(f"  threshold energy = {args.ewin} (kcal/mol)")
     print(f"  Temperature      = {args.temp} (K)")
     print("")
     print("  Boltzmann Weighting Table")
@@ -140,7 +139,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     np_Energy = np.array(Energy)*Eh
     np_Energy = np_Energy - np_Energy.min()
     intp_Energy: npt.NDArray[np.intp] = np.argsort(np_Energy)
-    intp_remove_Energy = np.argwhere(np_Energy[intp_Energy] > args.thr)
+    intp_remove_Energy = np.argwhere(np_Energy[intp_Energy] > args.ewin)
+
     intp_Energy = np.delete(intp_Energy, intp_remove_Energy)
 
     BW: npt.NDArray[np.float64] = Boltzmann_Weighting(
