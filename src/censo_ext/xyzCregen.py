@@ -57,8 +57,8 @@ def cml() -> argparse.Namespace:
         action="store",
         required=False,
         type=float,
-        default=0.1,
-        help="the threshold of interia [default 0.1 (amu/A^2)]",
+        default=1.0,
+        help="the threshold of interia [default 1.0 (amu/A^2)]",
     )
     parser.add_argument(
         "--temp",
