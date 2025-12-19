@@ -8,7 +8,7 @@ from censo_ext.Tools.utility import AtomID
 
 
 def method_factor_analysis(xyzFile: GeometryXYZs, _factor) -> tuple[list[AtomID], dict[AtomID, float]]:
-    """ 
+    """
     Performs factor analysis on a set of geometries to identify atoms with high and low structural variability.
 
     This function calculates the standard deviation of atomic positions across multiple conformations
@@ -22,7 +22,7 @@ def method_factor_analysis(xyzFile: GeometryXYZs, _factor) -> tuple[list[AtomID]
             - factor: Threshold multiplier for determining major vs minor factors
 
     Returns:
-        tuple[list[int],dict[int,float]]: 
+        tuple[list[int],dict[int,float]]:
             A tuple containing:
             - a list of atom indices identified as having low structural variability (minor factors)
             - and a dictionary mapping atom indices to their corresponding standard deviations
@@ -214,10 +214,11 @@ def idx_3atom_opt(xyzFile: GeometryXYZs) -> tuple[AtomID, AtomID, AtomID]:
             _factor = _factor * 1.1
 
     _Bonding: list[list[AtomID]] = []
+    from censo_ext.Tools.topo import Topo
+    _topo = Topo(xyzFile)
     for x in _LowFactor:
-        from censo_ext.Tools.topo import Topo
-        _topo = Topo(xyzFile)
         _Bonding.append(_topo.method_bonding(_bonding=x, _print=False))
+        # print(x, _Bonding)
 
     _3AtomID: list[list[AtomID]] = []
     for idx0, x in enumerate(_LowFactor):
@@ -228,6 +229,20 @@ def idx_3atom_opt(xyzFile: GeometryXYZs) -> tuple[AtomID, AtomID, AtomID]:
             for y in _Bonding[idx0]:
                 tmp.append(y)
             _3AtomID.append(tmp)
+    # print(_3AtomID)
+    # print(_Bonding)
+    if len(_3AtomID) == 0:
+        # print(_LowFactor[0])
+        # print(_Bonding[0][0])
+        a_bonding = _topo.method_bonding(_bonding=_Bonding[0][0], _print=False)
+        # print(a_bonding)
+        a_bonding.remove(_LowFactor[0])
+        # print(a_bonding[0])
+        result = (_LowFactor[0], _Bonding[0][0], a_bonding[0])
+        print("")
+        print(f" 3 atom idx of lowest total factor {result}")  # nopep8
+        print("")
+        return result
 
     from itertools import combinations
     Combined_3AtomID: list[tuple[AtomID, AtomID, AtomID]] = []
