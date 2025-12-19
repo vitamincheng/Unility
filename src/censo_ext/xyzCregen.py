@@ -105,7 +105,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         for idx0, x in enumerate(_inertia):
 
             # print(index0, idx0)
-            The_Same_St = xyzFile.method_compare_the_same_core(
+            The_Same_St = xyzFile.method_compare_the_same_sketch(
                 index0, idx0)
             if np.sum(np.square(np.array(x))) <= args.rthr and The_Same_St:
                 idx0_diff.append(idx0)

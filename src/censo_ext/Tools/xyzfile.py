@@ -388,7 +388,7 @@ class GeometryXYZs():
         for St in self.Sts:
             St.method_computeInertia()
 
-    def method_compare_the_same_core(self, idx0_p: int, idx0_q: int) -> bool:
+    def method_compare_the_same_sketch(self, idx0_p: int, idx0_q: int) -> bool:
 
         if self.Sts[idx0_p].names == self.Sts[idx0_q].names:
             coord_p = self.Sts[idx0_p].coord - self.Sts[idx0_p].com
@@ -401,7 +401,7 @@ class GeometryXYZs():
             # print(coord_q[Elements_not_H])
             cosine = cosine_similarity_3D(
                 coord_p[Elements_not_H], coord_q[Elements_not_H])
-
+            # print(cosine)
             # print([1.0]*len(cosine))
             # print(np.abs(np.array(cosine)))
             # print(np.allclose(np.abs(np.array(cosine)),
