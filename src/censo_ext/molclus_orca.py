@@ -66,6 +66,15 @@ def cml() -> argparse.Namespace:
         action="store_true",
         help="Reserve all files, otherwise will Only reserve .gbw .out .xyz files [default False]",
     )
+    parser.add_argument(
+        "-c",
+        "--convergence",
+        dest="convergence",
+        action="store",
+        type=int,
+        default=0,
+        help="Geometry Optimization thresholds : -1/LooseOpt 0/NormalOpt 1/TightOpt 2/VeryTightOpt [default 0]",
+    )
 
     args: argparse.Namespace = parser.parse_args()
     return args
@@ -91,8 +100,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if not template_Exist:
         with open(template_inp, "w") as f:
             sys.stdout = f
-            print("! r2SCAN-3c opt miniprint PAL8 CPCM(chloroform) noautostart")
-            print("%maxcore 6000")
+            print("! r2SCAN-3c miniprint PAL8 CPCM(chloroform) noautostart")
+            match args.convergence:
+                case -1:
+                    print("!LooseOpt")
+                case 0:
+                    print("!Opt")
+                case 1:
+                    print("!TightOpt")
+                case 2:
+                    print("!VeryTightOpt")
             print("* xyzfile 0 1 [xyzfile]")
         sys.stdout = sys.__stdout__
 
