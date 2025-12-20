@@ -493,20 +493,21 @@ def cosine_similarity(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np
 
 def cosine_similarity_3D(vec1: npt.NDArray[np.float64] | list, vec2: npt.NDArray[np.float64] | list) -> list[float]:
     # Ensure inputs are NumPy arrays
-    vec1 = np.array(vec1)
-    vec2 = np.array(vec2)
-    # print(vec1)
-    # print(vec2)
-    if len(vec1) != len(vec2):
-        print(f"{vec1=}")
-        print(f"{vec2=}")
+    _vec1: npt.NDArray = np.array(vec1)
+    _vec2: npt.NDArray = np.array(vec2)
+
+    print("")
+
+    if len(_vec1) != len(_vec2):
+        print(f"{_vec1=}")
+        print(f"{_vec2=}")
         print("  The numbers of two vector of your input file are not the same")
         print("  Exit and Close the program !!!")
         exit(0)
 
     from numpy.linalg import norm
-    cosine = np.sum(vec1 * vec2, axis=1) / \
-        (norm(vec1, axis=1) * norm(vec2, axis=1))
+    cosine = np.sum(_vec1 * _vec2, axis=1) / \
+        (norm(_vec1, axis=1) * norm(_vec2, axis=1))
     # print("Cosine Similarity:", cosine)
     return cosine
 

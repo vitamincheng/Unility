@@ -268,6 +268,6 @@ class Topo():
         graph_in: list[tuple[AtomID, AtomID]] = list()
         for key, value in self.__neighbors.items():
             for x in value:
-                graph_in.append((key, AtomID(x)))
+                graph_in.append((key, AtomID(int(x))))
         g = Graph(from_list=graph_in)
         return g.components()
