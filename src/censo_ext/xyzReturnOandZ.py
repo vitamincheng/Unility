@@ -118,7 +118,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
+
     if not args.atom and args.auto:
+        if len(xyzFile.Sts) == 1 or 0:
+            print(
+                f"  {xyzFile.get_fileName()}, the numbers of the structures is {len(xyzFile)}")
+            print("  The numbers of the structures of your xyzFile is one or zero")
+            print("  Not Need to find the 3 numbers of opt atomic index !!!")
+            exit(0)
         print("\n Automated to set the 3 atoms to return origin and lay on XZ plane")
         print(" First FactorAnalysis.py will executive and second continue the RetrunOandZ.py ")
         p_idx1, q_idx1, r_idx1 = idx_3atom_opt(xyzFile)
