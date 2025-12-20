@@ -3,6 +3,7 @@
 from censo_ext import xyzReturnOandZ
 from censo_ext.Tools.Parameter import Eh
 from censo_ext.Tools.spectra import Boltzmann_Weighting
+# from censo_ext.Tools.symmetry import method_get_point_group
 from censo_ext.Tools.utility import print_arguments
 import argparse
 
@@ -77,14 +78,19 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml()
     print_arguments()
 
-    x: dict = {"file": args.file, "auto": True,
-               "atom": None, "print": False, "replace": True, "out": None}
-    x_args = argparse.Namespace(**x)
-    xyzReturnOandZ.main(x_args)
-
     xyzFile: GeometryXYZs = GeometryXYZs(args.file)
     xyzFile.method_read_xyz()
-    nSts_origin = len(xyzFile.Sts)
+    nSts_origin: int = len(xyzFile)
+
+    moment: dict = {"file": args.file, "auto": True,
+                    "atom": None, "print": False, "replace": True, "out": None}
+    x_args = argparse.Namespace(**moment)
+    xyzReturnOandZ.main(x_args)
+
+    # for x in range(len(xyzFile.Sts)):
+    #    a = method_get_point_group(xyzFile.Sts, x, True)
+    #    print(a)
+
     xyzFile.method_compute_COM()
     xyzFile.method_compute_Inertia()
     import numpy as np
@@ -94,36 +100,41 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         list_inertia.append(St.inertia)
     _inertia = np.array(list_inertia)
 
-    idx0_St_remove: list = []
-    for index0, x in enumerate(_inertia):
-        std = _inertia[index0].copy()
+    idx0_St_remove: list[list[int]] = []
+    for idx0_p, moment in enumerate(_inertia):
+        std = _inertia[idx0_p].copy()
 
-        for idx0, x in enumerate(_inertia):
-            _inertia[idx0] = x - std
+        #
+        for idx0_q, moment in enumerate(_inertia):
+            _inertia[idx0_q] = moment - std
 
         idx0_diff: list[int] = []
-        for idx0, x in enumerate(_inertia):
+        for idx0_q, moment in enumerate(_inertia):
 
-            # print(index0, idx0)
-            The_Same_St = xyzFile.method_compare_the_same_sketch(
-                index0, idx0)
-            if np.sum(np.square(np.array(x))) <= args.rthr and The_Same_St:
-                idx0_diff.append(idx0)
-                # print(index0, idx0, end="")
+            # print(idx0_p, idx0_q)
+            # if idx0_p != idx0_q:
+            #    The_Same_St = xyzFile.method_compare_the_same_sketch(
+            #        idx0_p, idx0_q)
+            # else:
+            #    The_Same_St = True
+
+            # if np.sum(np.square(np.array(moment))) <= args.rthr and The_Same_St:
+            if np.sum(np.square(np.array(moment))) <= args.rthr:
+                idx0_diff.append(idx0_q)
+                # print(idx0_p, idx0_q, end="")
                 # print(" ===")
         # print(idx0_diff)
         if len(idx0_diff) != 1:
-            idx0_diff = [x for x in idx0_diff if x > index0]
+            idx0_diff = [x for x in idx0_diff if x > idx0_p]
             if len(idx0_diff) >= 1:
                 idx0_St_remove.append(idx0_diff)
         # print(idx0_St_remove)
         # print("")
 
     import itertools
-    idx0_St_remove = list(itertools.chain.from_iterable(idx0_St_remove))
-
+    idx0_St_remove_flat = list(itertools.chain.from_iterable(idx0_St_remove))
     idx0_index: list[int] = [* range(len(_inertia))]
-    idx0_index = [x for x in idx0_index if x not in idx0_St_remove]
+    idx0_index = [x for x in idx0_index if x not in idx0_St_remove_flat]
 
     xyzFile.method_xyzExtract(idx0_index)
     Energy: list[float] = [St._comment_energy for St in np.array(xyzFile.Sts)]
@@ -156,8 +167,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("")
     print("  ===== Boltzmann Weighting Table =====")
     print("  index1           Energy (kcal/mol)             BW")
-    for x, y, z in zip_energy:
-        print(f"{x:8d}           {y:17.10f}       {z:8.4f}")
+    for moment, y, z in zip_energy:
+        print(f"{moment:8d}           {y:17.10f}       {z:8.4f}")
     print("  ===== Finished =====")
     print("")
 
