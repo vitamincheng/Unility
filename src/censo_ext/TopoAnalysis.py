@@ -46,7 +46,7 @@ def cml() -> argparse.Namespace:
         required=False,
         type=int,
         default=1,
-        help="Provide index of xyz file [default 1] ",
+        help="Provide index of xyz file (-1 is all indexes) [default 1]",
     )
 
     parser.add_argument(
@@ -72,7 +72,7 @@ def cml() -> argparse.Namespace:
         "--auto",
         dest="auto",
         action="store_true",
-        help="Auto mode of xyzReturnOandZ of chemical structures [default False] ",
+        help="Auto mode of saved files by use xyzReturnOandZ [default False]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -114,9 +114,6 @@ def TopoAnalysis(_xyzFile: GeometryXYZs, _index: int, _verbose: bool, _limits: f
         print(
             f" Error: Index {idx1_p} is out of range in your xyz file{_xyzFile.get_fileName()}.")
         exit(0)
-
-    print("  ===== Parameter of limits =====")
-    print(f"  the delta limits of standard deviation = {_limits}")
 
     # Check circleMols factor
     result_circle: list[cell_reports] = []
@@ -165,21 +162,23 @@ def TopoAnalysis(_xyzFile: GeometryXYZs, _index: int, _verbose: bool, _limits: f
     return result_circle, result_straight
 
 
-def print_report(_circle: list[cell_reports], _straight: list[cell_reports]) -> None:
+def print_report(_index: int, _circle: list[cell_reports], _straight: list[cell_reports]) -> None:
 
     if len(_circle) != 0:
         print("")
         print("  ===== Check circle molecule =====")
-        print("   idx1  node  res_node      res_left      res_right")
+        print("   idx1_p   idx1_q  node  res_node      res_left      res_right")
         for x in _circle:
-            print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
+            print(
+                f"   {_index:6d}   {x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
 
     if len(_straight) != 0:
         print("")
         print("  ===== Check straight molecule =====")
-        print("   idx1   key     value      res_left      res_right")
+        print("   idx1_p   idx1_q    key    value       res_left      res_right")
         for x in _straight:
-            print(f"{x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
+            print(
+                f"   {_index:6d}   {x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
         print("  [key,value] [fixed,rotation]")
 
 
@@ -241,11 +240,21 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     _xyzFile: GeometryXYZs = GeometryXYZs(args.file)
     _xyzFile.method_read_xyz()
 
-    _Circle, _Straight = TopoAnalysis(_xyzFile=_xyzFile, _index=args.idx,
-                                      _verbose=args.verbose, _limits=args.limits)
-    print_report(_circle=_Circle, _straight=_Straight)
-    save_files(_index=args.idx, _xyzFile=_xyzFile, _circle=_Circle,
-               _straight=_Straight, _auto=args.auto)
+    print("  ===== Parameter of limits =====")
+    print(f"  The total numbers of the xyzfile       = {len(_xyzFile.Sts)}")
+    print(f"  The delta limits of standard deviation = {args.limits}")
+
+    if args.idx == -1:
+        for x in range(1, len(_xyzFile.Sts)+1):
+            _Circle, _Straight = TopoAnalysis(_xyzFile=_xyzFile, _index=x,
+                                              _verbose=args.verbose, _limits=args.limits)
+            print_report(_index=x, _circle=_Circle, _straight=_Straight)
+    else:
+        _Circle, _Straight = TopoAnalysis(_xyzFile=_xyzFile, _index=args.idx,
+                                          _verbose=args.verbose, _limits=args.limits)
+        print_report(_index=args.idx, _circle=_Circle, _straight=_Straight)
+        save_files(_index=args.idx, _xyzFile=_xyzFile, _circle=_Circle,
+                   _straight=_Straight, _auto=args.auto)
 
 
 if __name__ == "__main__":
