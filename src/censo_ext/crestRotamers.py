@@ -48,6 +48,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     inFile: Path = Path(args.file)
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
+    xyzFile.method_comment_new()
     fileName = Path("cre_members")
 
     if IsExist_bool(fileName):
