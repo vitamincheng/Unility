@@ -134,7 +134,7 @@ def TopoAnalysis(_xyzFile: GeometryXYZs, _idx1: int, _verbose: bool, _limits: fl
                 ic(node_mol, res_node_mol)
 
             for idx1_q in range(1, len(_xyzFile)+1):
-                if idx1_p >= idx1_q:
+                if idx1_p == idx1_q:
                     continue
                 std_left: float = cal_RMSD(_xyzFile=_xyzFile, idx1_p=idx1_p, idx1_q=idx1_q,
                                            bond_broken=(node_mol, res_node_mol))
@@ -148,7 +148,7 @@ def TopoAnalysis(_xyzFile: GeometryXYZs, _idx1: int, _verbose: bool, _limits: fl
     result_straight: list[cell_reports] = []
     for key, value in xyzSplit.items():
         for idx1_q in range(1, len(_xyzFile)+1):
-            if idx1_p >= idx1_q:
+            if idx1_p == idx1_q:
                 continue
             std_left = cal_RMSD(_xyzFile=_xyzFile, idx1_p=idx1_p, idx1_q=idx1_q,
                                 bond_broken=(key, value))
