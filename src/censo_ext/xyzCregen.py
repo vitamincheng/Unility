@@ -51,9 +51,9 @@ def cml() -> argparse.Namespace:
         help="the electron energy threshold [default 100 (Kcal/mol)]",
     )
     parser.add_argument(
-        "-rthr",
-        "--rthr",
-        dest="rthr",
+        "-bthr",
+        "--bthr",
+        dest="bthr",
         action="store",
         required=False,
         type=float,
@@ -118,8 +118,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             # else:
             #    The_Same_St = True
 
-            # if np.sum(np.square(np.array(moment))) <= args.rthr and The_Same_St:
-            if np.sum(np.square(np.array(moment))) <= args.rthr:
+            # if np.sum(np.square(np.array(moment))) <= args.bthr and The_Same_St:
+            if np.sum(np.square(np.array(moment))) <= args.bthr:
                 idx0_diff.append(idx0_q)
                 # print(idx0_p, idx0_q, end="")
                 # print(" ===")
@@ -158,7 +158,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("")
     print("  ===== Boltzmann Distribution =====")
     print(f"  threshold energy              = {args.ewin} (kcal/mol)")
-    print(f"  threshold of inertia          = {args.rthr} (amu/A^2)")
+    print(f"  threshold of inertia          = {args.bthr} (amu/A^2)")
     print(f"  Temperature                   = {args.temp} (K)")
     print(f"  The numbers of Start Clusters = {nSts_origin} ")
     print(f"  The numbers of Final Clusters = {len(intp_Energy)} ")
