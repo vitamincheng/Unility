@@ -30,6 +30,12 @@ def cml() -> argparse.Namespace:
         default="crest_rotamers.xyz",
         help="Provide one input xyz file [default crest_rotamers.xyz]",
     )
+    parser.add_argument(
+        "--auto",
+        dest="auto",
+        action="store_true",
+        help="Auto mode of saved files by use xyzReturnOandZ [default False]",
+    )
     args: argparse.Namespace = parser.parse_args()
     return args
 
@@ -53,6 +59,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             outFile: GeometryXYZs = copy.deepcopy(xyzFile)
             outFile.method_xyzExtract([*range(start-1, end)])
             outFile.set_filename(f"{start}_{end}.xyz")
+            if args.auto:
+                outFile.method_xyzReturnOandZ_auto()
             outFile.method_save_xyz([])
             print(f"Data saved to : {start}_{end}.xyz")
     else:
