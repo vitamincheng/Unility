@@ -35,7 +35,7 @@ def cml() -> argparse.Namespace:
         dest="out",
         action="store",
         required=False,
-        help="Provide one input xyz file [default clusters.xyz]",
+        help="Provide one input xyz file [default input_ext.xyz]",
     )
     parser.add_argument(
         "-rthr",
