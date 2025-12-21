@@ -79,17 +79,17 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def cal_RMSD(_xyzFile: GeometryXYZs, idx_p: int, idx_q: int, bond_broken: tuple[int, int]) -> float:
+def cal_RMSD(_xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, bond_broken: tuple[int, int]) -> float:
 
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
-    _, RMSD = cal_RMSD_xyz(
-        _xyzFile, idx_p, idx_q, _remove_idx=None, _add_idx=[bond_broken[1]], _bond_broken=bond_broken, _ignore_Hydrogen=True)
-    return RMSD
+    _, _RMSD = cal_RMSD_xyz(xyzFile=_xyzFile, idx1_p=idx1_p, idx1_q=idx1_q,
+                            _remove_idx=None, _add_idx=[bond_broken[1]], _bond_broken=bond_broken, _ignore_Hydrogen=True)
+    return _RMSD
 
 
-def TopoAnalysis(_xyzFile: GeometryXYZs, _index: int, _verbose: bool, _limits: float) -> tuple[list[cell_reports], list[cell_reports]]:
+def TopoAnalysis(_xyzFile: GeometryXYZs, _idx1: int, _verbose: bool, _limits: float) -> tuple[list[cell_reports], list[cell_reports]]:
 
-    idx1_p: int = _index
+    idx1_p: int = _idx1
     tmp: bool = _verbose
     neighbor, circleMols, residualMols, Bond_order, atomsCN, residualMols_all_pairs = read_data(
         _xyzFile=_xyzFile, _verbose=False)
@@ -133,31 +133,32 @@ def TopoAnalysis(_xyzFile: GeometryXYZs, _index: int, _verbose: bool, _limits: f
             if _verbose:
                 ic(node_mol, res_node_mol)
 
-            for x in range(1, len(_xyzFile)+1):
-                if x == idx1_p:
+            for idx1_q in range(1, len(_xyzFile)+1):
+                if idx1_p >= idx1_q:
                     continue
-                std_left: float = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
+                std_left: float = cal_RMSD(_xyzFile=_xyzFile, idx1_p=idx1_p, idx1_q=idx1_q,
                                            bond_broken=(node_mol, res_node_mol))
-                std_right: float = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
+                std_right: float = cal_RMSD(_xyzFile=_xyzFile, idx1_p=idx1_p, idx1_q=idx1_q,
                                             bond_broken=(res_node_mol, node_mol))
                 if std_left <= _limits and std_right <= _limits:
                     result_circle.append(
-                        (x, node_mol, res_node_mol, std_left, std_right))
+                        (idx1_q, node_mol, res_node_mol, std_left, std_right))
 
     # Check straight chain
     result_straight: list[cell_reports] = []
     for key, value in xyzSplit.items():
-        for x in range(1, len(_xyzFile)+1):
-            if x == idx1_p:
+        for idx1_q in range(1, len(_xyzFile)+1):
+            if idx1_p >= idx1_q:
                 continue
-            std_left = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
+            std_left = cal_RMSD(_xyzFile=_xyzFile, idx1_p=idx1_p, idx1_q=idx1_q,
                                 bond_broken=(key, value))
-            std_right = cal_RMSD(_xyzFile=_xyzFile, idx_p=idx1_p, idx_q=x,
+            std_right = cal_RMSD(_xyzFile=_xyzFile, idx1_p=idx1_p, idx1_q=idx1_q,
                                  bond_broken=(value, key))
             if std_left <= _limits and std_right <= _limits:
                 if _verbose:
-                    ic(x, key, value, std_left, std_right)
-                result_straight.append((x, key, value, std_left, std_right))
+                    ic(idx1_q, key, value, std_left, std_right)
+                result_straight.append(
+                    (idx1_q, key, value, std_left, std_right))
 
     return result_circle, result_straight
 
@@ -245,12 +246,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(f"  The delta limits of standard deviation = {args.limits}")
 
     if args.idx == -1:
-        for x in range(1, len(_xyzFile.Sts)+1):
-            _Circle, _Straight = TopoAnalysis(_xyzFile=_xyzFile, _index=x,
+        for idx1 in range(1, len(_xyzFile.Sts)+1):
+            _Circle, _Straight = TopoAnalysis(_xyzFile=_xyzFile, _idx1=idx1,
                                               _verbose=args.verbose, _limits=args.limits)
-            print_report(_index=x, _circle=_Circle, _straight=_Straight)
+            print_report(_index=idx1, _circle=_Circle, _straight=_Straight)
     else:
-        _Circle, _Straight = TopoAnalysis(_xyzFile=_xyzFile, _index=args.idx,
+        _Circle, _Straight = TopoAnalysis(_xyzFile=_xyzFile, _idx1=args.idx,
                                           _verbose=args.verbose, _limits=args.limits)
         print_report(_index=args.idx, _circle=_Circle, _straight=_Straight)
         save_files(_index=args.idx, _xyzFile=_xyzFile, _circle=_Circle,
