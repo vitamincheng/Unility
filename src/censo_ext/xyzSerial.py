@@ -54,6 +54,14 @@ def cml() -> argparse.Namespace:
         help="Print the final data on screen (stdout) [default False]",
     )
 
+    parser.add_argument(
+        "-r",
+        "--replace",
+        dest="replace",
+        action="store_true",
+        help="Replace the old input file names [default False]",
+    )
+
     index_group = parser.add_mutually_exclusive_group()
 
     index_group.add_argument(
@@ -84,7 +92,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print_arguments()
 
     inFile = Path(args.file)
-    outFile = Path(args.out)
+    if args.replace:
+        outFile = Path(args.file)
+    else:
+        outFile = Path(args.out)
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
 
