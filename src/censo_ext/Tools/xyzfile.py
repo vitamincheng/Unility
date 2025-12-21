@@ -417,9 +417,9 @@ class GeometryXYZs():
             print("  Something wrong in your xyz files")
             return False
 
-    def method_xyzExtract(self, idx1: list[int]) -> None:
-        idx0: list[int] = [x for x in idx1]
-        self.Sts = [self.Sts[x] for x in idx0]
+    def method_xyzExtract(self, idx0: list[int]) -> None:
+        _idx0: list[int] = [x for x in idx0]
+        self.Sts = [self.Sts[x] for x in _idx0]
 
     def method_xyzReturnOandZ_auto(self) -> None:
         from scipy.spatial.transform import Rotation as R
