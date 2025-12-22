@@ -59,7 +59,6 @@ def cml() -> argparse.Namespace:
         action="store",
         type=int,
         nargs=3,
-        required=True,
         help="Provide three idx of atom's nubmers (mirror xz plane, active 1 but not include 2,3) \
             if empty will mirror total atoms [1(origin) 2(z axis) 3(xz plane)]",
     )
@@ -76,23 +75,11 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def main(args: argparse.Namespace = argparse.Namespace()) -> None:
-
-    if args == argparse.Namespace():
-        args = cml()
-    print_arguments()
-
-    from censo_ext.Tools.utility import IsExist
-    inFile = Path(args.file)
-    outFile = Path(args.out)
-    IsExist(inFile)
-
-    if not args.atom:
+def Mirror_process(_xyzFile: GeometryXYZs, _atom: None | list[AtomID]) -> None:
+    if not _atom:
         print("  No any sepific atom in your provided arguments ")
         print("  xyzMirror.py will mirror all atoms !!!")
-        xyzFile: GeometryXYZs = GeometryXYZs(inFile)
-        xyzFile.method_read_xyz()
-        Nums: int = len(xyzFile.Sts[0].coord)
+        Nums: int = len(_xyzFile.Sts[0].coord)
         idx0_H: list[IntpID] = [IntpID(x) for x in [*range(Nums)]]
         p_idx1: AtomID = AtomID(1)
         q_idx1: AtomID = AtomID(1)
@@ -101,20 +88,16 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         p_idx1: AtomID
         q_idx1: AtomID
         r_idx1: AtomID
-        p_idx1, q_idx1, r_idx1 = args.atom
+        p_idx1, q_idx1, r_idx1 = _atom
 
-        xyzFile: GeometryXYZs = GeometryXYZs(inFile)
-        xyzFile.method_read_xyz()
         from censo_ext.Tools.topo import Topo
-        _topo: Topo = Topo(xyzFile)
-
+        _topo: Topo = Topo(_xyzFile)
         idx1_H: list[AtomID] = _topo.method_broken_bond_H(
             _bond_broken=(p_idx1, q_idx1), _print=False)
         idx0_H: list[IntpID] = [IntpID(x-1) for x in idx1_H]
 
     # Process xyz file
-    for St in xyzFile.Sts:
-
+    for St in _xyzFile.Sts:
         dxyz: npt.NDArray[np.float64] = St.coord[p_idx1-1].copy()
         St.coord -= dxyz  # type: ignore
         z_axis = (0, 0, np.sqrt(np.sum(np.square(St.coord[q_idx1-1]))))
@@ -136,12 +119,27 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             if idx0 in idx0_H:
                 x[1] = -x[1]
 
+
+def main(args: argparse.Namespace = argparse.Namespace()) -> None:
+
+    if args == argparse.Namespace():
+        args = cml()
+    print_arguments()
+
+    from censo_ext.Tools.utility import IsExist
+    inFile = Path(args.file)
+    outFile = Path(args.out)
+    IsExist(inFile)
+
+    xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+    xyzFile.method_read_xyz()
+
+    Mirror_process(_xyzFile=xyzFile, _atom=args.atom)
+
     fileName: Path = inFile if args.replace else outFile
     print(f"    Saved to {fileName}")
     xyzFile.set_filename(fileName)
     xyzFile.method_save_xyz([])
-    from censo_ext.Tools.topo import Topo
-    _topo = Topo(xyzFile)
 
 
 if __name__ == "__main__":
