@@ -42,6 +42,14 @@ def cml() -> argparse.Namespace:
         help="Provide one input xyz file [default clusters.xyz]",
     )
     parser.add_argument(
+        "-b",
+        "--boltz",
+        dest="boltz",
+        action="store_true",
+        required=False,
+        help="only use Boltzmann distribution, not use interia to sort [default False]",
+    )
+    parser.add_argument(
         "--ewin",
         dest="ewin",
         action="store",
@@ -119,11 +127,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             #    The_Same_St = True
 
             # if np.sum(np.square(np.array(moment))) <= args.bthr and The_Same_St:
-            if np.sum(np.square(np.array(moment))) <= args.bthr:
+
+            if np.sum(np.square(np.array(moment))) <= args.bthr and not args.boltz:
                 idx0_diff.append(idx0_q)
-                # print(idx0_p, idx0_q, end="")
-                # print(" ===")
-        # print(idx0_diff)
+            # print(idx0_p, idx0_q, end="")
+            # print(" ===")
+            # print(idx0_diff)
         if len(idx0_diff) != 1:
             idx0_diff = [x for x in idx0_diff if x > idx0_p]
             if len(idx0_diff) >= 1:
