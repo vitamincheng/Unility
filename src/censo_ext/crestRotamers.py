@@ -11,7 +11,7 @@ from censo_ext.xyzDuplicate import Duplicate_process
 from censo_ext.xyzMirror import Mirror_process
 descr = """
 ________________________________________________________________________________
-| For Generation of xyz molecule 
+| For Generation of xyz molecule
 | Usages   : xyz.py <geometry> [options]
 | [options]
 |______________________________________________________________________________
@@ -32,6 +32,16 @@ def cml() -> argparse.Namespace:
         required=False,
         default="crest_rotamers.xyz",
         help="Provide one input xyz file [default crest_rotamers.xyz]",
+    )
+    parser.add_argument(
+        "-rthr",
+        "--rthr",
+        dest="rthr",
+        action="store",
+        required=False,
+        type=float,
+        default=0.125,
+        help="the threshold of RMSD [default 0.125]",
     )
     parser.add_argument(
         "--auto",
@@ -69,9 +79,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if IsExist_bool(fileName):
         np_inData: npt.NDArray[np.int64] = np.genfromtxt(
             fileName, skip_header=1, dtype=int)
-        idx1 = 0
+        counter = 0
         for _, start, end in np_inData:
-            idx1 = idx1+1
+            counter = counter + 1
             import copy
             outFile: GeometryXYZs = copy.deepcopy(xyzFile)
             outFile.method_xyzExtract([*range(start-1, end)])
@@ -79,10 +89,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             if args.auto:
                 outFile.method_xyzReturnOandZ_auto()
             outFile.method_save_xyz([])
-            print(f"  ===== {idx1} =====")
+            print(f"  ===== {counter} =====")
             print(f"  Data saved to : {start}_{end}.xyz")
 
-            Duplicate_process(_rthr=0.125, _xyzFile=outFile,
+            Duplicate_process(_rthr=args.rthr, _xyzFile=outFile,
                               _add_idx=args.add_idx)
             outFile.set_filename(f"{start}_{end}_ext.xyz")
             print(f"  Data saved to : {start}_{end}_ext.xyz")
@@ -99,12 +109,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
             # outFile.method_print([])
 
-            numbers: list[int] = [*range(1, len(outFile))]
-            # print(numbers)
+            numbers: list[int] = [*range(2, len(outFile))]
+            print(numbers)
             # print(len(outFile))
             print("")
 
-            if len(numbers) > 1:
+            if len(numbers) > 0:
                 print("    p    q         rmsd")
                 for idx1_q in numbers:
                     idx1_p = len(outFile)
@@ -112,7 +122,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                                                   _bond_broken=None, _ignore_Hydrogen=True)
                     print(
                         f"  {idx1_p:3d}  {idx1_q:3d}  {result_rmsd:17.8f}", end="")
-                    if result_rmsd <= 0.125:
+                    if result_rmsd <= args.rthr:
                         Result.Sts.append(outFile.Sts[idx1_q])
                         print("    ", len(Result.Sts), "index in append.xyz")
                     else:
