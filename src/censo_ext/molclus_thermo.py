@@ -185,6 +185,9 @@ def thermo_process(args) -> list[str]:
 
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(single_xyz_name, xcontrol_inp)
+    delete_all_files("charges", "g98.out", "hessian", "thermo.out")
+    delete_all_files("vibspectrum", "wbo", "xtb_enso.json")
+    delete_all_files("xtbopt.log", "xtbopt.xyz", "xtbrestart", "xtbtopo.mol")
     print(thermo)
 
     return thermo
