@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 from pathlib import Path
+from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
 from censo_ext.Tools.utility import IsExist_bool, print_arguments
 import argparse
 import numpy as np
 import numpy.typing as npt
 
 from censo_ext.Tools.xyzfile import GeometryXYZs
+from censo_ext.xyzDuplicate import Duplicate_process
+from censo_ext.xyzMirror import Mirror_process
 descr = """
 ________________________________________________________________________________
 | For Generation of xyz molecule 
@@ -50,12 +53,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xyzFile.method_read_xyz()
     xyzFile.method_comment_new()
     fileName = Path("cre_members")
+    Result = GeometryXYZs()
 
     if IsExist_bool(fileName):
         np_inData: npt.NDArray[np.int64] = np.genfromtxt(
             fileName, skip_header=1, dtype=int)
-
+        idx1 = 0
         for _, start, end in np_inData:
+            idx1 = idx1+1
             import copy
             outFile: GeometryXYZs = copy.deepcopy(xyzFile)
             outFile.method_xyzExtract([*range(start-1, end)])
@@ -63,7 +68,49 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             if args.auto:
                 outFile.method_xyzReturnOandZ_auto()
             outFile.method_save_xyz([])
-            print(f"Data saved to : {start}_{end}.xyz")
+            print(f"  ===== {idx1} =====")
+            print(f"  Data saved to : {start}_{end}.xyz")
+
+            Duplicate_process(_rthr=0.125, _xyzFile=outFile)
+            outFile.set_filename(f"{start}_{end}_ext.xyz")
+            print(f"  Data saved to : {start}_{end}_ext.xyz")
+            outFile.method_save_xyz([])
+
+            StFile: GeometryXYZs = copy.deepcopy(outFile)
+            StFile.method_xyzExtract([0])
+            Mirror_process(StFile, _atom=None)
+
+            if len(StFile) == 0:
+                continue
+            else:
+                outFile.method_Sts_append(StFile)
+
+            # outFile.method_print([])
+
+            numbers: list[int] = [*range(1, len(outFile))]
+            # print(numbers)
+            # print(len(outFile))
+            print("")
+
+            if len(numbers) > 1:
+                print("    p    q         rmsd")
+                for idx1_q in numbers:
+                    idx1_p = len(outFile)
+                    _, result_rmsd = cal_RMSD_xyz(xyzFile=outFile, idx1_p=idx1_p, idx1_q=idx1_q, _add_idx=None, _remove_idx=None,
+                                                  _bond_broken=None, _ignore_Hydrogen=True)
+                    print(
+                        f"  {idx1_p:3d}  {idx1_q:3d}  {result_rmsd:17.8f}", end="")
+                    if result_rmsd <= 0.125:
+                        Result.Sts.append(outFile.Sts[idx1_q])
+                        print("    ", len(Result.Sts), "index in append.xyz")
+                    else:
+                        print("")
+            print("")
+            print("")
+
+        Result.set_filename(Path("append.xyz"))
+        Result.method_save_xyz([])
+
     else:
         print(f"  Your file {fileName} is not Exist !!! ")
         print("  Close and Exit the program !!!")
