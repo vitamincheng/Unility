@@ -704,7 +704,15 @@ class GeometryXYZs():
             self.method_print(idx1)
         sys.stdout = original_stdout
 
-    # append to old xyz file
+    def method_Sts_append(self, Other: Self) -> None:
+        if len(Other) >= 1:
+            for idx0 in range(len(Other.Sts)):
+                self.Sts.append(Other.Sts[idx0])
+        else:
+            print("  The structures in your xyz fileis is empty")
+            print("  Exit and Close the program !!!")
+            exit(0)
+
     def method_save_xyz_append(self, idx1: list[int]) -> None:
         """Append selected Geometry instances to an existing XYZ file.
 
