@@ -39,6 +39,17 @@ def cml() -> argparse.Namespace:
         action="store_true",
         help="Auto mode of saved files by use xyzReturnOandZ [default False]",
     )
+
+    parser.add_argument(
+        "--add-idx",
+        nargs="+",
+        dest="add_idx",
+        action="store",
+        type=int,
+        required=False,
+        help="To add atom's index (for -SH -OH -NH)",
+    )
+
     args: argparse.Namespace = parser.parse_args()
     return args
 
@@ -71,7 +82,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             print(f"  ===== {idx1} =====")
             print(f"  Data saved to : {start}_{end}.xyz")
 
-            Duplicate_process(_rthr=0.125, _xyzFile=outFile)
+            Duplicate_process(_rthr=0.125, _xyzFile=outFile,
+                              _add_idx=args.add_idx)
             outFile.set_filename(f"{start}_{end}_ext.xyz")
             print(f"  Data saved to : {start}_{end}_ext.xyz")
             outFile.method_save_xyz([])

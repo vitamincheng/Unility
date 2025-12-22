@@ -51,7 +51,7 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def Duplicate_process(_rthr: float, _xyzFile: GeometryXYZs):
+def Duplicate_process(_rthr: float, _xyzFile: GeometryXYZs, _add_idx: list[int] | None = None):
     print(
         f"\n  The numbers of the structures in xyz files : {len(_xyzFile.Sts)}")
 
@@ -62,7 +62,7 @@ def Duplicate_process(_rthr: float, _xyzFile: GeometryXYZs):
             for idx1_q in idx1_Sts.copy():
                 if idx1_p != idx1_q and idx1_p < idx1_q:
                     _, result_RMSD = cal_RMSD_xyz(xyzFile=_xyzFile, idx1_p=idx1_p,
-                                                  idx1_q=idx1_q, _add_idx=None, _remove_idx=None, _bond_broken=None, _ignore_Hydrogen=True)
+                                                  idx1_q=idx1_q, _add_idx=_add_idx, _remove_idx=None, _bond_broken=None, _ignore_Hydrogen=True)
                     if result_RMSD <= _rthr:
                         idx1_Sts.remove(idx1_q)
         else:
