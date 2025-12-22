@@ -7,6 +7,7 @@ from pathlib import Path
 # from icecream import ic
 from censo_ext.Tools.utility import delete_all_files, print_arguments
 from censo_ext.Tools.utility import copy_file
+from censo_ext.molclus_thermo import thermo_process
 
 descr = """
 ________________________________________________________________________________
@@ -117,7 +118,6 @@ def orca() -> None:
 
 def thermo() -> list[str]:
 
-    import censo_ext.molclus_thermo as molclus_thermo
     print(" ========= molclus_thermo.py ==========")
     if not thermoDir.is_dir():
         thermoDir.mkdir()
@@ -127,7 +127,7 @@ def thermo() -> list[str]:
     os.chdir(thermoDir)
     args_x: dict = {"file": inFile, "method": "gfn2",
                     "alpb": "CHCl3", "gbsa": None, "chrg": 0, "uhf": 1}
-    thermo: list[str] = molclus_thermo.main(argparse.Namespace(**args_x))
+    thermo: list[str] = thermo_process(argparse.Namespace(**args_x))
     os.chdir(cwd)
     shutil.rmtree(thermoDir, ignore_errors=True)
     print(" ========== End ==========")

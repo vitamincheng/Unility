@@ -86,17 +86,27 @@ def cml() -> argparse.Namespace:
         default=1,
         help="to set the number of unpaired electrons [default 1]",
     )
+    parser.add_argument(
+        "-enso",
+        dest="enso",
+        action="store_true",
+        help="Create the anmr_enso files [default False]",
+    )
+    parser.add_argument(
+        "-temp",
+        "--temp",
+        dest="temp",
+        action="store",
+        type=float,
+        default=298.15,
+        help="set the temperature degree K [default 298.15 K]",
+    )
 
     args: argparse.Namespace = parser.parse_args()
     return args
 
 
-def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
-
-    if args == argparse.Namespace():
-        args = cml()
-    print_arguments()
-
+def thermo_process(args) -> list[str]:
     inFile = Path(args.file)
     single_xyz_name = Path(".temp.xyz")
 
@@ -158,7 +168,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
         print("$end")
     sys.stdout = sys.__stdout__
 
-    thermo: list = []
+    thermo: list[str] = []
     for idx1 in range(1, len(xyzFile)+1, 1):
         xyzFile.set_filename(single_xyz_name)
         xyzFile.method_save_xyz([idx1])
@@ -178,6 +188,33 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> list[str]:
     print(thermo)
 
     return thermo
+
+
+def enso_generate(args: argparse.Namespace, thermo: list[str], temp: float) -> None:
+
+    from censo_ext.Tools.xyzfile import GeometryXYZs
+    from censo_ext.Tools.anmrfile import Anmr
+    print("  ===== create anmr_enso =====")
+    xyzFile: GeometryXYZs = GeometryXYZs(args.file)
+    xyzFile.method_read_xyz()
+    outAnmr: Anmr = Anmr()
+    outAnmr.method_create_enso(
+        xyzFile.method_ensoGenFlexible(temp, thermo))
+    outAnmr.method_save_enso()
+    print(" Saved the anmr_enso.new in your working directory ")
+    print("  ===== End =====")
+
+
+def main(args: argparse.Namespace = argparse.Namespace()) -> None:
+
+    if args == argparse.Namespace():
+        args = cml()
+    print_arguments()
+
+    thermo: list[str] = thermo_process(args)
+
+    if args.enso and args.temp:
+        enso_generate(args=args, thermo=thermo, temp=args.temp)
 
 
 if __name__ == "__main__":
