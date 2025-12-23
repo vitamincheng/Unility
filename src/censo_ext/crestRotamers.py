@@ -100,7 +100,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
             StFile: GeometryXYZs = copy.deepcopy(outFile)
             StFile.method_xyzExtract([0])
+            import sys
+            import os
+            sys.stdout = open(os.devnull, 'w')
             Mirror_process(StFile, _atom=None)
+            sys.stdout = sys.__stdout__
 
             if len(StFile) == 0:
                 continue
@@ -121,7 +125,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     _, result_rmsd = cal_RMSD_xyz(xyzFile=outFile, idx1_p=idx1_p, idx1_q=idx1_q, _add_idx=None, _remove_idx=None,
                                                   _bond_broken=None, _ignore_Hydrogen=True)
                     print(
-                        f"  {idx1_p:3d}  {idx1_q:3d}  {result_rmsd:17.8f}", end="")
+                        f"    1' {idx1_q:3d}  {result_rmsd:17.8f}", end="")
                     if result_rmsd <= args.rthr:
                         Result.Sts.append(outFile.Sts[idx1_q])
                         print("    ", len(Result.Sts), "index in append.xyz")
