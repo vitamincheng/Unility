@@ -141,12 +141,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # print("")
 
     import itertools
-    idx0_St_remove_flat = list(itertools.chain.from_iterable(idx0_St_remove))
+    idx0_St_remove_flat: list[int] = list(
+        itertools.chain.from_iterable(idx0_St_remove))
     idx0_index: list[int] = [* range(len(_inertia))]
     idx0_index = [x for x in idx0_index if x not in idx0_St_remove_flat]
 
     xyzFile.method_xyzExtract(idx0_index)
     Energy: list[float] = [St._comment_energy for St in np.array(xyzFile.Sts)]
+    nClusters: list[int] = [
+        St.comment_nClusters for St in np.array(xyzFile.Sts)]
 
     import numpy as np
     import numpy.typing as npt
@@ -156,12 +159,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     intp_remove_Energy = np.argwhere(np_Energy[intp_Energy] > args.ewin)
 
     intp_Energy = np.delete(intp_Energy, intp_remove_Energy)
+    # print(np.array(nClusters)[intp_Energy])
 
     BW: npt.NDArray[np.float64] = Boltzmann_Weighting(
         np_Energy[intp_Energy], TEMP=args.temp)
 
     zip_energy: zip[tuple[npt.NDArray[np.intp], npt.NDArray[np.float64], npt.NDArray[np.float64]]] = zip(
-        intp_Energy+1, np.array(np_Energy[intp_Energy]), BW)
+        np.array(nClusters)[intp_Energy], np.array(np_Energy[intp_Energy]), BW)
 
     # print the parameter of the Boltzmann weighting
     print("")
@@ -171,6 +175,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(f"  Temperature                   = {args.temp} (K)")
     print(f"  The numbers of Start Clusters = {nSts_origin} ")
     print(f"  The numbers of Final Clusters = {len(intp_Energy)} ")
+    if not args.boltz:
+        print(
+            f"  The indexes of remove         = {[x+1 for x in idx0_St_remove_flat]}")
     print(f"  Saved File Name               = {args.out} ")
 
     print("")
@@ -182,8 +189,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("")
 
     xyzFile.set_filename(args.out)
-    xyzFile.method_rewrite_comment()
-    xyzFile.method_comment_new()
     xyzFile.method_save_xyz((intp_Energy+1).tolist())
 
 
