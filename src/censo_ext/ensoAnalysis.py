@@ -102,7 +102,28 @@ def Boltzmann_enso(np_enso: npt.NDArray, TEMP: float) -> npt.NDArray:
     # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
     #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
 
-    # Column 8 is Total Gibbs Free Energy (Eh) = Energy + mRRHO
+    # Energy_min is lowest energy of Electron Energy
+    Energy_min: np.float64 = np_enso['Energy'].min()
+
+    # Eref is delta Electron Energy
+    Eref: npt.NDArray[np.float64] = np.array(
+        (np_enso['Energy']-Energy_min)*Eh, dtype=[('Eref', 'f8')])
+    np_enso = rfn.merge_arrays((np_enso, Eref), flatten=True)
+
+    # Eref_Qi (each CONFS)
+    Eref_Qi: npt.NDArray[np.float64] = np.array(
+        np.exp(-np_enso['Eref']/(TEMP*FACTOR)))
+
+    # Eref_Qall is sum of Eref_Qi
+    Eref_Qall: np.float64 = np.sum(Eref_Qi)
+
+    # Eref Boltammann weighting is percentage of each CONFS
+    Eref_BW: npt.NDArray[np.float64] = np.array(
+        Eref_Qi/Eref_Qall, dtype=[('Eref_BW', 'f8')])
+
+    rfn.merge_arrays((np_enso, Eref_BW), flatten=True)
+
+    # Total is Gibbs Free Energy (Eh) = Energy + mRRHO
     Total: npt.NDArray[np.float64] = np.array(
         (np_enso['Energy']+np_enso['mRRHO']), dtype=[('Total', 'f8')])
     np_enso = rfn.merge_arrays((np_enso, Total), flatten=True)
@@ -110,12 +131,12 @@ def Boltzmann_enso(np_enso: npt.NDArray, TEMP: float) -> npt.NDArray:
     # Gibbs_min is lowest energy of Gibbs Free Energy
     Gibbs_min: np.float64 = np_enso['Total'].min()
 
-    # Column 9 is delta Gibbs Free Energy (kcal/mol)
+    # Gibbs is delta Gibbs Free Energy (kcal/mol)
     Gibbs: npt.NDArray[np.float64] = np.array(
         (np_enso['Total']-Gibbs_min)*Eh, dtype=[('Gibbs', 'f8')])
     np_enso = rfn.merge_arrays((np_enso, Gibbs), flatten=True)
 
-    # Column 1o is Qi (each CONFS)
+    # Qi (each CONFS)
     Qi: npt.NDArray[np.float64] = np.array(
         np.exp(-np_enso['Gibbs']/(TEMP*FACTOR)), dtype=[('Qi', 'f8')])
     np_enso = rfn.merge_arrays((np_enso, Qi), flatten=True)
@@ -123,7 +144,7 @@ def Boltzmann_enso(np_enso: npt.NDArray, TEMP: float) -> npt.NDArray:
     # Qall is sum of Qi
     Qall: np.float64 = np.sum(np_enso['Qi'])
 
-    # Column 11 is percentage of each CONFS
+    # percentage of Boltzmann weighting of each CONFS
     NEW_BW: npt.NDArray[np.float64] = np.array(
         np_enso['Qi']/Qall, dtype=[('NEW_BW', 'f8')])
 
@@ -140,27 +161,27 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     from censo_ext.Tools.Parameter import Eh, Rcal
 
     inFile: Path = Path(args.file)
-    backupFile: Path = Path(str(args.file) + ".backup")
+    bakFile: Path = Path(str(args.file) + ".backup")
 
     fileExists: bool = IsExist_bool(inFile)
-    backupfileExists: bool = IsExist_bool(backupFile)
+    bakfileExists: bool = IsExist_bool(bakFile)
 
     print("")
     print(f" Reading the input file  : {inFile}")
-    print(f" Reading the backup file : {backupFile}")
+    print(f" Reading the backup file : {bakFile}")
 
     if fileExists:
-        if backupfileExists:
+        if bakfileExists:
             pass
         else:
 
-            print(f" The backup file is not exist. {backupFile}")
+            print(f" The backup file is not exist. {bakFile}")
             print(f" ONOFF args.new : {args.new}")
             if args.new:
                 print(
-                    f" Copy {inFile} to {backupFile} for original Energy and for reference")
+                    f" Copy {inFile} to {bakFile} for original Energy and for reference")
                 from censo_ext.Tools.utility import copy_file
-                copy_file(inFile, backupFile)
+                copy_file(inFile, bakFile)
                 print("  Run this program again ")
                 print("  Exit and Close the program !!!")
                 exit(0)
@@ -177,8 +198,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         raise FileNotFoundError(
             f"{inFile} was not found or is a directory")
 
-    if (not fileExists) or (not backupfileExists):
-        print(f"    {inFile} or {backupFile} , the file is not exist ...")
+    if (not fileExists) or (not bakfileExists):
+        print(f"    {inFile} or {bakFile} , the file is not exist ...")
         print("  Exit and Close the program !!!")
         exit(0)
 
@@ -190,7 +211,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     #                 dtype=['i8', 'i8', 'f8', 'f8']))
     anmr_enso: npt.NDArray = np.genfromtxt(args.file, names=True, dtype=[
         ('i8'), ('i8'), ('i8'), ('f8'), ('f8'), ('f8'), ('f8'), ('f8')])
-    backup_enso: npt.NDArray = np.genfromtxt(backupFile, names=True, dtype=[
+    backup_enso: npt.NDArray = np.genfromtxt(bakFile, names=True, dtype=[
         ('i8'), ('i8'), ('i8'), ('f8'), ('f8'), ('f8'), ('f8'), ('f8')])
 
     # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
@@ -228,8 +249,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     names_anmr: list = list()
     if args.weights:
         # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'), ('Energy', '<f8'),
-        # ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8'), ('Total', '<f8'), ('Gibbs', '<f8'),
-        # ('Qi', '<f8'), ('NEW_BW', '<f8')])
+        # ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8'), ('Eref', '<f8'), ('Eref_BW', '<f8'),
+        # ('Total', '<f8'), ('Gibbs', '<f8'),('Qi', '<f8'), ('NEW_BW', '<f8')])
 
         # recalculation and copy to column 3 (BW)
         anmr_enso['BW'] = anmr_enso['NEW_BW']
@@ -252,12 +273,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # Average of CONFS
     # For after degeneracy and reduce the Gibbs free energy of ensemble
-    avg_nums = int(np.sum(anmr_enso['ONOFF']))
-    avg_fraction: float = 1/avg_nums
+    nAverages = int(np.sum(anmr_enso['ONOFF']))
+    avg_fraction: float = 1/nAverages
 
     print(f" the name of input file          : {inFile}")
-    print(f" the name of input file energy   : {backupFile}")
-    print(f" number of CONFS                 : {avg_nums:d}")
+    print(f" the name of input file energy   : {bakFile}")
+    print(f" number of CONFS                 : {nAverages:d}")
     print("")
     print(" ----- Average CONFS -----")
 
@@ -275,33 +296,33 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     Reduced_energy = avg_wlnw*(-Rcal)*TEMP/(-1000)
 
     if args.verbose:
-        print(f"     Gibbs Free Energy  of one CONF  (kcal/mol)    : {Reduced_energy: .4f}")  # nopep8
-        print(f"     Gibbs Free Energy  of all CONFS (kcal/mol)    : {Reduced_energy*avg_nums: .4f}")  # nopep8
+        print(f"     Gibbs Free Energy of one CONF  (kcal/mol)    : {Reduced_energy: .4f}")  # nopep8
+        print(f"     Gibbs Free Energy of all CONFS (kcal/mol)    : {Reduced_energy*nAverages: .4f}")  # nopep8
         print("")
         print("")
 
     # For Before degeneracy and lift the Gibbs Free Energy of Ensemble
-        print(" (2) Gibbs Free Energy of ensemble of average CONFS from Average Energy ")
+        print(" (2) Gibbs Free Energy of ensemble of average CONFS from Average Electron Energy ")
     if args.verbose:
         print("")
         print(f"     ON/OFF of CONFS                 : {anmr_enso['ONOFF']}")
-        print(f"     Eref of every CONFS (kcal/mol)  : {anmr_enso['Gibbs']}")
+        print(f"     Eref of every CONFS (kcal/mol)  : {anmr_enso['Eref']}")
 
     insert_zero = False
     # enso_min_list = np.copy(anmr_enso['Gibbs']*anmr_enso['ONOFF'])
 
-    for i in range(anmr_enso['Gibbs'].size):
-        # is ON and Column 9 is delta Gibbs Free Energy
-        if (anmr_enso['ONOFF'][i]) == 1 and (anmr_enso['Gibbs'][i]) == 0:
+    # check is ONOFF and delta Electron Energy
+    for i in range(anmr_enso['Eref'].size):
+        if (anmr_enso['ONOFF'][i]) == 1 and (anmr_enso['Eref'][i]) == 0:
             insert_zero = True
 
-    avg_Gibbs: npt.NDArray[np.float64] = anmr_enso['Gibbs'] * \
-        anmr_enso['ONOFF']*(1/avg_nums)
+    avg_Eref: npt.NDArray[np.float64] = anmr_enso['Eref'] * \
+        anmr_enso['ONOFF']*(1/nAverages)
 
     if args.verbose:
-        print(f"     Weight of every CONFS           : {1/avg_nums}")
-        print(f"     Eref*weight of every CONFS      : {avg_Gibbs}")
-    Lift_energy: float = np.sum(avg_Gibbs).astype(float)
+        print(f"     Weight of every CONFS           : {1/nAverages}")
+        print(f"     Eref*weight of every CONFS      : {avg_Eref}")
+    Lift_energy: float = np.sum(avg_Eref).astype(float)
 
     if args.verbose:
         print(f"     Gibbs Free Energy (kcal/mol)    : {Lift_energy: .4f}\n")  # nopep8
@@ -330,24 +351,24 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     Lift_boltzmann_energy: float = np.sum(Boltzmann_lift_energy).astype(float)
     if args.verbose:
         print(
-            f"     Gibbs Free Energy  kcal/mol)    : {Lift_boltzmann_energy: .4f}")
+            f"     Gibbs Free Energy  (kcal/mol)   : {Lift_boltzmann_energy: .4f}")
         print("")
 
-    print(f" (1) Gibbs Free Energy from Entropy (kcal/mol)                   : {Reduced_energy*avg_nums: .4f}")  # nopep8
-    print(f" (2) Gibbs Free Energy from Average energy (kcal/mol)            : {Lift_energy: .4f}")  # nopep8
+    print(f" (1) Gibbs Free Energy from Entropy (kcal/mol)                   : {Reduced_energy*nAverages: .4f}")  # nopep8
+    print(f" (2) Gibbs Free Energy from Average Electron Energy (kcal/mol)   : {Lift_energy: .4f}")  # nopep8
     print(f" (3) Gibbs Free Energy using Boltzmann distribution (kcal/mol)   : {Lift_boltzmann_energy: .4f}")  # nopep8
     print("")
 
     Gibbs_Free_Energy: float = Lift_energy - \
-        Lift_boltzmann_energy + Reduced_energy*avg_nums
+        Lift_boltzmann_energy + Reduced_energy*nAverages
     if (Gibbs_Free_Energy) >= 0:
         rule = "(Forbidden)"
     else:
         rule = "(Allowed)"
 
     if args.verbose:
-        print(" Total Gibbs Free Energy = G(Average energy) - G(Boltzmann distribution) + G(From Entropy)")
-        print("                         = (2) - (3) + (1)                                                ")
+        print(" Total Gibbs Free Energy = G(Average Electron Energy) + G(From Entropy) - G(Boltzmann distribution)")
+        print("                         = (2) + (1) - (3)                                               ")
     print(f" Total Gibbs Free Energy of ensemble of all CONFS (kcal/mol) : {Gibbs_Free_Energy: .4f}        ")  # nopep8
     print(f" Total Gibbs Free Energy of ensemble of all CONFS (Eh)       : {Gibbs_Free_Energy/Eh: .8f}    {rule}")  # nopep8
 
@@ -392,7 +413,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             print(
                 "\n Average_enso is represented as like ensemble (Favor for reduced entropy of ensemble)")
             print(
-                " the electronic energy and Entropy of every CONF is represented as single structure")
+                " the electronic energy and Entropy of every CONFs is represented as single structure")
 
 
 if __name__ == "__main__":
