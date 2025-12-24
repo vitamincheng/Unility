@@ -5,7 +5,7 @@ from icecream import ic
 from censo_ext.Tools.utility import AtomID, print_arguments
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from censo_ext.xyzGenFlexible import get_xyzSplit, read_data
-type cell_reports = tuple[int, int, int, float, float]
+type cell_reports = tuple[int, int, int, int, float, float]
 
 descr = """
 ________________________________________________________________________________
@@ -142,7 +142,7 @@ def TopoAnalysis(_xyzFile: GeometryXYZs, _idx1: int, _verbose: bool, _limits: fl
                                             bond_broken=(res_node_mol, node_mol))
                 if std_left <= _limits and std_right <= _limits:
                     result_circle.append(
-                        (idx1_q, node_mol, res_node_mol, std_left, std_right))
+                        (idx1_p, idx1_q, node_mol, res_node_mol, std_left, std_right))
 
     # Check straight chain
     result_straight: list[cell_reports] = []
@@ -155,35 +155,37 @@ def TopoAnalysis(_xyzFile: GeometryXYZs, _idx1: int, _verbose: bool, _limits: fl
             std_right = cal_RMSD(_xyzFile=_xyzFile, idx1_p=idx1_p, idx1_q=idx1_q,
                                  bond_broken=(value, key))
             if std_left <= _limits and std_right <= _limits:
-                if _verbose:
-                    ic(idx1_q, key, value, std_left, std_right)
                 result_straight.append(
-                    (idx1_q, key, value, std_left, std_right))
+                    (idx1_p, idx1_q, key, value, std_left, std_right))
 
     return result_circle, result_straight
 
 
-def print_report(_index: int, _circle: list[cell_reports], _straight: list[cell_reports]) -> None:
+def print_report(_xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight: list[cell_reports]) -> None:
 
     if len(_circle) != 0:
         print("")
         print("  ===== Check circle molecule =====")
         print("   idx1_p   idx1_q  node  res_node      res_left      res_right")
         for x in _circle:
+            nCluster_p = _xyzFile.Sts[x[0]-1].comment_nClusters
+            nCluster_q = _xyzFile.Sts[x[1]-1].comment_nClusters
             print(
-                f"   {_index:6d}   {x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
+                f"   {nCluster_p:6d}   {nCluster_q:6d} {x[2]:6d} {x[3]:8d} {x[4]:14.7f} {x[5]:14.7f}")
 
     if len(_straight) != 0:
         print("")
         print("  ===== Check straight molecule =====")
         print("   idx1_p   idx1_q    key    value       res_left      res_right")
         for x in _straight:
+            nCluster_p = _xyzFile.Sts[x[0]-1].comment_nClusters
+            nCluster_q = _xyzFile.Sts[x[1]-1].comment_nClusters
             print(
-                f"   {_index:6d}   {x[0]:6d} {x[1]:6d} {x[2]:8d} {x[3]:14.7f} {x[4]:14.7f}")
+                f"   {nCluster_p:6d}   {nCluster_q:6d} {x[2]:6d} {x[3]:8d} {x[4]:14.7f} {x[5]:14.7f}")
         print("  [key,value] [fixed,rotation]")
 
 
-def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight: list[cell_reports], _auto: bool) -> None:
+def save_files(_xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight: list[cell_reports], _auto: bool) -> None:
 
     if len(_circle) >= 1:
         print("")
@@ -195,13 +197,18 @@ def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports],
             shutil.rmtree(circleDir, ignore_errors=True)
         circleDir.mkdir()
 
-        pairs: set[tuple[int, int]] = {(x[1], x[2]) for x in _circle}
+        pairs: set[tuple[int, int]] = {(x[2], x[3]) for x in _circle}
         for x in pairs:
-            index1: list[int] = [_index]
+            index1: list[int] = [_circle[0][0]]
+            nClusters: list[int] = [_circle[0][0]]
             for y in _circle:
-                if x == (y[1], y[2]):
-                    index1.append(y[0])
-            print(index1)
+                if x == (y[2], y[3]):
+                    index1.append(y[1])
+                    nClusters.append(_xyzFile.Sts[y[1]-1].comment_nClusters)
+
+            print(Path('_'.join(str(x)
+                  for x in index1)+".xyz"), "\t\t\t", nClusters)
+
             outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
             _xyzFile.set_filename(circleDir / outFile)
             if _auto:
@@ -217,13 +224,18 @@ def save_files(_index: int, _xyzFile: GeometryXYZs, _circle: list[cell_reports],
             shutil.rmtree(straightDir, ignore_errors=True)
         straightDir.mkdir()
 
-        pairs = {(x[1], x[2]) for x in _straight}
+        pairs = {(x[2], x[3]) for x in _straight}
         for x in pairs:
-            index1: list[int] = [_index]
+            index1: list[int] = [_straight[0][0]]
+            nClusters: list[int] = [_straight[0][0]]
             for y in _straight:
-                if x == (y[1], y[2]):
-                    index1.append(y[0])
-            print(index1)
+                if x == (y[2], y[3]):
+                    index1.append(y[1])
+                    nClusters.append(_xyzFile.Sts[y[1]-1].comment_nClusters)
+
+            print(Path('_'.join(str(x)
+                  for x in index1)+".xyz"), "\t\t\t", nClusters)
+
             outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
             _xyzFile.set_filename(straightDir / outFile)
             if _auto:
@@ -249,12 +261,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         for idx1 in range(1, len(_xyzFile.Sts)+1):
             _Circle, _Straight = TopoAnalysis(_xyzFile=_xyzFile, _idx1=idx1,
                                               _verbose=args.verbose, _limits=args.limits)
-            print_report(_index=idx1, _circle=_Circle, _straight=_Straight)
+            print_report(_xyzFile=_xyzFile, _circle=_Circle,
+                         _straight=_Straight)
     else:
         _Circle, _Straight = TopoAnalysis(_xyzFile=_xyzFile, _idx1=args.idx,
                                           _verbose=args.verbose, _limits=args.limits)
-        print_report(_index=args.idx, _circle=_Circle, _straight=_Straight)
-        save_files(_index=args.idx, _xyzFile=_xyzFile, _circle=_Circle,
+        print_report(_xyzFile=_xyzFile, _circle=_Circle, _straight=_Straight)
+        save_files(_xyzFile=_xyzFile, _circle=_Circle,
                    _straight=_Straight, _auto=args.auto)
 
 
