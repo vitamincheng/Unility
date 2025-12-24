@@ -8,7 +8,7 @@ from pathlib import Path
 from censo_ext.Tools.utility import print_arguments
 descr = """
 ________________________________________________________________________________
-| For Filter of single point of GFN-xTB of molecules of xyz file
+| For Filter of single point of GFN-xTB of molecules of xyz file by use molbar 
 | Usages   : molclus_filter_xtb.py <geometry> [options]
 | Input    : -i input file [default traj.xyz]
 | Output   : -o output file [default isomers.xyz]

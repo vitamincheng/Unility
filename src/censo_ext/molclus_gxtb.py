@@ -104,6 +104,13 @@ def cml() -> argparse.Namespace:
         help="Optimize energy [default False]",
     )
 
+    parser.add_argument(
+        "--retain",
+        dest="retain",
+        action="store_true",
+        help="Retained the serial number of the cluster in xyz file [default False]",
+    )
+
     args: argparse.Namespace = parser.parse_args()
     return args
 
@@ -124,6 +131,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xtb_cmd: str = ""
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
+    xyzFile_nClusters: list[int] = [x.comment_nClusters for x in xyzFile.Sts]
 
     # Default to xtb command
     from censo_ext.Tools.utility import prog_IsExist
@@ -191,13 +199,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # print("opt")
         optFile: GeometryXYZs = GeometryXYZs(temp_isomer_Name)
         optFile.method_read_xyz()
-        optFile.method_comment_new()
+
+        for a, b in zip(optFile.Sts, xyzFile_nClusters):
+            a.comment_nClusters = b
+        optFile.method_rewrite_comment()
+
+        if not args.retain:
+            optFile.method_comment_new()
         optFile.set_filename(outFile)
         optFile.method_save_xyz([])
+
     else:
-        # print("singe point")
-        xyzFile.method_rewrite_comment()
-        xyzFile.method_comment_new()
+        # print("single point")
+        if not args.retain:
+            xyzFile.method_comment_new()
         xyzFile.set_filename(outFile)
         xyzFile.method_save_xyz([])
 

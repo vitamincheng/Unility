@@ -86,14 +86,16 @@ def cml() -> argparse.Namespace:
         default=1,
         help="to set the number of unpaired electrons [default 1]",
     )
+
     parser.add_argument(
-        "-enso",
+        "--enso",
         dest="enso",
         action="store_true",
         help="Create the anmr_enso files [default False]",
     )
+
     parser.add_argument(
-        "-temp",
+        "-t",
         "--temp",
         dest="temp",
         action="store",

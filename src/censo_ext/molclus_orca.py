@@ -76,6 +76,13 @@ def cml() -> argparse.Namespace:
         help="Geometry Optimization thresholds : -1/LooseOpt 0/NormalOpt 1/TightOpt 2/VeryTightOpt [default 0]",
     )
 
+    parser.add_argument(
+        "--retain",
+        dest="retain",
+        action="store_true",
+        help="Retained the serial number of the cluster in xyz file [default False]",
+    )
+
     args: argparse.Namespace = parser.parse_args()
     return args
 
@@ -110,12 +117,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                     print("!TightOpt")
                 case 2:
                     print("!VeryTightOpt")
+                case 100:  # sp: single point
+                    pass
             print("* xyzfile 0 1 [xyzfile]")
         sys.stdout = sys.__stdout__
 
     # Read input file
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
+    xyzFile_nClusters: list[int] = [x.comment_nClusters for x in xyzFile.Sts]
 
     # Find orca executable path
     str_env: list[str] = os.environ['PATH'].split(":")
@@ -182,7 +192,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             open(f"{template_Name}.xyz", "w").writelines(templateLines)
 
             subprocess.call(
-                f"cat {template_Name}.xyz >> {args.out}", shell=True)
+                f"cat {template_Name}.xyz >> {str(outFile)}", shell=True)
             subprocess.call(
                 f"mv -f {template_Name}.xyz {idx1_str}.xyz", shell=True)
         else:
@@ -195,12 +205,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if templateFileIsExists:  # template File is Exists
         TemplateFile: GeometryXYZs = GeometryXYZs(outFile)
         TemplateFile.method_read_xyz()
-        TemplateFile.method_comment_new()
+
+        for a, b in zip(TemplateFile.Sts, xyzFile_nClusters):
+            a.comment_nClusters = b
+        TemplateFile.method_rewrite_comment()
+        if not args.retain:
+            TemplateFile.method_comment_new()
+
         TemplateFile.method_save_xyz([])
         print(f" Saved to  {outFile} \n All is done !!!")
+
     else:
-        xyzFile.method_rewrite_comment()
-        xyzFile.method_comment_new()
+        if not args.retain:
+            xyzFile.method_comment_new()
+
         xyzFile.set_filename(outFile)
         xyzFile.method_save_xyz([])
         print(f" Saved to  {outFile} \n All is done !!!")

@@ -106,6 +106,13 @@ def cml() -> argparse.Namespace:
         help="Optimize energy [default False]",
     )
 
+    parser.add_argument(
+        "--retain",
+        dest="retain",
+        action="store_true",
+        help="Retained the serial number of the cluster in xyz file [default False]",
+    )
+
     args: argparse.Namespace = parser.parse_args()
     return args
 
@@ -186,8 +193,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         else:
             xyzFile.Sts[idx1-1]._comment_energy = results["energy"]
 
-    xyzFile.method_rewrite_comment()
-    xyzFile.method_comment_new()
+    # xyzFile.method_rewrite_comment()
+    if not args.retain:
+        xyzFile.method_comment_new()
     xyzFile.set_filename(outFile)
     xyzFile.method_save_xyz([])
 
