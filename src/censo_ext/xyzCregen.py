@@ -65,8 +65,8 @@ def cml() -> argparse.Namespace:
         action="store",
         required=False,
         type=float,
-        default=1.0,
-        help="the threshold of interia [default 1.0 (amu/A^2)]",
+        default=100.0,
+        help="the threshold of interia [default 100.0 (amu/A^2)]",
     )
     parser.add_argument(
         "--temp",
@@ -95,10 +95,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     x_args = argparse.Namespace(**moment)
     xyzReturnOandZ.main(x_args)
 
-    # for x in range(len(xyzFile.Sts)):
-    #    a = method_get_point_group(xyzFile.Sts, x, True)
-    #    print(a)
-
     xyzFile.method_compute_COM()
     xyzFile.method_compute_Inertia()
     import numpy as np
@@ -109,6 +105,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     _inertia = np.array(list_inertia)
 
     idx0_St_remove: list[list[int]] = []
+    print("")
+    print(" idx0_p     idx0_q")
     for idx0_p, moment in enumerate(_inertia):
         std = _inertia[idx0_p].copy()
 
@@ -119,30 +117,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         idx0_diff: list[int] = []
         for idx0_q, moment in enumerate(_inertia):
 
-            # print(idx0_p, idx0_q)
-            # if idx0_p != idx0_q:
-            #    The_Same_St = xyzFile.method_compare_the_same_sketch(
-            #        idx0_p, idx0_q)
-            # else:
-            #    The_Same_St = True
-
-            # if np.sum(np.square(np.array(moment))) <= args.bthr and The_Same_St:
-
-            if np.sum(np.square(np.array(moment))) <= args.bthr and not args.boltz:
+            if idx0_p != idx0_q and np.sum(np.square(np.array(moment))) <= args.bthr and not args.boltz:
                 idx0_diff.append(idx0_q)
-            # print(idx0_p, idx0_q, end="")
-            # print(" ===")
-            # print(idx0_diff)
-        if len(idx0_diff) != 1:
+                print(f"{idx0_p+1:5d}    | {idx0_q+1:5d}")
+
+        if len(idx0_diff) != 0:
             idx0_diff = [x for x in idx0_diff if x > idx0_p]
-            if len(idx0_diff) >= 1:
+            if len(idx0_diff) >= 0:
                 idx0_St_remove.append(idx0_diff)
         # print(idx0_St_remove)
         # print("")
 
     import itertools
-    idx0_St_remove_flat: list[int] = list(
-        itertools.chain.from_iterable(idx0_St_remove))
+    idx0_St_remove_flat: list[int] = list(set(
+        itertools.chain.from_iterable(idx0_St_remove)))
     idx0_index: list[int] = [* range(len(_inertia))]
     idx0_index = [x for x in idx0_index if x not in idx0_St_remove_flat]
 
@@ -171,14 +159,18 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("")
     print("  ===== Boltzmann Distribution =====")
     print(f"  threshold energy              = {args.ewin} (kcal/mol)")
-    print(f"  threshold of inertia          = {args.bthr} (amu/A^2)")
+    if args.boltz:
+        print("  Using only Boltzmann Distribution (not sort by inertia)")
+    else:
+        print(f"  threshold of inertia          = {args.bthr} (amu/A^2)")
+
     print(f"  Temperature                   = {args.temp} (K)")
-    print(f"  The numbers of Start Clusters = {nSts_origin} ")
-    print(f"  The numbers of Final Clusters = {len(intp_Energy)} ")
+    print(f"  The numbers of Start Cluster  = {nSts_origin} ")
+    print(f"  The numbers of Final Cluster  = {len(intp_Energy)} ")
     if not args.boltz:
         print(
             f"  The indexes of remove         = {[x+1 for x in idx0_St_remove_flat]}")
-    print(f"  Saved File Name               = {args.out} ")
+    print(f"  Saved file                    = {args.out} ")
 
     print("")
     print("  ===== Boltzmann Weighting Table =====")
