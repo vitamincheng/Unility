@@ -103,20 +103,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     IsExist(inFile)
     template_Exist: bool = IsExist_bool(args.template)
 
-    # Define default template
+    # Define default template.inp
     if not template_Exist:
         with open(template_inp, "w") as f:
             sys.stdout = f
             print("! r2SCAN-3c miniprint PAL8 CPCM(chloroform) noautostart")
             match args.convergence:
                 case -1:
-                    print("!LooseOpt")
+                    print("! LooseOpt")
                 case 0:
-                    print("!Opt")
+                    print("! Opt")
                 case 1:
-                    print("!TightOpt")
+                    print("! TightOpt")
                 case 2:
-                    print("!VeryTightOpt")
+                    print("! VeryTightOpt")
                 case 100:  # sp: single point
                     pass
             print("* xyzfile 0 1 [xyzfile]")
@@ -135,8 +135,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         raise ValueError(f" Need the {prog} Program !!!")
 
     orca_path = match[0]+f"/{prog}"
-#    orca_path="~/orca_5_0_4_linux_x86-64_shared_openmpi411/orca"
-#    orca_path="~/orca_6_0_0_linux_x86-64_avx2_shared_openmpi416/orca"
+#    orca_path="~/Library/orca_6_1_0/orca"
     if template_Exist:
         template_Name: str = str(args.template)[:-4]
     else:
@@ -157,7 +156,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     delete_all_files(solo_xyz)
     print(" Cleaning old input and temporary files ...")
     print(" Running: rm isomers.xyz *.tmp")
-    templateFileIsExists: bool = False
+    templateFile_Exist: bool = False
 
     for idx1 in range(1, len(xyzFile)+1, 1):
         idx1_str = (f"{idx1:05d}")
@@ -181,8 +180,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 get_energy = idy0
 
         from os.path import exists
-        templateFileIsExists = exists(f"{template_Name}.xyz")
-        if templateFileIsExists:
+        templateFile_Exist = exists(f"{template_Name}.xyz")
+        if templateFile_Exist:
             templateLines: list[str] = open(f"{template_Name}.xyz", "r").readlines()  # nopep8
             for idy0, y in enumerate(templateLines):
                 if rf"Coordinates from ORCA-job {template_Name}" in y and get_energy:
@@ -202,17 +201,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         subprocess.call(f"mv -f {template_Name}.out {idx1_str}.out", shell=True)  # nopep8
         subprocess.call(f"mv -f {template_Name}.gbw {idx1_str}.gbw", shell=True)  # nopep8
 
-    if templateFileIsExists:  # template File is Exists
-        TemplateFile: GeometryXYZs = GeometryXYZs(outFile)
-        TemplateFile.method_read_xyz()
+    if templateFile_Exist:  # template File is Exists
+        optFile: GeometryXYZs = GeometryXYZs(outFile)
+        optFile.method_read_xyz()
 
-        for a, b in zip(TemplateFile.Sts, xyzFile_nClusters):
+        for a, b in zip(optFile.Sts, xyzFile_nClusters):
             a.comment_nClusters = b
-        TemplateFile.method_rewrite_comment()
+        optFile.method_rewrite_comment()
         if not args.retain:
-            TemplateFile.method_comment_new()
+            optFile.method_comment_new()
 
-        TemplateFile.method_save_xyz([])
+        optFile.method_save_xyz([])
         print(f" Saved to  {outFile} \n All is done !!!")
 
     else:

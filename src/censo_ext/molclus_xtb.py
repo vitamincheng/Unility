@@ -123,7 +123,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print_arguments()
 
     single_traj_Name = Path(".solo.xyz")
-    temp_isomer_Name = Path(".isomers.xyz")
+    temp_isomers_Name = Path(".isomers.xyz")
     xtb_cmd: str = ""
     inFile = Path(args.file)
     outFile = Path(args.out)
@@ -176,7 +176,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         get_energy: int | None = None
         if args.opt:
             subprocess.call(
-                f"cat xtbopt.xyz >> {temp_isomer_Name}", shell=True)
+                f"cat xtbopt.xyz >> {temp_isomers_Name}", shell=True)
 
         else:
             # print("singe point")
@@ -190,7 +190,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if args.opt:
         # print("opt")
-        optFile: GeometryXYZs = GeometryXYZs(temp_isomer_Name)
+        optFile: GeometryXYZs = GeometryXYZs(temp_isomers_Name)
         optFile.method_read_xyz()
         for a, b in zip(optFile.Sts, xyzFile_nClusters):
             a.comment_nClusters = b
@@ -212,7 +212,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     subprocess.call(
         "rm -rf charges wbo xtb.out xtbrestart xtbtopo.mol xtbopt* .xtboptok", shell=True)
     from censo_ext.Tools.utility import delete_all_files
-    delete_all_files(temp_isomer_Name, single_traj_Name)
+    delete_all_files(temp_isomers_Name, single_traj_Name)
 
 
 if __name__ == "__main__":

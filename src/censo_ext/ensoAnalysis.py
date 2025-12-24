@@ -211,7 +211,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     #                 dtype=['i8', 'i8', 'f8', 'f8']))
     anmr_enso: npt.NDArray = np.genfromtxt(args.file, names=True, dtype=[
         ('i8'), ('i8'), ('i8'), ('f8'), ('f8'), ('f8'), ('f8'), ('f8')])
-    backup_enso: npt.NDArray = np.genfromtxt(bakFile, names=True, dtype=[
+    bak_enso: npt.NDArray = np.genfromtxt(bakFile, names=True, dtype=[
         ('i8'), ('i8'), ('i8'), ('f8'), ('f8'), ('f8'), ('f8'), ('f8')])
 
     # dtype=[('ONOFF', '<i8'), ('NMR', '<i8'), ('CONF', '<i8'), ('BW', '<f8'),
@@ -244,7 +244,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # For calculation the percentage of every CONFS
     anmr_enso = Boltzmann_enso(anmr_enso, TEMP)
-    backup_enso = Boltzmann_enso(backup_enso, TEMP)
+    bak_enso = Boltzmann_enso(bak_enso, TEMP)
 
     names_anmr: list = list()
     if args.weights:
@@ -330,7 +330,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Boltzmann of CONFS
     if args.verbose:
         print(" (3) Gibbs Free Energy of ensemble of Boltzmann of CONFS ")
-    boltzmann_enso: npt.NDArray[np.float64] = (backup_enso['NEW_BW'] *
+    boltzmann_enso: npt.NDArray[np.float64] = (bak_enso['NEW_BW'] *
                                                anmr_enso['ONOFF']).astype(np.float64)
     sum_weight: float = np.sum(boltzmann_enso).astype(float)
     boltzmann_enso = boltzmann_enso/sum_weight
@@ -339,11 +339,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.verbose:
         print("\n     Lift Gibbs Free Energy of ensemble using Boltzmann distribution ")
         print(f"     ON/OFF of CONFS                 : {anmr_enso['ONOFF']}")
-        print(f"     Eref of every CONFS (kcal/mol)  : {backup_enso['Gibbs']}")
+        print(f"     Eref of every CONFS (kcal/mol)  : {bak_enso['Gibbs']}")
         print(f"     Weighting of each CONFS         : {anmr_enso['NEW_BW']}")
 
     Boltzmann_lift_energy: npt.NDArray[np.float64] = boltzmann_enso * \
-        backup_enso['Gibbs']
+        bak_enso['Gibbs']
 
     if args.verbose:
         print(

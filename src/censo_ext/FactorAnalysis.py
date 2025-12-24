@@ -167,22 +167,22 @@ def cal_RMSD_coord(args, xyzFile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDAr
     return np.array(list_COORDSquare, dtype=np.float64)
 
 
-def FactorFilter(args) -> None:
-    xyzFile: GeometryXYZs = GeometryXYZs(args.file)
+def FactorFilter(_args: argparse.Namespace) -> None:
+    xyzFile: GeometryXYZs = GeometryXYZs(_args.file)
     xyzFile.method_read_xyz()
     # start from 1 to num
     idx1_xyz: list[int] = [x+1 for x in [*range(len(xyzFile))]]
 
     nConfs: int = len(xyzFile)
 
-    if not args.thr:
-        args.thr = 2
-        if int(nConfs / 10) > args.thr:
-            args.thr = int(nConfs / 10)
+    if not _args.thr:
+        _args.thr = 2
+        if int(nConfs / 10) > _args.thr:
+            _args.thr = int(nConfs / 10)
 
     print("")
     print(f" Total conformers     : {nConfs}")
-    print(f" Threshold conformers : {args.thr}")
+    print(f" Threshold conformers : {_args.thr}")
     print("")
 
     idx1_separate: int = 1
@@ -190,15 +190,15 @@ def FactorFilter(args) -> None:
     major_idx1: list[int] = []
     minor_idx1: list[int] = []
 
-    while (nConfs > args.thr):
+    while (nConfs > _args.thr):
         print(f" ========== Processing {idx1_separate} ==========")
         Coord_STD: npt.NDArray[np.float64] = cal_RMSD_coord(
-            args, xyzFile, idx1_xyz).T
+            _args, xyzFile, idx1_xyz).T
         Column_STD: npt.NDArray[np.float64] = np.std(Coord_STD, axis=0)
         Average_STD: np.float64 = np.float64(np.average(Column_STD))
         print(f" Average of STD       : {Average_STD:10.5f}")
-        print(f" Factor of STD ranges : {args.factor:10.5f}")
-        print(f" Limits of STD        : {Average_STD*args.factor: 10.5f} \n")  # nopep8
+        print(f" Factor of STD ranges : {_args.factor:10.5f}")
+        print(f" Limits of STD        : {Average_STD*_args.factor: 10.5f} \n")  # nopep8
 
         counter_major, counter_minor = 0, 0
         major_idx1, minor_idx1 = [], []
@@ -207,7 +207,7 @@ def FactorFilter(args) -> None:
         idx1_calc: list[int] = copy.deepcopy(idx1_xyz)
 
         for idx in range(len(Column_STD)):
-            if (Column_STD[idx] >= Average_STD*args.factor):
+            if (Column_STD[idx] >= Average_STD*_args.factor):
                 print(f"{idx1_calc[idx]:>5d} {Column_STD[idx]: > 10.5f}  major factor    {(counter_major+1): > 5d}")  # nopep8
                 major_idx1.append(idx1_calc[idx])
                 counter_major += 1
@@ -276,7 +276,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             args.factor = 0.20
         if not args.thr:
             args.thr = 2
-        FactorFilter(args)
+        FactorFilter(_args=args)
 
 
 if __name__ == "__main__":

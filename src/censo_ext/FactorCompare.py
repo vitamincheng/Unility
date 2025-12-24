@@ -40,10 +40,11 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def cal_RMSD(xyzfile, idx_p, idx_q) -> float:
+def cal_RMSD(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int) -> float:
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
     _, RMSD = cal_RMSD_xyz(
-        xyzfile, idx_p, idx_q, _remove_idx=None, _add_idx=None, _bond_broken=None, _ignore_Hydrogen=True)
+        xyzFile=xyzFile, idx1_p=idx1_p, idx1_q=idx1_q,
+        _remove_idx=None, _add_idx=None, _bond_broken=None, _ignore_Hydrogen=True)
     return RMSD
 
 
@@ -137,15 +138,16 @@ def Factor_xyzCompare(args) -> None:
         print("  Exit and Close the program !!!")
         exit(0)
 
-    diff2_Res: npt.NDArray[np.float64] = np.diff(np.diff(sort_Res))
-    STD_diff2_Res: float = float(diff2_Res.std())
+    # diff2_Res: npt.NDArray[np.float64] = np.diff(np.diff(sort_Res))
+    second_diff_Res: npt.NDArray[np.float64] = np.diff(sort_Res, 2)
 
-    idx_max_diff2_R: npt.NDArray[np.int64] = np.array([], dtype=np.int64)
-    for idx0, num in enumerate(diff2_Res):
-        if num > STD_diff2_Res:
-            idx_max_diff2_R = np.append(idx_max_diff2_R, idx0)
+    idx0_max_second_diff_R: npt.NDArray[np.int64] = np.array(
+        [], dtype=np.int64)
+    for idx0, x in enumerate(second_diff_Res):
+        if x > float(second_diff_Res.std()):
+            idx0_max_second_diff_R = np.append(idx0_max_second_diff_R, idx0)
 
-    thr: float = float(sort_Res[idx_max_diff2_R[0]+2])
+    thr: float = float(sort_Res[idx0_max_second_diff_R[0]+2])
 
     print(f" threhsold(thr) is : {thr}")
     print("")

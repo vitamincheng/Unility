@@ -71,29 +71,29 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def read_xyz_file(file: str | Path) -> GeometryXYZs:
+def read_xyz_file(fileName: str | Path) -> GeometryXYZs:
     try:
         geometryXYZs = GeometryXYZs()
-        geometryXYZs.set_filename(file)
+        geometryXYZs.set_filename(fileName)
         geometryXYZs.method_read_xyz()
         return geometryXYZs
 
     except Exception as e:
-        print(f"Failed to read file {file}: {e}")
-        raise FileNotFoundError(f"{file}")
+        print(f"Failed to read file {fileName}: {e}")
+        raise FileNotFoundError(f"{fileName}")
 
 
-def write_xyz_file(outFile: GeometryXYZs, file: str | Path) -> None:
+def write_xyz_file(outFile: GeometryXYZs, fileName: str | Path) -> None:
     """Write XYZ data to a file."""
-    file = Path(file)
+    fileName = Path(fileName)
     try:
-        outFile.set_filename(file)
+        outFile.set_filename(fileName)
         outFile.method_save_xyz([])
         from censo_ext.Tools.topo import Topo
         _topo = Topo(outFile)
     except Exception as e:
-        print(f"Failed to write file {file}: {e}")
-        raise FileNotFoundError(f"{file}")
+        print(f"Failed to write file {fileName}: {e}")
+        raise FileNotFoundError(f"{fileName}")
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
@@ -105,7 +105,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     inFile = Path(args.file)
 
     try:
-        xyzFile: GeometryXYZs = read_xyz_file(inFile)
+        xyzFile: GeometryXYZs = read_xyz_file(fileName=inFile)
 
         outFile = GeometryXYZs()
         if args.cuts:
@@ -115,7 +115,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             outFile: GeometryXYZs = xyzFile.method_translate_xyzs(
                 np.array(args.move))
 
-        write_xyz_file(outFile, args.out)
+        write_xyz_file(outFile=outFile, fileName=args.out)
 
     except Exception as e:
         print(f"An error occurred: {e}")
