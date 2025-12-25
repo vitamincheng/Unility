@@ -46,6 +46,28 @@ covalent_rad_2009: npt.NDArray[np.float64] = np.array([
 covalent_rad_d3 = 4.0 / 3.0 * covalent_rad_2009
 
 
+type cell_4AtomIDs = tuple[AtomID, AtomID, AtomID, AtomID]
+
+
+def ase_get_dihedral(xyzFile: GeometryXYZs, idx1: int, in_cell: cell_4AtomIDs) -> float:
+    from ase import Atom
+    from ase import Atoms
+    idx0 = idx1-1
+
+    if len(xyzFile) == 0:
+        print(f"{xyzFile.get_fileName()} is empty file !!!")
+        print("  Exit and Close the program !!!")
+        exit(0)
+
+    # loading the data to mol object
+    mol: Atoms = Atoms()
+    for idx0, x in enumerate(xyzFile.Sts[idx0].coord):
+        mol.append(
+            Atom(xyzFile.Sts[0].names[AtomID(idx0+1)], x))
+    return float(mol.get_dihedral(*in_cell))
+    # return mol.get_dihedral(in_cell[0], in_cell[1], in_cell[2], in_cell[3])
+
+
 def read_mol_neighbors(xyzFile: GeometryXYZs) -> tuple[Atoms | list[Atoms], dict[AtomID, npt.NDArray[np.int64]]]:
     """Read molecule from .xyz file and return atoms object with neighbor list.
 
