@@ -128,8 +128,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                              idx1_q=idx1_q, _cuts=args.cuts, _nspec=args.spec)
     xyzFile.set_filename(outFile)
     xyzFile.method_save_xyz([])
-    from censo_ext.Tools.topo import Topo
-    _topo = Topo(xyzFile)
 
     if not args.print:
         print(f"    Save to the file : {outFile}")

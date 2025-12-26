@@ -91,8 +91,7 @@ def Mirror_process(_xyzFile: GeometryXYZs, _atom: None | list[AtomID]) -> None:
         p_idx1, q_idx1, r_idx1 = _atom
 
         from censo_ext.Tools.topo import Topo
-        _topo: Topo = Topo(_xyzFile)
-        idx1_H: list[AtomID] = _topo.method_broken_bond_H(
+        idx1_H: list[AtomID] = Topo(_xyzFile).method_broken_bond_H(
             _bond_broken=(p_idx1, q_idx1), _print=False)
         idx0_H: list[IntpID] = [IntpID(x-1) for x in idx1_H]
 
