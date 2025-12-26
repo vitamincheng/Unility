@@ -211,6 +211,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     else:
         # print("single point")
+        xyzFile.method_rewrite_comment()
         if args.new:
             xyzFile.method_comment_new()
         xyzFile.set_filename(outFile)

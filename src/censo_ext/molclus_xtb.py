@@ -203,9 +203,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         optFile.method_save_xyz([])
     else:
         # print("singe point")
+        xyzFile.method_rewrite_comment()
         if args.new:
             xyzFile.method_comment_new()
-
         xyzFile.set_filename(outFile)
         xyzFile.method_save_xyz([])
 

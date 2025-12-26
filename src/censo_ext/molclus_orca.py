@@ -215,6 +215,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         print(f" Saved to  {outFile} \n All is done !!!")
 
     else:
+        xyzFile.method_rewrite_comment()
         if args.new:
             xyzFile.method_comment_new()
 

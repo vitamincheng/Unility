@@ -194,6 +194,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             xyzFile.Sts[idx1-1]._comment_energy = results["energy"]
 
     # xyzFile.method_rewrite_comment()
+    xyzFile.method_rewrite_comment()
     if args.new:
         xyzFile.method_comment_new()
     xyzFile.set_filename(outFile)
