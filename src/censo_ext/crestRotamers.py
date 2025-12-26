@@ -57,7 +57,7 @@ def cml() -> argparse.Namespace:
         action="store",
         type=int,
         required=False,
-        help="To add atom's index (for -SH -OH -NH)",
+        help="Add atom's index (for -SH -OH -NH)",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -75,6 +75,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xyzFile.method_comment_new()
     fileName = Path("cre_members")
     Result = GeometryXYZs()
+
+    print("")
+    print("  ===== Parameter ======")
+    print(f"  The threshold of RMSD                 : {args.rthr}")
+    print(f"  Add atom's index (for -SH -OH -NH)    : {args.add_idx}")
+    print("")
 
     if IsExist_bool(fileName):
         np_inData: npt.NDArray[np.int64] = np.genfromtxt(
