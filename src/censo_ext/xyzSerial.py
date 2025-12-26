@@ -97,7 +97,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     else:
         outFile = Path(args.out)
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
+
+    import sys
+    import os
+    sys.stdout = open(os.devnull, 'w')
     xyzFile.method_read_xyz()
+    sys.stdout = sys.__stdout__
 
     if args.keep:
         xyzFile.method_comment_keep()

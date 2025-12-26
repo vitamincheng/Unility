@@ -336,15 +336,14 @@ class Geometry():
                 if comments[1] == "#Cluster:" and function_is_float(comments[2]):
                     self._comment_energy, self.comment_nClusters = float(comments[0]), int(comments[2])  # nopep8
                 else:
-                    # self._comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
+                    self._comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
                     print("  Tne nClusters is missing in your xyz file.")
-                    print("  xyzSerial.py to create new serial number for this.")
-                    exit(0)
+                    print(
+                        "  Suggest :  xyzSerial.py to create new serial number for this.")
             else:
-                # self._comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
+                self._comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
                 print("  Tne nClusters is missing in your xyz file.")
-                print("  xyzSerial.py to create new serial number for this.")
-                exit(0)
+                print("  Suggest : xyzSerial.py to create new serial number for this.")
         else:
             print(f"{comments} Something wrong in your xyz file !!! ")
             print("  Exit and Close the program !!!")
