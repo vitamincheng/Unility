@@ -794,8 +794,9 @@ class GeometryXYZs():
             None: This method does not return any value.
         """
         for St in self.Sts:
-            if St.method_update_comment():
-                St.method_update_comment()
+            St.method_update_comment()
+            # if St.method_update_comment():
+            #    St.method_update_comment()
 
     def method_comment_new(self) -> None:
         """
@@ -813,8 +814,9 @@ class GeometryXYZs():
         """
 
         for idx1, St in enumerate(self.Sts, 1):
-            if St.method_update_comment():
-                St.method_update_comment()
+            # if St.method_update_comment():
+            #    St.method_update_comment()
+            St.method_update_comment()
             St.method_comment_new(idx1)
 
     def method_rewrite_comment(self) -> None:
@@ -832,8 +834,9 @@ class GeometryXYZs():
             None
         """
         for St in self.Sts:
-            if St.method_rewrite_comment():
-                St.method_rewrite_comment()
+            St.method_rewrite_comment()
+            # if St.method_rewrite_comment():
+            #    St.method_rewrite_comment()
 
     def get_comment_energy(self) -> list[float]:
         """
@@ -851,7 +854,7 @@ class GeometryXYZs():
                          Returns an empty list if no valid energies are found.
         """
 
-        energy: list = []
+        energy: list[float] = []
         for St in self.Sts:
             if St.get_comment_energy():
                 energy.append(St.get_comment_energy())
