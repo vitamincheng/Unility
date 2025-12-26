@@ -393,6 +393,38 @@ class GeometryXYZs():
         for St in self.Sts:
             St.method_computeInertia()
 
+    def method_molbar(self, _verbose: bool = False) -> tuple[bool, list[int] | None]:
+        if _verbose:
+            print("  ===== Check the molbar =====")
+        from molbar.barcode import get_molbars_from_coordinates
+        inCoords: list = [x.coord for x in self.Sts]
+        inNames: list = [x.names.values() for x in self.Sts]
+        molbars = get_molbars_from_coordinates(inCoords, inNames)
+
+        std = molbars[0]
+
+        idx1_molbars_false: list[int] = []
+        for idx1, molbar in enumerate(molbars, start=1):
+            if std != molbar:
+                if _verbose:
+                    print(
+                        f"Index {idx1} in your xyz file have different molbar")
+                idx1_molbars_false.append(idx1)
+
+        if len(idx1_molbars_false) != 0:
+            for idx1, molbar in enumerate(molbars, start=1):
+                if _verbose:
+                    print("")
+                    print(f"Index of {idx1} : ")
+                    print(f"{molbar}")
+            return False, idx1_molbars_false
+        else:
+            if _verbose:
+                print("  In your xyz file have the same molbar")
+                print(f"{molbars[0]}")
+                print("")
+            return True, None
+
     def method_compare_the_same_sketch(self, idx0_p: int, idx0_q: int) -> bool:
 
         if self.Sts[idx0_p].names == self.Sts[idx0_q].names:
