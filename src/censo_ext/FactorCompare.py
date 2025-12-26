@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 import argparse
-import os
 import numpy as np
 import numpy.typing as npt
-from censo_ext.Tools.utility import print_arguments
-from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
+from censo_ext.Tools.Parameter import Eh
+from censo_ext.Tools.utility import delete_all_files, print_arguments
+from censo_ext.Tools.xyzfile import GeometryXYZs
+from censo_ext.Tools.spectra import Boltzmann_Weighting
 descr = """
 ________________________________________________________________________________
 | Compare two different xyz files by using factor analysis (Structure Integrity)
@@ -61,60 +62,26 @@ def Factor_xyzCompare(args) -> None:
     xyzFile_Merge: GeometryXYZs = GeometryXYZs(merge_FileName)
     xyzFile_Merge.method_read_xyz()
 
-    nSts_P: int = len(xyzFile_P)
-    nSts_Q: int = len(xyzFile_Q)
+    nSts_p: int = len(xyzFile_P)
+    nSts_q: int = len(xyzFile_Q)
 
-    result: list | npt.NDArray[np.float64] = []
-    for idx0_P in range(nSts_P):
-        for idx0_Q in range(nSts_Q):
-            result.append(cal_RMSD(xyzFile_Merge, idx0_P+1, idx0_Q+nSts_P+1))
+    result: list[float] | npt.NDArray[np.float64] = []
+    for idx1_p in range(1, nSts_p+1):
+        for idx1_q in range(1, nSts_q+1):
+            result.append(cal_RMSD(xyzFile_Merge, idx1_p, idx1_q+nSts_p))
 
-    result = np.array(result)
-    result = result.reshape(nSts_P, nSts_Q).T
+    result = np.array(result).reshape(nSts_p, nSts_q).T
 
-    import shutil
-    prog: str = "crest"
-    from censo_ext.Tools.utility import prog_IsExist
-    prog_IsExist(prog)
+    Energy: list[float] = [
+        St._comment_energy for St in np.array(xyzFile_P.Sts)]
 
-    Dir_str: Path = Path("CREST_P")
-    workDir: Path = Path.cwd()
-    CompareDir: Path = Path("weight_P")
-    New_CWD: Path = workDir / Dir_str
-    if not New_CWD.exists():
-        New_CWD.mkdir()
-
-    from censo_ext.Tools.utility import IsExists_DirFileName
-    fileName_Dir, FileName_str = IsExists_DirFileName(args.file[0])
-    FileName: Path = Path(FileName_str)
-    shutil.copyfile(workDir / fileName_Dir / FileName, New_CWD / FileName)
-
-    os.chdir(New_CWD)
-    subprocess.call(
-        f"{prog} {FileName} --cregen {FileName} --rthr 0.0175 --bthr 0.003 --ethr 0.015 --ewin 40.0 > {CompareDir}", shell=True)
-    os.chdir(workDir)
-    shutil.copyfile(New_CWD / CompareDir, workDir / CompareDir)
-
-    Path_weight_P: Path = New_CWD / CompareDir
-    from censo_ext.Tools.utility import IsExist
-    IsExist(Path_weight_P)
-
-    print(f" Reading the {Path_weight_P} file ")
-
-    lines: list[str] = open(Path_weight_P, "r").readlines()
-    start_idx0: int = 0
-    end_idx0: int = 0
-    for idx0, line in enumerate(lines):
-        if r"Erel/kcal" in line:
-            start_idx0 = idx0 + 1
-        if r"ensemble average energy" in line:
-            end_idx0 = idx0 - 3
-    St_crest: npt.NDArray[np.float64] = np.array([])
-    for idx0, line in enumerate(lines):
-        if idx0 >= start_idx0 and idx0 <= end_idx0:
-            St_crest = np.append(
-                St_crest, [float(line.split()[1]), float(line.split()[3])])
-    St_crest = np.reshape(St_crest, (int(len(St_crest)/2), 2))
+    np_Energy = np.array(Energy)*Eh
+    np_Energy = np_Energy - np_Energy.min()
+    intp_Energy: npt.NDArray[np.intp] = np.argsort(np_Energy)
+    BW: npt.NDArray[np.float64] = Boltzmann_Weighting(
+        np_Energy, TEMP=298.15)
+    # print(np_Energy[intp_Energy])
+    # print(BW[intp_Energy])
 
     np.set_printoptions(suppress=True)
 
@@ -123,7 +90,7 @@ def Factor_xyzCompare(args) -> None:
     print(" ========== Structure_Integrity_Compare ========== ")
 
     np_Res: npt.NDArray[np.float64] = result
-    min_Res: npt.NDArray[np.float64] = np_Res.min(0)
+    min_Res: npt.NDArray[np.float64] = np.min(np_Res, axis=0)
     idx1_Res: npt.NDArray[np.int64] = np.array([], dtype=int)
 
     for idx0 in range(len(np_Res[0])):
@@ -138,42 +105,39 @@ def Factor_xyzCompare(args) -> None:
         print("  Exit and Close the program !!!")
         exit(0)
 
-    # diff2_Res: npt.NDArray[np.float64] = np.diff(np.diff(sort_Res))
     second_diff_Res: npt.NDArray[np.float64] = np.diff(sort_Res, 2)
 
-    idx0_max_second_diff_R: npt.NDArray[np.int64] = np.array(
+    idx0_max_second_diff_Res: npt.NDArray[np.int64] = np.array(
         [], dtype=np.int64)
     for idx0, x in enumerate(second_diff_Res):
         if x > float(second_diff_Res.std()):
-            idx0_max_second_diff_R = np.append(idx0_max_second_diff_R, idx0)
+            idx0_max_second_diff_Res = np.append(
+                idx0_max_second_diff_Res, idx0)
 
-    thr: float = float(sort_Res[idx0_max_second_diff_R[0]+2])
+    thr: float = float(sort_Res[idx0_max_second_diff_Res[0]+2])
 
     print(f" threhsold(thr) is : {thr}")
     print("")
     print("   P_idx Erel/kcal weight/tot     STD<thr    Q_idx         STD>thr    Q_idx")
 
-    weight_total = 0
+    total_BW: float = 0
     for idx0, x in enumerate(min_Res):
-
         print(f"{(idx0+1):>8d}", end="")
-        print(f"{(St_crest.T[0][idx0]):10.3f} {(St_crest.T[1][idx0]):10.5f}", end="")  # nopep8
+        print(f"{(np_Energy[intp_Energy][idx0]):10.3f} {(BW[intp_Energy][idx0]):10.5f}", end="")  # nopep8
 
         if x < thr:
             print(f"{x:>12.5f} {(idx1_Res[idx0]):>8d}")
-            weight_total = weight_total + St_crest.T[1][idx0]
+            total_BW = total_BW + BW[intp_Energy][idx0]
         else:
             print(" "*25, end="")
             print(f"{x:>12.5f} {idx1_Res[idx0]:>8d}")
 
+    delete_all_files(merge_FileName)
     print("")
-    print(f"Weight_total  :  {weight_total:>12.5f}")
+    print(f"Weight_total  :  {total_BW:>12.5f}")
     print("")
     print(" ========== Finished ==========")
     print("")
-    subprocess.call(
-        f"rm -rf {Dir_str} {CompareDir} {merge_FileName}", shell=True)
-    print(" Removed the temp file ")
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
