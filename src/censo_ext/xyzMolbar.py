@@ -28,6 +28,17 @@ def cml() -> argparse.Namespace:
         default="traj.xyz",
         help="Provide one input xyz file [default traj.xyz]",
     )
+
+    parser.add_argument(
+        "-o",
+        "--output",
+        dest="out",
+        action="store",
+        required=False,
+        default="output.xyz",
+        help="Provide one input xyz file [default output.xyz]",
+    )
+
     args: argparse.Namespace = parser.parse_args()
     return args
 
@@ -39,10 +50,21 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     # default to read the file
     inFile = Path(args.file)
+    outFile = Path(args.out)
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
 
     result, idx1_molbars_false = xyzFile.method_molbar(_verbose=True)
+    # print(idx1_molbars_false)
+    if result is False:
+        list_Sts = set([*range(len(xyzFile.Sts))])
+        if idx1_molbars_false is not None:
+            diff_idx1 = list_Sts.difference(
+                set([x-1 for x in idx1_molbars_false]))
+            xyzFile.method_xyzExtract(list(diff_idx1))
+            xyzFile.set_filename(outFile)
+            xyzFile.method_save_xyz([])
+            print(f"  Saved the file in {outFile}")
 
 
 if __name__ == "__main__":
