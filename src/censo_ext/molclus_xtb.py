@@ -105,10 +105,10 @@ def cml() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "--retain",
-        dest="retain",
+        "--new",
+        dest="new",
         action="store_true",
-        help="Retained the serial number of the cluster in xyz file [default False]",
+        help="Reordered the serial number of the cluster in xyz file [default False]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -196,14 +196,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             a.comment_nClusters = b
         optFile.method_rewrite_comment()
 
-        if not args.retain:
+        if args.new:
             optFile.method_comment_new()
 
         optFile.set_filename(outFile)
         optFile.method_save_xyz([])
     else:
         # print("singe point")
-        if not args.retain:
+        if args.new:
             xyzFile.method_comment_new()
 
         xyzFile.set_filename(outFile)
