@@ -191,7 +191,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if args.opt:
         # print("opt")
         optFile: GeometryXYZs = GeometryXYZs(temp_isomers_Name)
+
+        import sys
+        import os
+        sys.stdout = open(os.devnull, 'w')
         optFile.method_read_xyz()
+        sys.stdout = sys.__stdout__
+
         for a, b in zip(optFile.Sts, xyzFile_nClusters):
             a.comment_nClusters = b
         optFile.method_rewrite_comment()
@@ -201,11 +207,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         optFile.set_filename(outFile)
         optFile.method_save_xyz([])
+
     else:
         # print("singe point")
         xyzFile.method_rewrite_comment()
         if args.new:
             xyzFile.method_comment_new()
+
         xyzFile.set_filename(outFile)
         xyzFile.method_save_xyz([])
 

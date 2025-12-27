@@ -203,11 +203,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     if templateFile_Exist:  # template File is Exists
         optFile: GeometryXYZs = GeometryXYZs(outFile)
+
+        import sys
+        import os
+        sys.stdout = open(os.devnull, 'w')
         optFile.method_read_xyz()
+        sys.stdout = sys.__stdout__
 
         for a, b in zip(optFile.Sts, xyzFile_nClusters):
             a.comment_nClusters = b
         optFile.method_rewrite_comment()
+
         if args.new:
             optFile.method_comment_new()
 
