@@ -52,13 +52,13 @@ def cml() -> argparse.Namespace:
 
 
 def Duplicate_process(_rthr: float, _xyzFile: GeometryXYZs, _add_idx: list[int] | None = None):
-    print(
-        f"\n  The numbers of the structures in xyz files : {len(_xyzFile.Sts)}")
 
     idx1_Sts: list[int] = [x+1 for x in [*range(len(_xyzFile.Sts))]]
 
-    print(" The list of the same structures in RMSD")
-    print(" idx0_p     idx0_q")
+    print("")
+    print("  The following list has the same structure as in RMSD and")
+    print("  will be removed in the next step.")
+    print("  idx0_p     idx0_q")
     for idx1_p in range(1, len(_xyzFile.Sts)+1):
         if len(idx1_Sts) >= 1:
             for idx1_q in idx1_Sts.copy():
@@ -67,7 +67,7 @@ def Duplicate_process(_rthr: float, _xyzFile: GeometryXYZs, _add_idx: list[int] 
                                                   idx1_q=idx1_q, _add_idx=_add_idx, _remove_idx=None, _bond_broken=None, _ignore_Hydrogen=True)
                     if result_RMSD <= _rthr:
                         idx1_Sts.remove(idx1_q)
-                        print(f"{idx1_p:5d}    | {idx1_q:5d}")
+                        print(f" {idx1_p:5d}    | {idx1_q:5d}")
         else:
             pass
 
@@ -79,13 +79,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         args = cml()
     print_arguments()
 
-    # moment: dict = {"file": args.file, "auto": True,
-    #                "atom": None, "print": False, "replace": True, "out": None}
-    # x_args = argparse.Namespace(**moment)
-    # xyzReturnOandZ.main(x_args)
-
     xyzFile: GeometryXYZs = GeometryXYZs(args.file)
     xyzFile.method_read_xyz()
+
+    print(
+        f"\n  The numbers of the structures in xyz file is {len(xyzFile.Sts)}")
 
     Duplicate_process(_rthr=args.rthr, _xyzFile=xyzFile)
 
@@ -101,7 +99,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     xyzFile.method_save_xyz([])
     print("\n  After removing duplicate structures,")
-    print(f"  The Numbers of the structures in xyz files : {len(xyzFile.Sts)}")
+    print(
+        f"  The numbers of the structures in xyz file is {len(xyzFile.Sts)}")
     print(f"\n  Saved reduced file : {xyzFile.get_fileName()}")
 
 
