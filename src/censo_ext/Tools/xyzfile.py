@@ -337,12 +337,13 @@ class Geometry():
                     self._comment_energy, self.comment_nClusters = float(comments[0]), int(comments[2])  # nopep8
                 else:
                     self._comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
-                    print("  Tne nClusters is missing in your xyz file.")
+                    print(
+                        f"  {comments} Tne nClusters is missing in your xyz file.")
                     print(
                         "  Suggest :  xyzSerial.py to create new serial number for this.")
             else:
                 self._comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
-                print("  Tne nClusters is missing in your xyz file.")
+                print(f"  {comments}Tne nClusters is missing in your xyz file.")
                 print("  Suggest : xyzSerial.py to create new serial number for this.")
         else:
             print(f"{comments} Something wrong in your xyz file !!! ")
@@ -795,10 +796,8 @@ class GeometryXYZs():
         """
         for St in self.Sts:
             St.method_update_comment()
-            # if St.method_update_comment():
-            #    St.method_update_comment()
 
-    def method_comment_new(self) -> None:
+    def method_comment_new(self, num: int = 1) -> None:
         """
         Assign unique cluster indices to all Geometry instances.
 
@@ -813,9 +812,7 @@ class GeometryXYZs():
             None
         """
 
-        for idx1, St in enumerate(self.Sts, 1):
-            # if St.method_update_comment():
-            #    St.method_update_comment()
+        for idx1, St in enumerate(self.Sts, num):
             St.method_update_comment()
             St.method_comment_new(idx1)
 
@@ -835,8 +832,6 @@ class GeometryXYZs():
         """
         for St in self.Sts:
             St.method_rewrite_comment()
-            # if St.method_rewrite_comment():
-            #    St.method_rewrite_comment()
 
     def get_comment_energy(self) -> list[float]:
         """
