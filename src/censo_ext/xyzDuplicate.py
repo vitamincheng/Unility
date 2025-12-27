@@ -57,6 +57,7 @@ def Duplicate_process(_rthr: float, _xyzFile: GeometryXYZs, _add_idx: list[int] 
 
     idx1_Sts: list[int] = [x+1 for x in [*range(len(_xyzFile.Sts))]]
 
+    print(" The list of the same structures in RMSD")
     print(" idx0_p     idx0_q")
     for idx1_p in range(1, len(_xyzFile.Sts)+1):
         if len(idx1_Sts) >= 1:
