@@ -166,22 +166,23 @@ def print_report(_xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight:
     if len(_circle) != 0:
         print("")
         print("  ===== Check circle molecule =====")
-        print("   idx1_p   idx1_q  node  res_node      res_left      res_right")
+        print(" idx1_p idx1_q    #_p    #_q   node  res_node      res_left      res_right")
         for x in _circle:
             nCluster_p = _xyzFile.Sts[x[0]-1].comment_nClusters
             nCluster_q = _xyzFile.Sts[x[1]-1].comment_nClusters
             print(
-                f"   {nCluster_p:6d}   {nCluster_q:6d} {x[2]:6d} {x[3]:8d} {x[4]:14.7f} {x[5]:14.7f}")
+                f" {x[0]:6d} {x[1]:6d} {nCluster_p:6d} {nCluster_q:6d} {x[2]:6d} {x[3]:8d} {x[4]:14.7f} {x[5]:14.7f}")
 
     if len(_straight) != 0:
         print("")
         print("  ===== Check straight molecule =====")
-        print("   idx1_p   idx1_q    key    value       res_left      res_right")
+        print(
+            " idx1_p idx1_q    #_p    #_q    key    value       res_left      res_right")
         for x in _straight:
             nCluster_p = _xyzFile.Sts[x[0]-1].comment_nClusters
             nCluster_q = _xyzFile.Sts[x[1]-1].comment_nClusters
             print(
-                f"   {nCluster_p:6d}   {nCluster_q:6d} {x[2]:6d} {x[3]:8d} {x[4]:14.7f} {x[5]:14.7f}")
+                f" {x[0]:6d} {x[1]:6d} {nCluster_p:6d} {nCluster_q:6d} {x[2]:6d} {x[3]:8d} {x[4]:14.7f} {x[5]:14.7f}")
         print("  [key,value] [fixed,rotation]")
 
 
