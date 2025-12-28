@@ -153,7 +153,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         np_Energy[intp_Energy], TEMP=args.temp)
 
     zip_energy: zip[tuple[npt.NDArray[np.intp], npt.NDArray[np.float64], npt.NDArray[np.float64]]] = zip(
-        np.array(nClusters)[intp_Energy], np.array(np_Energy[intp_Energy]), BW)
+        intp_Energy, np.array(nClusters)[intp_Energy], np.array(np_Energy[intp_Energy]), BW)
 
     # print the parameter of the Boltzmann weighting
     print("")
@@ -175,8 +175,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("")
     print("  ===== Boltzmann Weighting Table =====")
     print("  index1           Energy (kcal/mol)             BW")
-    for moment, y, z in zip_energy:
-        print(f"{moment:8d}           {y:17.10f}       {z:8.4f}")
+    for intp, moment, y, z in zip_energy:
+
+        print(f"{intp+1:5d} {moment:8d}           {y:17.10f}       {z:8.4f}")
     print("  ===== Finished =====")
     print("")
 

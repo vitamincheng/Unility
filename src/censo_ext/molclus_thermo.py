@@ -192,8 +192,12 @@ def thermo_process(args) -> list[str]:
     delete_all_files(single_xyz_name, xcontrol_inp)
     delete_all_files("charges", "g98.out", "hessian", "thermo.out")
     delete_all_files("vibspectrum", "wbo", "xtb_enso.json")
-    delete_all_files("xtbopt.log", "xtbopt.xyz", "xtbrestart", "xtbtopo.mol")
+    delete_all_files("xtbopt.log", "xtbopt.xyz",
+                     "xtbrestart", "xtbtopo.mol", "xtbhess.xyz")
     print(entropy)
+    import numpy as np
+    print("Average Entropy: ", np.average(
+        np.array([float(x) for x in entropy])))
     print(thermo)
 
     return thermo
