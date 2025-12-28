@@ -204,8 +204,6 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     if templateFile_Exist:  # template File is Exists
         optFile: GeometryXYZs = GeometryXYZs(outFile)
 
-        import sys
-        import os
         sys.stdout = open(os.devnull, 'w')
         optFile.method_read_xyz()
         sys.stdout = sys.__stdout__
