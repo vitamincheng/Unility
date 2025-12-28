@@ -171,6 +171,7 @@ def thermo_process(args) -> list[str]:
     sys.stdout = sys.__stdout__
 
     thermo: list[str] = []
+    entropy: list[str] = []
     for idx1 in range(1, len(xyzFile)+1, 1):
         xyzFile.set_filename(single_xyz_name)
         xyzFile.method_save_xyz([idx1])
@@ -184,12 +185,15 @@ def thermo_process(args) -> list[str]:
         for line in lines:
             if r'G(RRHO) contrib.' in line:
                 thermo.append(line.split()[3])
+            if r'TOT   ' in line:
+                entropy.append(line.split()[3])
 
     from censo_ext.Tools.utility import delete_all_files
     delete_all_files(single_xyz_name, xcontrol_inp)
     delete_all_files("charges", "g98.out", "hessian", "thermo.out")
     delete_all_files("vibspectrum", "wbo", "xtb_enso.json")
     delete_all_files("xtbopt.log", "xtbopt.xyz", "xtbrestart", "xtbtopo.mol")
+    print(entropy)
     print(thermo)
 
     return thermo
