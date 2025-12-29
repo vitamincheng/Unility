@@ -58,7 +58,7 @@ def Duplicate_process(_rthr: float, _xyzFile: GeometryXYZs, _add_idx: list[int] 
     print("")
     print("  The following list has the same structure as in RMSD and")
     print("  will be removed in the next step.")
-    print("  idx0_p     idx0_q")
+    print("  idx1_p       #  |  idx1_q       #")
     for idx1_p in range(1, len(_xyzFile.Sts)+1):
         if len(idx1_Sts) >= 1:
             for idx1_q in idx1_Sts.copy():
@@ -66,8 +66,10 @@ def Duplicate_process(_rthr: float, _xyzFile: GeometryXYZs, _add_idx: list[int] 
                     _, result_RMSD = cal_RMSD_xyz(xyzFile=_xyzFile, idx1_p=idx1_p,
                                                   idx1_q=idx1_q, _add_idx=_add_idx, _remove_idx=None, _bond_broken=None, _ignore_Hydrogen=True)
                     if result_RMSD <= _rthr:
+                        print(
+                            f"   {idx1_p:5d}   {_xyzFile.Sts[idx1_p-1].comment_nClusters:5d}  |   {idx1_q:5d}   {_xyzFile.Sts[idx1_q-1].comment_nClusters:5d}")
                         idx1_Sts.remove(idx1_q)
-                        print(f" {idx1_p:5d}    | {idx1_q:5d}")
+                        # print(f" {idx1_p:5d}    | {idx1_q:5d}")
         else:
             pass
 
