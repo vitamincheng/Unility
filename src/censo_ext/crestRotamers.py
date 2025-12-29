@@ -83,25 +83,25 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print("")
 
     if IsExist_bool(fileName):
-        np_inData: npt.NDArray[np.int64] = np.genfromtxt(
+        _inData: npt.NDArray[np.int64] = np.genfromtxt(
             fileName, skip_header=1, dtype=int)
         counter = 0
-        for _, start, end in np_inData:
+        for _, idx1_start, idx1_end in _inData:
             counter = counter + 1
             import copy
             outFile: GeometryXYZs = copy.deepcopy(xyzFile)
-            outFile.method_xyzExtract([*range(start-1, end)])
-            outFile.set_filename(f"{start}_{end}.xyz")
+            outFile.method_xyzExtract([*range(idx1_start - 1, idx1_end)])
+            outFile.set_filename(f"{idx1_start}_{idx1_end}.xyz")
             if args.auto:
                 outFile.method_xyzReturnOandZ_auto()
             outFile.method_save_xyz([])
             print(f"  ===== {counter} =====")
-            print(f"  Data saved to : {start}_{end}.xyz")
+            print(f"  Data saved to : {idx1_start}_{idx1_end}.xyz")
 
             Duplicate_process(_rthr=args.rthr, _xyzFile=outFile,
                               _add_idx=args.add_idx)
-            outFile.set_filename(f"{start}_{end}_ext.xyz")
-            print(f"  Data saved to : {start}_{end}_ext.xyz")
+            outFile.set_filename(f"{idx1_start}_{idx1_end}_ext.xyz")
+            print(f"  Data saved to : {idx1_start}_{idx1_end}_ext.xyz")
             outFile.method_save_xyz([])
 
             StFile: GeometryXYZs = copy.deepcopy(outFile)
@@ -117,11 +117,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             else:
                 outFile.method_Sts_append(StFile)
 
-            # outFile.method_print([])
-
             numbers: list[int] = [*range(2, len(outFile))]
             print(numbers)
-            # print(len(outFile))
             print("")
 
             if len(numbers) > 0:
