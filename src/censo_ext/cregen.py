@@ -10,7 +10,7 @@ ________________________________________________________________________________
 | Usage    : cregen.py <geometry> [options]
 |
 | Input    : -i one xyz file [default isomers.xyz]
-| Output   : -o one xyz file [default cluster.xyz]
+| Output   : -o one xyz file [default clusters.xyz]
 | [Options]
 | rthr     : --rthr set RMSD threshold Angstrom [default 0.175]
 | bthr     : --bthr set lower bound for the rotatoional constant threshold 
@@ -47,8 +47,8 @@ def cml() -> argparse.Namespace:
         dest="out",
         action="store",
         required=False,
-        default="cluster.xyz",
-        help="Provide one xyz file to save the data [default cluster.xyz]",
+        default="clusters.xyz",
+        help="Provide one xyz file to save the data [default clusters.xyz]",
     )
 
     parser.add_argument(
