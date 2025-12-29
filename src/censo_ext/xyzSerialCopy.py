@@ -84,10 +84,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
             list_rmsd.append(RMSD)
         intp = np.argmin(np.array(list_rmsd))
-        outFile.Sts[idx0_q].comment_nClusters = outFile.Sts[nOutFile_Sts +
-                                                            intp].comment_nClusters
+        outFile.Sts[idx0_q].comment_Cluster = outFile.Sts[nOutFile_Sts +
+                                                          intp].comment_Cluster
         print(
-            f"   {idx0_q+1:5d}  {int(intp+1):5d}    {outFile.Sts[idx0_q].comment_nClusters:5d}")
+            f"   {idx0_q+1:5d}  {int(intp+1):5d}    {outFile.Sts[idx0_q].comment_Cluster:5d}")
     outFile.method_xyzExtract([*range(nOutFile_Sts)])
     outFile.method_rewrite_comment()
     outFile.method_save_xyz([])

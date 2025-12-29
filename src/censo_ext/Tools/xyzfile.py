@@ -25,7 +25,7 @@ class Geometry():
         extras(list[list[str]]): Extra data for each atom (e.g., charges).
         comment(str): Comment string containing energy and cluster information.
         comment_energy(float): Energy value in Hartrees (Eh).
-        comment_nClusters(int): Cluster index number.
+        comment_Cluster(int): Cluster index number.
         mass(npt.NDArray[np.float64]): Atomic masses.
         com(npt.NDArray[np.float64]): Center of mass coordinates.
         inertia(npt.NDArray[np.float64]): Moment of inertia tensor.
@@ -55,7 +55,7 @@ class Geometry():
         self.nAtoms: int = len(names)                       # numbers of atom
         self.comment: str = comment                         # Energy =   Eh   #Cluster  :i         # nopep8
         self._comment_energy: float = energy                 # Energy (Eh)
-        self.comment_nClusters: int = nClusters             # index of Clusters
+        self.comment_Cluster: int = nClusters             # index of Clusters
         self.mass: npt.NDArray[np.float64]
         self.extras: list[list[str]] = extras
         self.com: npt.NDArray[np.float64]
@@ -285,7 +285,7 @@ class Geometry():
             " Energy =           {energy_value} Eh           #Cluster:     {cluster_count}"
 
         Example:
-            If comment_energy = -76.45321 and comment_nClusters = 3,
+            If comment_energy = -76.45321 and comment_Cluster = 3,
             the result will be:
             " Energy =           -76.4532100000 Eh           #Cluster:     3"
 
@@ -295,7 +295,7 @@ class Geometry():
 
         self.comment = " Energy = "+" "*7 + \
             f"{self._comment_energy:.10f} Eh"+" "*8 + \
-            f"#Cluster:     {self.comment_nClusters}"
+            f"#Cluster:     {self.comment_Cluster}"
 
     def method_update_comment(self) -> None:
         """
@@ -304,7 +304,7 @@ class Geometry():
         This method processes the comment line of an XYZ file to extract energy and
         cluster information. It handles various formats of comment strings that may
         contain energy values and cluster counts, and updates the object's
-        comment_energy and comment_nClusters attributes accordingly.
+        comment_energy and comment_Cluster attributes accordingly.
 
         The method expects comment strings in formats like:
         - "Energies= -76.432 #Cluster: 3"
@@ -326,7 +326,7 @@ class Geometry():
         if comments == []:
             print(" Your xyz file have not any about Energy and Cluster !!!")
             print(" We will set Energy = 0 in your xyz file")
-            self._comment_energy, self.comment_nClusters = 0, 0
+            self._comment_energy, self.comment_Cluster = 0, 0
             self.method_rewrite_comment()
             return
 
@@ -334,15 +334,15 @@ class Geometry():
         if function_is_float(comments[0]):
             if len(comments) >= 3:
                 if comments[1] == "#Cluster:" and function_is_float(comments[2]):
-                    self._comment_energy, self.comment_nClusters = float(comments[0]), int(comments[2])  # nopep8
+                    self._comment_energy, self.comment_Cluster = float(comments[0]), int(comments[2])  # nopep8
                 else:
-                    self._comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
+                    self._comment_energy, self.comment_Cluster = float(comments[0]), 0  # nopep8
                     print(
                         f"  {comments} Tne nClusters is missing in your xyz file.")
                     print(
                         "  Suggest :  xyzSerial.py to create new serial number for this.")
             else:
-                self._comment_energy, self.comment_nClusters = float(comments[0]), 0  # nopep8
+                self._comment_energy, self.comment_Cluster = float(comments[0]), 0  # nopep8
                 print(f"  {comments}Tne nClusters is missing in your xyz file.")
                 print("  Suggest : xyzSerial.py to create new serial number for this.")
         else:
@@ -360,7 +360,7 @@ class Geometry():
             idx1 (int): Cluster index to set.
         """
 
-        self.comment_nClusters = idx1
+        self.comment_Cluster = idx1
         self.method_rewrite_comment()
 
 

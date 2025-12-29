@@ -137,7 +137,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xyzFile.method_xyzExtract(idx0_index)
     Energy: list[float] = [St._comment_energy for St in np.array(xyzFile.Sts)]
     nClusters: list[int] = [
-        St.comment_nClusters for St in np.array(xyzFile.Sts)]
+        St.comment_Cluster for St in np.array(xyzFile.Sts)]
 
     import numpy as np
     import numpy.typing as npt

@@ -129,7 +129,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     outFile = Path(args.out)
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
-    xyzFile_nClusters: list[int] = [x.comment_nClusters for x in xyzFile.Sts]
+    xyzFile_Cluster: list[int] = [x.comment_Cluster for x in xyzFile.Sts]
 
     # Default to xtb command
     from censo_ext.Tools.utility import prog_IsExist
@@ -198,8 +198,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         optFile.method_read_xyz()
         sys.stdout = sys.__stdout__
 
-        for a, b in zip(optFile.Sts, xyzFile_nClusters):
-            a.comment_nClusters = b
+        for a, b in zip(optFile.Sts, xyzFile_Cluster):
+            a.comment_Cluster = b
         optFile.method_rewrite_comment()
 
         if args.new:
