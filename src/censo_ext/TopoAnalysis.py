@@ -166,23 +166,24 @@ def print_report(_xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight:
     if len(_circle) != 0:
         print("")
         print("  ===== Check circle molecule =====")
-        print(" idx1_p idx1_q    #_p    #_q   node  res_node      res_left      res_right")
-        for x in _circle:
-            nCluster_p = _xyzFile.Sts[x[0]-1].comment_nClusters
-            nCluster_q = _xyzFile.Sts[x[1]-1].comment_nClusters
+        print(
+            " idx1_p idx1_q    #_p    #_q     node res_node       res_left      res_right")
+        for idx1_p, idx1_q, node, res_node, res_left, res_right in _circle:
+            nClusters_p = _xyzFile.Sts[idx1_p-1].comment_nClusters
+            nClusters_q = _xyzFile.Sts[idx1_q-1].comment_nClusters
             print(
-                f" {x[0]:6d} {x[1]:6d} {nCluster_p:6d} {nCluster_q:6d} {x[2]:6d} {x[3]:8d} {x[4]:14.7f} {x[5]:14.7f}")
+                f"  {idx1_p:5d}  {idx1_q:5d}  {nClusters_p:5d}  {nClusters_q:5d}    {node:5d}    {res_node:5d} {res_left:14.7f} {res_right:14.7f}")
 
     if len(_straight) != 0:
         print("")
         print("  ===== Check straight molecule =====")
         print(
-            " idx1_p idx1_q    #_p    #_q    key    value       res_left      res_right")
-        for x in _straight:
-            nCluster_p = _xyzFile.Sts[x[0]-1].comment_nClusters
-            nCluster_q = _xyzFile.Sts[x[1]-1].comment_nClusters
+            " idx1_p idx1_q    #_p    #_q      key    value       res_left      res_right")
+        for idx1_p, idx1_q, key, value, res_left, res_right in _straight:
+            nClusters_p = _xyzFile.Sts[idx1_p-1].comment_nClusters
+            nClusters_q = _xyzFile.Sts[idx1_q-1].comment_nClusters
             print(
-                f" {x[0]:6d} {x[1]:6d} {nCluster_p:6d} {nCluster_q:6d} {x[2]:6d} {x[3]:8d} {x[4]:14.7f} {x[5]:14.7f}")
+                f"  {idx1_p:5d}  {idx1_q:5d}  {nClusters_p:5d}  {nClusters_q:5d}    {key:5d}    {value:5d} {res_left:14.7f} {res_right:14.7f}")
         print("  [key,value] [fixed,rotation]")
 
 
@@ -255,8 +256,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     _xyzFile.method_read_xyz()
 
     print("  ===== Parameter of limits =====")
-    print(f"  The total numbers of the xyzfile       = {len(_xyzFile.Sts)}")
-    print(f"  The delta limits of standard deviation = {args.limits}")
+    print(f"  The total numbers of the xyzfile         = {len(_xyzFile.Sts)}")
+    print(f"  The delta limits of standard deviation   = {args.limits}")
+    print(f"  The index1 of the structures in xyz file = {args.idx}")
 
     if args.idx == -1:
         for idx1 in range(1, len(_xyzFile.Sts)+1):
