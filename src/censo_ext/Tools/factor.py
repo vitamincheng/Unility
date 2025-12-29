@@ -144,7 +144,7 @@ def method_factor_opt(xyzFile: GeometryXYZs, _lowFactor: list[AtomID], table_std
     unique_PairLowFactor: list[list[int]] = [
         list(t) for t in set(tuple(x) for x in Pair_LowFactor)]
 
-    nConfs: int = len(list(table_std.keys()))
+    nCONFs: int = len(list(table_std.keys()))
     atomIDs_std: dict[AtomID, float] = table_std
 
     idx_ratio: list[list[int]] = []
@@ -164,7 +164,7 @@ def method_factor_opt(xyzFile: GeometryXYZs, _lowFactor: list[AtomID], table_std
         if len(atomIDs_L) < 1 or len(atomIDs_R) < 1:
             raise ValueError("something wrong in your List_STD ")
 
-        elif len(atomIDs_L) < (nConfs-2) and len(atomIDs_R) < (nConfs-2):
+        elif len(atomIDs_L) < (nCONFs-2) and len(atomIDs_R) < (nCONFs-2):
 
             print(f" Index of atoms :      {x[0]:4d}   vs {x[1]:4d}")
             print(f" Sizes of deviation :  {int(len(atomIDs_L)): 4d}   vs {int(len(atomIDs_R)): 4d}")  # nopep8
