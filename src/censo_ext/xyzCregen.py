@@ -136,7 +136,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     xyzFile.method_xyzExtract(idx0_index)
     Energy: list[float] = [St._comment_energy for St in np.array(xyzFile.Sts)]
-    nClusters: list[int] = [
+    Clusters: list[int] = [
         St.comment_Cluster for St in np.array(xyzFile.Sts)]
 
     import numpy as np
@@ -147,13 +147,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     intp_remove_Energy = np.argwhere(np_Energy[intp_Energy] > args.ewin)
 
     intp_Energy = np.delete(intp_Energy, intp_remove_Energy)
-    # print(np.array(nClusters)[intp_Energy])
+    # print(np.array(Clusters)[intp_Energy])
 
     BW: npt.NDArray[np.float64] = Boltzmann_Weighting(
         np_Energy[intp_Energy], TEMP=args.temp)
 
     zip_energy: zip[tuple[npt.NDArray[np.intp], npt.NDArray[np.float64], npt.NDArray[np.float64]]] = zip(
-        intp_Energy, np.array(nClusters)[intp_Energy], np.array(np_Energy[intp_Energy]), BW)
+        intp_Energy, np.array(Clusters)[intp_Energy], np.array(np_Energy[intp_Energy]), BW)
 
     # print the parameter of the Boltzmann weighting
     print("")

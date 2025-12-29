@@ -70,10 +70,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         f"  The numbers of the structures idx1_p in {args.file} : {nInFile_Sts}")
     print(
         f"  The numbers of the structures idx1_q in {args.out} : {nOutFile_Sts}")
-    print("  idx1_p is reference and copy the nClusters of idx1_p to idx1_q")
+    print("  idx1_p is reference and copy the Cluster of idx1_p to idx1_q")
     print("")
     # print(len(outFile))
-    print("  idx1_q idx1_p new_nClusters")
+    print("  idx1_q idx1_p nCluster")
 
     for idx0_q in range(nOutFile_Sts):
         list_rmsd: list[float] = []

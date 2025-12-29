@@ -36,7 +36,7 @@ class Geometry():
         ...                     extras=[['charge1'], ['charge2']])
     """
 
-    def __init__(self, names: dict[AtomID, str], coord: list[npt.NDArray[np.float64]], extras: list[list[str]], comment: str = "", energy: float = 0, nClusters: int = 0) -> None:
+    def __init__(self, names: dict[AtomID, str], coord: list[npt.NDArray[np.float64]], extras: list[list[str]], comment: str = "", energy: float = 0, Cluster: int = 0) -> None:
         """
         Initialize a Geometry object with atom names, coordinates, and metadata.
 
@@ -46,7 +46,7 @@ class Geometry():
             extras (list[list[str]]): Extra data for each atom (e.g., charges).
             comment (str): Optional comment string.
             energy (float): Optional energy value (in Eh).
-            nClusters (int): Optional cluster index.
+            Cluster (int): Optional cluster index.
         """
 
         self.names: dict[AtomID, str] = names                  # atom's name   H Li Na K B C O S F Cl # nopep8
@@ -55,7 +55,7 @@ class Geometry():
         self.nAtoms: int = len(names)                       # numbers of atom
         self.comment: str = comment                         # Energy =   Eh   #Cluster  :i         # nopep8
         self._comment_energy: float = energy                 # Energy (Eh)
-        self.comment_Cluster: int = nClusters             # index of Clusters
+        self.comment_Cluster: int = Cluster             # index of Clusters
         self.mass: npt.NDArray[np.float64]
         self.extras: list[list[str]] = extras
         self.com: npt.NDArray[np.float64]
@@ -338,12 +338,12 @@ class Geometry():
                 else:
                     self._comment_energy, self.comment_Cluster = float(comments[0]), 0  # nopep8
                     print(
-                        f"  {comments} Tne nClusters is missing in your xyz file.")
+                        f"  {comments} Tne Cluster is missing in your xyz file.")
                     print(
                         "  Suggest :  xyzSerial.py to create new serial number for this.")
             else:
                 self._comment_energy, self.comment_Cluster = float(comments[0]), 0  # nopep8
-                print(f"  {comments}Tne nClusters is missing in your xyz file.")
+                print(f"  {comments}Tne Cluster is missing in your xyz file.")
                 print("  Suggest : xyzSerial.py to create new serial number for this.")
         else:
             print(f"{comments} Something wrong in your xyz file !!! ")
