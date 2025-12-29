@@ -440,7 +440,7 @@ class Anmr():
 
             Active_orcaSJ: list[IntpID] = []
             for intp0, x in enumerate(self.orcaSJ):
-                if x.CONFSerialNums in idx1_CONFs:
+                if x.CONF in idx1_CONFs:
                     Active_orcaSJ.append(IntpID(intp0))
 
             # orcaSParams and orcaJCoups using weighting to calculate and
@@ -457,7 +457,7 @@ class Anmr():
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
                 atomID: list[AtomID] = list(map(AtomID, x.SParams.keys()))
                 ppm: list[float] = list(map(float, x.SParams.values()))
-                for zip_atomID, weight_ppm in zip(atomID, np.array(ppm) * normal_idx1_weight[x.CONFSerialNums]):
+                for zip_atomID, weight_ppm in zip(atomID, np.array(ppm) * normal_idx1_weight[x.CONF]):
                     self.avg_orcaSJ.SParams[zip_atomID] += weight_ppm.item()
 
             # inital condition, let the JCoups of average of orcaSJ is set to 0.0 for every cell
@@ -466,7 +466,7 @@ class Anmr():
 
             for x in np.array(self.orcaSJ)[Active_orcaSJ]:
                 self.avg_orcaSJ.JCoups += np.array(x.JCoups) * \
-                    normal_idx1_weight[x.CONFSerialNums]
+                    normal_idx1_weight[x.CONF]
 
             print("        Conf    Percentage(%)")
             for key, value in normal_idx1_weight.items():
@@ -718,7 +718,7 @@ class Anmr():
                 print(f"{idx1}  :  {_orcaJ}")
 
             iter: OrcaSJ = OrcaSJ()
-            iter.CONFSerialNums = int(name.replace('CONF', ''))
+            iter.CONF = int(name.replace('CONF', ''))
             if not iter.method_read_orcaS(file=_orcaS):
                 print(" Your orcaS.out is missing or broken")
             else:
@@ -1292,7 +1292,7 @@ class OrcaSJ():
             SParams (dict[AtomID, float]): Shielding parameters.
             ChemicalShifts (dict[AtomID, float]): ChemicalShits
             Anisotropy (dict[AtomID, float]): Anisotropy values.
-            CONFSerialNums (int): Configuration serial numbers.
+            CONF (int): Configuration serial numbers.
             Element (dict[AtomID, str]): Mapping of atom indices to atom names.
             linear (tuple[float,float]): linear regression
         """
@@ -1300,7 +1300,7 @@ class OrcaSJ():
         self.SParams: dict[AtomID, float] = {}
         self.ChemicalShifts: dict[AtomID, float] = {}
         self.Anisotropy: dict[AtomID, float] = {}
-        self.CONFSerialNums: int
+        self.CONF: int
         self.Element: dict[AtomID, str] = {}
         self.linear: tuple[float, float]
 
