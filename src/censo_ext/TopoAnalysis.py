@@ -202,7 +202,8 @@ def save_files(_xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight: l
         pairs: set[tuple[int, int]] = {(x[2], x[3]) for x in _circle}
         for x in pairs:
             index1: list[int] = [_circle[0][0]]
-            Clusters: list[int] = [_circle[0][0]]
+            Clusters: list[int] = [
+                _xyzFile.Sts[_circle[0][0]-1].comment_Cluster]
             for y in _circle:
                 if x == (y[2], y[3]):
                     index1.append(y[1])
@@ -229,7 +230,8 @@ def save_files(_xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight: l
         pairs = {(x[2], x[3]) for x in _straight}
         for x in pairs:
             index1: list[int] = [_straight[0][0]]
-            Clusters: list[int] = [_straight[0][0]]
+            Clusters: list[int] = [
+                _xyzFile.Sts[_straight[0][0]-1].comment_Cluster]
             for y in _straight:
                 if x == (y[2], y[3]):
                     index1.append(y[1])
