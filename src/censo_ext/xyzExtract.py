@@ -2,15 +2,15 @@
 from censo_ext.Tools.xyzfile import GeometryXYZs
 from pathlib import Path
 import argparse
-from censo_ext.Tools.utility import print_arguments
+from censo_ext.Tools.utility import IsExists_DirFileName, print_arguments
 descr = """
 ________________________________________________________________________________
-| Extract the index numbers in xyz file
+| Extract the index number in xyz file
 | Usage    : xyzExtract.py <geometry> [options]
 | Input    : -i one xyz file [default isomers.xyz]
 | Output   : -o one xyz file [default output.xyz]
 | [Options]
-| Index    : -d To index numbers of xyz file and index numbers from No. 1
+| Index    : -d To extract the index number of xyz file and index numbers from No. 1
 |______________________________________________________________________________
 """
 
@@ -40,8 +40,7 @@ def cml() -> argparse.Namespace:
         dest="out",
         action="store",
         required=False,
-        default="output.xyz",
-        help="Output xyz file [dafault output.xyz]",
+        help="Output xyz file [dafault isomers_num.xyz]",
     )
 
     parser.add_argument(
@@ -52,7 +51,7 @@ def cml() -> argparse.Namespace:
         type=int,
         nargs="+",
         required=True,
-        help="Index numbers of xyz file [required]",
+        help="To extract the index number of xyz file [required]",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -66,12 +65,20 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print_arguments()
 
     inFile: Path = Path(args.file)
-    outFile: Path = Path(args.out)
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
-    xyzFile.set_filename(outFile)
+
+    if args.out:
+        xyzFile.set_filename(args.out)
+    else:
+        Dir, file = IsExists_DirFileName(Path(args.file))
+        fileName: str = file.split(".")[0]
+        args.out = fileName + "_" + \
+            "_".join([str(x) for x in args.index]) + ".xyz"
+        xyzFile.set_filename(args.out)
+
     xyzFile.method_save_xyz(args.index)
-    print(f"Data saved to : {outFile}")
+    print(f"Data saved to : {args.out}")
 
 
 if __name__ == "__main__":

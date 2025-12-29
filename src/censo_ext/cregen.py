@@ -104,7 +104,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     inFile: Path = Path(args.file)
     outFile: Path = Path(args.out)
     isomers: Path = Path("isomers.xyz")
-    cluster: Path = Path("cluster.xyz")
+    clusters: Path = Path("clusters.xyz")
 
     from censo_ext.Tools.utility import IsExist
     IsExist(inFile)
@@ -122,13 +122,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     subprocess.call(crest_cmd, shell=True)
     print(f"  {crest_cmd}")
 
-    subprocess.call(f"mv -f crest_ensemble.xyz {cluster}", shell=True)
-    print(f"  mv -f crest_ensemble.xyz {cluster}")
+    subprocess.call(f"mv -f crest_ensemble.xyz {clusters}", shell=True)
+    print(f"  mv -f crest_ensemble.xyz {clusters}")
     subprocess.call(
-        f"xyzSerial.py -i {cluster} --new --print > tmp && mv -f tmp {cluster}", shell=True)
-    if outFile != cluster:
-        subprocess.call(f"mv -f {cluster} {outFile}", shell=True)
-        print(f"  mv -f {cluster} {outFile}")
+        f"xyzSerial.py -i {clusters} --new --print > tmp && mv -f tmp {clusters}", shell=True)
+    if outFile != clusters:
+        subprocess.call(f"mv -f {clusters} {outFile}", shell=True)
+        print(f"  mv -f {clusters} {outFile}")
     if inFile != isomers:
         subprocess.call(f"rm -rf {isomers}", shell=True)
 

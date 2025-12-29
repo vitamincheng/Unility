@@ -140,7 +140,7 @@ def cml() -> argparse.Namespace:
     return args
 
 
-def cal_RMSD_coord(args, xyzFile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDArray[np.float64]:
+def cal_RMSD_coord(_args: argparse.Namespace, xyzFile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDArray[np.float64]:
     """Calculate RMSD coordinates for specified atoms across conformations.
 
     This function computes the squared distance matrix for a given set of atoms
@@ -159,12 +159,12 @@ def cal_RMSD_coord(args, xyzFile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDAr
     # start from 0 to num-1
     idx0_cal: list[int] = [x-1 for x in idx1_cal]
     from censo_ext.Tools.calculate_rmsd import cal_RMSD_xyz
-    list_COORDSquare: list[list[float]] = []
-    for idx0 in (idx0_cal):
+    CoordSquares: list[list[float]] = []
+    for idx0 in idx0_cal:
         CoordSquare, _ = cal_RMSD_xyz(xyzFile=xyzFile, idx1_q=idx0_cal[0]+1, idx1_p=idx0+1,
-                                      _remove_idx=args.remove_idx, _add_idx=args.add_idx, _bond_broken=args.bond_broken, _ignore_Hydrogen=args.ignore_Hydrogen)
-        list_COORDSquare.append(list(CoordSquare.values()))
-    return np.array(list_COORDSquare, dtype=np.float64)
+                                      _remove_idx=_args.remove_idx, _add_idx=_args.add_idx, _bond_broken=_args.bond_broken, _ignore_Hydrogen=_args.ignore_Hydrogen)
+        CoordSquares.append(list(CoordSquare.values()))
+    return np.array(CoordSquares, dtype=np.float64)
 
 
 def FactorFilter(_args: argparse.Namespace) -> None:
@@ -231,20 +231,20 @@ def FactorFilter(_args: argparse.Namespace) -> None:
 
     print(" ========== Finally Data ==========")
 
-    nMinor: list[int] = []
+    nMinor: list[int] | npt.NDArray[np.float64] = []
     for idx1, x in enumerate(idx1_minor, 1):
         xyzFile.set_filename(reDir / Path(f"minor{idx1}.xyz"))
         xyzFile.method_save_xyz(x)
         print(f" minor{idx1}.xyz  : {x}")
         nMinor.append(len(x))
-    np_nMinor: npt.NDArray[np.float64] = np.array(nMinor)
+    nMinor = np.array(nMinor)
 
     residueFile: Path = Path("residue.xyz")
     xyzFile.set_filename(reDir / residueFile)
     xyzFile.method_save_xyz(major_idx1)
     print(f" {residueFile} : {major_idx1}")
 
-    print(f" Coefficient of variation : {np_nMinor.std()/np_nMinor.mean()}")
+    print(f" Coefficient of variation : {nMinor.std()/nMinor.mean()}")
 
     import subprocess
     subprocess.call("rm -rf *_tmp", shell=True)

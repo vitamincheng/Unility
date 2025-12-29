@@ -163,14 +163,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     inFile: Path = Path(args.file)
     bakFile: Path = Path(str(args.file) + ".backup")
 
-    fileExists: bool = IsExist_bool(inFile)
+    infileExists: bool = IsExist_bool(inFile)
     bakfileExists: bool = IsExist_bool(bakFile)
 
     print("")
     print(f" Reading the input file  : {inFile}")
     print(f" Reading the backup file : {bakFile}")
 
-    if fileExists:
+    if infileExists:
         if bakfileExists:
             pass
         else:
@@ -198,7 +198,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         raise FileNotFoundError(
             f"{inFile} was not found or is a directory")
 
-    if (not fileExists) or (not bakfileExists):
+    if (not infileExists) or (not bakfileExists):
         print(f"    {inFile} or {bakFile} , the file is not exist ...")
         print("  Exit and Close the program !!!")
         exit(0)
@@ -401,8 +401,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         result_enso['BW'] = 0
         idx = (result_enso['ONOFF'])
-        idx0 = np.argwhere(idx)
-        result_enso['BW'][idx0] = avg_fraction
+        intp = np.argwhere(idx)
+        result_enso['BW'][intp] = avg_fraction
 
         if result_enso.dtype.names:
             names_anmr = list(result_enso.dtype.names)

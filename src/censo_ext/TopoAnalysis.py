@@ -202,14 +202,14 @@ def save_files(_xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight: l
         pairs: set[tuple[int, int]] = {(x[2], x[3]) for x in _circle}
         for x in pairs:
             index1: list[int] = [_circle[0][0]]
-            nCluster: list[int] = [_circle[0][0]]
+            Clusters: list[int] = [_circle[0][0]]
             for y in _circle:
                 if x == (y[2], y[3]):
                     index1.append(y[1])
-                    nCluster.append(_xyzFile.Sts[y[1]-1].comment_Cluster)
+                    Clusters.append(_xyzFile.Sts[y[1]-1].comment_Cluster)
 
             print(Path('_'.join(str(x)
-                  for x in index1)+".xyz"), "\t\t\t", nCluster)
+                  for x in index1)+".xyz"), "\t\t\t", Clusters)
 
             outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
             _xyzFile.set_filename(circleDir / outFile)
@@ -229,14 +229,14 @@ def save_files(_xyzFile: GeometryXYZs, _circle: list[cell_reports], _straight: l
         pairs = {(x[2], x[3]) for x in _straight}
         for x in pairs:
             index1: list[int] = [_straight[0][0]]
-            nCluster: list[int] = [_straight[0][0]]
+            Clusters: list[int] = [_straight[0][0]]
             for y in _straight:
                 if x == (y[2], y[3]):
                     index1.append(y[1])
-                    nCluster.append(_xyzFile.Sts[y[1]-1].comment_Cluster)
+                    Clusters.append(_xyzFile.Sts[y[1]-1].comment_Cluster)
 
             print(Path('_'.join(str(x)
-                  for x in index1)+".xyz"), "\t\t\t", nCluster)
+                  for x in index1)+".xyz"), "\t\t\t", Clusters)
 
             outFile: Path = Path('_'.join(str(x) for x in index1)+".xyz")
             _xyzFile.set_filename(straightDir / outFile)

@@ -57,8 +57,9 @@ def Duplicate_process(_rthr: float, _xyzFile: GeometryXYZs, _add_idx: list[int] 
 
     print("")
     print("  The following list has the same structure as in RMSD and")
-    print("  will be removed in the next step.")
-    print("  idx1_p       #  |  idx1_q       #")
+    print("  the list of idx1_q will be removed in the next step.")
+    print("")
+    print("  idx1_p       #    |  idx1_q       #")
     for idx1_p in range(1, len(_xyzFile.Sts)+1):
         if len(idx1_Sts) >= 1:
             for idx1_q in idx1_Sts.copy():
@@ -67,7 +68,7 @@ def Duplicate_process(_rthr: float, _xyzFile: GeometryXYZs, _add_idx: list[int] 
                                                   idx1_q=idx1_q, _add_idx=_add_idx, _remove_idx=None, _bond_broken=None, _ignore_Hydrogen=True)
                     if result_RMSD <= _rthr:
                         print(
-                            f"   {idx1_p:5d}   {_xyzFile.Sts[idx1_p-1].comment_nClusters:5d}  |   {idx1_q:5d}   {_xyzFile.Sts[idx1_q-1].comment_nClusters:5d}")
+                            f"   {idx1_p:5d}   {_xyzFile.Sts[idx1_p-1].comment_Cluster:5d}    |   {idx1_q:5d}   {_xyzFile.Sts[idx1_q-1].comment_Cluster:5d}")
                         idx1_Sts.remove(idx1_q)
                         # print(f" {idx1_p:5d}    | {idx1_q:5d}")
         else:
@@ -89,14 +90,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     Duplicate_process(_rthr=args.rthr, _xyzFile=xyzFile)
 
-    Dir, file = IsExists_DirFileName(Path(args.file))
-    file_split: list[str] = file.split(".")
-    # file_ext: str = file_split[-1]
-    fileName: str = file_split[0]
-
     if args.out:
         xyzFile.set_filename(args.out)
     else:
+        Dir, file = IsExists_DirFileName(Path(args.file))
+        fileName: str = file.split(".")[0]
         xyzFile.set_filename(fileName + "_ext.xyz")
 
     xyzFile.method_save_xyz([])

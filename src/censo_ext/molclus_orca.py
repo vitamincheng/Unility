@@ -156,7 +156,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     delete_all_files(solo_xyz)
     print(" Cleaning old input and temporary files ...")
     print(" Running: rm isomers.xyz *.tmp")
-    templateFile_Exist: bool = False
+    outcome_Exist: bool = False
 
     for idx1 in range(1, len(xyzFile)+1, 1):
         idx1_str = (f"{idx1:05d}")
@@ -180,8 +180,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 get_energy = idy0
 
         from os.path import exists
-        templateFile_Exist = exists(f"{template_Name}.xyz")
-        if templateFile_Exist:
+        outcome_Exist = exists(f"{template_Name}.xyz")
+        if outcome_Exist:
             templateLines: list[str] = open(f"{template_Name}.xyz", "r").readlines()  # nopep8
             for idy0, y in enumerate(templateLines):
                 if rf"Coordinates from ORCA-job {template_Name}" in y and get_energy:
@@ -201,7 +201,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         subprocess.call(f"mv -f {template_Name}.out {idx1_str}.out", shell=True)  # nopep8
         subprocess.call(f"mv -f {template_Name}.gbw {idx1_str}.gbw", shell=True)  # nopep8
 
-    if templateFile_Exist:  # template File is Exists
+    if outcome_Exist:  # outcome is Exists
         optFile: GeometryXYZs = GeometryXYZs(outFile)
 
         sys.stdout = open(os.devnull, 'w')
