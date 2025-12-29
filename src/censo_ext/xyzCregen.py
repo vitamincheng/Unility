@@ -174,10 +174,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
     print("")
     print("  ===== Boltzmann Weighting Table =====")
-    print("  index1           Energy (kcal/mol)             BW")
+    print("  idx_1          #           Energy (kcal/mol)             BW")
     for intp, moment, y, z in zip_energy:
 
-        print(f"{intp+1:5d} {moment:8d}           {y:17.10f}       {z:8.4f}")
+        print(f"  {intp+1:5d}   {moment:8d}           {y:17.10f}       {z:8.4f}")
     print("  ===== Finished =====")
     print("")
 
