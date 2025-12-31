@@ -194,13 +194,53 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         # exit(0)
 
     if args.path is not None:
-        dic, data = ng.bruker.read_pdata(args.path)
-        udic: dict = ng.bruker.guess_udic(dic, data)
-        C = ng.convert.converter()
-        C.from_bruker(dic, data, udic)
-        pipe_fid_filename: str = ".1d_pipe.fid"
-        ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
-        dic, data = ng.pipe.read(pipe_fid_filename)
+        try:
+            dic, data = ng.bruker.read_pdata(args.path)
+            udic: dict = ng.bruker.guess_udic(dic, data)
+            C = ng.convert.converter()
+            C.from_bruker(dic, data, udic)
+            pipe_fid_filename: str = ".1d_pipe.fid"
+            ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
+            dic, data = ng.pipe.read(pipe_fid_filename)
+        except OSError:
+            try:
+                dic, data = ng.varian.read(args.path)
+                # ic(dic)
+                tn = dic['procpar']['tn']['values']
+                sw = float(dic['procpar']['sw']['values'][0])
+                sfrq = float(dic['procpar']['sfrq']['values'][0])
+                rp = float(dic['procpar']['rp']['values'][0])
+                # ic(dic['procpar'])
+                ic(tn, sw, sfrq, rp)
+                udic: dict = ng.varian.guess_udic(dic, data)
+                C = ng.convert.converter()
+                C.from_varian(dic, data, udic)
+                pipe_fid_filename: str = ".1d_pipe.fid"
+                ng.pipe.write(pipe_fid_filename, *C.to_pipe(), overwrite=True)
+                dic, data = ng.pipe.read(pipe_fid_filename)
+
+                match tn:
+                    case ['H1']:
+                        dic['FDF2SW'] = dic['FDF2SW']*sw/sfrq    # for hydrogen
+                    case ['C13']:
+                        dic['FDF2SW'] = dic['FDF2SW']*sw/sfrq    # for carbon
+                    case _:
+                        print('  Only for H1 and C13')
+                        exit(0)
+                dic['FDF2ORIG'] = sfrq*rp
+                ic(dic)
+                # process the spectrum
+                data = ng.proc_base.zf_size(data, 32768)
+                data = ng.proc_base.fft(data)               # Fourier transform
+                data = ng.proc_autophase.autops(
+                    data=data, fn="acme")  # type: ignore
+                # discard the imaginaries
+                data = ng.proc_base.di(data)
+                data = ng.proc_base.rev(data)               # reverse the data
+
+            except OSError:
+                print("  Only for bruker and varian ")
+                exit(0)
 
     if args.file is not None:
         dic, data = ng.jcampdx.read(args.file)  # type: ignore
