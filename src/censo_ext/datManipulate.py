@@ -36,7 +36,6 @@ def cml() -> argparse.Namespace:
         help="Provide output dat file name [default output.dat]",
     )
     parser.add_argument(
-        "-s",
         "--shift",
         dest="shift",
         action="store",
@@ -44,6 +43,15 @@ def cml() -> argparse.Namespace:
         type=float,
         default=0.0,
         help="Provide the shift ppm [default 0.0]",
+    )
+    parser.add_argument(
+        "--intensit",
+        dest="intensit",
+        action="store",
+        required=False,
+        type=float,
+        default=1.0,
+        help="Provide the shift ppm [default 1.0]",
     )
     args: argparse.Namespace = parser.parse_args()
     return args
@@ -62,6 +70,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         from censo_ext.Tools.datfile import CensoDat
         inDat: CensoDat = CensoDat(inFile)
         inDat.ppm_shift_Dat(ppm_shift=args.shift)
+        inDat.Intensit_Dat(Intensit=args.intensit)
         inDat.set_fileName(outFile)
         inDat.method_save_dat()
 
