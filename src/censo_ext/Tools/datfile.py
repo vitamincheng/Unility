@@ -612,3 +612,21 @@ class CensoDat():
             npt.NDArray: The data array.
         """
         return self.__dat
+
+    def ppm_shift_Dat(self, ppm_shift: float) -> None:
+        """
+        Get the raw data array.
+
+        Returns:
+            npt.NDArray: The data array.
+        """
+        self.__dat.T[0] = self.__dat.T[0] + ppm_shift
+
+    def Intensit_Dat(self, Intensit: float) -> None:
+        """
+        Get the raw data array.
+
+        Returns:
+            npt.NDArray: The data array.
+        """
+        self.__dat.T[1] = self.__dat.T[1] * Intensit
