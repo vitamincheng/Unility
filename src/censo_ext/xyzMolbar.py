@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from copy import deepcopy
 from pathlib import Path
 from censo_ext.Tools.utility import print_arguments
 import argparse
@@ -53,6 +54,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     outFile = Path(args.out)
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
+    res_File = deepcopy(xyzFile)
 
     result, idx1_molbars_false = xyzFile.method_molbar(_verbose=True)
     # print(idx1_molbars_false)
@@ -65,6 +67,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             xyzFile.set_filename(outFile)
             xyzFile.method_save_xyz([])
             print(f"  Saved the file in {outFile}")
+            res_File.method_xyzExtract(
+                list(set([x-1 for x in idx1_molbars_false])))
+            res_File.set_filename("residue.xyz")
+            res_File.method_save_xyz([])
+            print("  Saved the deleted file in residue.xyz")
 
 
 if __name__ == "__main__":
