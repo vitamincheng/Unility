@@ -47,6 +47,17 @@ def cml() -> argparse.Namespace:
         default=0.125,
         help="the threshold of RMSD [default 0.125]",
     )
+
+    parser.add_argument(
+        "--add-idx",
+        nargs="+",
+        dest="add_idx",
+        action="store",
+        type=int,
+        required=False,
+        help="Add atom's index (for -SH -OH -NH)",
+    )
+
     args: argparse.Namespace = parser.parse_args()
     return args
 
@@ -88,7 +99,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     print(
         f"\n  The numbers of the structures in xyz file is {len(xyzFile.Sts)}")
 
-    Duplicate_process(_rthr=args.rthr, _xyzFile=xyzFile)
+    Duplicate_process(_rthr=args.rthr, _xyzFile=xyzFile,
+                      _add_idx=args.add_idx)
 
     if args.out:
         xyzFile.set_filename(args.out)
