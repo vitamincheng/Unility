@@ -231,6 +231,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         anmr_enso['ONOFF'].fill(0)
         for i in range(len(args.switch)):
             anmr_enso['ONOFF'][args.switch[i]-1] = 1
+    if np.count_nonzero(anmr_enso['ONOFF']) == 0:
+        print("  The 'ONOFF' is all zero in your enso files")
+        print("  Close and Exit the program !!!")
+        exit(0)
     print(f" ON/OFF CONFS                    : {anmr_enso['ONOFF']}")
 
     if args.temp:
@@ -274,7 +278,13 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Average of CONFS
     # For after degeneracy and reduce the Gibbs free energy of ensemble
     nAverages = int(np.sum(anmr_enso['ONOFF']))
-    avg_fraction: float = 1/nAverages
+
+    try:
+        avg_fraction: float = 1/nAverages
+    except ZeroDivisionError:
+        print("  The 'ONOFF' is zero in your enso files")
+        print("  Close and Exit the program !!!")
+        exit(0)
 
     print(f" the name of input file          : {inFile}")
     print(f" the name of input file energy   : {bakFile}")
