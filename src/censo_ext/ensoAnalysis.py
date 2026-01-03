@@ -103,7 +103,7 @@ def Boltzmann_enso(np_enso: npt.NDArray, TEMP: float) -> npt.NDArray:
     #       ('Energy', '<f8'), ('Gsolv', '<f8'), ('mRRHO', '<f8'), ('gi', '<f8')]
 
     # Energy_min is lowest energy of Electron Energy
-    Energy_min: np.float64 = np_enso['Energy'].min()
+    Energy_min: np.float64 = (np_enso['Energy']*np_enso['ONOFF']).min()
 
     # Eref is delta Electron Energy
     Eref: npt.NDArray[np.float64] = np.array(
