@@ -503,6 +503,26 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
 
             mat_multi_idx0: list[int] = mat_filter_multi[idx0].astype(
                 int).tolist()
+
+            # if not only one hydrogen in singlet element in ab_group_set
+            # move the element to QM_multiplet
+            idx0_only_one_h: npt.NDArray[np.intp] = np.argwhere(np.array(inHydrogen)[
+                list(ab_group_set)] != 1)
+            if len(idx0_only_one_h) >= 1:
+                # print(ab_group_set)
+                # print(mat_multi_idx0)
+                idx0_set_move: set[int] = set([int(x)
+                                               for x in idx0_only_one_h.flatten()])
+                ab_group_set: set[int] = set({idx0}).union(
+                    ab_group_set - idx0_set_move)
+                idx0_list_move: list[int] = [int(x)
+                                             for x in idx0_only_one_h.flatten()]
+                # print(idx0_list_move)
+                for x in idx0_list_move:
+                    mat_multi_idx0[x] = 1
+                # print(ab_group_set)
+                # print(mat_multi_idx0)
+
             idx1_ab_group: set[int] = set(a+1 for a in ab_group_set)
             mat_multi_x_idx0: list[int] = [
                 idx0_set*a for a, idx0_set in enumerate(mat_multi_idx0)if idx0_set != 0]
@@ -519,9 +539,11 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
             QM_Multiplet: list[tuple[float, float]] = []
             # for QM_base in QM_Bases:
             for freq, Intensit in QM_Bases:
+                # ic(ab_group_set, mat_multi_x_idx0)
                 idx0_multiplicity: list[int] = list(
                     set(mat_multi_x_idx0).difference(ab_group_set))
-
+                # if idx0 == 3:
+                #    idx0_multiplicity.append(0)
                 # Chemical Shift, the numbers of Hydrogen in inJ
                 inJCoups_multi: list[tuple[float, int]] = []
                 delta_SParams: list[float] = []
@@ -529,7 +551,7 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
                     delta_SParams.append(inSParams[idx0_multi]-inSParams[idx0])
                     inJCoups_multi.append(
                         (inJCoups[idx0][idx0_multi], inHydrogen[idx0_multi]))
-
+                # ic(inJCoups_multi)
                 if len(inJCoups_multi) >= 1:
                     tmp: npt.NDArray[np.float64] = np.array(
                         qm_multiplet(freq, inHydrogen[idx0], J=inJCoups_multi, delta=delta_SParams))
