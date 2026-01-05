@@ -27,6 +27,7 @@ IntpID = NewType("IntpID", int)
 #    p = Path("/home/user/Downloads/repo/test.txt")
 #    p.name
 #    p.parents[0]
+#    p.suffix
 #    p.cwd()
 #    p.mkdir()
 #    p.rmdir()
