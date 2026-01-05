@@ -390,7 +390,7 @@ def qm_base(v: list[float], J: np_float, idx0_nspins: int, _cutoff: float, _verb
     return plist
 
 
-def qm_multiplet(v: float | int, nIntergals: int, J: list[tuple[float, int]], delta: list[float]) -> list[tuple[float, float]]:
+def qm_multiplet(v: float | int, nIntergals: int, J: list[tuple[float, int]], delta: list[float], _verbose: bool) -> list[tuple[float, float]]:
     """
     Calculate multiplet spectrum 
 
@@ -405,18 +405,21 @@ def qm_multiplet(v: float | int, nIntergals: int, J: list[tuple[float, int]], de
     Returns:
         list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
     """
-    return Multiplet(v, nIntergals, J, delta).peaklist()
+    if _verbose:
+        ic(v, nIntergals, J, delta)
+    return Multiplet(v, nIntergals, J, delta, _verbose).peaklist()
 
 
 class Multiplet:
 
-    def __init__(self, v: float, nIntergals: int, J: list[tuple[float, int]], delta: list[float], w: float = 0.5) -> None:
+    def __init__(self, v: float, nIntergals: int, J: list[tuple[float, int]], delta: list[float], _verbose: bool, w: float = 0.5) -> None:
         self.v: float = v
         self.nIntergals: int = nIntergals
         self.J: list[tuple[float, int]] = J
         self.delta: list[float] = delta
         self.w: float = w
         self._peaklist: list = multiplet((v, nIntergals), J, delta)
+        self._verbose: bool = _verbose
 
     def _refresh(self) -> None:
         self._peaklist = multiplet(
@@ -424,6 +427,8 @@ class Multiplet:
 
     def peaklist(self) -> list:
         self._refresh()
+        if self._verbose:
+            ic(self._peaklist)
         return self._peaklist
 
 

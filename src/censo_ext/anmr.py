@@ -554,7 +554,7 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
                 # ic(inJCoups_multi)
                 if len(inJCoups_multi) >= 1:
                     tmp: npt.NDArray[np.float64] = np.array(
-                        qm_multiplet(freq, inHydrogen[idx0], J=inJCoups_multi, delta=delta_SParams))
+                        qm_multiplet(freq, inHydrogen[idx0], J=inJCoups_multi, delta=delta_SParams, _verbose=args.verbose))
                     tmp.T[1] *= Intensit
                     QM_Multiplet += tmp.tolist()
                 elif len(inJCoups_multi) == 0:
@@ -574,6 +574,8 @@ def _process_qm_hydrogen_spin_system(inParameter: tuple[npt.NDArray[np.float64],
     import json
     with open(inAnmr.get_Dir()/Path("peaks.json"), "w") as jsonFile:
         json.dump(accPeaks, jsonFile)
+    if args.verbose:
+        ic(accPeaks)
 
     peaks_range: list[int] = [*range(len(accPeaks))]
     return peaks_range, accPeaks
