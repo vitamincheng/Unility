@@ -218,7 +218,7 @@ def normalize_peaklist(peaklist: list[tuple[float, float]], nIntegrals: int) -> 
         total intensity to normalize to (default = 1).
     """
     peaks: npt.NDArray[np.float64] = np.array(peaklist)
-    freq, intensit = peaks.T[0], peaks.T[1]
+    freq, intensit = peaks.T[0].real, peaks.T[1].real
     intensit = intensit*nIntegrals / np.sum(intensit)
     return list(zip(freq, intensit))
 
