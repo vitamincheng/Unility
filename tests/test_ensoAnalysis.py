@@ -5,6 +5,8 @@ import censo_ext.ensoAnalysis as ensoAnalysis
 import filecmp
 from pathlib import Path
 
+from censo_ext.Tools.utility import delete_all_files
+
 file_anmr: Path = Path("tests/data/34.Ergocalciferol/04.Hydrogen/anmr_enso")
 file_anmr_backup: Path = Path(str(file_anmr)+".backup")
 
@@ -18,7 +20,8 @@ def test_ensoAnalysis_miss_args():
 
 
 def test_ensoAnalysis_enso_Backup_File_miss():
-    x: dict = {"file": file_anmr, "new": None}
+    x: dict = {"file": file_anmr, "new": None,
+               "switch": None, "temp": 298.15, "weights": False, "verbose": False, "out": "out_enso"}
     with pytest.raises(SystemExit) as e:
         ensoAnalysis.main(argparse.Namespace(**x))
     assert e.type is SystemExit
@@ -35,7 +38,8 @@ def test_ensoAnalysis_Hydrogen_miss_file():
 
 
 def test_ensoAnalysis_Hydrogen_new_read():
-    x: dict = {"file": file_anmr, "new": True}
+    x: dict = {"file": file_anmr, "new": True,
+               "switch": None, "temp": 298.15, "weights": False, "verbose": False, "out": "out_enso"}
     with pytest.raises(SystemExit) as e:
         ensoAnalysis.main(argparse.Namespace(**x))
     assert e.type is SystemExit
@@ -51,9 +55,9 @@ def test_ensoAnalysis_Hydrogen_new_read():
         ensoAnalysis.main(args)
     sys.stdout = sys.__stdout__
     lines: list[str] = open(out_print, "r").readlines()
-    assert float(lines[-2].split()[-1]) == -0.1968
+    assert float(lines[-2].split()[-1]) == -0.6865
     assert lines[-1].split()[-1] == "(Allowed)"
-    assert float(lines[-1].split()[-2]) == -0.00031361
+    assert float(lines[-1].split()[-2]) == -0.00109398
     out_print.unlink()
     Path(file_anmr_backup).unlink()
 
@@ -65,7 +69,7 @@ def test_ensoAnalysis_Hydrogen_new_read():
 
 
 def test_ensoAnalysis_Hydrogen_new_read_miss_args():
-    x: dict = {"file": file_anmr, "new": True}
+    x: dict = {"file": file_anmr, "new": True, "switch": None}
     with pytest.raises(SystemExit) as e:
         ensoAnalysis.main(argparse.Namespace(**x))
     assert e.type is SystemExit
@@ -80,9 +84,9 @@ def test_ensoAnalysis_Hydrogen_new_read_miss_args():
         ensoAnalysis.main(argparse.Namespace(**x))
     sys.stdout = sys.__stdout__
     lines: list[str] = open(out_print, "r").readlines()
-    assert float(lines[-2].split()[-1]) == -0.1968
+    assert float(lines[-2].split()[-1]) == -0.6865
     assert lines[-1].split()[-1] == "(Allowed)"
-    assert float(lines[-1].split()[-2]) == -0.00031361
+    assert float(lines[-1].split()[-2]) == -0.00109398
     out_print.unlink()
     Path(file_anmr_backup).unlink()
 
@@ -108,9 +112,9 @@ def test_ensoAnalysis_Hydrogen_new_read_complete():
         ensoAnalysis.main(argparse.Namespace(**x))
     sys.stdout = sys.__stdout__
     lines: list[str] = open(out_print, "r").readlines()
-    assert float(lines[-5].split()[-1]) == -0.1968
+    assert float(lines[-5].split()[-1]) == -0.6865
     assert lines[-4].split()[-1] == "(Allowed)"
-    assert float(lines[-4].split()[-2]) == -0.00031361
+    assert float(lines[-4].split()[-2]) == -0.00109398
     out_print.unlink()
     Path(file_anmr_backup).unlink()
 
