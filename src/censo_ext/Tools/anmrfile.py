@@ -182,7 +182,7 @@ class Anmrrc():
         xyzFile.method_read_xyz()
         mol, neighbors = read_mol_neighbors(xyzFile=xyzFile)
 
-        # find the atomID of molecule if is "N" or "O"
+        # find the atomID of molecule if is "N" or "O" or "S"
         acid_atoms_NoShowRemove: list[AtomID] = []
         for idx1, x in enumerate(mol, 1):
             if x.symbol in acid_atoms_NoShow:  # type: ignore
@@ -193,9 +193,9 @@ class Anmrrc():
         for x in acid_atoms_NoShowRemove:
             NoShow_Remove = np.concatenate(
                 (NoShow_Remove, neighbors[x]), axis=None)
-        Has_H_atom: list[AtomID] = [idx1 for idx1,
+        Has_H_atoms: list[AtomID] = [idx1 for idx1,
                                  i in enumerate(mol, 1) if i.symbol == "H"]  # type: ignore # nopep8
-        return [x for x in NoShow_Remove if x in Has_H_atom]
+        return [x for x in NoShow_Remove if x in Has_H_atoms]
 
     def get_anmrrc_linear(self) -> tuple[float, float]:
         """Extract linear parameters from .anmrrc and .anmrrc_linear files.
@@ -915,24 +915,22 @@ class Anmr():
         fileName = self.__Dir / Path(fileName)
         IsExist(fileName)
 
-        start_idx1: int = 0
-        end_idx1: int = 0
+        start_idx1: int | None = None
+        end_idx1: int | None = None
         DataJ: list[str] = []
         lines: list[str] = open(fileName, "r").readlines()
 
-        firstLine: bool = False
-        start_shielding_idx1: int = 0
+        start_shielding_idx1: int | None = None
         for idx0, line in enumerate(lines):
             if r"MATRIX PRINTED:" in line:
                 start_idx1 = idx0 + 1
-            if r"+/-" in line and not firstLine:
+            if r"+/-" in line and start_shielding_idx1 is None:
                 start_shielding_idx1 = idx0
-                firstLine = True
-        if start_shielding_idx1 != 0:
+        if start_shielding_idx1 is not None and start_idx1 is not None:
             nNuclei: int = start_idx1 - start_shielding_idx1 - 2
         else:
             raise ValueError(" Something wrong in your anmr.out file")
-        del firstLine, start_shielding_idx1
+        del start_shielding_idx1
 
         nLines = 0
         for idx0 in range(int(nNuclei/6)):
@@ -1340,7 +1338,7 @@ class OrcaSJ():
             self.JCoups = np.zeros((nShapes, nShapes))
             return True
 
-        start_idx: int
+        start_idx: int | None = None
         end_idx: int
         start_idx, end_idx = 0, 0
         Data_str: list[str] = []
@@ -1353,8 +1351,8 @@ class OrcaSJ():
                 nVersion: str = line
 
         if int(nVersion.split()[2][0]) == 5:
-            nLines = 0
-            start_idx = 0
+            nLines: int | None = None
+            start_idx: int | None = None
             for idx0, line in enumerate(lines):
                 if r"Number of nuclei for epr/nmr" in line:
                     nNuclei = int(line.split()[-1])
@@ -1363,7 +1361,7 @@ class OrcaSJ():
                 if r"SUMMARY OF ISOTROPIC COUPLING CONSTANTS" in line:
                     start_idx = idx0 + 2
 
-            if nLines != 0 and start_idx != 0:
+            if nLines is not None and start_idx is not None:
                 end_idx = start_idx + nLines - 1
 
         elif int(nVersion.split()[2][0]) == 6:
@@ -1375,7 +1373,7 @@ class OrcaSJ():
         else:
             print("This program is not work with before orca 5.0 ")
 
-        if start_idx == 0 or end_idx == 0:
+        if start_idx is None or end_idx is None:
             raise ValueError(
                 f"{file}, the data of the file have some error ...")
 
@@ -1385,16 +1383,17 @@ class OrcaSJ():
         for x in Data_str:
             DataJ.append(x.split()[2:])
 
-        nums = 1
+        nums: int = 1
         while (nums >= 1):
-            if ((int((nums-1)/6)+1)*(nums+1) == len(DataJ)):
+            if ((int((nums - 1)/6) + 1) * (nums + 1) == len(DataJ)):
                 break
-            nums: int = nums+1
+            nums += 1
         nAtomDataJ: int = nums
 
         for idx0, x in enumerate(DataJ):
             if (idx0 > nAtomDataJ):
-                DataJ[idx0 % (nAtomDataJ+1)] = DataJ[idx0 % (nAtomDataJ+1)]+x
+                DataJ[idx0 % (nAtomDataJ + 1)] = DataJ[idx0 %
+                                                       (nAtomDataJ + 1)] + x
 
         del DataJ[0]
         del DataJ[nAtomDataJ:]
@@ -1431,13 +1430,13 @@ class OrcaSJ():
         """
         IsExist(file)
 
-        start_idx: int
-        end_idx: int
+        start_idx: int | None = None
+        end_idx: int | None = None
         start_idx, end_idx = 0, 0
         DataS: list[str] = []
         lines: list[str] = open(file, "r").readlines()
         nVersion: str = ""
-        nNuclei: int = 0
+        nNuclei: int | None = None
 
         for line in lines:
             if r"Program Version" in line:
@@ -1449,9 +1448,10 @@ class OrcaSJ():
                     nNuclei = int(line.split()[-1])
                 if r"CHEMICAL SHIELDING SUMMARY" in line:
                     start_idx = idx0 + 6
-            end_idx = start_idx + nNuclei - 1
-            if end_idx == 0 or start_idx == 0 or nNuclei == 0:
+            if start_idx is None or nNuclei is None:
                 return False
+            end_idx = start_idx + nNuclei - 1
+
         elif int(nVersion.split()[2][0]) == 6:
             for idx0, line in enumerate(lines):
                 if r"Maximum memory used throughout the entire PROP" in line:
@@ -1463,7 +1463,7 @@ class OrcaSJ():
             print("  Exit and Close the program !!!")
             exit(0)
 
-        for x in range(start_idx, end_idx+1):
+        for x in range(start_idx, end_idx + 1):
             DataS.append(lines[x].rstrip())
 
         self.Element, self.Anisotropy, self.SParams = {}, {}, {}
