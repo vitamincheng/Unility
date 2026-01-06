@@ -46,7 +46,7 @@ def T_matrix(nspins: int) -> cplex:
     total: csr_matrix = Pauli_matrix("X", nspins, 1)
     for x in range(2, nspins + 1):
         total += Pauli_matrix("X", nspins, x)
-    return (total.toarray()*2).astype(cplex)
+    return (total.toarray()*2).astype(np.complex64)
 
 
 @cachier(separate_files=True)
