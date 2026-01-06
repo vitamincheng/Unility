@@ -14,55 +14,6 @@ type np_float = npt.NDArray[np.float64]
 
 
 @cachier(separate_files=True)
-def Pauil_matrix(nspins: int) -> tuple[cplex, cplex]:
-    """
-    Create Pauli matrices for a given number of spins.
-
-    This function generates the standard Pauli matrices (sigma_x, sigma_y, sigma_z)
-    scaled by 1/2, which are fundamental operators in quantum mechanics for describing
-    spin-1/2 particles.
-
-    Args:
-        nspins: Number of spins in the system
-
-    Returns:
-        Tuple containing the three Pauli matrices (sigma_x, sigma_y, sigma_z)
-    """
-
-    sigma_x: cplex = np.array([[0, 1 / 2], [1 / 2, 0]])
-    sigma_y: cplex = np.array([[0, -1j / 2], [1j / 2, 0]])
-    sigma_z: cplex = np.array([[1 / 2, 0], [0, -1 / 2]])
-    unit: cplex = np.array([[1, 0], [0, 1]])
-
-    L: cplex = np.empty(
-        (3, nspins, 2 ** nspins, 2 ** nspins), dtype=np.complex64)
-    for n in range(nspins):
-        Lx_current: cplex = np.array([1])
-        Ly_current: cplex = np.array([1])
-        Lz_current: cplex = np.array([1])
-
-        for k in range(nspins):
-            if k == n:
-                Lx_current = np.kron(Lx_current, sigma_x).astype(np.complex64)
-                Ly_current = np.kron(Ly_current, sigma_y).astype(np.complex64)
-                Lz_current = np.kron(Lz_current, sigma_z).astype(np.complex64)
-            else:
-                Lx_current = np.kron(Lx_current, unit).astype(np.complex64)
-                Ly_current = np.kron(Ly_current, unit).astype(np.complex64)
-                Lz_current = np.kron(Lz_current, unit).astype(np.complex64)
-
-        L[0][n] = Lx_current
-        L[1][n] = Ly_current
-        L[2][n] = Lz_current
-
-    L_T: cplex = L.transpose(1, 0, 2, 3)
-    Lproduct: cplex = np.tensordot(
-        L_T, L, axes=((1, 3), (0, 2))).swapaxes(1, 2).astype(np.complex64)
-
-    return L, Lproduct
-
-
-@cachier(separate_files=True)
 def F_matrix(nspins: int, idx0_nspins: int) -> np_uint:
     """
     Generate interaction matrix F for spin systems.
@@ -92,54 +43,33 @@ def F_matrix(nspins: int, idx0_nspins: int) -> np_uint:
 
 @cachier(separate_files=True)
 def T_matrix(nspins: int) -> np_uint:
-    """
-    Generate transition matrix T for spin systems.
+    total: csr_matrix = Pauli_matrix("X", nspins, 1)
+    for x in range(2, nspins+1):
+        total += Pauli_matrix("X", nspins, x)
 
-    This function creates a binary matrix that indicates which states can transition
-    to each other in a quantum spin system, where transitions occur when only one
-    spin flips (Hamming distance of 1).
-
-    Args:
-        nspins: Number of spins in the system
-
-    Returns:
-        Matrix T representing possible spin transitions
-    """
-
-    n: int = 2 ** nspins
-    T: np_uint = np.zeros((n, n), dtype=np.uint8)
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            if bin(i ^ j).count('1') == 1:
-                T[i, j] = 1
-    T += T.T
-    return T
+    return (total.toarray()*2).astype(np_uint)
 
 
 @cachier(separate_files=True)
 def Pauli_matrix(axis: str, nspins: int, idx1: int) -> csr_matrix:
-    match axis:
-        case "X":
-            pass
-        case "Y":
-            pass
-        case "Z":
-            pass
-        case _:
-            print("  Something wrong in your Pauli matrix")
-            print("  Close and Exit the program !!!")
-            exit(0)
+    if axis == "X" or "Y" or "Z":
+        pass
+    else:
+        print("  Something wrong in your Pauli matrix")
+        print("  Close and Exit the program !!!")
+        exit(0)
+
     if nspins < 1 or idx1 < 1 or nspins < idx1:
         print("  Something wrong in your npsins")
         print("  Close and Exit the program !!!")
         exit(0)
 
-    x = ("I"*(idx1-1) + str(axis)*1 + "I"*(nspins-idx1))
-    return PauliComposer(x).to_sparse()/2
+    x: str = ("I"*(idx1-1) + str(axis)*1 + "I"*(nspins-idx1))
+    return PauliComposer(x).to_sparse()*0.5
 
 
 def H_Zeeman(v: list[float]) -> csr_matrix:
-    nspins = len(v)
+    nspins: int = len(v)
     res: csr_matrix = Pauli_matrix("Z", nspins, 1)*v[0]
     if nspins != 1:
         for x in range(2, nspins+1):
@@ -149,65 +79,27 @@ def H_Zeeman(v: list[float]) -> csr_matrix:
 
 def H_HCoup(J: npt.NDArray) -> csr_matrix:
     nspins: int = len(J[0])
-    res: csr_matrix
+    res: csr_matrix = Lproductij(nspins, 1, 1)*J[0][0]
     for i in range(1, nspins+1):
         for j in range(i, nspins+1):
-            # ic(i, j)
             # ic(J[i-1][j-1])
-            try:
-                res += Lproductij(nspins, i, j)*J[i-1][j-1]  # type: ignore
-            except UnboundLocalError:
-                res = Lproductij(nspins, i, j)*J[i-1][j-1]
-    return res  # type: ignore
+            res += Lproductij(nspins, i, j)*J[i-1][j-1]
+    return res
 
 
 @cachier(separate_files=True)
 def Lproductij(nspins: int, idx1_i: int, idx1_j: int) -> csr_matrix:
-    a: csr_matrix = Pauli_matrix(
+    res: csr_matrix = Pauli_matrix(
         "X", nspins, idx1_i)*Pauli_matrix("X", nspins, idx1_j)
-    a += Pauli_matrix("Y", nspins, idx1_i)*Pauli_matrix("Y", nspins, idx1_j)
-    a += Pauli_matrix("Z", nspins, idx1_i)*Pauli_matrix("Z", nspins, idx1_j)
-    return a
+    res += Pauli_matrix("Y", nspins, idx1_i)*Pauli_matrix("Y", nspins, idx1_j)
+    res += Pauli_matrix("Z", nspins, idx1_i)*Pauli_matrix("Z", nspins, idx1_j)
+    return res
 
 
-def qm_parameter(v: list[float], J: np_float) -> tuple[csr_matrix, np_uint]:
-
+def qm_parameter(v: list[float], J: np_float) -> csr_matrix:
     H: csr_matrix = H_Zeeman(v)
     H += H_HCoup(J)
-    T: np_uint = T_matrix(len(v))
-    return H, T
-    # print(H.toarray())
-
-
-def qm_parameter1(v: list[float], J: np_float) -> tuple[cplex, np_uint]:
-    """
-    Calculate the Hamiltonian and transition matrix for a spin system.
-
-    This function constructs the angular momentum operators (Lx, Ly, Lz) for each spin
-    and builds the total Hamiltonian H from the Zeeman terms (v) and dipolar coupling terms (J).
-
-    Args:
-        v (list[float]): List of resonance frequencies in Hz for each spin.
-        J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
-
-    Returns:
-        tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]:
-        - H: The total Hamiltonian matrix (complex128)
-        - T: Transition matrix for intensity calculations (float64)
-    """
-
-    L, Lproduct = Pauil_matrix(len(v))
-    T: np_uint = T_matrix(len(v))
-
-    Lz = L[2]  # array of Lz operators
-    H: cplex = np.tensordot(
-        v, Lz, axes=1).astype(np.complex128)
-    # ic(H)
-
-    scalars: np_float = 0.5 * J
-    H += np.tensordot(scalars, Lproduct, axes=2)
-
-    return H, T
+    return H
 
 
 def qm_full(v: list[float], J: np_float, _cutoff: float, _verbose: bool) -> list[tuple[float, float]]:
@@ -231,20 +123,20 @@ def qm_full(v: list[float], J: np_float, _cutoff: float, _verbose: bool) -> list
     if J.shape != (nspins, nspins):
         raise ValueError("Your JCoup is Error")
 
-    H, T = qm_parameter(v, J)
-
+    H: csr_matrix = qm_parameter(v, J)
     E: np_float
     V: cplex | np_float
-
     E, V = np.linalg.eigh(H.toarray())
+
     if _verbose:
         ic(H)
-        ic(T)
         ic(E, V)
         np.savetxt("Hamiltonian.out", H.toarray(), fmt="%6.2f")
         np.savetxt("eigenValue.out", E.real, fmt="%6.2f")
         np.savetxt("eigenVector.out", V.real, fmt="%6.2f")
     V = V.real  # type: ignore
+
+    T: np_uint = T_matrix(nspins)
     I_np: np_float = np.square(V.T.dot(T.dot(V)))
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
@@ -290,11 +182,8 @@ def qm_partial(v: list[float], J: np_float, idx0_nspins: int, _cutoff: float, _v
     if idx0_nspins >= nspins:
         raise ValueError("Your idx0_nspins is Error")
 
-    H, T = qm_parameter(v, J)
-    F: np_uint = F_matrix(nspins, idx0_nspins)
+    H: csr_matrix = qm_parameter(v, J)
 
-    F += F.T
-    F = F*T
     E: np_float
     V: cplex | np_float
 
@@ -302,8 +191,12 @@ def qm_partial(v: list[float], J: np_float, idx0_nspins: int, _cutoff: float, _v
 
     V = V.real  # type: ignore
     if _verbose:
-        ic(F)
         ic(E, V)
+
+    F: np_uint = F_matrix(nspins, idx0_nspins)
+    T: np_uint = T_matrix(nspins)
+    F += F.T
+    F = F*T
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
     I_np: np_float = np.square(V.T.dot(T.dot(V)))
@@ -553,3 +446,106 @@ def _doublet(plist: list[tuple[float, int]], JCoups: float, delta: float) -> lis
         # the right of doublet if J is positive
         res.append((v - JCoups / 2, intensit / 2 * k_large))
     return res
+
+# @cachier(separate_files=True)
+# def Pauil_matrix(nspins: int) -> tuple[cplex, cplex]:
+#    """
+#    Create Pauli matrices for a given number of spins.
+#
+#    This function generates the standard Pauli matrices (sigma_x, sigma_y, sigma_z)
+#    scaled by 1/2, which are fundamental operators in quantum mechanics for describing
+#    spin-1/2 particles.
+#
+#    Args:
+#        nspins: Number of spins in the system
+#
+#    Returns:
+#        Tuple containing the three Pauli matrices (sigma_x, sigma_y, sigma_z)
+#    """
+#
+#    sigma_x: cplex = np.array([[0, 1 / 2], [1 / 2, 0]])
+#    sigma_y: cplex = np.array([[0, -1j / 2], [1j / 2, 0]])
+#    sigma_z: cplex = np.array([[1 / 2, 0], [0, -1 / 2]])
+#    unit: cplex = np.array([[1, 0], [0, 1]])
+#
+#    L: cplex = np.empty(
+#        (3, nspins, 2 ** nspins, 2 ** nspins), dtype=np.complex64)
+#    for n in range(nspins):
+#        Lx_current: cplex = np.array([1])
+#        Ly_current: cplex = np.array([1])
+#        Lz_current: cplex = np.array([1])
+#
+#        for k in range(nspins):
+#            if k == n:
+#                Lx_current = np.kron(Lx_current, sigma_x).astype(np.complex64)
+#                Ly_current = np.kron(Ly_current, sigma_y).astype(np.complex64)
+#                Lz_current = np.kron(Lz_current, sigma_z).astype(np.complex64)
+#            else:
+#                Lx_current = np.kron(Lx_current, unit).astype(np.complex64)
+#                Ly_current = np.kron(Ly_current, unit).astype(np.complex64)
+#                Lz_current = np.kron(Lz_current, unit).astype(np.complex64)
+#
+#        L[0][n] = Lx_current
+#        L[1][n] = Ly_current
+#        L[2][n] = Lz_current
+#
+#    L_T: cplex = L.transpose(1, 0, 2, 3)
+#    Lproduct: cplex = np.tensordot(
+#        L_T, L, axes=((1, 3), (0, 2))).swapaxes(1, 2).astype(np.complex64)
+#
+#    return L, Lproduct
+
+# @cachier(separate_files=True)
+# def T_matrix1(nspins: int) -> np_uint:
+#    """
+#    Generate transition matrix T for spin systems.
+#
+#    This function creates a binary matrix that indicates which states can transition
+#    to each other in a quantum spin system, where transitions occur when only one
+#    spin flips (Hamming distance of 1).
+#
+#    Args:
+  #      nspins: Number of spins in the system
+#
+#    Returns:
+  #      Matrix T representing possible spin transitions
+#    """
+#
+#    n: int = 2 ** nspins
+#    T: np_uint = np.zeros((n, n), dtype=np.uint8)
+#    for i in range(n - 1):
+  #      for j in range(i + 1, n):
+    #      if bin(i ^ j).count('1') == 1:
+    #      T[i, j] = 1
+#    T += T.T
+#    return T
+
+# def qm_parameter1(v: list[float], J: np_float) -> tuple[cplex, np_uint]:
+#    """
+#    Calculate the Hamiltonian and transition matrix for a spin system.
+#
+#    This function constructs the angular momentum operators (Lx, Ly, Lz) for each spin
+#    and builds the total Hamiltonian H from the Zeeman terms (v) and dipolar coupling terms (J).
+#
+#    Args:
+#        v (list[float]): List of resonance frequencies in Hz for each spin.
+#        J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
+#
+#    Returns:
+#        tuple[npt.NDArray[np.complex128], npt.NDArray[np.float64]]:
+#        - H: The total Hamiltonian matrix (complex128)
+#        - T: Transition matrix for intensity calculations (float64)
+#    """
+#
+#    L, Lproduct = Pauli_matrix(len(v))
+#    T: np_uint = T_matrix(len(v))
+#
+#    Lz = L[2]  # array of Lz operators
+#    H: cplex = np.tensordot(
+#        v, Lz, axes=1).astype(np.complex128)
+#    # ic(H)
+#
+#    scalars: np_float = 0.5 * J
+#    H += np.tensordot(scalars, Lproduct, axes=2)
+#
+#    return H, T
