@@ -77,6 +77,7 @@ def test_xtb_alpb():
     x["alpb"] = "CHCl3"
     x["gbsa"] = None
     x["opt"] = False
+    x["new"] = True
 
     args = argparse.Namespace(**x)
     xtb.main(args)
@@ -97,6 +98,7 @@ def test_xtb_gbsa():
     x["alpb"] = None
     x["gbsa"] = "CHCl3"
     x["opt"] = False
+    x["new"] = True
 
     args = argparse.Namespace(**x)
     xtb.main(args)

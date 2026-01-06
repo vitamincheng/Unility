@@ -33,7 +33,7 @@ def test_orca_miss_args(setup_and_teardown):
 
 def test_orca_sp(setup_and_teardown):
     x: dict = {"file": inFile, "template": inTemplate_sp_File,
-               "reserve": False, "out": outFile}
+               "reserve": False, "out": outFile, "new": False}
 
     args = argparse.Namespace(**x)
     orca.main(args)
@@ -50,7 +50,7 @@ def test_orca_sp(setup_and_teardown):
 @pytest.mark.slow
 def test_orca_opt(setup_and_teardown):
     x: dict = {"file": inFile, "template": inTemplate_opt_File,
-               "reserve": False, "out": outFile}
+               "reserve": False, "out": outFile, "new": False}
 
     args = argparse.Namespace(**x)
     orca.main(args)
@@ -67,7 +67,7 @@ def test_orca_opt(setup_and_teardown):
 @pytest.mark.slow
 def test_orca_opt_default(setup_and_teardown):
     x: dict = {"file": inFile, "template": "template.inp",
-               "reserve": False, "out": outFile}
+               "reserve": False, "out": outFile, "new": False}
 
     args = argparse.Namespace(**x)
     orca.main(args)

@@ -88,7 +88,7 @@ def xtb(_inFile: Path) -> None:
     copy_file(_inFile, xtbDir / inFile)
     cwd: Path = Path.cwd()
     x: dict = {"file": inFile, "method": "gfn2", "chrg": 0, "uhf": 1,
-               "out": outFile, "alpb": "CHCl3", "gbsa": None, "opt": True}
+               "out": outFile, "alpb": "CHCl3", "gbsa": None, "opt": True, "new": False}
     import censo_ext.molclus_xtb as molclus_xtb
     os.chdir(cwd / xtbDir)
     molclus_xtb.main(argparse.Namespace(**x))
@@ -107,7 +107,7 @@ def orca() -> None:
 
     import censo_ext.molclus_orca as molclus_orca
     x: dict = {"file": inFile, "template": "template.inp", "reserve": False,
-               "chrg": 0, "uhf": 1, "out": outFile}
+               "chrg": 0, "uhf": 1, "out": outFile, "convergence": -1, "new": False}
     os.chdir(cwd/orcaDir)
     molclus_orca.main(argparse.Namespace(**x))
     os.chdir(cwd)
