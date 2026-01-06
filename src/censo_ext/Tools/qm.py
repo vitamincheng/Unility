@@ -52,9 +52,7 @@ def T_matrix(nspins: int) -> np_uint:
 
 @cachier(separate_files=True)
 def Pauli_matrix(axis: str, nspins: int, idx1: int) -> csr_matrix:
-    if axis == "X" or "Y" or "Z":
-        pass
-    else:
+    if not axis == "X" or "Y" or "Z":
         print("  Something wrong in your Pauli matrix")
         print("  Close and Exit the program !!!")
         exit(0)
@@ -71,24 +69,23 @@ def Pauli_matrix(axis: str, nspins: int, idx1: int) -> csr_matrix:
 def H_Zeeman(v: list[float]) -> csr_matrix:
     nspins: int = len(v)
     res: csr_matrix = Pauli_matrix("Z", nspins, 1)*v[0]
-    if nspins != 1:
-        for x in range(2, nspins+1):
-            res += Pauli_matrix("Z", nspins, x)*v[x-1]
+    for idx1 in range(2, nspins + 1):
+        res += Pauli_matrix("Z", nspins, idx1) * v[idx1-1]
     return res
 
 
 def H_HCoup(J: npt.NDArray) -> csr_matrix:
     nspins: int = len(J[0])
-    res: csr_matrix = Lproductij(nspins, 1, 1)*J[0][0]
-    for i in range(1, nspins+1):
-        for j in range(i, nspins+1):
+    res: csr_matrix = Lproduct_ij(nspins, 1, 1)*J[0][0]
+    for idx1_i in range(1, nspins+1):
+        for idx1_j in range(i, nspins+1):
             # ic(J[i-1][j-1])
-            res += Lproductij(nspins, i, j)*J[i-1][j-1]
+            res += Lproduct_ij(nspins, idx1_i, idx1_j)*J[idx1_i-1][idx1_j-1]
     return res
 
 
 @cachier(separate_files=True)
-def Lproductij(nspins: int, idx1_i: int, idx1_j: int) -> csr_matrix:
+def Lproduct_ij(nspins: int, idx1_i: int, idx1_j: int) -> csr_matrix:
     res: csr_matrix = Pauli_matrix(
         "X", nspins, idx1_i)*Pauli_matrix("X", nspins, idx1_j)
     res += Pauli_matrix("Y", nspins, idx1_i)*Pauli_matrix("Y", nspins, idx1_j)
@@ -129,7 +126,7 @@ def qm_full(v: list[float], J: np_float, _cutoff: float, _verbose: bool) -> list
     E, V = np.linalg.eigh(H.toarray())
 
     if _verbose:
-        ic(H)
+        ic(H.toarray())
         ic(E, V)
         np.savetxt("Hamiltonian.out", H.toarray(), fmt="%6.2f")
         np.savetxt("eigenValue.out", E.real, fmt="%6.2f")
@@ -191,8 +188,8 @@ def qm_partial(v: list[float], J: np_float, idx0_nspins: int, _cutoff: float, _v
 
     V = V.real  # type: ignore
     if _verbose:
+        ic(H.toarray())
         ic(E, V)
-
     F: np_uint = F_matrix(nspins, idx0_nspins)
     T: np_uint = T_matrix(nspins)
     F += F.T
