@@ -10,7 +10,7 @@ outFile: Path = Path("tests/compare/output.xyz")
 
 def test_xyzSerial_new():
     x: dict = {"file": Path("tests/data/crest_conformers.xyz"), "new": True,
-               "keep": False, "out": outFile, "print": False}
+               "keep": False, "out": outFile, "print": False, "replace": False, "num": 1}
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
@@ -21,7 +21,7 @@ def test_xyzSerial_new():
 
 def test_xyzSerial_keep():
     x: dict = {"file": Path("tests/data/crest_conformers4.xyz"), "new": False,
-               "keep": True, "out": outFile, "print": False}
+               "keep": True, "out": outFile, "print": False, "replace": False}
     args = argparse.Namespace(**x)
     xyzSerial.main(args)
 
@@ -32,7 +32,7 @@ def test_xyzSerial_keep():
 
 def test_xyzSerial_filename_miss():
     x: dict = {"file": Path("tests/data/crest_conformers_xyzSerial000.xyz"), "new": True,
-               "keep": True, "out": outFile, "print": False}
+               "keep": True, "out": outFile, "print": False, "replace": False}
 
     args = argparse.Namespace(**x)
     with pytest.raises(SystemExit) as e:

@@ -23,7 +23,7 @@ def test_xtb_miss_args():
 
 
 x: dict = {"file": inFile, "chrg": 0,
-           "uhf": 1, "method": "gfn2", "out": outFile}
+           "uhf": 1, "method": "gfn2", "out": outFile, "new": False}
 
 
 def test_xtb_alpb_opt():

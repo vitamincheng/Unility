@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+import filecmp
 import pytest
 import argparse
 import censo_ext.molclus_thermo as thermo
 from pathlib import Path
+
+from censo_ext.Tools.utility import delete_all_files
 
 inFile: Path = Path("tests/data/06.EthylAcetate/01.Crest/crest_conformers.xyz")
 
@@ -18,14 +21,10 @@ def test_molclus_thermo_miss_args():
 
 def test_molclus_thermo_alpb():
     x: dict = {"file": inFile, "alpb": "CHCl3", "gbsa": None, "chrg": 0,
-               "uhf": 1, "opt": True, "method": "gfn2"}
+               "uhf": 1, "opt": True, "method": "gfn2", "enso": True, "temp": 298.15}
 
-    Res: list[str] = thermo.main(argparse.Namespace(**x))
-    assert float(Res[0]) == pytest.approx(0.083147421, abs=0.0000002)
-    assert float(Res[1]) == pytest.approx(0.082439908, abs=0.0000002)
-
-    import subprocess
-    subprocess.call(
-        "rm -f charges g98.out hessian thermo.out vibspectrum xtbhess.xyz", shell=True)
-    subprocess.call(
-        "rm -f wbo xtb_enso.json xtbopt.xyz xtbrestart xtbtopo.mol", shell=True)
+    thermo.main(argparse.Namespace(**x))
+    target = Path("anmr_enso.new")
+    compare = Path("tests/compare/thermo/anmr_enso.new")
+    assert filecmp.cmp(compare, target)
+    delete_all_files(target)
