@@ -14,7 +14,7 @@ type np_float = npt.NDArray[np.float64]
 
 
 @cachier(separate_files=True)
-def F_matrix(nspins: int, idx0_nspins: int) -> np_uint:
+def F_matrix(nspins: int, idx0_nspins: int) -> cplex:
     """
     Generate interaction matrix F for spin systems.
 
@@ -38,21 +38,21 @@ def F_matrix(nspins: int, idx0_nspins: int) -> np_uint:
             if bin((i & idx) ^ (j & idx)).count('1') == 1:
                 # if bin(i ^ j).count('1') == 1 and bin((i & idx) ^ (j & idx)).count('1') == 1:
                 F[i][j] = 1
-    return F
+    return F.astype(np.complex64)
 
 
 @cachier(separate_files=True)
-def T_matrix(nspins: int) -> np_uint:
+def T_matrix(nspins: int) -> cplex:
     total: csr_matrix = Pauli_matrix("X", nspins, 1)
     for x in range(2, nspins + 1):
         total += Pauli_matrix("X", nspins, x)
-    return (total.toarray()*2).astype(np_uint)
+    return (total.toarray()*2).astype(cplex)
 
 
 @cachier(separate_files=True)
 def Pauli_matrix(axis: str, nspins: int, idx1: int) -> csr_matrix:
-    if not axis == "X" or "Y" or "Z":
-        print("  Something wrong in your Pauli matrix")
+    if not (axis == "X" or "Y" or "Z"):
+        print(f"  {axis}, Something wrong in your Pauli matrix")
         print("  Close and Exit the program !!!")
         exit(0)
 
@@ -133,7 +133,7 @@ def qm_full(freq: list[float], JCoups: np_float, _cutoff: float, _verbose: bool)
         np.savetxt("eigenVector.out", Vector.real, fmt="%6.2f")
     Vector = Vector.real  # type: ignore
 
-    T: np_uint = T_matrix(nspins)
+    T: cplex = T_matrix(nspins)
     I_np: np_float = np.square(Vector.T.dot(T.dot(Vector)))
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
@@ -190,8 +190,8 @@ def qm_partial(freq: list[float], JCoups: np_float, idx0_nspins: int, _cutoff: f
     if _verbose:
         ic(H.toarray())
         ic(Energy, Vector)
-    F: np_uint = F_matrix(nspins, idx0_nspins)
-    T: np_uint = T_matrix(nspins)
+    F: cplex = F_matrix(nspins, idx0_nspins)
+    T: cplex = T_matrix(nspins)
     F += F.T
     F = F*T
 
