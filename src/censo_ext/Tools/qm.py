@@ -66,21 +66,22 @@ def Pauli_matrix(axis: str, nspins: int, idx1: int) -> csr_matrix:
     return PauliComposer(sym).to_sparse()*0.5
 
 
-def Hami_Zeeman(v: list[float]) -> csr_matrix:
-    nspins: int = len(v)
-    res: csr_matrix = Pauli_matrix("Z", nspins, 1)*v[0]
+def Hami_Zeeman(freq: list[float]) -> csr_matrix:
+    nspins: int = len(freq)
+    res: csr_matrix = Pauli_matrix("Z", nspins, 1)*freq[0]
     for idx1 in range(2, nspins + 1):
-        res += Pauli_matrix("Z", nspins, idx1) * v[idx1-1]
+        res += Pauli_matrix("Z", nspins, idx1) * freq[idx1-1]
     return res
 
 
-def Hami_JCoupling(J: npt.NDArray) -> csr_matrix:
-    nspins: int = len(J[0])
-    res: csr_matrix = Lproduct_ij(nspins, 1, 1)*J[0][0]
+def Hami_JCoups(JCoups: npt.NDArray) -> csr_matrix:
+    nspins: int = len(JCoups[0])
+    res: csr_matrix = Lproduct_ij(nspins, 1, 1)*JCoups[0][0]
     for idx1_i in range(1, nspins+1):
         for idx1_j in range(idx1_i, nspins+1):
             # ic(J[i-1][j-1])
-            res += Lproduct_ij(nspins, idx1_i, idx1_j)*J[idx1_i-1][idx1_j-1]
+            res += Lproduct_ij(nspins, idx1_i, idx1_j) * \
+                JCoups[idx1_i-1][idx1_j-1]
     return res
 
 
@@ -93,13 +94,13 @@ def Lproduct_ij(nspins: int, idx1_i: int, idx1_j: int) -> csr_matrix:
     return res
 
 
-def Hamiltonian(v: list[float], J: np_float) -> csr_matrix:
-    Hami: csr_matrix = Hami_Zeeman(v)
-    Hami += Hami_JCoupling(J)
+def Hamiltonian(freq: list[float], JCoups: np_float) -> csr_matrix:
+    Hami: csr_matrix = Hami_Zeeman(freq)
+    Hami += Hami_JCoups(JCoups)
     return Hami
 
 
-def qm_full(v: list[float], J: np_float, _cutoff: float, _verbose: bool) -> list[tuple[float, float]]:
+def qm_full(freq: list[float], JCoups: np_float, _cutoff: float, _verbose: bool) -> list[tuple[float, float]]:
     """
     Calculate full spin system spectrum using quantum mechanical approach.
 
@@ -116,11 +117,11 @@ def qm_full(v: list[float], J: np_float, _cutoff: float, _verbose: bool) -> list
     Returns:
         list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
     """
-    nspins: int = len(v)
-    if J.shape != (nspins, nspins):
-        raise ValueError("Your JCoup is Error")
+    nspins: int = len(freq)
+    if JCoups.shape != (nspins, nspins):
+        raise ValueError("Your JCoups is Error")
 
-    H: csr_matrix = Hamiltonian(v, J)
+    H: csr_matrix = Hamiltonian(freq, JCoups)
     E: np_float
     V: cplex | np_float
     E, V = np.linalg.eigh(H.toarray())
@@ -156,7 +157,7 @@ def qm_full(v: list[float], J: np_float, _cutoff: float, _verbose: bool) -> list
     return list(zip(freq, intensit))
 
 
-def qm_partial(v: list[float], J: np_float, idx0_nspins: int, _cutoff: float, _verbose: bool) -> list[tuple[float, float]]:
+def qm_partial(freq: list[float], JCoups: np_float, idx0_nspins: int, _cutoff: float, _verbose: bool) -> list[tuple[float, float]]:
     """
     Calculate partial spin system spectrum for a specific spin.
 
@@ -173,13 +174,13 @@ def qm_partial(v: list[float], J: np_float, idx0_nspins: int, _cutoff: float, _v
     Returns:
         list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
     """
-    nspins: int = len(v)
-    if J.shape != (nspins, nspins):
-        raise ValueError("Your JCoup is Error")
+    nspins: int = len(freq)
+    if JCoups.shape != (nspins, nspins):
+        raise ValueError("Your JCoups is Error")
     if idx0_nspins >= nspins:
         raise ValueError("Your idx0_nspins is Error")
 
-    H: csr_matrix = Hamiltonian(v, J)
+    H: csr_matrix = Hamiltonian(freq, JCoups)
 
     E: np_float
     V: cplex | np_float
@@ -314,7 +315,7 @@ def lorentz(linspace: np_float, freq: float, Intensity: float, lw: float) -> np_
     return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (linspace - freq) ** 2))
 
 
-def qm_base(v: list[float], J: np_float, idx0_nspins: int, _cutoff: float, _verbose: bool) -> list[tuple[float, float]]:
+def qm_base(freq: list[float], JCoups: np_float, idx0_nspins: int, _cutoff: float, _verbose: bool) -> list[tuple[float, float]]:
     """
     Base quantum mechanical calculation function for spin systems.
 
@@ -322,8 +323,8 @@ def qm_base(v: list[float], J: np_float, idx0_nspins: int, _cutoff: float, _verb
     handling both single spin and multi-spin cases appropriately.
 
     Args:
-        v (list[float]): List of resonance frequencies in Hz for each spin.
-        J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
+        freq (list[float]): List of resonance frequencies in Hz for each spin.
+        JCoups (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
         nIntergals (int): The total number of intensities to generate.
         idx0_nspins (int): Index of the spin to calculate spectrum for (0-based),
                           used in partial calculations.
@@ -334,18 +335,18 @@ def qm_base(v: list[float], J: np_float, idx0_nspins: int, _cutoff: float, _verb
     """
     plist: list[tuple[float, float]] = []
     if _verbose:
-        ic(v, J)
-    if len(v) > 1:
-        plist = qm_partial(v=v, J=J, idx0_nspins=idx0_nspins,
+        ic(freq, JCoups)
+    if len(freq) > 1:
+        plist = qm_partial(freq=freq, JCoups=JCoups, idx0_nspins=idx0_nspins,
                            _cutoff=_cutoff, _verbose=_verbose)
-    elif len(v) == 1:
-        plist = [(np.fabs(v[0]), float(1.0))]
+    elif len(freq) == 1:
+        plist = [(np.fabs(freq[0]), float(1.0))]
     else:
         print("something wrong in your qm_Base cal.")
     return plist
 
 
-def qm_multiplet(v: float | int, nIntergals: int, J: list[tuple[float, int]], delta: list[float], _verbose: bool) -> list[tuple[float, float]]:
+def qm_multiplet(freq: float | int, nIntergals: int, JCoups: list[tuple[float, int]], delta: list[float], _verbose: bool) -> list[tuple[float, float]]:
     """
     Calculate multiplet spectrum 
 
@@ -361,19 +362,19 @@ def qm_multiplet(v: float | int, nIntergals: int, J: list[tuple[float, int]], de
         list[tuple[float, float]]: Normalized peaklist with (frequency, intensity) tuples.
     """
     if _verbose:
-        ic(v, nIntergals, J, delta)
-    return Multiplet(v, nIntergals, J, delta, _verbose).peaklist()
+        ic(freq, nIntergals, JCoups, delta)
+    return Multiplet(freq, nIntergals, JCoups, delta, _verbose).peaklist()
 
 
 class Multiplet:
 
-    def __init__(self, v: float, nIntergals: int, J: list[tuple[float, int]], delta: list[float], _verbose: bool, w: float = 0.5) -> None:
-        self.v: float = v
+    def __init__(self, freq: float, nIntergals: int, JCoups: list[tuple[float, int]], delta: list[float], _verbose: bool, w: float = 0.5) -> None:
+        self.v: float = freq
         self.nIntergals: int = nIntergals
-        self.J: list[tuple[float, int]] = J
+        self.J: list[tuple[float, int]] = JCoups
         self.delta: list[float] = delta
         self.w: float = w
-        self._peaklist: list = multiplet((v, nIntergals), J, delta)
+        self._peaklist: list = multiplet((freq, nIntergals), JCoups, delta)
         self._verbose: bool = _verbose
 
     def _refresh(self) -> None:
@@ -415,12 +416,12 @@ def reduce_peaks(plist_: list[tuple[float, float]], tolerance: float = 0.02) -> 
 
 
 def add_peaks(plist: list[tuple[float, float]]) -> tuple[float, float]:
-    v_total = 0
-    i_total = 0
-    for v, i in plist:
-        v_total += v
-        i_total += i
-    return v_total / len(plist), i_total
+    freq_total = 0
+    intensit_total = 0
+    for freq, intensit in plist:
+        freq_total += freq
+        intensit_total += intensit
+    return freq_total / len(plist), intensit_total
 
 
 def _doublet(plist: list[tuple[float, int]], JCoups: float, delta: float) -> list[tuple[float, float]]:
@@ -437,11 +438,11 @@ def _doublet(plist: list[tuple[float, int]], JCoups: float, delta: float) -> lis
     k_large: float = 1 + _k
 
     res: list[tuple[float, float]] = []
-    for v, intensit in plist:
+    for freq, intensit in plist:
         # the left of doublet if J is positive
-        res.append((v + JCoups / 2, intensit / 2 * k_small))
+        res.append((freq + JCoups / 2, intensit / 2 * k_small))
         # the right of doublet if J is positive
-        res.append((v - JCoups / 2, intensit / 2 * k_large))
+        res.append((freq - JCoups / 2, intensit / 2 * k_large))
     return res
 
 # @cachier(separate_files=True)

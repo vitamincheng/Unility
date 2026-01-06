@@ -133,12 +133,12 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         for dirName in (dirNames):
             fileBackup: Path = Path(f"{dirName}/NMR/orcaJ.out.backup")
             orcaJfile: Path = Path(f"{dirName}/NMR/orcaJ.out")
-            JCoup: npt.NDArray[np.float64]
+            JCoups: npt.NDArray[np.float64]
 
             if IsExist_bool(fileBackup):
-                JCoup = function_read_orcaJ(fileBackup)
+                JCoups = function_read_orcaJ(fileBackup)
             else:
-                JCoup = function_read_orcaJ(orcaJfile)
+                JCoups = function_read_orcaJ(orcaJfile)
                 import shutil
                 shutil.copyfile(orcaJfile, fileBackup)
 
@@ -146,15 +146,15 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
                 if (len(AtomIDs_Eqv[i]) != 1):
                     print(f"{AtomIDs_Eqv[i]}=")
-                    JCoup_temp = np.mean(JCoup[(AtomIDs_Eqv[i])], axis=0)
-                    JCoup[AtomIDs_Eqv[i]] = JCoup_temp
-                    JCoup.transpose()[AtomIDs_Eqv[i]] = JCoup_temp
+                    JCoup_temp = np.mean(JCoups[(AtomIDs_Eqv[i])], axis=0)
+                    JCoups[AtomIDs_Eqv[i]] = JCoup_temp
+                    JCoups.transpose()[AtomIDs_Eqv[i]] = JCoup_temp
 
             for i in range(len(AtomIDs_Eqv)-1, -1, -1):
                 if (len(AtomIDs_Eqv[i]) > 2):
                     for j in range(len(AtomIDs_Eqv[i])-1, -1, -1):
                         for k in range(len(AtomIDs_Eqv[i])-1, -1, -1):
-                            JCoup[AtomIDs_Eqv[i][j], AtomIDs_Eqv[i][k]] = 0
+                            JCoups[AtomIDs_Eqv[i][j], AtomIDs_Eqv[i][k]] = 0
             np.set_printoptions(formatter={'float': '{:12.5f}'.format})
 
             orcaJ_File = (dirName + '/NMR/orcaJ.out')
@@ -165,7 +165,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                         outfile.write(
                             f" NUCLEUS A = H {int(idx0_h_lines[i])} NUCLEUS B = H {int(idx0_h_lines[j])}\n")
                         outfile.write(
-                            f" Total            0.000            0.000            0.000  iso= {str(JCoup[i][j]):.5f}\n")
+                            f" Total            0.000            0.000            0.000  iso= {str(JCoups[i][j]):.5f}\n")
 
             print(f" Directory of saved file: {orcaJ_File}")
 
