@@ -44,9 +44,8 @@ def F_matrix(nspins: int, idx0_nspins: int) -> np_uint:
 @cachier(separate_files=True)
 def T_matrix(nspins: int) -> np_uint:
     total: csr_matrix = Pauli_matrix("X", nspins, 1)
-    for x in range(2, nspins+1):
+    for x in range(2, nspins + 1):
         total += Pauli_matrix("X", nspins, x)
-
     return (total.toarray()*2).astype(np_uint)
 
 
@@ -109,8 +108,8 @@ def qm_full(freq: list[float], JCoups: np_float, _cutoff: float, _verbose: bool)
     the resulting peaklist.
 
     Args:
-        v (list[float]): List of resonance frequencies in Hz for each spin.
-        J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
+        freq (list[float]): List of resonance frequencies in Hz for each spin.
+        JCoups (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
         nIntergals (int): The total number of intensities to generate.
         args (argparse.Namespace): Command line arguments containing plotting parameters.
 
@@ -122,24 +121,24 @@ def qm_full(freq: list[float], JCoups: np_float, _cutoff: float, _verbose: bool)
         raise ValueError("Your JCoups is Error")
 
     H: csr_matrix = Hamiltonian(freq, JCoups)
-    E: np_float
-    V: cplex | np_float
-    E, V = np.linalg.eigh(H.toarray())
+    Energy: np_float
+    Vector: cplex | np_float
+    Energy, Vector = np.linalg.eigh(H.toarray())
 
     if _verbose:
         ic(H.toarray())
-        ic(E, V)
+        ic(Energy, Vector)
         np.savetxt("Hamiltonian.out", H.toarray(), fmt="%6.2f")
-        np.savetxt("eigenValue.out", E.real, fmt="%6.2f")
-        np.savetxt("eigenVector.out", V.real, fmt="%6.2f")
-    V = V.real  # type: ignore
+        np.savetxt("eigenValue.out", Energy.real, fmt="%6.2f")
+        np.savetxt("eigenVector.out", Vector.real, fmt="%6.2f")
+    Vector = Vector.real  # type: ignore
 
     T: np_uint = T_matrix(nspins)
-    I_np: np_float = np.square(V.T.dot(T.dot(V)))
+    I_np: np_float = np.square(Vector.T.dot(T.dot(Vector)))
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
     I_upper: np_float = np.triu(I_np)
-    E_matrix: np_float = np.abs(E[:, np.newaxis] - E)
+    E_matrix: np_float = np.abs(Energy[:, np.newaxis] - Energy)
     E_upper: np_float = np.triu(E_matrix)
     combo: np_float = np.stack([E_upper, I_upper])
     iv: np_float = combo.reshape(2, I_np.shape[0] ** 2).T
@@ -165,8 +164,8 @@ def qm_partial(freq: list[float], JCoups: np_float, idx0_nspins: int, _cutoff: f
     by restricting transitions to only those involving that spin.
 
     Args:
-        v (list[float]): List of resonance frequencies in Hz for each spin.
-        J (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
+        freq (list[float]): List of resonance frequencies in Hz for each spin.
+        JCoups (npt.NDArray[np.float64]): Dipolar coupling matrix (Hz) with shape (nspins, nspins).
         idx0_nspins (int): Index of the spin to calculate spectrum for (0-based).
         nIntergals (int): The total number of intensities to generate.
         args (argparse.Namespace): Command line arguments containing plotting parameters.
@@ -182,30 +181,30 @@ def qm_partial(freq: list[float], JCoups: np_float, idx0_nspins: int, _cutoff: f
 
     H: csr_matrix = Hamiltonian(freq, JCoups)
 
-    E: np_float
-    V: cplex | np_float
+    Energy: np_float
+    Vector: cplex | np_float
 
-    E, V = np.linalg.eigh(H.toarray())
+    Energy, Vector = np.linalg.eigh(H.toarray())
 
-    V = V.real  # type: ignore
+    Vector = Vector.real  # type: ignore
     if _verbose:
         ic(H.toarray())
-        ic(E, V)
+        ic(Energy, Vector)
     F: np_uint = F_matrix(nspins, idx0_nspins)
     T: np_uint = T_matrix(nspins)
     F += F.T
     F = F*T
 
     # symmetry makes it possible to use only one half of the matrix for faster calculation
-    I_np: np_float = np.square(V.T.dot(T.dot(V)))
-    IF: np_float = np.square(V.T.dot(F.dot(V)))
+    I_np: np_float = np.square(Vector.T.dot(T.dot(Vector)))
+    IF: np_float = np.square(Vector.T.dot(F.dot(Vector)))
     I_upper: np_float = np.triu(I_np*IF)
     if _verbose:
         ic(I_np)
         ic(IF)
         ic(I_np*IF)
 
-    E_matrix: np_float = np.abs(E[:, np.newaxis] - E)
+    E_matrix: np_float = np.abs(Energy[:, np.newaxis] - Energy)
 
     E_upper: np_float = np.triu(E_matrix)
 
@@ -244,7 +243,7 @@ def print_plot(inAnmr: Anmr, in_plist: list[tuple[float, float]], dpi: int,
     plist: np_float = np.array(in_plist)
     plist.T[0] = plist.T[0] / args.mf
     a, b = inAnmr.get_Anmrrc_linear()
-    plist.T[0] = a*plist.T[0]+b
+    plist.T[0] = a * plist.T[0] + b
     Normal_plist = plist.tolist()
     if args.verbose:
         ic(plist)
