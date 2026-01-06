@@ -163,13 +163,13 @@ class Geometry():
         molecules: list[set[int]] = []
         molecules = Topo(xyzFile).topology_components()
         idx1_Atoms: set = {*range(1, self.nAtoms+1)}
-        for x in molecules:
-            idx1_Atoms = idx1_Atoms.difference(x)
+        for molecule in molecules:
+            idx1_Atoms = idx1_Atoms.difference(molecule)
         if len(idx1_Atoms) == 0:
             return molecules
         else:
-            for x in [idx1_Atoms]:
-                molecules.append(x)
+            for molecule in [idx1_Atoms]:
+                molecules.append(molecule)
             return molecules
 
     def method_computeCOM(self) -> None:
@@ -797,7 +797,7 @@ class GeometryXYZs():
         for St in self.Sts:
             St.method_update_comment()
 
-    def method_comment_new(self, num: int = 1) -> None:
+    def method_comment_new(self, start_Number: int = 1) -> None:
         """
         Assign unique cluster indices to all Geometry instances.
 
@@ -812,7 +812,7 @@ class GeometryXYZs():
             None
         """
 
-        for idx1, St in enumerate(self.Sts, num):
+        for idx1, St in enumerate(self.Sts, start_Number):
             St.method_update_comment()
             St.method_comment_new(idx1)
 
@@ -849,11 +849,11 @@ class GeometryXYZs():
                          Returns an empty list if no valid energies are found.
         """
 
-        energy: list[float] = []
+        Energy: list[float] = []
         for St in self.Sts:
             if St.get_comment_energy():
-                energy.append(St.get_comment_energy())
-        return energy
+                Energy.append(St.get_comment_energy())
+        return Energy
 
     def method_ensoGenFlexible(self, _temp: float, thermo: list[str]) -> npt.NDArray:
         """Generate thermodynamic data for all Geometry instances.
