@@ -85,6 +85,7 @@ def cml() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "-v",
         "--verbose",
         dest="verbose",
         action="store_true",
@@ -236,6 +237,9 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     from censo_ext.Tools.spectra import numpy_thr
     y_thr: float = numpy_thr(y_axis_data, args.thr)
     x_thr: float = numpy_thr(x_axis_data, args.thr)
+
+    if args.verbose:
+        ic(y_thr, x_thr)
 
     ax: Axes | None = None
     max_peaks, contour_maxima_thr = cal_contour_peak(data, args.contour)
