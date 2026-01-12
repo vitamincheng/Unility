@@ -72,7 +72,7 @@ def test_unility_move_file():
     destination = Path("test_destination.txt")
 
     with open(source, 'w') as f:
-        f.write("Hello World!")
+        print("Hello World!", file=f)
 
     move_file(source, destination)
     assert destination.exists()
@@ -87,7 +87,7 @@ def test_unility_copy_file():
     destination = Path("test_destination.txt")
 
     with open(source, 'w') as f:
-        f.write("Hello World!")
+        print("Hello World!", file=f)
 
     copy_file(source, destination)
     assert destination.exists()
@@ -102,7 +102,7 @@ def test_unility_delete_all_files():
 
     for file in files_to_delete:
         with open(file, 'w') as f:
-            f.write("Hello World!")
+            print("Hello World!", file=f)
 
     delete_all_files(*files_to_delete)
     for file in files_to_delete:

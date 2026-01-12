@@ -182,15 +182,13 @@ def rosenbrock(x0: npt.NDArray[np.float64]) -> float:
         os.chdir(g_var.Dir)
         template_inp: Path = Path("CONF1/NMR/orcaS.out")
         with open(template_inp, "w") as f:
-            sys.stdout = f
-            print("--------------------------------")
-            print("CHEMICAL SHIELDING SUMMARY (ppm)")
-            print("--------------------------------")
-            print("")
-            print("")
-            print("  Nucleus  Element    Isotropic     Anisotropy")
-            print("  -------  -------  ------------   ------------")
-            sys.stdout = sys.__stdout__
+            print("--------------------------------", file=f)
+            print("CHEMICAL SHIELDING SUMMARY (ppm)", file=f)
+            print("--------------------------------", file=f)
+            print("", file=f)
+            print("", file=f)
+            print("  Nucleus  Element    Isotropic     Anisotropy", file=f)
+            print("  -------  -------  ------------   ------------", file=f)
 
         a, b = g_var.ref
         CS_exec.T[1] = (CS_exec.T[1] - b) / a

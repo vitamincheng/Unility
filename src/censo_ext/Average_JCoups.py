@@ -162,10 +162,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             with open(orcaJ_File, 'w') as outfile:
                 for i in range(0, len(idx0_h_lines)):
                     for j in range(i+1, len(idx0_h_lines)):
-                        outfile.write(
-                            f" NUCLEUS A = H {int(idx0_h_lines[i])} NUCLEUS B = H {int(idx0_h_lines[j])}\n")
-                        outfile.write(
-                            f" Total            0.000            0.000            0.000  iso= {str(JCoups[i][j]):.5f}\n")
+                        print(
+                            f" NUCLEUS A = H {int(idx0_h_lines[i])} NUCLEUS B = H {int(idx0_h_lines[j])}", file=outfile)
+                        print(
+                            f" Total            0.000            0.000            0.000  iso= {str(JCoups[i][j]):.5f}", file=outfile)
 
             print(f" Directory of saved file: {orcaJ_File}")
 

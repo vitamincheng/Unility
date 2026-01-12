@@ -106,21 +106,19 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     # Define default template.inp
     if not template_Exist:
         with open(template_inp, "w") as f:
-            sys.stdout = f
-            print("! r2SCAN-3c miniprint PAL8 CPCM(chloroform) noautostart")
+            print("! r2SCAN-3c miniprint PAL8 CPCM(chloroform) noautostart", file=f)
             match args.convergence:
                 case -1:
-                    print("! LooseOpt")
+                    print("! LooseOpt", file=f)
                 case 0:
-                    print("! Opt")
+                    print("! Opt", file=f)
                 case 1:
-                    print("! TightOpt")
+                    print("! TightOpt", file=f)
                 case 2:
-                    print("! VeryTightOpt")
+                    print("! VeryTightOpt", file=f)
                 case 100:  # sp: single point
                     pass
-            print("* xyzfile 0 1 [xyzfile]")
-        sys.stdout = sys.__stdout__
+            print("* xyzfile 0 1 [xyzfile]", file=f)
 
     # Read input file
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)

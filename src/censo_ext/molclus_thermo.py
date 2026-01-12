@@ -156,19 +156,16 @@ def thermo_process(args) -> list[str]:
 
     xtb_cmd += " --enso -I ../xcontrol-inp > thermo.out"
     xcontrol_inp: Path = Path("xcontrol-inp")
-    import sys
     with open(xcontrol_inp, "w") as f:
-        sys.stdout = f
-        print("$thermo")
-        print("    temp=298.15")
-        print("    sthr=50.0")
-        print("    imagthr=-100")
-        print("$symmetry")
-        print("     maxat=1000")
-        print("$gbsa")
-        print("  gbsagrid=tight")
-        print("$end")
-    sys.stdout = sys.__stdout__
+        print("$thermo", file=f)
+        print("    temp=298.15", file=f)
+        print("    sthr=50.0", file=f)
+        print("    imagthr=-100", file=f)
+        print("$symmetry", file=f)
+        print("     maxat=1000", file=f)
+        print("$gbsa", file=f)
+        print("  gbsagrid=tight", file=f)
+        print("$end", file=f)
 
     thermo: list[str] = []
     entropy: list[str] = []

@@ -1690,7 +1690,7 @@ class Average_Directory(object):
         if isinstance(self.ChemicalShifts, dict):
             with open(self._orcaS, 'w') as f:
                 for key, value in self.ChemicalShifts.items():
-                    f.write(f'{key:10d} {value:12.5f}\n')
+                    print(f'{key:10d} {value:12.5f}', file=f)
         elif isinstance(self.ChemicalShifts, np.ndarray):
             if self.ChemicalShifts.shape[1] == 3:
                 np.savetxt(self._orcaS, self.ChemicalShifts,
@@ -1710,7 +1710,7 @@ class Average_Directory(object):
 
         import json
         with open(self._orcaA, 'w') as f:
-            f.write(json.dumps(self.Element))
+            print(json.dumps(self.Element), file=f)
 
         np.savetxt(self._orcaJ, self.JCoups, fmt="%10.5f")
 
