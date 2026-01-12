@@ -30,6 +30,15 @@ def cml() -> argparse.Namespace:
         default="traj.xyz",
         help="Provide one input xyz file [default traj.xyz]",
     )
+    parser.add_argument(
+        "-a",
+        "--atom",
+        dest="atom",
+        action="store",
+        type=int,
+        nargs=4,
+        help="Provide three idx1 of atom's nubmers of Dihedral",
+    )
     args: argparse.Namespace = parser.parse_args()
     return args
 
@@ -46,9 +55,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
     degree: list[float] = []
+    atoms: list[int] = args.atom-1
 
     for idx1 in range(1, len(xyzFile)+1):
-        in_cell: cell_4AtomIDs = (AtomID(5), AtomID(1), AtomID(0), AtomID(4))
+        in_cell: cell_4AtomIDs = (AtomID(atoms[0]), AtomID(
+            atoms[1]), AtomID(atoms[2]), AtomID(atoms[3]))
         res: float = ase_get_dihedral(
             xyzFile=xyzFile, idx1=idx1, in_cell=in_cell)
         degree.append(float(res))
