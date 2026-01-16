@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# ToDo
-# CH3 Equiv problem
 #
 from matplotlib.axes import Axes
 from matplotlib.gridspec import GridSpec
@@ -115,9 +113,17 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xyzFile: GeometryXYZs = GeometryXYZs(Path(args.file))
     xyzFile.method_read_xyz()
 
+    names_str: dict[AtomID, str] = xyzFile.Sts[0].names
+    names_xyzFile: list[AtomID] = [key for key,
+                                   value in names_str.items() if value == "H"]
+    # ic(names_xyzFile)
+    intp_Atoms: list[IntpID] = list(np.array(names_xyzFile)-1)
+    nShapes: int = len(intp_Atoms)
     from censo_ext.Tools.anmrfile import Anmr
     inAnmr: Anmr = Anmr(Dir=args.dir)
     inAnmr.method_read_anmrrc()
+    inAnmr.method_read_nucinfo()
+    # inAnmr.method_print_nucinfo()
     inAnmr.avg_Data_AD = AD_Normal(Dir=args.dir)
     inAnmr.get_avg_orcaSJ_Exist()
     inAnmr.method_BOBYQA_load_avg_orcaSJ()
@@ -133,24 +139,64 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     inAnmr.method_read_enso()
     # ic(inAnmr.enso['ONOFF'])
     # ic(inAnmr.enso['BW'])
-    atomIDs_H: list[AtomID] = [key for key,
-                               value in Elements_str.items() if value == "H"]
-    nShapes: int = len(atomIDs_H)
-    intp_Atoms: list[IntpID] = list(np.array(atomIDs_H)-1)
-    Distances: npt.NDArray[np.float64] = np.zeros(
-        (nShapes, nShapes), dtype=np.float64)
-    Result: npt.NDArray[np.float64] = np.zeros(
-        (nShapes, nShapes), dtype=np.float64)
+    atomIDs_H_AD: list[AtomID] = [key for key,
+                                  value in Elements_str.items() if value == "H"]
+    nShapes_AD: int = len(atomIDs_H_AD)
+    intp_Atoms_AD: list[IntpID] = (np.array(atomIDs_H_AD)-1).tolist()
+    Result_AD: npt.NDArray[np.float64] = np.zeros(
+        (nShapes_AD, nShapes_AD), dtype=np.float64)
     for idx0, St in enumerate(xyzFile.Sts):
         St_local = np.array(St.coord)[intp_Atoms]
         from scipy.spatial.distance import cdist
+        Distances: npt.NDArray[np.float64] = np.zeros(
+            (nShapes, nShapes), dtype=np.float64)
         Distances = cdist(St_local, St_local)  # type: ignore
+
         np.seterr(divide='ignore')
-        Result += inAnmr.enso['BW'][idx0]*(10**6) / (Distances ** 6)
+        Distances = (10**6) / (Distances ** 6)
         np.seterr(divide='warn')
 
-    diag_indices = np.diag_indices_from(Result)
-    Result[diag_indices] = 0
+        diag_indices = np.diag_indices_from(Distances)
+        Distances[diag_indices] = 0
+        # ic(Distances)
+        # ic(Result_AD)
+        # ic(inAnmr.NeighborMangetEqvs)
+        # ic(len(intp_Atoms))
+        # ic(len(intp_Atoms_AD))
+        # ic(intp_Atoms)
+        for idx0, atomid_AD in enumerate(intp_Atoms_AD):
+            # print(idx0, atomid_AD)
+            if atomid_AD in intp_Atoms:
+                # print(idx0, x+1, intp_Atoms_AD.index(int(x)))
+                if len(inAnmr.NeighborMangetEqvs[AtomID(int(atomid_AD)+1)]) != 1:
+                    # print(inAnmr.NeighborMangetEqvs[AtomID(int(x)+1)])
+                    list_AtomsID: list[AtomID] = inAnmr.NeighborMangetEqvs[AtomID(
+                        atomid_AD+1)]
+                    list_intpID = [intp_Atoms.index(
+                        IntpID(x-1)) for x in list_AtomsID]
+                    Distances[list_intpID] = np.average(
+                        Distances[list_intpID], axis=0)
+                    Distances.T[list_intpID] = np.average(
+                        Distances.T[list_intpID], axis=0)
+                # else:
+                #    print(inAnmr.NeighborMangetEqvs[AtomID(int(x)+1)])
+            else:
+                print(" something wrong in your data")
+                exit(0)
+        wait_remove_AtomsID: list[IntpID] = [
+            x for x in intp_Atoms if x not in intp_Atoms_AD]
+        wait_remove_AtomsID = sorted(wait_remove_AtomsID, reverse=True)
+        # print(wait_remove_AtomsID)
+        for a in wait_remove_AtomsID:
+            z = intp_Atoms.index(a)
+            Distances = np.delete(Distances, z, axis=1)
+            Distances = np.delete(Distances, z, axis=0)
+
+        # ic(Distances)
+        Result_AD += inAnmr.enso['BW'][idx0]*Distances
+
+    diag_indices = np.diag_indices_from(Result_AD)
+    Result_AD[diag_indices] = 0
     data_x: npt.NDArray[np.float64] = Load_Directory(args)
 
     if args.start is None or args.end is None:
@@ -161,11 +207,11 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         end = float(args.end)
 
     # Create a grid of x and y values
-    x: npt.NDArray[np.float64] = np.linspace(
+    atomsID_AD: npt.NDArray[np.float64] = np.linspace(
         start, end, args.pts).astype(np.float64)
     y: npt.NDArray[np.float64] = np.linspace(
         start, end, args.pts).astype(np.float64)
-    X, Y = np.meshgrid(x, y)
+    X, Y = np.meshgrid(atomsID_AD, y)
     Z: npt.NDArray[np.float64]
 
     # Define Lorentzian parameters
@@ -173,8 +219,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     gamma_x: float = args.gamma
     gamma_y: float = args.gamma
 
-    for idx0, x in enumerate(Result):
-        for idy0, amp in enumerate(x):
+    for idx0, atomsID_AD in enumerate(Result_AD):
+        for idy0, amp in enumerate(atomsID_AD):
             amplitude: float = amp
             try:
                 Z += lorentzian_2d(X, Y, amplitude, inSParams[Elements[idx0]], inSParams[Elements[idy0]],  # type: ignore
@@ -184,7 +230,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                                   gamma_x, gamma_y)
 
     # Plotting the result
-    plot_diagram(args.contour, Result, data_x,
+    plot_diagram(args.contour, Result_AD, data_x,
                  start, end, X, Y, Z)  # type: ignore
 
     # plt.colorbar(_plot, ax=ax, label='Intensity')
