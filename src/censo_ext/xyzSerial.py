@@ -52,8 +52,8 @@ def cml() -> argparse.Namespace:
         action="store",
         required=False,
         type=int,
-        default=1,
-        help="Reorder the serial numbers from No. 1 [dafault 1]",
+        default=None,
+        help="Reorder the serial numbers from your specific number [default None]",
     )
 
     parser.add_argument(
@@ -118,10 +118,14 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
         xyzFile.method_comment_keep()
         if not args.print:
             print("keep serial numbers")
-    elif args.new:
+    elif args.new and args.num:
         xyzFile.method_comment_new(args.num)
         if not args.print:
             print(f"Reorder the serial numbers from {args.num}")
+    elif args.new and not args.num:
+        xyzFile.method_comment_new()
+        if not args.print:
+            print("Reorder the serial numbers from 1")
 
     if args.print:
         xyzFile.method_print([])
