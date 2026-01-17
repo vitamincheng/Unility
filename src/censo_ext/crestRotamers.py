@@ -102,6 +102,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                               _add_idx=args.add_idx)
             outFile.set_filename(f"{idx1_start}_{idx1_end}_ext.xyz")
             print(f"  Data saved to : {idx1_start}_{idx1_end}_ext.xyz")
+            print("")
             outFile.method_save_xyz([])
 
             StFile: GeometryXYZs = copy.deepcopy(outFile)
@@ -118,20 +119,30 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
                 outFile.method_Sts_append(StFile)
 
             numbers: list[int] = [*range(2, len(outFile))]
-            print(numbers)
-            print("")
+            _idx1: list[int] = [
+                outFile.Sts[x-1].comment_Cluster for x in [*range(1, len(outFile))]]
+            if len(_idx1) == 1:
+                print("  Only one confomer in this file, and pass this")
+            else:
+                print(_idx1)
 
             if len(numbers) > 0:
-                print("    p    q         rmsd")
+                print("  idx1_p       #    |  idx1_q       #                    RMSD")
                 for idx1_q in numbers:
                     idx1_p = len(outFile)
                     _, result_rmsd = cal_RMSD_xyz(xyzFile=outFile, idx1_p=idx1_p, idx1_q=idx1_q, _add_idx=None, _remove_idx=None,
                                                   _bond_broken=None, _ignore_Hydrogen=True)
                     print(
-                        f"    1' {idx1_q:3d}  {result_rmsd:17.8f}", end="")
+                        f"      1'   {outFile.Sts[1-1].comment_Cluster:5d}    |     {idx1_q:3d}   {outFile.Sts[idx1_q-1].comment_Cluster:5d}                {result_rmsd:12.6f}", end="")
                     if result_rmsd <= args.rthr:
-                        Result.Sts.append(outFile.Sts[idx1_q])
-                        print("    ", len(Result.Sts), "index in append.xyz")
+                        # print(" ", len(Result.Sts), end="")
+                        Result.Sts.append(outFile.Sts[idx1_q-1])
+                        # print(" ", len(Result.Sts), end="")
+                        # for x in Result.Sts:
+                        #    print(x.comment_Cluster, end=" ")
+
+                        print(
+                            f"    Added idx1_q {idx1_q} #{outFile.Sts[idx1_q-1].comment_Cluster} to append.xyz")
                     else:
                         print("")
             print("")
