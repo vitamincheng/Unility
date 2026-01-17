@@ -148,6 +148,8 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             print("")
             print("")
 
+        print(
+            f"  The numbers of {len(Result.Sts)} in your append.xyz file")
         Result.set_filename(Path("append.xyz"))
         Result.method_save_xyz([])
 
