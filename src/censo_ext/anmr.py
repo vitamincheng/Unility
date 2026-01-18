@@ -770,6 +770,19 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
             # Calculate which couplings are NOT part of AB quartets (multiplets)
             mat_filter_multi = mat_filter_low_factor - mat_filter_ab_quartet
 
+            mask = (mat_filter_multi == 255)
+            mat_filter_multi[mask] = 0
+
+            all_zeros_ones = np.isin(mat_filter_multi, [0, 1]).all()
+            if not all_zeros_ones:
+                print("something wrong in your mat_filter_multi !!!")
+                exit(0)
+
+            if args.verbose:
+                ic(mat_filter_low_factor[1])
+                ic(mat_filter_ab_quartet[1])
+                ic(mat_filter_multi[1])
+
             # the atom connect relation of AB quaret
             ab_connect: list[list[int | set[int]]] = []
             for idx0, x in enumerate(mat_filter_ab_quartet):
@@ -826,6 +839,7 @@ def process_AB_quartet(inParameter: tuple[npt.NDArray[np.float64], npt.NDArray[n
 
             if args.verbose:
                 ic(ab_group_sets)
+                ic(mat_filter_multi)
 
             #  show every step of threshold
             if args.verbose:
