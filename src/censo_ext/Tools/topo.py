@@ -188,7 +188,7 @@ class Topo():
         neighbors: dict[AtomID, npt.NDArray[np.int64]
                         ] = self.__neighbors.copy()
 
-        # neighbors is removed all H-atoms
+        # H atoms in neighbors is removed all and reorgazine the neighbors list
         for key, value in neighbors.copy().items():
             if key in self._H_atomIDs:
                 del neighbors[key]
