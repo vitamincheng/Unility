@@ -6,6 +6,7 @@ import argparse
 import matplotlib.pyplot as plt
 from censo_ext.Tools.ml4nmr import ase_get_dihedral
 from censo_ext.Tools.xyzfile import GeometryXYZs
+import numpy as np
 descr = """
 ________________________________________________________________________________
 | For Generation of xyz molecule 
@@ -55,7 +56,7 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
     xyzFile: GeometryXYZs = GeometryXYZs(inFile)
     xyzFile.method_read_xyz()
     degree: list[float] = []
-    atoms: list[int] = args.atom-1
+    atoms: list[int] = [x-1 for x in args.atom]
 
     for idx1 in range(1, len(xyzFile)+1):
         in_cell: cell_4AtomIDs = (AtomID(atoms[0]), AtomID(
@@ -64,11 +65,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
             xyzFile=xyzFile, idx1=idx1, in_cell=in_cell)
         degree.append(float(res))
     # print(degree)
-    import numpy as np
     print(len(degree))
     print(np.average(np.array(degree)))
 
-    plt.hist(degree, bins=24, density=False, color='blue',
+    plt.hist(degree, bins=36, density=False, color='blue',
              edgecolor='black')  # density=False plots counts
 
     # 3. Add labels and a title
