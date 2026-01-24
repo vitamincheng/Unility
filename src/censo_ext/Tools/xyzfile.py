@@ -323,6 +323,15 @@ class Geometry():
         """
         comments: list[str] = self.comment.replace("a.u.", "").replace("Eh", "").replace("Energy=", "").replace("Energy =", "").replace(
             "Energy  =", "").replace("energy:", "").replace("Energy:", "").split()
+
+        # for orca program outcome
+        # Coordinates from ORCA-job template Relaxed Surface Scan Step 1 E
+        from censo_ext.Tools.utility import function_is_float
+        if not function_is_float(comments[0]) and function_is_float(self.comment.split()[-1]):
+            comments = []
+            comments.append(self.comment.split()[-1])
+            # print(comments)
+
         if comments == []:
             print(" Your xyz file have not any about Energy and Cluster !!!")
             print(" We will set Energy = 0 in your xyz file")
@@ -330,7 +339,6 @@ class Geometry():
             self.method_rewrite_comment()
             return
 
-        from censo_ext.Tools.utility import function_is_float
         if function_is_float(comments[0]):
             if len(comments) >= 3:
                 if comments[1] == "#Cluster:" and function_is_float(comments[2]):
