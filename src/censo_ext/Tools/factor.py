@@ -34,8 +34,6 @@ def method_factor_analysis(xyzFile: GeometryXYZs, _factor) -> tuple[list[AtomID]
         >>> print(f"Standard deviations: {std_dict}")
     """
 
-    # xyzFile: GeometryXYZs = GeometryXYZs(Path(inFile))
-    # xyzFile.method_read_xyz()
     coord: list[list[float]] = []
 
     # For idxElement for the data of first xyzFile
@@ -82,7 +80,6 @@ def method_factor_analysis(xyzFile: GeometryXYZs, _factor) -> tuple[list[AtomID]
     return _MinorFactor, atomIDs_std
 
 
-# def method_factor_opt(args, _lowFactor: list[AtomID], table_std: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
 def method_factor_opt(xyzFile: GeometryXYZs, _lowFactor: list[AtomID], table_std: dict[AtomID, float]) -> tuple[Literal[True], list[int], float] | Literal[False]:
     """
     Optimizes the location of a broken bond based on factor analysis results.
@@ -201,7 +198,6 @@ def method_factor_opt(xyzFile: GeometryXYZs, _lowFactor: list[AtomID], table_std
 
 def idx_3atom_opt(xyzFile: GeometryXYZs) -> tuple[AtomID, AtomID, AtomID]:
     from censo_ext.Tools.factor import method_factor_analysis
-    # args_x: dict = {"file": inFile, "factor": 0.5, "opt": False}
     _LowFactor: list[AtomID]
     _Deviation: dict[AtomID, float]
     _factor = 0.50

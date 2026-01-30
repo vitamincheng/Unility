@@ -128,13 +128,6 @@ def read_mol_neighbors(xyzFile: GeometryXYZs) -> tuple[Atoms | list[Atoms], dict
         # add 1 to key and to value to start counting of atoms at 1
         neighbors[AtomID(idx0+1)] = indices+int(1)
 
-        # exit if an H atom has not exactly 1 neighbor
-        # if check is True:
-        #    if mol.get_atomic_numbers()[idx0] == 1 and len(neighbors[idx0+1]) != 1:  # type: ignore # nopep8
-        #        print(f"  ERROR: H atom {idx0+1} don't just have one bond !!! File in: {xyzFile}")  # nopep8
-        #        print("  Exit and close the program !!!")
-        #        exit(1)
-
     return mol, neighbors
 
 

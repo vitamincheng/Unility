@@ -269,6 +269,8 @@ def process_average_data(inAnmr: Anmr, _average: bool, _bobyqa: bool, _dir: Path
         >>> process_average_data(anmr_obj, args)
     """
     if _average:
+        # Read the directory /Average/NMR/orcaA.out, orcaS.out and orcaJ.out
+        # see AD_Normal
         inAnmr.avg_Data_AD = AD_Normal(Dir=_dir)
         inAnmr.get_avg_orcaSJ_Exist()
         if not inAnmr.method_BOBYQA_load_avg_orcaSJ():
@@ -277,6 +279,8 @@ def process_average_data(inAnmr: Anmr, _average: bool, _bobyqa: bool, _dir: Path
             exit(1)
 
     elif _bobyqa and not _average:
+        # Read the directory /Average/NMR/orcaA.out, orcaS-BOBYQA.out and orcaJ.out
+        # see AD_BOBYQA
         inAnmr.avg_Data_AD = AD_BOBYQA(Dir=_dir)
         inAnmr.get_avg_orcaSJ_Exist()
         if not inAnmr.method_BOBYQA_load_avg_orcaSJ():
@@ -284,7 +288,7 @@ def process_average_data(inAnmr: Anmr, _average: bool, _bobyqa: bool, _dir: Path
             print("  Exit and Close the program !!!")
             exit(1)
     else:
-        # Process all ORCA files and generate average data
+        # Process all ORCA the directory of CONFXX  and generate and saved the average data
         inAnmr.method_read_enso()
         inAnmr.method_read_folder_orcaSJ()
         for idx1, Active in enumerate(inAnmr.get_Anmrrc_Active(), 1):

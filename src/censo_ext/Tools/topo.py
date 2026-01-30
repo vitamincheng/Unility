@@ -110,7 +110,6 @@ class Topo():
             list[int]: A list of atom indices involved in the broken bond (excluding H atoms).
         """
         idx1_p, idx1_q = _bond_broken
-        # neighbors: dict[AtomID, npt.NDArray[np.int64]] = self.__neighbors
         H_atoms: list[AtomID] = self._H_atomIDs.copy()
         H_atoms.append(AtomID(idx1_q))
         Neighbors_not_H: dict[AtomID, npt.NDArray[np.int64]] = {}
@@ -137,7 +136,6 @@ class Topo():
         return Terminal_Atoms
 
     def method_bonding(self, _bonding: AtomID, _print: bool) -> list[AtomID]:
-        # def method_bonding(self, args: argparse.Namespace) -> list[AtomID]:
         """ 
         Retrieves the bonding partners for a specified atom, excluding hydrogen atoms.
 
