@@ -66,17 +66,14 @@ class Topo():
         Identifies terminal atoms involved in a broken bond, including hydrogen atoms.
 
         Args:
-            args(argparse.Namespace): Command-line arguments containing information about 
-                the broken bond and whether to print results.
-            args.bond_broken (tuple[int, int]): atom's index of broken-bond[include 1's atom , not include 2's atom]
-            args.print (bool): print the final data on screen   
+            args._bond_broken (tuple[int, int]): atom's index of broken-bond[include 1's atom , not include 2's atom]
+            args._print (bool): print the final data on screen   
 
         Returns:
             list[int]: A list of atom indices involved in the broken bond (including H atoms).
 
         Example:
-            >>> args = argparse.Namespace(bond_broken=(5, 10), print=True)
-            >>> result = method_broken_bond_H(args)
+            >>> result = method_broken_bond(bond_broken=(5, 10), print=True)
             >>> print(result)
             [5, 6, 7, 10, 11]
         """
@@ -102,9 +99,8 @@ class Topo():
         Identifies terminal atoms involved in a broken bond, excluding hydrogen atoms.
 
         Args:
-            args[argparse.Namespace]: Command-line arguments containing information about the broken bond and whether to print results.
-            args.bond_broken[int,int] : atom's index of broken-bond [include 1's atom, not include 2's atom]
-            args.print[bool] : print the final data on screen   
+            args._bond_broken[int,int] : atom's index of broken-bond [include 1's atom, not include 2's atom]
+            args._print[bool] : print the final data on screen   
 
         Returns:
             list[int]: A list of atom indices involved in the broken bond (excluding H atoms).
@@ -140,8 +136,8 @@ class Topo():
         Retrieves the bonding partners for a specified atom, excluding hydrogen atoms.
 
         Args:
-            args.bonding[int]: atom's index
-            args.print[bool]: print the List of bonding
+            args._bonding[int]: atom's index
+            args._print[bool]: print the List of bonding
 
         Returns:
             list[int]: A list of atom indices bonded to the specified atom (excluding H atoms).
@@ -261,6 +257,9 @@ class Topo():
     def topology_components(self) -> list[set[int]]:
         '''
         Get the index of every components, but not include one independence atom.
+
+        Returns:
+            list[set[int]]: A list of sets containing atom indices for each connected component in the topology.
         '''
         # Transfer neighbors to Graph
         graph_in: list[tuple[AtomID, AtomID]] = list()
