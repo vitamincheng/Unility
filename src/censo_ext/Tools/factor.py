@@ -197,6 +197,25 @@ def method_factor_opt(xyzFile: GeometryXYZs, _lowFactor: list[AtomID], table_std
 
 
 def idx_3atom_opt(xyzFile: GeometryXYZs) -> tuple[AtomID, AtomID, AtomID]:
+    """
+    Find the optimal set of three atom indices based on factor analysis and bonding information.
+
+    This function performs factor analysis on the given geometry to identify atoms with 
+    low factor values. It then determines the best combination of three atoms by analyzing
+    bonding relationships and minimizing total deviation.
+
+    Args:
+        xyzFile: GeometryXYZs object containing atomic coordinates and structure information
+
+    Returns:
+        tuple[AtomID, AtomID, AtomID]: A tuple containing three atom indices that form
+        the optimal combination based on factor analysis and bonding criteria
+
+    Example:
+        >>> result = idx_3atom_opt(geometry)
+        >>> print(result)
+        (AtomID(1), AtomID(5), AtomID(10))
+    """
     from censo_ext.Tools.factor import method_factor_analysis
     _LowFactor: list[AtomID]
     _Deviation: dict[AtomID, float]

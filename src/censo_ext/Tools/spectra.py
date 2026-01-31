@@ -60,7 +60,31 @@ def find_nearest(x_in: list[float] | npt.NDArray[np.float64], value) -> tuple[fl
 
 
 def Boltzmann_Weighting(electron_Energy: npt.NDArray[np.float64], TEMP: float) -> npt.NDArray[np.float64]:
+    """
+    Calculate Boltzmann weighting factors for electronic energy levels.
 
+    This function computes the Boltzmann distribution weights for a set of
+    electronic energy levels at a given temperature, which are used to
+    determine the relative populations of different electronic states.
+
+    Parameters
+    ----------
+    electron_Energy : npt.NDArray[np.float64]
+        Array of electronic energies in kcal/mol
+    TEMP : float
+        Temperature in Kelvin
+
+    Returns
+    -------
+    npt.NDArray[np.float64]
+        Boltzmann weighting factors for each energy level, normalized to sum to 1
+
+    Notes
+    -----
+    The calculation uses the Boltzmann factor: exp(-ΔG/(kT))
+    where ΔG is the energy difference from the minimum energy state,
+    k is the Boltzmann constant, and T is the temperature in Kelvin.
+    """
     # the unit of electron_Energy is kcal/mol
     # the unit of TEMP is K
     from censo_ext.Tools.Parameter import FACTOR

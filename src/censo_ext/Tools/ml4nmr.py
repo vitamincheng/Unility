@@ -50,6 +50,16 @@ type cell_4AtomIDs = tuple[AtomID, AtomID, AtomID, AtomID]
 
 
 def ase_get_dihedral(xyzFile: GeometryXYZs, idx1: int, in_cell: cell_4AtomIDs) -> float:
+    """
+    Calculate dihedral angle from a XYZ file using ASE.
+
+    Args:
+        xyz_file_path: Path to the XYZ file
+        atom_indices: List of 4 atom indices (0-based) for dihedral calculation
+
+    Returns:
+        float: Dihedral angle in degrees
+    """
     from ase import Atom
     from ase import Atoms
     idx0 = idx1-1

@@ -118,12 +118,16 @@ class Anmrrc():
         self.linear: tuple[float, float] = self.get_anmrrc_linear()
 
     def __repr__(self) -> str:
-        """
-        Return a string representation of the Anmrrc object.
+        """Return a formatted string representation of the ANMR file configuration.
+
+        This method generates a human-readable representation of the ANMR file settings,
+        including acid atoms, quantum mechanical parameters, coupling settings, and
+        ANMRRC data.
 
         Returns:
-            str: Formatted string showing all parameters from the .anmrrc file.
+            str: Formatted string containing all ANMR file configuration information
         """
+
         Res: str = ""
         for x in (self.acid_atoms_NoShow):
             Res += f'{x} '
@@ -1596,6 +1600,11 @@ class Average_Directory(object):
     FileName_Average = Path("Average/NMR")
 
     def __init__(self, Dir: Path = Path(".")) -> None:
+        """Initialize the ANMRFile object.
+
+        Args:
+            Dir: Directory path where the ANMR files are located. Defaults to current directory.
+        """
         self._Dir: Path = Dir / self.FileName_Average
         self._orcaS: Path
         self._orcaJ: Path = self._Dir / self.FileName_J

@@ -2,6 +2,28 @@
 Pauli(Diag)Composer class definition.
 
 See: https://arxiv.org/abs/2301.00560
+
+This module provides a PauliComposer class for efficiently representing and
+manipulating Pauli operators in quantum computing applications. The class
+implements a sparse matrix representation that allows for efficient
+construction and manipulation of Pauli operators.
+
+The implementation uses bit manipulation techniques to efficiently compute
+the matrix representation of Pauli operators, leveraging the structure of
+Pauli matrices to avoid explicit matrix multiplication where possible.
+
+Classes:
+    PauliComposer: A class for constructing and manipulating Pauli operators
+                   in a sparse matrix format.
+
+Functions:
+    to_sparse(): Converts the Pauli operator to a sparse matrix representation.
+    to_matrix(): Converts the Pauli operator to a dense matrix representation.
+
+Example:
+    >>> pauli = PauliComposer('XIZ')
+    >>> sparse_matrix = pauli.to_sparse()
+    >>> dense_matrix = pauli.to_matrix()
 """
 
 import numpy as np

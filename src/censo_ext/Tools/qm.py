@@ -42,6 +42,17 @@ def F_matrix(nspins: int, idx0_nspins: int) -> cplex:
 
 @cachier(separate_files=True)
 def T_matrix(nspins: int) -> cplex:
+    """Calculate the T matrix for a given number of spins.
+
+    The T matrix is constructed by summing Pauli X matrices across all spins,
+    then scaling by a factor of 2.
+
+    Args:
+        nspins (int): Number of spins in the system
+
+    Returns:
+        cplex: The resulting T matrix as a complex64 array
+    """
     total: csr_matrix = Pauli_matrix("X", nspins, 1)
     for x in range(2, nspins + 1):
         total += Pauli_matrix("X", nspins, x)
@@ -50,6 +61,27 @@ def T_matrix(nspins: int) -> cplex:
 
 @cachier(separate_files=True)
 def Pauli_matrix(axis: str, nspins: int, idx1: int) -> csr_matrix:
+    """Generate a Pauli matrix operator for a specific qubit in a multi-qubit system.
+
+    This function creates a sparse Pauli matrix operator acting on a specific qubit
+    in a system of nspins qubits. The operator is constructed using the PauliComposer
+    class and scaled by 0.5.
+
+    Args:
+        axis (str): The Pauli matrix axis ('X', 'Y', or 'Z') to generate
+        nspins (int): Total number of qubits in the system
+        idx1 (int): Index of the qubit (1-based) where the Pauli operator acts
+
+    Returns:
+        csr_matrix: Sparse matrix representation of the Pauli operator
+
+    Raises:
+        SystemExit: If invalid axis or qubit indices are provided
+
+    Example:
+        >>> Pauli_matrix('X', 3, 2)
+        # Returns Pauli-X operator acting on the second qubit of a 3-qubit system
+    """
     if not (axis == "X" or "Y" or "Z"):
         print(f"  {axis}, Something wrong in your Pauli matrix")
         print("  Close and Exit the program !!!")
@@ -65,6 +97,24 @@ def Pauli_matrix(axis: str, nspins: int, idx1: int) -> csr_matrix:
 
 
 def Hami_Zeeman(freq: list[float]) -> csr_matrix:
+    """
+    Generate the Zeeman Hamiltonian for a system of spins.
+
+    This function constructs the Zeeman Hamiltonian using Pauli Z matrices
+    for each spin in the system, with the given frequency parameters.
+
+    Args:
+        freq (list[float]): List of frequencies for each spin. The length
+                           of this list determines the number of spins.
+
+    Returns:
+        csr_matrix: The Zeeman Hamiltonian as a sparse matrix.
+
+    Example:
+        >>> freq = [1.0, 2.0, 3.0]
+        >>> hamiltonian = Hami_Zeeman(freq)
+    """
+
     nspins: int = len(freq)
     res: csr_matrix = Pauli_matrix("Z", nspins, 1)*freq[0]
     for idx1 in range(2, nspins + 1):
@@ -73,6 +123,20 @@ def Hami_Zeeman(freq: list[float]) -> csr_matrix:
 
 
 def Hami_JCoups(JCoups: npt.NDArray) -> csr_matrix:
+    """Construct Hamiltonian from JCoups using spin-lattice operators.
+
+    This function builds a Hamiltonian matrix from a 2D array of coupling
+    constants. It uses the Lproduct_ij function to generate spin-lattice
+    operators for each coupling term.
+
+    Args:
+        JCoups: 2D array of coupling constants where JCoups[i][j] represents
+               the coupling between spins i and j
+
+    Returns:
+        csr_matrix: The constructed Hamiltonian matrix
+    """
+
     nspins: int = len(JCoups[0])
     res: csr_matrix = Lproduct_ij(nspins, 1, 1)*JCoups[0][0]
     for idx1_i in range(1, nspins+1):
@@ -85,6 +149,20 @@ def Hami_JCoups(JCoups: npt.NDArray) -> csr_matrix:
 
 @cachier(separate_files=True)
 def Lproduct_ij(nspins: int, idx1_i: int, idx1_j: int) -> csr_matrix:
+    """Calculate the product of Pauli matrices for two spins.
+
+    This function computes the tensor product of Pauli matrices for spins
+    at positions idx1_i and idx1_j in a system of nspins spins.
+
+    Args:
+        nspins: Total number of spins in the system
+        idx1_i: Index of the first spin (1-based)
+        idx1_j: Index of the second spin (1-based)
+
+    Returns:
+        csr_matrix: The tensor product of Pauli matrices for the two spins
+    """
+
     res: csr_matrix = Pauli_matrix(
         "X", nspins, idx1_i)*Pauli_matrix("X", nspins, idx1_j)
     res += Pauli_matrix("Y", nspins, idx1_i)*Pauli_matrix("Y", nspins, idx1_j)
@@ -93,6 +171,20 @@ def Lproduct_ij(nspins: int, idx1_i: int, idx1_j: int) -> csr_matrix:
 
 
 def Hamiltonian(freq: list[float], JCoups: np_float) -> csr_matrix:
+    """Construct the total Hamiltonian from Zeeman and JCoups terms.
+
+    This function builds the complete Hamiltonian by combining the Zeeman
+    term (from magnetic field interactions) and the JCoups term (from spin-spin
+    interactions).
+
+    Args:
+        freq: List of frequencies for the Zeeman term
+        JCoups: 2D array of coupling constants for spin-spin interactions
+
+    Returns:
+        csr_matrix: The total Hamiltonian matrix
+    """
+
     Hami: csr_matrix = Hami_Zeeman(freq)
     Hami += Hami_JCoups(JCoups)
     return Hami
@@ -298,7 +390,19 @@ def mpl_plot(plist: list[tuple[float, float]], limits: tuple[float, float], lw: 
 
 
 def add_lorentzians(linspace: np_float, plist: list[tuple[float, float]], lw: float) -> np_float:
+    """Add multiple Lorentzian functions to create a spectral profile.
 
+    This function constructs a combined spectral profile by summing multiple
+    Lorentzian functions, each characterized by a frequency and intensity.
+
+    Args:
+        linspace: Array of frequency values where the spectrum is evaluated
+        plist: List of tuples containing (frequency, intensity) pairs
+        lw: Lorentzian width parameter
+
+    Returns:
+        np_float: Array containing the summed Lorentzian profile
+    """
     for freq, intensit in plist:
         try:
             result += lorentz(linspace, freq, intensit, lw)  # type: ignore # nopep8
@@ -309,6 +413,20 @@ def add_lorentzians(linspace: np_float, plist: list[tuple[float, float]], lw: fl
 
 @njit
 def lorentz(linspace: np_float, freq: float, Intensity: float, lw: float) -> np_float:
+    """Calculate a Lorentzian function for spectral lineshape.
+
+    This function computes the Lorentzian lineshape function used in spectroscopy
+    to model spectral lines.
+
+    Args:
+        linspace: Array of frequency values where the Lorentzian is evaluated
+        freq: Center frequency of the Lorentzian
+        Intensity: Peak intensity of the Lorentzian
+        lw: Lorentzian width parameter
+
+    Returns:
+        np_float: Array containing the Lorentzian function values
+    """
     scaling_factor: float = 0.5 / lw
     return scaling_factor * Intensity * ((0.5 * lw) ** 2 / ((0.5 * lw) ** 2 + (linspace - freq) ** 2))
 
@@ -365,8 +483,22 @@ def qm_multiplet(freq: float | int, nIntergals: int, JCoups: list[tuple[float, i
 
 
 class Multiplet:
+    """Class to represent and calculate multiplet structures from coupling parameters.
+
+    This class handles the calculation of multiplet patterns from initial signal
+    parameters and coupling constants, including JCoups and delta values.
+
+    Args:
+        freq: Central frequency of the multiplet
+        nIntergals: Number of integrals (intensity scaling factor)
+        JCoups: List of (coupling_constant, multiplicity) tuples
+        delta: List of delta parameters for each coupling
+        _verbose: Flag for verbose output during calculations
+        w: Width parameter for Lorentzian functions (default: 0.5)
+    """
 
     def __init__(self, freq: float, nIntergals: int, JCoups: list[tuple[float, int]], delta: list[float], _verbose: bool, w: float = 0.5) -> None:
+
         self.freq: float = freq
         self.nIntergals: int = nIntergals
         self.JCoups: list[tuple[float, int]] = JCoups
@@ -376,10 +508,16 @@ class Multiplet:
         self._verbose: bool = _verbose
 
     def _refresh(self) -> None:
+        """Refresh the peaklist by recalculating multiplet structure."""
         self._peaklist = multiplet(
             (self.freq, self.nIntergals), self.JCoups, self.delta)
 
     def peaklist(self) -> list:
+        """Get the current peaklist, refreshing it if necessary.
+
+        Returns:
+            list: List of (frequency, intensity) tuples representing peaks
+        """
         self._refresh()
         if self._verbose:
             ic(self._peaklist)
@@ -387,6 +525,19 @@ class Multiplet:
 
 
 def multiplet(signal: tuple[float, int], JCoups: list[tuple[float, int]], delta: list[float]) -> list[tuple[float, float]]:
+    """Generate multiplet peaks from initial signal and coupling parameters.
+
+    This function creates a multiplet pattern by applying successive doublet
+    transformations to an initial signal based on coupling constants and delta values.
+
+    Args:
+        signal: Initial (frequency, intensity) tuple
+        JCoups: List of (coupling_constant, multiplicity) tuples
+        delta: List of delta parameters for each coupling
+
+    Returns:
+        list[tuple[float, float]]: List of final (frequency, intensity) pairs
+    """
     res: list = [signal]
     for idx, JCoup in enumerate(JCoups):
         for _ in range(JCoup[1]):
@@ -395,6 +546,18 @@ def multiplet(signal: tuple[float, int], JCoups: list[tuple[float, int]], delta:
 
 
 def reduce_peaks(plist_: list[tuple[float, float]], tolerance: float = 0.02) -> list[tuple[float, float]]:
+    """Reduce closely spaced peaks into combined peaks within a tolerance.
+
+    This function groups nearby peaks (within the specified tolerance) and
+    combines them into single peaks with averaged frequencies and summed intensities.
+
+    Args:
+        plist_: List of tuples containing (frequency, intensity) pairs
+        tolerance: Frequency tolerance for peak grouping (default: 0.02)
+
+    Returns:
+        list[tuple[float, float]]: List of reduced (frequency, intensity) pairs
+    """
     res: list[tuple[float, float]] = []
     work: list[tuple[float, float]] = []  # an accumulator of peaks to be added
     plist: list[tuple[float, float]] = sorted(plist_)
@@ -414,6 +577,17 @@ def reduce_peaks(plist_: list[tuple[float, float]], tolerance: float = 0.02) -> 
 
 
 def add_peaks(plist: list[tuple[float, float]]) -> tuple[float, float]:
+    """Calculate weighted average frequency and total intensity from peak list.
+
+    This function computes the average frequency and sum of intensities from
+    a list of frequency-intensity pairs.
+
+    Args:
+        plist: List of tuples containing (frequency, intensity) pairs
+
+    Returns:
+        tuple[float, float]: (average frequency, total intensity)
+    """
     freq_total = 0
     intensit_total = 0
     for freq, intensit in plist:
@@ -423,6 +597,19 @@ def add_peaks(plist: list[tuple[float, float]]) -> tuple[float, float]:
 
 
 def _doublet(plist: list[tuple[float, int]], JCoups: float, delta: float) -> list[tuple[float, float]]:
+    """Calculate doublet splitting from JCoups and delta parameters.
+
+    This function computes the frequency and intensity of doublet peaks resulting
+    from spin-spin coupling (JCoups) and frequency offset (delta).
+
+    Args:
+        plist: List of tuples containing (frequency, intensity) pairs
+        JCoups: Coupling constant between spins
+        delta: Frequency offset parameter
+
+    Returns:
+        list[tuple[float, float]]: List of (frequency, intensity) pairs for doublet peaks
+    """
     # see http://www.ebyte.it/library/docs/kts/KTS_isoAB_Geometry.html
     # if c is positive, peaks must be the left of doublet is more low and the right is more high
     # if c is negative, peaks must be the left of doublet is more high and the right is more low
