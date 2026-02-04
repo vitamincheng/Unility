@@ -88,8 +88,16 @@ class Topo():
             for key, value in Neighbors_H_atom.items():
                 if idx == value:
                     addition.append(key)
+
+        # Merge lists
         Res = Res + addition
-        Res.sort()
+        Res_ints = [int(a) for a in Res]
+        Res_ints.sort()
+        Res = [AtomID(i) for i in Res_ints]
+
+        # Res = Res + addition
+        # Res.sort()
+
         if _print:
             print(f" Terminal_Atoms_int (include H) : {Res}")
         return Res

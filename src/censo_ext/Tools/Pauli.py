@@ -112,5 +112,5 @@ class PauliComposer:
         return ss.csr_matrix((self.mat, (self.row, self.col)),
                              shape=(self.dim, self.dim))
 
-    def to_matrix(self):
+    def to_matrix(self) -> np.ndarray:
         return self.to_sparse().toarray()

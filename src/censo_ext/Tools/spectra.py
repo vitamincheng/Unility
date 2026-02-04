@@ -16,10 +16,13 @@ def numpy_thr_mean_3(x_in: npt.NDArray[np.float64]) -> float:
         Calculated threshold value.
     """
 
+    if len(x_in) == 0:
+        return 0.0
+
     x: npt.NDArray[np.float64] = np.sort(x_in.flatten())
-    median_025: float = x[int(len(x)*0.25)]
-    median_075: float = x[int(len(x)*0.75)]
-    median: float = x[int(len(x)*0.50)]
+    median_025: float = np.percentile(x, 25).astype(float)
+    median_075: float = np.percentile(x, 75).astype(float)
+    median: float = np.percentile(x, 50).astype(float)
 
     return float((median_075 - median_025 + median)*3)
 
@@ -38,10 +41,14 @@ def numpy_thr(x_in: npt.NDArray[np.float64], multi: float) -> float:
         Calculated threshold value.
     """
 
+    if len(x_in) == 0:
+        return 0.0
+
     x: npt.NDArray[np.float64] = np.sort(x_in.flatten())
     start_mean: float = float(np.mean(x[0:int(len(x)*0.05)]))
-    median: float = x[int(len(x)*0.50)]
-    return (median - start_mean*20/19+median)*multi
+    median: float = np.percentile(x, 50).astype(float)
+
+    return (median - start_mean*20/19 + median)*multi
 
 
 def find_nearest(x_in: list[float] | npt.NDArray[np.float64], value) -> tuple[float, int]:
