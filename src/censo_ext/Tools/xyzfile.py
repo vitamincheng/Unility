@@ -222,37 +222,36 @@ class Geometry():
         else:
             self.method_computeCOM()
 
-        # _coord = self.coord - self.com
-        # moi = np.zeros((3, 3), dtype=np.float64)
-        # for i in range(self.nAtoms):
-        #    at_mass = self.mass[i]
-        #    for p in range(3):
-        #        for q in range(3):
-        #            if (p == q):
-        #                r = (p+1) % 3
-        #                s = (p+2) % 3
-        #                moi[p][p] += at_mass * \
-        #                    (_coord[i][r]**2 + _coord[i][s]**2)
-        #            else:
-        #                moi[p][q] += -at_mass * \
-        #                    _coord[i][p] * _coord[i][q]
-        # value, vectors = np.linalg.eig(moi)
+        _coord = self.coord - self.com
+        moi = np.zeros((3, 3), dtype=np.float64)
+        for i in range(self.nAtoms):
+            at_mass = self.mass[i]
+            for p in range(3):
+                for q in range(3):
+                    if (p == q):
+                        r = (p+1) % 3
+                        s = (p+2) % 3
+                        moi[p][p] += at_mass * \
+                            (_coord[i][r]**2 + _coord[i][s]**2)
+                    else:
+                        moi[p][q] += -at_mass * \
+                            _coord[i][p] * _coord[i][q]
+        value, vectors = np.linalg.eig(moi)
 
         # glm-4.7 02/04/2026  ===== start
-        coords = self.coord - self.com
-
+        # coords = self.coord - self.com
+        #
         # Numpy einsum implementation: I_ij = -sum(m * (r_i * r_j - delta_ij * r^2))
         # Using vectorized operations is significantly faster than nested loops for large N
-        r_sq = np.einsum('...i,...i', coords, coords)  # |r|^2
-        r_outer = np.einsum('...i,...j', coords, coords)  # r_i * r_j
-        mass = self.mass.reshape(-1, 1)  # Reshape mass to column vector
-
-        moi = -np.einsum('i,ij->ij', mass, r_outer) + \
-            np.einsum('i,i->i', mass, r_sq) * np.eye(3)
-
+        # r_sq = np.einsum('...i,...i', coords, coords)  # |r|^2
+        # r_outer = np.einsum('...i,...j', coords, coords)  # r_i * r_j
+        # mass = self.mass.reshape(-1, 1)  # Reshape mass to column vector
+        #
+        # moi = -np.einsum('i,ij->ij', mass, r_outer) + \
+        #    np.einsum('i,i->i', mass, r_sq) * np.eye(3)
+        #
+        # value, vectors = np.linalg.eig(moi)
         # glm-4.7 02/04/2026 ===== end
-
-        value, vectors = np.linalg.eig(moi)
 
         _args = np.argmax(np.abs(vectors), axis=0)
         self.inertia = value[_args]
