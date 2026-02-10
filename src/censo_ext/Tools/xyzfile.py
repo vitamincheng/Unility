@@ -343,10 +343,11 @@ class Geometry():
         # for orca program outcome
         # Coordinates from ORCA-job template Relaxed Surface Scan Step 1 E
         from censo_ext.Tools.utility import function_is_float
-        if not function_is_float(comments[0]) and function_is_float(self.comment.split()[-1]):
-            comments = []
-            comments.append(self.comment.split()[-1])
-            # print(comments)
+        if not comments == []:
+            if not function_is_float(comments[0]) and function_is_float(self.comment.split()[-1]):
+                comments = []
+                comments.append(self.comment.split()[-1])
+                # print(comments)
 
         if comments == []:
             print(" Your xyz file have not any about Energy and Cluster !!!")
