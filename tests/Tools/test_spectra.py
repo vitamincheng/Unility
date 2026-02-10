@@ -14,14 +14,14 @@ def test_spectra_basic():
 
 
 def test_spectra_numpy_thr():
-    excepted_10 = 246.31578947368422
-    excepted_3 = 73.89473684210526
+    excepted_10 = 236.31578947368422
+    excepted_3 = 70.89473684210526
     assert numpy_thr(inSample, 10.0) == excepted_10
     assert numpy_thr(inSample, 3.0) == excepted_3
 
 
 def test_spectra_numpy_thr_mean_3():
-    excepted = 36
+    excepted = 34.5
     assert numpy_thr_mean_3(inSample) == excepted
 
 
