@@ -14,7 +14,7 @@ ________________________________________________________________________________
 def cml() -> argparse.Namespace:
     """ Get args object from commandline interface. Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description="descr",
+        description=f"{descr}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS)
     parser.add_argument(
@@ -51,7 +51,7 @@ def cml() -> argparse.Namespace:
         required=False,
         type=float,
         default=1.0,
-        help="Provide the shift ppm [default 1.0]",
+        help="Provide the intensity value [default 1.0]",
     )
     args: argparse.Namespace = parser.parse_args()
     return args
