@@ -73,8 +73,7 @@ def cml() -> argparse.Namespace:
         help="end point of chemical shift [default from data]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 # global variable

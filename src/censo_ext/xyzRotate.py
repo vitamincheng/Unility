@@ -91,8 +91,7 @@ def cml() -> argparse.Namespace:
         help="Print output to screen [default False]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

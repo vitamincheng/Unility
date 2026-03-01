@@ -37,8 +37,7 @@ def cml() -> argparse.Namespace:
         help="Provide two input_file name ",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def cal_RMSD(xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int) -> float:

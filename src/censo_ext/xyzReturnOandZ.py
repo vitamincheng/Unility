@@ -90,8 +90,7 @@ def cml() -> argparse.Namespace:
         help="Automatically search for the minimum deviation setting origin of all atoms [default False]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

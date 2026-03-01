@@ -95,8 +95,7 @@ def cml():
         default=10,
         help="opt maxmium cycles [default: 10]",
     )
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 if __name__ == "__main__":

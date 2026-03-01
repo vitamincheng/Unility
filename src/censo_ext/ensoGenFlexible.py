@@ -69,8 +69,7 @@ def cml() -> argparse.Namespace:
         help="Degrees of Temperature [defalut 298.15 K]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 # global variable

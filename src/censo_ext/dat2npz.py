@@ -28,8 +28,7 @@ def cml() -> argparse.Namespace:
         required=True,
         help="Provide one input dat/npz file",
     )
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

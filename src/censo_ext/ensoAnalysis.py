@@ -92,8 +92,7 @@ def cml() -> argparse.Namespace:
         help="ONOFF in anmr_enso",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def Boltzmann_enso(np_enso: npt.NDArray, TEMP: float) -> npt.NDArray:

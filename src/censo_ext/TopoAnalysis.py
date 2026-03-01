@@ -75,8 +75,7 @@ def cml() -> argparse.Namespace:
         help="Auto mode of saved files by use xyzReturnOandZ [default False]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def cal_RMSD(_xyzFile: GeometryXYZs, idx1_p: int, idx1_q: int, bond_broken: tuple[int, int]) -> float:

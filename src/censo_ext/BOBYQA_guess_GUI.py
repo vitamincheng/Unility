@@ -135,8 +135,7 @@ def cml() -> argparse.Namespace:
         help="Cut cID peak to two peaks by lowest point",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 # global variable

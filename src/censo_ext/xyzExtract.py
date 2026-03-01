@@ -54,8 +54,7 @@ def cml() -> argparse.Namespace:
         help="To extract the index number of xyz file [required]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

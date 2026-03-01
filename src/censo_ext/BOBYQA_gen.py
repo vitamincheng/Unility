@@ -83,8 +83,7 @@ def cml() -> argparse.Namespace:
         help="index of the peaks in peaks.npz [default None]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

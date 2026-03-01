@@ -41,8 +41,7 @@ def cml() -> argparse.Namespace:
         help="Provide input_file name [default 1r.jdx]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def search_string_in_file(file_name, string_to_search):

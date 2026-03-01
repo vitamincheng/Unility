@@ -33,8 +33,7 @@ def cml() -> argparse.Namespace:
         help="COPY the orcaJ.out.backup to orca.out [default False]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def Atom_Equivalent(file: Path | str = Path("anmrh.out")) -> list[list[AtomID]]:

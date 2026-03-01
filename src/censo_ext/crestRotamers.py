@@ -60,8 +60,7 @@ def cml() -> argparse.Namespace:
         help="Add atom's index (for -SH -OH -NH)",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

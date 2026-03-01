@@ -71,8 +71,7 @@ def cml() -> argparse.Namespace:
         type=float,
         help="Start plotting from '<start>' ppm and End plotting from '<end>' ppm in C spectra",
     )
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def Load_Directory(args) \

@@ -67,8 +67,7 @@ def cml() -> argparse.Namespace:
         default="output.xyz",
         help="Output xyz file [default output.xyz]",
     )
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def read_xyz_file(fileName: str | Path) -> GeometryXYZs:

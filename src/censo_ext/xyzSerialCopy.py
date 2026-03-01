@@ -39,8 +39,7 @@ def cml() -> argparse.Namespace:
         default="output.xyz",
         help="Provide one output xyz file [default output.xyz]",
     )
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

@@ -83,8 +83,7 @@ def cml() -> argparse.Namespace:
         help="phase of spectra (1 to -1) [default 1.0]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

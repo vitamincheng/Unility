@@ -40,8 +40,7 @@ def cml() -> argparse.Namespace:
         nargs=4,
         help="Provide three idx1 of atom's nubmers of Dihedral",
     )
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 type cell_4AtomIDs = tuple[AtomID, AtomID, AtomID, AtomID]

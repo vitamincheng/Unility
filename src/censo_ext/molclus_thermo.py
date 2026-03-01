@@ -104,8 +104,7 @@ def cml() -> argparse.Namespace:
         help="set the temperature degree K [default 298.15 K]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def thermo_process(args) -> list[str]:

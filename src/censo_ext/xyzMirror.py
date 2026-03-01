@@ -71,8 +71,7 @@ def cml() -> argparse.Namespace:
         help="Replace the original input file [default False]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def Mirror_process(_xyzFile: GeometryXYZs, _atom: None | list[AtomID]) -> None:

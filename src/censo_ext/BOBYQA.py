@@ -102,8 +102,7 @@ def cml() -> argparse.Namespace:
         help="line width of scan nmr [default 2.0 for H, 40.0 for C]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 class global_variable():

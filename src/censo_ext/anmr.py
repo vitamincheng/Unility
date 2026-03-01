@@ -201,8 +201,7 @@ def cml() -> argparse.Namespace:
         help="Automated to adjust the threshold of AB quartet [defalut False]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def normalize_peaklist(peaklist: list[tuple[float, float]], nIntegrals: int) -> list[tuple[float, float]]:

@@ -91,8 +91,7 @@ def cml() -> argparse.Namespace:
         help="End ppm of Chemical Shift [default from Data]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 class diagram:

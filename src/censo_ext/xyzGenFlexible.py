@@ -75,8 +75,7 @@ def cml() -> argparse.Namespace:
         help="Number of cuts to make in 360 degrees around the rotation axis [default 3]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def read_data(_xyzFile: GeometryXYZs, _verbose: bool) -> tuple[dict[AtomID, npt.NDArray[np.int64]], list[list[AtomID]], list[set[int]], dict[AtomID, int], dict[AtomID, int], dict]:

@@ -136,8 +136,7 @@ def cml() -> argparse.Namespace:
         help="Factor Filter",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def cal_RMSD_coord(_args: argparse.Namespace, xyzFile: GeometryXYZs, idx1_cal: list[int]) -> npt.NDArray[np.float64]:

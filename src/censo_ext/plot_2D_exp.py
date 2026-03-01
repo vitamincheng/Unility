@@ -91,8 +91,7 @@ def cml() -> argparse.Namespace:
         action="store_true",
         help="verbose mode [default False]",
     )
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def read_from_bruker(fileName: str, DeltaF1: float, DeltaF2: float) -> tuple[dict, npt.NDArray]:

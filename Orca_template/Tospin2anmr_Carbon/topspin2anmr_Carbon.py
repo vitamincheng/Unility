@@ -42,8 +42,7 @@ def cml() -> argparse.Namespace:
         help="Provide input_file format [default 1r]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def search_string_in_file(file_name, string_to_search):

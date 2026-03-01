@@ -79,8 +79,7 @@ def cml() -> argparse.Namespace:
         help="dpi 10000(for H), 100(for C) [default 10000]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:

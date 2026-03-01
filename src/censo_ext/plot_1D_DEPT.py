@@ -77,8 +77,7 @@ def cml() -> argparse.Namespace:
         help="Saved the report of carbon [default False]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 # global variable

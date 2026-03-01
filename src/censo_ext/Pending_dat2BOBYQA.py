@@ -93,8 +93,7 @@ def cml() -> argparse.Namespace:
         help="threshold of baseline [default 10]",
     )
 
-    args: argparse.Namespace = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(args: argparse.Namespace = argparse.Namespace()) -> None:
