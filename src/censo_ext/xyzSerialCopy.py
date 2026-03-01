@@ -18,8 +18,8 @@ ________________________________________________________________________________
 def cml() -> argparse.Namespace:
     """ Get args object from commandline interface. Needs argparse module."""
     parser = argparse.ArgumentParser(
-        description=f"{descr}",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        # description=f"{descr}",
+        # formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=argparse.SUPPRESS)
     parser.add_argument(
         "-i",
