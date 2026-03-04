@@ -114,6 +114,10 @@ def main(args: argparse.Namespace = argparse.Namespace()) -> None:
 
         write_xyz_file(outFile=outFile, fileName=args.out)
 
+    except FileNotFoundError as e:
+        print(f"Input file not found: {e}")
+        exit(1)
+
     except Exception as e:
         print(f"An error occurred: {e}")
         print("  Exit and Close the program !!!")
