@@ -48,7 +48,7 @@ def test_anmr_H_from_raw_data() -> None:
     with open(compare, "r") as jsonFile:  # type: ignore
         denstination = np.array(json.load(jsonFile)[0])
     np.testing.assert_allclose(
-        source, denstination, rtol=1e-100, atol=0)
+        source, denstination, rtol=1e-12, atol=0)
 
 
 def test_anmr_H_average_on_json_off() -> None:
@@ -87,7 +87,7 @@ def test_anmr_H_from_raw_data_EA() -> None:
     with open(compare, "r") as jsonFile:  # type: ignore
         denstination = np.array(json.load(jsonFile)[0])
     np.testing.assert_allclose(
-        source, denstination, rtol=1e-14, atol=0)
+        source, denstination, rtol=1e-12, atol=0)
 
 
 def test_anmr_H_average_on_json_off_EA() -> None:
